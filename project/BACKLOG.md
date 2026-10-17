@@ -3,7 +3,9 @@
 Ideas parked, not scheduled. Pull into project/TODO.md when picked up.
 
 ## Extractors
-- [ ] `kuda-lsp` impl — SCIP / workspace-symbol crawl for cross-file
+- [ ] `kuda-lsp` impl (wanted next)
+- [ ] `kuda-acp` impl — ACP (Agent Client Protocol) surface so any
+      agent client (cline, cursor, zed) queries the index natively — SCIP / workspace-symbol crawl for cross-file
       refs where a server exists (rust-analyzer, gopls, tsserver)
 - [ ] Per-lang data packs: python, ts, go, java — grammar+query files
       under `data/langs/`
