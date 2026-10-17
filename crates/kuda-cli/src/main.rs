@@ -313,14 +313,14 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
         .unwrap_or_else(|| "repo".into());
     let prov = Provenance {
         files: ext.files.clone(),
-        hashes: hash_files(dir, &ext.files),
+        hashes: hash_files(&dir, &ext.files),
         commit_sha: sha.clone(),
         generated_at: now.clone(),
         generator: "kuda/0.1.0".into(),
     };
     let repo_card = RepoCard {
         name,
-        root: dir.clone(),
+        root: dir.to_path_buf(),
         purpose: String::new(),
         modules: module_names.clone(),
         commands: detect_commands(&dir),
@@ -395,7 +395,7 @@ fn status(cli: &Cli) -> i32 {
         eprintln!("no .kuda/modules — run `kuda sync` first");
         return 2;
     };
-    let head = kuda_git::GitVcs.head_sha(dir).unwrap_or_default();
+    let head = kuda_git::GitVcs.head_sha(&dir).unwrap_or_default();
     let (mut fresh, mut drifted) = (0, 0);
     for e in entries.flatten() {
         let p = e.path();
@@ -405,7 +405,7 @@ fn status(cli: &Cli) -> i32 {
             else {
                 continue;
             };
-            let hashes = hash_files(dir, &card.provenance.files);
+            let hashes = hash_files(&dir, &card.provenance.files);
             let stale = card
                 .provenance
                 .hashes
