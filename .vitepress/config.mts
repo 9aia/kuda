@@ -34,7 +34,9 @@ export default defineConfig({
         items: [
           { text: "Multi-repo", link: "/how-to/multi-repo" },
           { text: "MCP server", link: "/how-to/mcp" },
-          { text: "LLM summarizer", link: "/how-to/llm-summarizer" },
+          { text: "ACP surface", link: "/how-to/acp" },
+          { text: "Add a language", link: "/how-to/languages" },
+          { text: "Summarizers", link: "/how-to/llm-summarizer" },
         ],
       },
       {
@@ -42,6 +44,7 @@ export default defineConfig({
         items: [
           { text: "CLI", link: "/reference/cli" },
           { text: "Config", link: "/reference/config" },
+          { text: "Card schema", link: "/reference/cards" },
           { text: "Crate API", link: "/reference/crate-api" },
         ],
       },
