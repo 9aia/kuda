@@ -1,11 +1,11 @@
 [package]
 name = "kuda"
-description = "kuda — the oxpecker on your repo's back: headless CI CLI"
+description = "kuda — a hippocampus for your codebase: repo memory CLI"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
-keywords = ["ci", "kuda"]
+keywords = ["code-intelligence", "kuda"]
 categories = ["development-tools"]
 
 [[bin]]
@@ -14,39 +14,7 @@ path = "src/main.rs"
 
 [dependencies]
 kuda-core.workspace = true
-kuda-vcs.workspace = true
-kuda-git.workspace = true
-kuda-queue.workspace = true
-kuda-queue-redb.workspace = true
-kuda-secret.workspace = true
-kuda-keyring.workspace = true
-kuda-dotenv.workspace = true
-kuda-service.workspace = true
 kuda-config.workspace = true
-kuda-cache.workspace = true
-kuda-cache-sccache.workspace = true
 kuda-config-toml.workspace = true
-kuda-trigger.workspace = true
-kuda-status.workspace = true
-kuda-runner.workspace = true
-kuda-dagger.workspace = true
-kuda-shell.workspace = true
-kuda-ssh.workspace = true
-kuda-tunnel.workspace = true
-kuda-cloudflared.workspace = true
-kuda-github.workspace = true
-tiny_http = "0.12"
-clap = { version = "4", features = ["derive"] }
-kuda-systemd.workspace = true
-serde_json = "1"
-ureq = { version = "3" }
-clap-markdown = "0.1.5"
-dirs = "7.0.0"
-toml = "0.8"
-
-[dev-dependencies]
-hmac = "0.12"
-sha2 = "0.10"
-hex = "0.4"
-ureq = { version = "3" }
-
+clap.workspace = true
+toml.workspace = true

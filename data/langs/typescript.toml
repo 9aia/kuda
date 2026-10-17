@@ -1,0 +1,4 @@
+name = "typescript"
+extensions = [".ts", ".tsx"]
+manifests = ["package.json"]
+grammar = "typescript"

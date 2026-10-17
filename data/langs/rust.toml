@@ -1,0 +1,7 @@
+# Language descriptor — data, not code (ADR-0001).
+name = "rust"
+extensions = [".rs"]
+manifests = ["Cargo.toml"]
+grammar = "rust"
+# symbol_query = '''(tree-sitter query for pub items — lands with
+#   the kuda-treesitter impl)'''

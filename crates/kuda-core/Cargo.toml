@@ -1,11 +1,11 @@
 [package]
 name = "kuda-core"
-description = "kuda domain core: config types, job queues, shared primitives — no ports, no integrations"
+description = "kuda domain core: cards, symbols, edges, provenance — no ports, no integrations"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
-keywords = ["ci", "kuda"]
+keywords = ["code-intelligence", "kuda"]
 categories = ["development-tools"]
 
 [dependencies]

@@ -1,0 +1,13 @@
+[package]
+name = "kuda-summarize"
+description = "Summarize port — Extraction -> ModuleCard"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords = ["code-intelligence", "kuda"]
+categories = ["development-tools"]
+
+[dependencies]
+kuda-core.workspace = true
+kuda-extract.workspace = true

@@ -1,0 +1,14 @@
+[package]
+name = "kuda-store-sqlite"
+description = "Store impl: sqlite L2 symbol/dep graph"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords = ["code-intelligence", "kuda"]
+categories = ["development-tools"]
+
+[dependencies]
+kuda-core.workspace = true
+kuda-store.workspace = true
+rusqlite = { version = "0.32", features = ["bundled"] }

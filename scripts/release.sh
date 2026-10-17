@@ -16,27 +16,24 @@ if [ -z "$last" ]; then
 fi
 changed="$(git diff --name-only "${last}..HEAD")"
 
+# workspace crates in publish order (path-deps first)
+order="kuda-core kuda-vcs kuda-config kuda-secret \
+kuda-extract kuda-store kuda-summarize kuda-cards \
+kuda-git kuda-config-toml kuda-keyring kuda-dotenv \
+kuda-manifest kuda-store-sqlite kuda-template \
+kuda-query kuda"
+
 touched=""
-for c in kuda-core kuda-runner kuda-tunnel kuda-trigger kuda-status \
-         kuda-vcs kuda-queue kuda-service kuda-secret kuda-config kuda-cache \
-         kuda-git kuda-queue-redb kuda-keyring kuda-dotenv kuda-config-toml kuda-cache-sccache \
-         kuda-dagger kuda-shell kuda-github kuda-cloudflared \
-         kuda-systemd kuda-cli; do
+for c in $order kuda-cli; do
     grep -q "^crates/$c/" <<<"$changed" && touched="$touched $c"
 done
 # the bin re-publishes whenever any crate changed
 [ -n "$touched" ] && touched="$touched kuda"
 if [ -z "$touched" ]; then echo "no crate changes since $last"; exit 0; fi
-
-order="kuda-core kuda-trigger kuda-status kuda-runner \
-kuda-tunnel kuda-vcs kuda-queue kuda-service kuda-secret kuda-config kuda-cache \
-kuda-dagger kuda-shell kuda-github kuda-cloudflared \
-kuda-git kuda-queue-redb kuda-keyring kuda-dotenv kuda-config-toml kuda-cache-sccache \
-kuda-systemd kuda"
-published=""
+published=""; tags=""
 for c in $order; do
-    p="${c}"; [ "$c" = kuda ] && p="kuda"   # cli package name
-    dir="crates/$c"
+    p="${c}"; cdir="$c"
+    [ "$c" = kuda ] && cdir="kuda-cli"      # cli package dir
     grep -q " ${c} \|^${c} \?$\| ${c}$" <<<" $touched " || continue
     cargo set-version -p "$p" --bump patch
     for i in 1 2 3 4 5; do
@@ -44,7 +41,7 @@ for c in $order; do
     done
     published="$published $p"
     # Per-crate tag — versions diverge independently in a monorepo.
-    ver_c="$(grep -m1 '^version' "crates/$p/Cargo.toml" | cut -d'"' -f2)"
+    ver_c="$(grep -m1 '^version' "crates/$cdir/Cargo.toml" | cut -d'"' -f2)"
     tags="$tags $p-v$ver_c"
 done
 

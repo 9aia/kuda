@@ -1,0 +1,13 @@
+[package]
+name = "kuda-query"
+description = "Query engine — find/dependents/card/refs over the index"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords = ["code-intelligence", "kuda"]
+categories = ["development-tools"]
+
+[dependencies]
+kuda-core.workspace = true
+kuda-store.workspace = true

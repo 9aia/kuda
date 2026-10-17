@@ -26,10 +26,8 @@
       every card ends with `verify:` file list
 
 ## Scaffold debt (forked from bupha — rewrite crate-by-crate)
-- [ ] Crates still implement bupha's CI domain. Per ADR-0001:
-      repurpose `kuda-core`/`kuda-config*`/`kuda-secret*`/`kuda-vcs`/
-      `kuda-git`/`kuda-cli`; drop `kuda-trigger`, `kuda-queue*`,
-      `kuda-runner`/`kuda-dagger`/`kuda-shell`, `kuda-tunnel*`,
-      `kuda-service`/`kuda-systemd`, `kuda-status`, `kuda-github`,
-      `kuda-cache*`; hold `kuda-ssh` (remote-index candidate).
+- [x] Topology landed: CI crates dropped (recoverable from history
+      incl. `kuda-ssh`), ports+first impls stubbed, `kuda-core`
+      rewritten to the card/symbol/provenance domain, `kuda` CLI
+      skeleton parses all subcommands (`init`/`doctor` work).
 - [ ] `modules/dagger` — keep as kuda's own CI module (dogfoods bupha).

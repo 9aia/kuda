@@ -5,15 +5,25 @@ fn tmp(tag: &str) -> std::path::PathBuf {
     std::env::temp_dir().join(format!("kuda-cfg-{}-{tag}.toml", std::process::id()))
 }
 
+const CFG: &str = r#"
+[extract]
+kinds = ["manifest", "treesitter"]
+[summarize]
+kind = "template"
+[store]
+kind = "sqlite"
+"#;
+
 #[test]
 fn loads_via_env_var() {
     let f = tmp("a");
-    std::fs::write(&f, "[trigger]\nkind = \"github\"\n[runner]\nkind = \"shell\"\ncmd = \"true\"\n[status]\nkind = \"log\"\n[[repo]]\nname = \"o/r\"\ndir = \"/tmp/r\"\n").unwrap();
+    std::fs::write(&f, CFG).unwrap();
     unsafe {
         std::env::set_var("KUDA_CONFIG", &f);
     }
     let c = TomlSource { path: None }.load().unwrap();
-    assert_eq!(c.repos[0].name, "o/r");
+    assert_eq!(c.summarize.kind, "template");
+    assert_eq!(c.extract.kinds[0], "manifest");
     unsafe {
         std::env::remove_var("KUDA_CONFIG");
     }
@@ -23,13 +33,13 @@ fn loads_via_env_var() {
 #[test]
 fn explicit_path_and_missing_error() {
     let f = tmp("b");
-    std::fs::write(&f, "[trigger]\nkind = \"github\"\n[runner]\nkind = \"shell\"\ncmd = \"true\"\n[status]\nkind = \"log\"\n[[repo]]\nname = \"o/r\"\ndir = \"/tmp/r\"\n").unwrap();
+    std::fs::write(&f, CFG).unwrap();
     let c = TomlSource {
         path: Some(f.to_string_lossy().into()),
     }
     .load()
     .unwrap();
-    assert_eq!(c.repos[0].name, "o/r");
+    assert_eq!(c.store.kind, "sqlite");
     assert!(TomlSource {
         path: Some("/nonexistent/x".into())
     }

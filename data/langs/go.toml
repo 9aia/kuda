@@ -1,0 +1,4 @@
+name = "go"
+extensions = [".go"]
+manifests = ["go.mod"]
+grammar = "go"

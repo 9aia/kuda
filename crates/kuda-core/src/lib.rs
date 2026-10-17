@@ -1,18 +1,268 @@
-//! kuda-core — domain types, `kuda.toml` config, and the latest-wins
-//! queue every runner impl shares.
+//! kuda-core — domain types: cards, symbols, edges, provenance,
+//! and the `kuda.toml` config model. No ports, no integrations.
 //!
-//! The queue is the batch semantic for fast-pushing repos: at most one
-//! run in flight plus one pending sha — newer pushes supersede the
-//! pending one (skipped shas should get a "superseded" status from the
-//! caller). N commits during a run = 1 follow-up run on the newest.
+//! Memory tiers (ADR-0001): L0 [`RepoCard`] (always-load), L1
+//! [`ModuleCard`] (on-demand), L2 [`Symbol`]/[`DepEdge`] graph
+//! (queried). Every card carries [`Provenance`] — staleness is a
+//! property of the data, not a promise in prose.
 
-use serde::Deserialize;
-use std::collections::VecDeque;
+use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-/// A revision is path-safe — rejects path-injection payloads before
-/// the value reaches worktree paths or status URLs. Deliberately not
-/// hex-only: the shape comes from the forge/VCS, not the domain.
+/// Hex content digest of a file at index time — the staleness key.
+/// Algorithm is pinned by the extractor, not the domain.
+pub type ContentHash = String;
+
+/// Where a memory artifact's claims came from. `status` diffs
+/// `commit_sha` vs HEAD and re-hashes `files` — drift is computed,
+/// never assumed.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Provenance {
+    /// Repo-relative paths the artifact describes.
+    pub files: Vec<PathBuf>,
+    /// Parallel to `files` — hash at index time.
+    pub hashes: Vec<ContentHash>,
+    /// Commit the index was built at.
+    pub commit_sha: String,
+    /// RFC3339 build time.
+    pub generated_at: String,
+    /// "kuda-template/0.1.0"-style generator stamp.
+    pub generator: String,
+}
+
+/// A named code element the index tracks.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Symbol {
+    pub name: String,
+    pub kind: SymbolKind,
+    pub file: PathBuf,
+    /// 1-based line of the definition.
+    pub line: u32,
+    /// Owning module/card name — the index's primary grouping key.
+    pub module: String,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum SymbolKind {
+    Function,
+    Type,
+    Trait,
+    Const,
+    Module,
+    Macro,
+    Other,
+}
+
+/// A directed edge in the dep graph — module- or package-level.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DepEdge {
+    pub from: String,
+    pub to: String,
+    pub kind: EdgeKind,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum EdgeKind {
+    Imports,
+    Calls,
+    PackageDep,
+    WorkspaceMember,
+}
+
+/// L1 card — one per module/crate/package. Machine owns `api`/`deps`/
+/// `verify`; humans own `notes` (regen never clobbers it).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ModuleCard {
+    pub name: String,
+    /// Module root (dir or manifest path).
+    pub path: PathBuf,
+    /// One line — template impl takes the first doc line.
+    pub purpose: String,
+    /// Public surface found by extraction.
+    pub api: Vec<Symbol>,
+    /// Outgoing module deps.
+    pub deps: Vec<String>,
+    /// Human-owned region — survives regeneration.
+    #[serde(default)]
+    pub notes: String,
+    /// Files an agent should open before trusting this card.
+    pub verify: Vec<PathBuf>,
+    pub provenance: Provenance,
+}
+
+/// L0 card — the always-load repo summary (~1k tokens rendered).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RepoCard {
+    pub name: String,
+    pub root: PathBuf,
+    /// One-line purpose (README tagline / manifest description).
+    pub purpose: String,
+    /// Module card names — the map.
+    pub modules: Vec<String>,
+    /// Build/test/verify commands (from manifests + known files).
+    pub commands: Vec<String>,
+    pub provenance: Provenance,
+}
+
+/// Language descriptor — loaded from `data/langs/*` at runtime.
+/// A new language is a data change, not an engine change (ADR-0001).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LangDef {
+    pub name: String,
+    /// File extensions including the dot (".rs").
+    pub extensions: Vec<String>,
+    /// Manifest basenames for the `manifest` extractor
+    /// ("Cargo.toml", "package.json").
+    pub manifests: Vec<String>,
+    /// tree-sitter grammar id for the `treesitter` extractor.
+    #[serde(default)]
+    pub grammar: Option<String>,
+    /// tree-sitter symbol query (source text of the query file).
+    #[serde(default)]
+    pub symbol_query: Option<String>,
+}
+
+// ---- kuda.toml config model ----
+
+#[derive(Debug, Deserialize, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct Config {
+    #[serde(default)]
+    pub repo: RepoCfg,
+    #[serde(default)]
+    pub extract: ExtractCfg,
+    #[serde(default)]
+    pub summarize: SummarizeCfg,
+    #[serde(default)]
+    pub store: StoreCfg,
+    #[serde(default)]
+    pub cards: CardsCfg,
+    #[serde(default)]
+    pub workspace: WorkspaceCfg,
+}
+
+#[derive(Debug, Deserialize, Clone, Default)]
+#[serde(deny_unknown_fields)]
+pub struct RepoCfg {
+    /// Defaults to the directory basename.
+    pub name: Option<String>,
+    /// Repo root; default = the toml's dir.
+    #[serde(default)]
+    pub root: Option<PathBuf>,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct ExtractCfg {
+    /// Impl kinds tried in order: "manifest" | "treesitter" | "lsp".
+    #[serde(default = "default_extract_kinds")]
+    pub kinds: Vec<String>,
+    /// Server command for the lsp impl (per-language later).
+    #[serde(default)]
+    pub lsp_server: Option<String>,
+}
+
+impl Default for ExtractCfg {
+    fn default() -> Self {
+        Self {
+            kinds: default_extract_kinds(),
+            lsp_server: None,
+        }
+    }
+}
+
+fn default_extract_kinds() -> Vec<String> {
+    vec!["manifest".into(), "treesitter".into()]
+}
+
+#[derive(Debug, Deserialize, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct SummarizeCfg {
+    /// "template" (deterministic, default) | "llm".
+    #[serde(default = "default_summarize_kind")]
+    pub kind: String,
+    /// Provider id for the llm impl; key resolves via secrets chain.
+    #[serde(default)]
+    pub provider: Option<String>,
+    #[serde(default)]
+    pub model: Option<String>,
+}
+
+impl Default for SummarizeCfg {
+    fn default() -> Self {
+        Self {
+            kind: default_summarize_kind(),
+            provider: None,
+            model: None,
+        }
+    }
+}
+
+fn default_summarize_kind() -> String {
+    "template".into()
+}
+
+#[derive(Debug, Deserialize, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct StoreCfg {
+    #[serde(default = "default_store_kind")]
+    pub kind: String,
+    /// L2 index path — rebuildable, gitignored.
+    #[serde(default = "default_store_path")]
+    pub path: PathBuf,
+}
+
+impl Default for StoreCfg {
+    fn default() -> Self {
+        Self {
+            kind: default_store_kind(),
+            path: default_store_path(),
+        }
+    }
+}
+
+fn default_store_kind() -> String {
+    "sqlite".into()
+}
+fn default_store_path() -> PathBuf {
+    ".kuda/index.sqlite".into()
+}
+
+#[derive(Debug, Deserialize, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct CardsCfg {
+    /// Committed artifacts dir: index.yaml + modules/*.yaml.
+    #[serde(default = "default_cards_dir")]
+    pub dir: PathBuf,
+}
+
+impl Default for CardsCfg {
+    fn default() -> Self {
+        Self {
+            dir: default_cards_dir(),
+        }
+    }
+}
+
+fn default_cards_dir() -> PathBuf {
+    ".kuda".into()
+}
+
+#[derive(Debug, Deserialize, Clone, Default)]
+#[serde(deny_unknown_fields)]
+pub struct WorkspaceCfg {
+    /// Sibling repo roots indexed together.
+    #[serde(default)]
+    pub roots: Vec<PathBuf>,
+    /// Resolve `git = ".../org/repo"` manifest deps to siblings.
+    #[serde(default)]
+    pub resolve_git_deps: bool,
+}
+
+/// A revision-ish string is path-safe — rejects path-injection
+/// before values reach worktree paths. (Kept from the fork.)
 pub fn is_valid_sha(sha: &str) -> bool {
     (7..=64).contains(&sha.len())
         && !sha.contains("..")
@@ -22,352 +272,9 @@ pub fn is_valid_sha(sha: &str) -> bool {
             .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'-' | b'_' | b'.'))
 }
 
-/// How a repo's pending work collapses: `latest` keeps one pending
-/// slot (newest wins — CI gates), `all` runs every push in order
-/// (FIFO, bounded). Per-repo via `[[repo]] queue = "..."`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Default)]
-#[serde(rename_all = "lowercase")]
-pub enum QueuePolicy {
-    #[default]
-    Latest,
-    All,
-}
-
-/// Backlog cap for `all` — overflow evicts the oldest pending sha.
-pub const MAX_PENDING: usize = 32;
-
-/// Bounded dedup set for delivery ids — a replayed webhook reuses the
-/// same id, so `insert` returning false means "already handled".
-/// Oldest ids are evicted past `cap`; memory-only (replays matter
-/// within process uptime).
-pub struct Seen {
-    ids: std::collections::HashSet<String>,
-    order: VecDeque<String>,
-    cap: usize,
-}
-
-impl Seen {
-    pub fn new(cap: usize) -> Self {
-        Seen {
-            ids: Default::default(),
-            order: VecDeque::new(),
-            cap,
-        }
-    }
-    /// true = fresh, false = replay/duplicate.
-    pub fn insert(&mut self, id: String) -> bool {
-        if !self.ids.insert(id.clone()) {
-            return false;
-        }
-        self.order.push_back(id);
-        while self.order.len() > self.cap {
-            if let Some(old) = self.order.pop_front() {
-                self.ids.remove(&old);
-            }
-        }
-        true
-    }
-}
-
-impl Default for Seen {
-    fn default() -> Self {
-        Self::new(10_000)
-    }
-}
-
-/// Queue state. The running child handle lives in the runner/CLI layer
-/// (`ChildSlot`) so enqueue can kill it without blocking on this lock.
-#[derive(Default)]
-pub struct Queue {
-    pub pending: VecDeque<String>,
-    pub running: Option<String>,
-    pub cancelled: bool,
-    pub policy: QueuePolicy,
-}
-
-impl Queue {
-    pub fn with_policy(policy: QueuePolicy) -> Self {
-        Queue {
-            policy,
-            ..Default::default()
-        }
-    }
-
-    /// `latest`: replace the pending sha (old is returned for a
-    /// superseded status). `all`: append; a full backlog evicts the
-    /// oldest, also returned as superseded. `Duplicate` = deduped.
-    pub fn enqueue(&mut self, sha: String) -> EnqueueResult {
-        if self.running.as_deref() == Some(sha.as_str()) || self.pending.iter().any(|s| s == &sha) {
-            return EnqueueResult::Duplicate;
-        }
-        let superseded = match self.policy {
-            QueuePolicy::Latest => self.pending.pop_front(),
-            QueuePolicy::All if self.pending.len() >= MAX_PENDING => self.pending.pop_front(),
-            QueuePolicy::All => None,
-        };
-        self.pending.push_back(sha);
-        EnqueueResult::Queued { superseded }
-    }
-
-    /// Next sha to run, FIFO.
-    pub fn dequeue(&mut self) -> Option<String> {
-        self.pending.pop_front()
-    }
-}
-
-pub enum EnqueueResult {
-    Queued { superseded: Option<String> },
-    Duplicate,
-}
-
-/// kuda.toml — one per watched repo. Secrets come from env only
-/// (`secret_env`/`token_env` name the variables; values never enter
-/// the file).
-#[derive(Debug, Deserialize, Clone, Default)]
-#[serde(deny_unknown_fields)]
-pub struct CacheCfg {
-    /// Backend id ("sccache"; "none"/empty disables).
-    #[serde(default = "default_cache_kind")]
-    pub kind: String,
-    /// Backend conf value (sccache: "file:///dir", "s3://bucket/…").
-    #[serde(default)]
-    pub conf: Option<String>,
-}
-
-fn default_cache_kind() -> String {
-    "sccache".into()
-}
-
-fn default_api_base() -> String {
-    "https://api.github.com".into()
-}
-
-#[derive(Debug, Deserialize, Clone)]
-#[serde(deny_unknown_fields)]
-pub struct Config {
-    /// Watched repos — one pending slot each, one global worker.
-    /// TOML-conventional singular; `repos` kept as alias for
-    /// existing configs.
-    #[serde(rename = "repo", alias = "repos", default)]
-    pub repos: Vec<RepoEntry>,
-    pub trigger: TriggerCfg,
-    pub runner: RunnerCfg,
-    pub status: StatusCfg,
-    /// How the listener is exposed publicly (cloudflared, direct,
-    /// none).
-    #[serde(default)]
-    pub tunnel: TunnelCfg,
-    /// Artifact cache backend (`[cache]`); `runner.sccache_conf` is
-    /// accepted for older configs — `[cache]` wins.
-    #[serde(default)]
-    pub cache: CacheCfg,
-    /// Where detached git worktrees for runs are created.
-    #[serde(default)]
-    pub worktree: WorktreeCfg,
-}
-
-/// One watched repository under `[[repo]]`.
-#[derive(Debug, Deserialize, Clone)]
-#[serde(deny_unknown_fields)]
-pub struct RepoEntry {
-    /// repository.full_name in the webhook payload ("owner/name") —
-    /// also the status target repo.
-    pub name: String,
-    /// Clone to fetch + create detached worktrees from.
-    pub dir: PathBuf,
-    /// The ref to watch (e.g. "refs/heads/main").
-    #[serde(default = "default_branch")]
-    pub branch: String,
-    /// Status repo override (defaults to `name`).
-    #[serde(default)]
-    pub status_repo: Option<String>,
-    /// Per-repo runner override — a full [repo.runner] table replaces
-    /// the global `[runner]` for this repo.
-    #[serde(default)]
-    pub runner: Option<RunnerCfg>,
-    /// Queue policy — `latest` (default) or `all` (run every push).
-    #[serde(default)]
-    pub queue: QueuePolicy,
-}
-
-impl RepoEntry {
-    pub fn status_repo(&self) -> &str {
-        self.status_repo.as_deref().unwrap_or(&self.name)
-    }
-}
-
-/// Resolved view used by the watcher — always a list, even for the
-/// legacy single-repo form.
-#[derive(Debug, Clone)]
-pub struct WatchedRepo {
-    pub name: String,
-    pub dir: PathBuf,
-    pub branch: String,
-    pub status_repo: String,
-    /// Global `[runner]` or the repo's `[repo.runner]` override.
-    pub runner: RunnerCfg,
-    pub policy: QueuePolicy,
-}
-
-impl Config {
-    pub fn watched(&self) -> Result<Vec<WatchedRepo>, String> {
-        let canon = |p: &str| {
-            std::fs::canonicalize(p).unwrap_or_else(|_| p.into())
-        };
-        if !self.repos.is_empty() {
-            return self
-                .repos
-                .iter()
-                .map(|r| {
-                    let runner = r.runner.clone().unwrap_or_else(|| self.runner.clone());
-                    // `all` keeps every push — killing the in-flight run
-                    // would drop a commit that was never superseded.
-                    if r.queue == QueuePolicy::All && runner.cancel_running {
-                        return Err(format!(
-                            "repo {}: queue = \"all\" conflicts with \
-                         runner.cancel_running",
-                            r.name
-                        ));
-                    }
-                    Ok(WatchedRepo {
-                        name: r.name.clone(),
-                        dir: canon(&r.dir.to_string_lossy()).into(),
-                        branch: r.branch.clone(),
-                        status_repo: r.status_repo().to_string(),
-                        runner,
-                        policy: r.queue,
-                    })
-                })
-                .collect();
-        }
-        Err("no [[repo]] entries configured".into())
-    }
-}
-
-#[derive(Debug, Deserialize, Clone)]
-#[serde(deny_unknown_fields)]
-pub struct TriggerCfg {
-    /// Forge API base — GHES ("https://ghe.acme/api/v3") or default
-    /// github.com. Used by the trigger, status, and forge-admin impls.
-    #[serde(default = "default_api_base")]
-    pub api_base: String,
-    /// "github" today; other forges = new impl crates.
-    pub kind: String,
-    /// Webhook listener bind address ("127.0.0.1:9000").
-    #[serde(default = "default_listen")]
-    pub listen: String,
-    /// Env var holding the webhook secret.
-    #[serde(default = "default_secret_env")]
-    pub secret_env: String,
-}
-
-#[derive(Debug, Deserialize, Clone, Default)]
-pub struct RunnerCfg {
-    /// Runner kind: "dagger" | "shell" | "ssh" | impl crates.
-    pub kind: String,
-    /// Env var name holding the forge token (never the value).
-    #[serde(default = "default_token_env")]
-    pub token_env: String,
-    /// Kill an in-flight run when a newer push supersedes it.
-    /// Invalid with `queue = "all"` (rejected at load).
-    #[serde(default)]
-    pub cancel_running: bool,
-    /// Impl-owned fields — the matched impl crate deserializes its
-    /// own config struct from this; core knows none of them.
-    #[serde(flatten)]
-    pub extra: toml::Table,
-}
-
-fn default_token_env() -> String {
-    "KUDA_TOKEN".into()
-}
-
-#[derive(Debug, Deserialize, Clone)]
-#[serde(deny_unknown_fields)]
-pub struct StatusCfg {
-    /// "github" | "log" (stdout only) | "none".
-    #[serde(default = "default_status_kind")]
-    pub kind: String,
-    /// owner/repo for the commit-status API.
-    #[serde(default)]
-    pub repo: String,
-    /// Status context label (e.g. "ci/kuda").
-    #[serde(default = "default_context")]
-    pub context: String,
-}
-
-#[derive(Debug, Deserialize, Clone)]
-#[serde(deny_unknown_fields)]
-pub struct TunnelCfg {
-    /// "none" | "cloudflared" | "direct".
-    #[serde(default = "default_tunnel_provider")]
-    pub provider: String,
-    /// Named tunnel (stable URL); empty = quick tunnel.
-    #[serde(default)]
-    pub name: String,
-    /// Local URL the tunnel forwards to (listener address).
-    #[serde(default = "default_local_url")]
-    pub local_url: String,
-    /// provider=direct: the external URL GitHub should hit.
-    #[serde(default)]
-    pub public_url: String,
-}
-
-impl Default for TunnelCfg {
-    fn default() -> Self {
-        Self {
-            provider: default_tunnel_provider(),
-            name: String::new(),
-            local_url: default_local_url(),
-            public_url: String::new(),
-        }
-    }
-}
-
-#[derive(Debug, Deserialize, Clone)]
-#[serde(deny_unknown_fields)]
-pub struct WorktreeCfg {
-    /// Worktree parent dir — runs land at `<base>-<repo>-<sha12>`.
-    #[serde(default = "default_wt_base")]
-    pub base: String,
-}
-
-impl Default for WorktreeCfg {
-    fn default() -> Self {
-        Self {
-            base: default_wt_base(),
-        }
-    }
-}
-
-fn default_branch() -> String {
-    "refs/heads/main".into()
-}
-fn default_listen() -> String {
-    "127.0.0.1:9000".into()
-}
-fn default_secret_env() -> String {
-    "KUDA_WEBHOOK_SECRET".into()
-}
-fn default_status_kind() -> String {
-    "github".into()
-}
-fn default_context() -> String {
-    "ci/kuda".into()
-}
-fn default_tunnel_provider() -> String {
-    "none".into()
-}
-fn default_local_url() -> String {
-    "http://127.0.0.1:9000".into()
-}
-fn default_wt_base() -> String {
-    "/tmp/kuda".into()
-}
-
-/// Publish order for workspace members: members sorted so every
-/// member's path-deps on other members come first. Returns an error
-/// name on a dependency cycle.
+/// Publish order for workspace members: every member's path-deps on
+/// other members come first. Err on a dependency cycle. Used by
+/// scripts/release.sh.
 pub fn publish_order(members: &[String], deps: &[(String, String)]) -> Result<Vec<String>, String> {
     let member_set: std::collections::HashSet<&str> = members.iter().map(String::as_str).collect();
     let mut done: std::collections::HashSet<String> = Default::default();
@@ -401,16 +308,16 @@ mod tests {
 
     #[test]
     fn order_respects_path_deps() {
-        let members = vec!["kuda".into(), "kuda-core".into(), "kuda-github".into()];
+        let members = vec!["kuda".into(), "kuda-core".into(), "kuda-manifest".into()];
         let deps = vec![
-            ("kuda".into(), "kuda-github".into()),
+            ("kuda".into(), "kuda-manifest".into()),
             ("kuda".into(), "kuda-core".into()),
-            ("kuda-github".into(), "kuda-core".into()),
+            ("kuda-manifest".into(), "kuda-core".into()),
         ];
         let order = publish_order(&members, &deps).unwrap();
         let pos = |n: &str| order.iter().position(|x| x == n).unwrap();
-        assert!(pos("kuda-core") < pos("kuda-github"));
-        assert!(pos("kuda-github") < pos("kuda"));
+        assert!(pos("kuda-core") < pos("kuda-manifest"));
+        assert!(pos("kuda-manifest") < pos("kuda"));
     }
 
     #[test]

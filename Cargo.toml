@@ -2,29 +2,22 @@
 resolver = "2"
 members = [
     "crates/kuda-cli",
-    "crates/kuda-systemd",
     "crates/kuda-core",
-    "crates/kuda-trigger",
+    "crates/kuda-extract",
+    "crates/kuda-manifest",
+    "crates/kuda-store",
+    "crates/kuda-store-sqlite",
+    "crates/kuda-summarize",
+    "crates/kuda-template",
+    "crates/kuda-query",
+    "crates/kuda-cards",
     "crates/kuda-vcs",
     "crates/kuda-git",
-    "crates/kuda-queue",
-    "crates/kuda-queue-redb",
-    "crates/kuda-service",
     "crates/kuda-secret",
     "crates/kuda-keyring",
     "crates/kuda-dotenv",
     "crates/kuda-config",
     "crates/kuda-config-toml",
-    "crates/kuda-cache",
-    "crates/kuda-cache-sccache",
-    "crates/kuda-ssh",
-    "crates/kuda-status",
-    "crates/kuda-github",
-    "crates/kuda-runner",
-    "crates/kuda-dagger",
-    "crates/kuda-shell",
-    "crates/kuda-tunnel",
-    "crates/kuda-cloudflared",
 ]
 
 [workspace.package]
@@ -41,26 +34,24 @@ lto = "thin"
 
 [workspace.dependencies]
 kuda-core = { path = "crates/kuda-core", version = "0.1.0" }
-kuda-trigger = { path = "crates/kuda-trigger", version = "0.1.0" }
+kuda-extract = { path = "crates/kuda-extract", version = "0.1.0" }
+kuda-manifest = { path = "crates/kuda-manifest", version = "0.1.0" }
+kuda-store = { path = "crates/kuda-store", version = "0.1.0" }
+kuda-store-sqlite = { path = "crates/kuda-store-sqlite", version = "0.1.0" }
+kuda-summarize = { path = "crates/kuda-summarize", version = "0.1.0" }
+kuda-template = { path = "crates/kuda-template", version = "0.1.0" }
+kuda-query = { path = "crates/kuda-query", version = "0.1.0" }
+kuda-cards = { path = "crates/kuda-cards", version = "0.1.0" }
 kuda-vcs = { path = "crates/kuda-vcs", version = "0.1.0" }
 kuda-git = { path = "crates/kuda-git", version = "0.1.0" }
-kuda-queue = { path = "crates/kuda-queue", version = "0.1.0" }
-kuda-queue-redb = { path = "crates/kuda-queue-redb", version = "0.1.0" }
-kuda-service = { path = "crates/kuda-service", version = "0.1.0" }
 kuda-secret = { path = "crates/kuda-secret", version = "0.1.0" }
 kuda-keyring = { path = "crates/kuda-keyring", version = "0.1.0" }
 kuda-dotenv = { path = "crates/kuda-dotenv", version = "0.1.0" }
 kuda-config = { path = "crates/kuda-config", version = "0.1.0" }
 kuda-config-toml = { path = "crates/kuda-config-toml", version = "0.1.0" }
-kuda-cache = { path = "crates/kuda-cache", version = "0.1.0" }
-kuda-cache-sccache = { path = "crates/kuda-cache-sccache", version = "0.1.0" }
-kuda-ssh = { path = "crates/kuda-ssh", version = "0.1.0" }
+serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-kuda-status = { path = "crates/kuda-status", version = "0.1.0" }
-kuda-runner = { path = "crates/kuda-runner", version = "0.1.0" }
-kuda-tunnel = { path = "crates/kuda-tunnel", version = "0.1.0" }
-kuda-dagger = { path = "crates/kuda-dagger", version = "0.1.0" }
-kuda-shell = { path = "crates/kuda-shell", version = "0.1.0" }
-kuda-github = { path = "crates/kuda-github", version = "0.1.0" }
-kuda-cloudflared = { path = "crates/kuda-cloudflared", version = "0.1.0" }
-kuda-systemd = { path = "crates/kuda-systemd", version = "0.1.0" }
+serde_yaml = "0.9"
+toml = "0.8"
+clap = { version = "4", features = ["derive"] }
+rusqlite = { version = "0.32", features = ["bundled"] }

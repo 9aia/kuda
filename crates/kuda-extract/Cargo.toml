@@ -1,0 +1,12 @@
+[package]
+name = "kuda-extract"
+description = "Extract port — pull symbols/deps/structure from source trees"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords = ["code-intelligence", "kuda"]
+categories = ["development-tools"]
+
+[dependencies]
+kuda-core.workspace = true

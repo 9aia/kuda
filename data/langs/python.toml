@@ -1,0 +1,4 @@
+name = "python"
+extensions = [".py"]
+manifests = ["pyproject.toml", "setup.py"]
+grammar = "python"
