@@ -9,6 +9,8 @@ use std::path::Path;
 pub trait Vcs: Send + Sync {
     /// Fetch + prune remotes so `sha` can resolve.
     fn sync(&self, repo: &Path) -> bool;
+    /// Current HEAD sha — provenance anchor.
+    fn head_sha(&self, repo: &Path) -> Option<String>;
     /// Does the object exist (after a sync attempt)?
     fn has_commit(&self, repo: &Path, sha: &str) -> bool;
     /// Detached worktree of `sha` at `dir`.

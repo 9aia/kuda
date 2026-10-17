@@ -1,0 +1,24 @@
+name: kuda-cards
+path: crates/kuda-cards/Cargo.toml
+purpose: kuda-cards
+api:
+- name: kuda-cards
+  kind: module
+  file: crates/kuda-cards/Cargo.toml
+  line: 1
+  module: kuda-cards
+deps:
+- kuda-core
+- serde
+- serde_yaml
+notes: ''
+verify:
+- crates/kuda-cards/Cargo.toml
+provenance:
+  files:
+  - crates/kuda-cards/Cargo.toml
+  hashes:
+  - c2232432f5c2b51750ed9406059add07640caa15
+  commit_sha: 3432d05e2794267e0a668e572ce37cc4d59a768c
+  generated_at: '1792276183'
+  generator: kuda-template/0.1.0

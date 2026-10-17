@@ -1,0 +1,26 @@
+name: kuda-manifest
+path: crates/kuda-manifest/Cargo.toml
+purpose: kuda-manifest
+api:
+- name: kuda-manifest
+  kind: module
+  file: crates/kuda-manifest/Cargo.toml
+  line: 1
+  module: kuda-manifest
+deps:
+- kuda-core
+- kuda-extract
+- serde
+- serde_json
+- toml
+notes: ''
+verify:
+- crates/kuda-manifest/Cargo.toml
+provenance:
+  files:
+  - crates/kuda-manifest/Cargo.toml
+  hashes:
+  - 09304a6086811eeff016b23d1f232497106acac0
+  commit_sha: 3432d05e2794267e0a668e572ce37cc4d59a768c
+  generated_at: '1792276183'
+  generator: kuda-template/0.1.0

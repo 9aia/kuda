@@ -213,9 +213,20 @@ name = "kuda"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "kuda-cards",
  "kuda-config",
  "kuda-config-toml",
  "kuda-core",
+ "kuda-extract",
+ "kuda-git",
+ "kuda-manifest",
+ "kuda-query",
+ "kuda-store",
+ "kuda-store-sqlite",
+ "kuda-summarize",
+ "kuda-template",
+ "kuda-vcs",
+ "serde_json",
  "toml",
 ]
 

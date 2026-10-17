@@ -1,0 +1,24 @@
+name: kuda-template
+path: crates/kuda-template/Cargo.toml
+purpose: kuda-template
+api:
+- name: kuda-template
+  kind: module
+  file: crates/kuda-template/Cargo.toml
+  line: 1
+  module: kuda-template
+deps:
+- kuda-core
+- kuda-extract
+- kuda-summarize
+notes: ''
+verify:
+- crates/kuda-template/Cargo.toml
+provenance:
+  files:
+  - crates/kuda-template/Cargo.toml
+  hashes:
+  - abd77bfcf926f8f58b65fe76f7a4f75222ae11a5
+  commit_sha: 3432d05e2794267e0a668e572ce37cc4d59a768c
+  generated_at: '1792276183'
+  generator: kuda-template/0.1.0

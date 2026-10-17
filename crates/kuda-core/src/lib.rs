@@ -126,7 +126,7 @@ pub struct LangDef {
 
 // ---- kuda.toml config model ----
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub struct Config {
     #[serde(default)]

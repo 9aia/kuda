@@ -1,0 +1,22 @@
+name: kuda-git
+path: crates/kuda-git/Cargo.toml
+purpose: kuda-git
+api:
+- name: kuda-git
+  kind: module
+  file: crates/kuda-git/Cargo.toml
+  line: 1
+  module: kuda-git
+deps:
+- kuda-vcs
+notes: ''
+verify:
+- crates/kuda-git/Cargo.toml
+provenance:
+  files:
+  - crates/kuda-git/Cargo.toml
+  hashes:
+  - aec38351b553b4e15d6e7fe0d6889449f042ddbc
+  commit_sha: 3432d05e2794267e0a668e572ce37cc4d59a768c
+  generated_at: '1792276183'
+  generator: kuda-template/0.1.0

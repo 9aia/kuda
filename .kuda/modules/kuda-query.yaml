@@ -1,0 +1,23 @@
+name: kuda-query
+path: crates/kuda-query/Cargo.toml
+purpose: kuda-query
+api:
+- name: kuda-query
+  kind: module
+  file: crates/kuda-query/Cargo.toml
+  line: 1
+  module: kuda-query
+deps:
+- kuda-core
+- kuda-store
+notes: ''
+verify:
+- crates/kuda-query/Cargo.toml
+provenance:
+  files:
+  - crates/kuda-query/Cargo.toml
+  hashes:
+  - c09df8b9f1045151d00b8825259c76bf2e5a1fa7
+  commit_sha: 3432d05e2794267e0a668e572ce37cc4d59a768c
+  generated_at: '1792276183'
+  generator: kuda-template/0.1.0

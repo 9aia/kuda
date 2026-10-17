@@ -1,0 +1,21 @@
+name: kuda-vcs
+path: crates/kuda-vcs/Cargo.toml
+purpose: kuda-vcs
+api:
+- name: kuda-vcs
+  kind: module
+  file: crates/kuda-vcs/Cargo.toml
+  line: 1
+  module: kuda-vcs
+deps: []
+notes: ''
+verify:
+- crates/kuda-vcs/Cargo.toml
+provenance:
+  files:
+  - crates/kuda-vcs/Cargo.toml
+  hashes:
+  - a3f3978c21457dd7be4e34dc16f31231d0a68777
+  commit_sha: 3432d05e2794267e0a668e572ce37cc4d59a768c
+  generated_at: '1792276183'
+  generator: kuda-template/0.1.0

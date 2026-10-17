@@ -1,0 +1,21 @@
+name: dagger
+path: modules/dagger/dagger/pyproject.toml
+purpose: dagger
+api:
+- name: dagger
+  kind: module
+  file: modules/dagger/dagger/pyproject.toml
+  line: 1
+  module: dagger
+deps: []
+notes: ''
+verify:
+- modules/dagger/dagger/pyproject.toml
+provenance:
+  files:
+  - modules/dagger/dagger/pyproject.toml
+  hashes:
+  - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
+  commit_sha: 3432d05e2794267e0a668e572ce37cc4d59a768c
+  generated_at: '1792276183'
+  generator: kuda-template/0.1.0

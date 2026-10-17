@@ -1,0 +1,24 @@
+name: kuda-store-sqlite
+path: crates/kuda-store-sqlite/Cargo.toml
+purpose: kuda-store-sqlite
+api:
+- name: kuda-store-sqlite
+  kind: module
+  file: crates/kuda-store-sqlite/Cargo.toml
+  line: 1
+  module: kuda-store-sqlite
+deps:
+- kuda-core
+- kuda-store
+- rusqlite
+notes: ''
+verify:
+- crates/kuda-store-sqlite/Cargo.toml
+provenance:
+  files:
+  - crates/kuda-store-sqlite/Cargo.toml
+  hashes:
+  - e51e875c9840301a679caeeaa3b5cc56080e7496
+  commit_sha: 3432d05e2794267e0a668e572ce37cc4d59a768c
+  generated_at: '1792276183'
+  generator: kuda-template/0.1.0

@@ -2,10 +2,24 @@
 //! parses kuda.toml, wires impls behind ports, runs subcommands.
 
 use clap::{Parser, Subcommand};
+use kuda_config::ConfigSource;
 use kuda_config_toml::TomlSource;
-use std::path::Path;
+use kuda_core::{Config, LangDef, Provenance, RepoCard};
+use kuda_vcs::Vcs;
+use kuda_extract::Extractor;
+use kuda_store::IndexStore;
+use kuda_summarize::Summarizer;
+use std::collections::BTreeMap;
+use std::path::{Path, PathBuf};
+use std::process::Command;
 
 const EXAMPLE_TOML: &str = include_str!("../../../examples/kuda.toml.example");
+const LANG_TOMLS: &[&str] = &[
+    include_str!("../../../data/langs/rust.toml"),
+    include_str!("../../../data/langs/typescript.toml"),
+    include_str!("../../../data/langs/python.toml"),
+    include_str!("../../../data/langs/go.toml"),
+];
 
 #[derive(Parser)]
 #[command(
@@ -50,7 +64,7 @@ enum Cmd {
     /// Code + docs/comments mentions — the doc-sweep query.
     Refs {
         name: String,
-        /// Include docs/comments/markdown mentions.
+        /// Only docs/comments/markdown mentions.
         #[arg(long)]
         docs: bool,
     },
@@ -62,25 +76,76 @@ enum Cmd {
 
 fn main() {
     let cli = Cli::parse();
-    let code = match cli.cmd {
+    let code = match &cli.cmd {
         Cmd::Init => init(&cli),
+        Cmd::Sync { full } => sync(&cli, *full),
+        Cmd::Status => status(&cli),
+        Cmd::Map => map(&cli),
+        Cmd::Card { module } => card(&cli, module),
+        Cmd::Find { symbol } => find(&cli, symbol),
+        Cmd::Dependents { name } => dependents(&cli, name),
+        Cmd::Refs { name, docs } => refs(&cli, name, *docs),
         Cmd::Doctor => doctor(&cli),
-        _ => {
-            eprintln!("kuda: not yet implemented — see project/TODO.md");
+        Cmd::Mcp => {
+            eprintln!("kuda mcp: not yet implemented — see project/BACKLOG.md");
             2
         }
     };
     std::process::exit(code);
 }
 
-fn init(cli: &Cli) -> i32 {
-    let dir = cli
-        .config
+fn root(cli: &Cli) -> PathBuf {
+    cli.config
         .as_deref()
         .map(Path::new)
         .and_then(Path::parent)
         .map(Path::to_path_buf)
-        .unwrap_or_else(|| ".".into());
+        .unwrap_or_else(|| ".".into())
+}
+
+fn load_config(cli: &Cli) -> Config {
+    TomlSource {
+        path: cli.config.clone(),
+    }
+    .load()
+    .unwrap_or_default()
+}
+
+fn langs() -> Vec<LangDef> {
+    LANG_TOMLS
+        .iter()
+        .filter_map(|t| toml::from_str(t).ok())
+        .collect()
+}
+
+/// git-native content hash — provenance key.
+fn hash_files(root: &Path, files: &[PathBuf]) -> Vec<String> {
+    files
+        .iter()
+        .map(|f| {
+            Command::new("git")
+                .arg("-C")
+                .arg(root)
+                .args(["hash-object"])
+                .arg(f)
+                .output()
+                .ok()
+                .filter(|o| o.status.success())
+                .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_owned())
+                .unwrap_or_default()
+        })
+        .collect()
+}
+
+fn unix_now() -> String {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs().to_string())
+        .unwrap_or_default()
+}
+
+fn init(cli: &Cli) -> i32 {
+    let dir = root(cli);
     let toml_path = dir.join("kuda.toml");
     if toml_path.exists() {
         eprintln!("kuda.toml already exists — not overwriting");
@@ -96,23 +161,335 @@ fn init(cli: &Cli) -> i32 {
             return 1;
         }
     }
-    println!(
-        "wrote {} + .kuda/ — run `kuda sync` when extractors land",
-        toml_path.display()
+    println!("wrote {} + .kuda/ — run `kuda sync`", toml_path.display());
+    0
+}
+
+/// The pipeline: extract -> per-module summarize -> cards + store.
+fn sync(cli: &Cli, _full: bool) -> i32 {
+    let dir = root(cli);
+    let cfg = load_config(cli);
+    let ext = match kuda_manifest::ManifestExtractor.extract(&dir, &langs()) {
+        Ok(e) => e,
+        Err(e) => {
+            eprintln!("extract: {e}");
+            return 1;
+        }
+    };
+    let sha = kuda_git::GitVcs
+        .head_sha(&dir)
+        .unwrap_or_else(|| "unknown".into());
+    let now = unix_now();
+
+    // group symbols + edges by module
+    let mut by_mod: BTreeMap<String, Vec<kuda_core::Symbol>> = BTreeMap::new();
+    for s in &ext.symbols {
+        by_mod.entry(s.module.clone()).or_default().push(s.clone());
+    }
+    let cards_dir = dir.join(&cfg.cards.dir);
+    if let Err(e) = std::fs::create_dir_all(cards_dir.join("modules")) {
+        eprintln!("mkdir {}: {e}", cards_dir.display());
+        return 1;
+    }
+    let mut store = match kuda_store_sqlite::SqliteStore::open(&dir.join(&cfg.store.path)) {
+        Ok(s) => s,
+        Err(e) => {
+            eprintln!("store {}: {e}", cfg.store.path.display());
+            return 1;
+        }
+    };
+
+    let summ = kuda_template::TemplateSummarizer;
+    let mut module_names = Vec::new();
+    for (module, syms) in &by_mod {
+        // verify/provenance files for this module: its manifest
+        let mfiles: Vec<PathBuf> = syms.iter().map(|s| s.file.clone()).collect();
+        let prov = Provenance {
+            hashes: hash_files(&dir, &mfiles),
+            files: mfiles.clone(),
+            commit_sha: sha.clone(),
+            generated_at: now.clone(),
+            generator: "kuda-template/0.1.0".into(),
+        };
+        let mod_edges: Vec<_> = ext
+            .edges
+            .iter()
+            .filter(|e| e.from == *module)
+            .cloned()
+            .collect();
+        let card = match summ.summarize(
+            module,
+            &syms[0].file,
+            &kuda_extract::Extraction {
+                symbols: syms.clone(),
+                edges: mod_edges.clone(),
+                files: mfiles,
+            },
+            prov,
+        ) {
+            Ok(c) => c,
+            Err(e) => {
+                eprintln!("summarize {module}: {e}");
+                continue;
+            }
+        };
+        let out = cards_dir.join("modules").join(format!("{}.yaml", safe(&card.name)));
+        match kuda_cards::render_module_card(&card) {
+            Ok(y) => {
+                if let Err(e) = std::fs::write(&out, y) {
+                    eprintln!("write {}: {e}", out.display());
+                }
+            }
+            Err(e) => eprintln!("render {module}: {e}"),
+        }
+        if let Err(e) = store.replace_module(module, syms, &mod_edges) {
+            eprintln!("store {module}: {e}");
+        }
+        module_names.push(card.name);
+    }
+    module_names.sort();
+
+    // L0 repo card
+    let name = cfg
+        .repo
+        .name
+        .clone()
+        .or_else(|| dir.file_name().map(|f| f.to_string_lossy().into_owned()))
+        .unwrap_or_else(|| "repo".into());
+    let prov = Provenance {
+        files: ext.files.clone(),
+        hashes: hash_files(&dir, &ext.files),
+        commit_sha: sha.clone(),
+        generated_at: now.clone(),
+        generator: "kuda/0.1.0".into(),
+    };
+    let repo_card = RepoCard {
+        name,
+        root: dir.clone(),
+        purpose: String::new(),
+        modules: module_names.clone(),
+        commands: detect_commands(&dir),
+        provenance: prov,
+    };
+    match kuda_cards::render_repo_card(&repo_card) {
+        Ok(y) => {
+            if let Err(e) = std::fs::write(cards_dir.join("index.yaml"), y) {
+                eprintln!("write index.yaml: {e}");
+            }
+        }
+        Err(e) => eprintln!("render index: {e}"),
+    }
+    let _ = store.set_meta("commit_sha", &sha);
+    let _ = store.set_meta("generated_at", &now);
+    let _ = std::fs::write(
+        cards_dir.join("meta.json"),
+        format!("{{\"commit_sha\":\"{sha}\",\"generated_at\":{now}}}\n"),
     );
+    println!("indexed {} module(s) at {sha:.7}", module_names.len());
+    0
+}
+
+fn safe(name: &str) -> String {
+    name.chars()
+        .map(|c| {
+            if c.is_ascii_alphanumeric() || matches!(c, '-' | '_' | '.') {
+                c
+            } else {
+                '_'
+            }
+        })
+        .collect()
+}
+
+fn detect_commands(dir: &Path) -> Vec<String> {
+    let mut cmds = Vec::new();
+    if dir.join("Cargo.toml").exists() {
+        cmds.extend(["cargo check", "cargo test --workspace"].map(str::to_owned));
+    }
+    if dir.join("package.json").exists() {
+        cmds.push("npm test".into());
+    }
+    if dir.join("go.mod").exists() {
+        cmds.push("go test ./...".into());
+    }
+    cmds
+}
+
+/// Drift report: per-card hashes vs current content + sha vs HEAD.
+fn status(cli: &Cli) -> i32 {
+    let dir = root(cli);
+    let moddir = dir.join(".kuda/modules");
+    let Ok(entries) = std::fs::read_dir(&moddir) else {
+        eprintln!("no .kuda/modules — run `kuda sync` first");
+        return 2;
+    };
+    let head = kuda_git::GitVcs.head_sha(&dir).unwrap_or_default();
+    let (mut fresh, mut drifted) = (0, 0);
+    for e in entries.flatten() {
+        let p = e.path();
+        if p.extension().map(|x| x == "yaml").unwrap_or(false) {
+            let Ok(card) =
+                kuda_cards::parse_module_card(&std::fs::read_to_string(&p).unwrap_or_default())
+            else {
+                continue;
+            };
+            let hashes = hash_files(&dir, &card.provenance.files);
+            let stale = card
+                .provenance
+                .hashes
+                .iter()
+                .zip(&hashes)
+                .any(|(a, b)| a != b)
+                || card.provenance.files.len() != hashes.len();
+            if stale {
+                drifted += 1;
+                println!("drifted  {}", card.name);
+            } else {
+                fresh += 1;
+            }
+        }
+    }
+    println!("{fresh} fresh, {drifted} drifted (HEAD {})", &head[..head.len().min(7)]);
+    0
+}
+
+fn map(cli: &Cli) -> i32 {
+    cat_file(&root(cli).join(".kuda/index.yaml"))
+}
+
+fn card(cli: &Cli, module: &str) -> i32 {
+    cat_file(&root(cli).join(format!(".kuda/modules/{}.yaml", safe(module))))
+}
+
+fn cat_file(p: &Path) -> i32 {
+    match std::fs::read_to_string(p) {
+        Ok(t) => {
+            print!("{t}");
+            0
+        }
+        Err(e) => {
+            eprintln!("{}: {e}", p.display());
+            1
+        }
+    }
+}
+
+fn find(cli: &Cli, symbol: &str) -> i32 {
+    let dir = root(cli);
+    let cfg = load_config(cli);
+    let store = match kuda_store_sqlite::SqliteStore::open(&dir.join(&cfg.store.path)) {
+        Ok(s) => s,
+        Err(e) => {
+            eprintln!("store: {e}");
+            return 1;
+        }
+    };
+    match kuda_query::find(&store, symbol) {
+        Ok(syms) if syms.is_empty() => {
+            println!("no symbol `{symbol}` — run `kuda sync`?");
+            1
+        }
+        Ok(syms) => {
+            for s in syms {
+                println!("{}:{} {:?} {}", s.file.display(), s.line, s.kind, s.module);
+            }
+            0
+        }
+        Err(e) => {
+            eprintln!("find: {e}");
+            1
+        }
+    }
+}
+
+fn dependents(cli: &Cli, name: &str) -> i32 {
+    let dir = root(cli);
+    let cfg = load_config(cli);
+    let store = match kuda_store_sqlite::SqliteStore::open(&dir.join(&cfg.store.path)) {
+        Ok(s) => s,
+        Err(e) => {
+            eprintln!("store: {e}");
+            return 1;
+        }
+    };
+    match kuda_query::dependents(&store, name) {
+        Ok(edges) if edges.is_empty() => {
+            println!("nothing depends on `{name}`");
+            0
+        }
+        Ok(edges) => {
+            for e in edges {
+                println!("{} --{:?}--> {}", e.from, e.kind, e.to);
+            }
+            0
+        }
+        Err(e) => {
+            eprintln!("dependents: {e}");
+            1
+        }
+    }
+}
+
+/// Textual mention sweep — the doc-update use case.
+fn refs(cli: &Cli, name: &str, docs_only: bool) -> i32 {
+    let dir = root(cli);
+    let exts: &[&str] = if docs_only {
+        &["md", "mdx", "rst", "txt"]
+    } else {
+        &["md", "mdx", "rs", "py", "ts", "tsx", "go", "toml", "yaml", "yml", "sh", "txt"]
+    };
+    let mut hits = 0;
+    let mut stack = vec![dir.clone()];
+    while let Some(d) = stack.pop() {
+        let Ok(rd) = std::fs::read_dir(&d) else {
+            continue;
+        };
+        for e in rd.flatten() {
+            let p = e.path();
+            if p.is_dir() {
+                if !matches!(
+                    e.file_name().to_str(),
+                    Some(".git" | "target" | "node_modules" | ".kuda")
+                ) {
+                    stack.push(p);
+                }
+                continue;
+            }
+            let ext_ok = p
+                .extension()
+                .and_then(|x| x.to_str())
+                .map(|x| exts.contains(&x))
+                .unwrap_or(false);
+            if !ext_ok {
+                continue;
+            }
+            if let Ok(text) = std::fs::read_to_string(&p) {
+                for (i, line) in text.lines().enumerate() {
+                    if line.contains(name) {
+                        hits += 1;
+                        println!("{}:{}: {}", p.display(), i + 1, line.trim());
+                    }
+                }
+            }
+        }
+    }
+    if hits == 0 {
+        println!("no mentions of `{name}`");
+    }
     0
 }
 
 fn doctor(cli: &Cli) -> i32 {
     println!("kuda doctor");
-    let src = TomlSource {
+    match (TomlSource {
         path: cli.config.clone(),
-    };
-    match kuda_config::ConfigSource::load(&src) {
-        Ok(c) => {
-            println!("  config   ok  (extract: {:?}, summarize: {}, store: {})",
-                c.extract.kinds, c.summarize.kind, c.store.kind);
-        }
+    })
+    .load()
+    {
+        Ok(c) => println!(
+            "  config   ok  (extract: {:?}, summarize: {}, store: {})",
+            c.extract.kinds, c.summarize.kind, c.store.kind
+        ),
         Err(e) => println!("  config   --  {e}"),
     }
     println!("  impls    manifest, template, sqlite (treesitter/lsp/llm/mcp pending)");

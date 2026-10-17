@@ -1,0 +1,73 @@
+name: repo
+root: .
+purpose: ''
+modules:
+- Cargo.toml
+- dagger
+- kuda
+- kuda-cards
+- kuda-config
+- kuda-config-toml
+- kuda-core
+- kuda-docs
+- kuda-dotenv
+- kuda-extract
+- kuda-git
+- kuda-keyring
+- kuda-manifest
+- kuda-query
+- kuda-secret
+- kuda-store
+- kuda-store-sqlite
+- kuda-summarize
+- kuda-template
+- kuda-vcs
+commands:
+- cargo check
+- cargo test --workspace
+provenance:
+  files:
+  - Cargo.toml
+  - modules/dagger/dagger/pyproject.toml
+  - crates/kuda-secret/Cargo.toml
+  - crates/kuda-store/Cargo.toml
+  - crates/kuda-config/Cargo.toml
+  - crates/kuda-config-toml/Cargo.toml
+  - crates/kuda-core/Cargo.toml
+  - crates/kuda-git/Cargo.toml
+  - crates/kuda-keyring/Cargo.toml
+  - crates/kuda-vcs/Cargo.toml
+  - crates/kuda-template/Cargo.toml
+  - crates/kuda-extract/Cargo.toml
+  - crates/kuda-cli/Cargo.toml
+  - crates/kuda-cards/Cargo.toml
+  - crates/kuda-summarize/Cargo.toml
+  - crates/kuda-query/Cargo.toml
+  - crates/kuda-manifest/Cargo.toml
+  - crates/kuda-dotenv/Cargo.toml
+  - crates/kuda-store-sqlite/Cargo.toml
+  - docs/package.json
+  hashes:
+  - 074a73a182ccd1a3c4e2384c5c7b2774889085e5
+  - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
+  - f826462ae7337233c57e6151c6a7b516a437abbc
+  - fcd81b2ab4c0c8bd258d2a0d32162f1ff7ae9bd9
+  - ea8d721cf84a29a6242dfb89a1cfe55211215dbb
+  - 00ad189ce8101ee20046f23cb69225af620007b4
+  - 858a2d26892b5f1150a8b4663f27d32c408f6e1d
+  - aec38351b553b4e15d6e7fe0d6889449f042ddbc
+  - 3b7a6eab09a7bdf9a5cf50809cab454325b920a7
+  - a3f3978c21457dd7be4e34dc16f31231d0a68777
+  - abd77bfcf926f8f58b65fe76f7a4f75222ae11a5
+  - 8474c16bc613412aaa22031cbce10ad3a1f9beea
+  - 26e170ba2525d1acb28d5f2df2f41708a7430e09
+  - c2232432f5c2b51750ed9406059add07640caa15
+  - 11910998e03f533e3852432fcb107e980fbe99f5
+  - c09df8b9f1045151d00b8825259c76bf2e5a1fa7
+  - 09304a6086811eeff016b23d1f232497106acac0
+  - b3ca0f6db5ead37391a81a75b2af04535c38427f
+  - e51e875c9840301a679caeeaa3b5cc56080e7496
+  - 7dd14e4ebad201347de01d9ac9c8dc86857f66f2
+  commit_sha: 3432d05e2794267e0a668e572ce37cc4d59a768c
+  generated_at: '1792276183'
+  generator: kuda/0.1.0

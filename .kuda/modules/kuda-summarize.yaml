@@ -1,0 +1,23 @@
+name: kuda-summarize
+path: crates/kuda-summarize/Cargo.toml
+purpose: kuda-summarize
+api:
+- name: kuda-summarize
+  kind: module
+  file: crates/kuda-summarize/Cargo.toml
+  line: 1
+  module: kuda-summarize
+deps:
+- kuda-core
+- kuda-extract
+notes: ''
+verify:
+- crates/kuda-summarize/Cargo.toml
+provenance:
+  files:
+  - crates/kuda-summarize/Cargo.toml
+  hashes:
+  - 11910998e03f533e3852432fcb107e980fbe99f5
+  commit_sha: 3432d05e2794267e0a668e572ce37cc4d59a768c
+  generated_at: '1792276183'
+  generator: kuda-template/0.1.0

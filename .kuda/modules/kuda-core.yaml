@@ -1,0 +1,24 @@
+name: kuda-core
+path: crates/kuda-core/Cargo.toml
+purpose: kuda-core
+api:
+- name: kuda-core
+  kind: module
+  file: crates/kuda-core/Cargo.toml
+  line: 1
+  module: kuda-core
+deps:
+- serde
+- serde_json
+- toml
+notes: ''
+verify:
+- crates/kuda-core/Cargo.toml
+provenance:
+  files:
+  - crates/kuda-core/Cargo.toml
+  hashes:
+  - 858a2d26892b5f1150a8b4663f27d32c408f6e1d
+  commit_sha: 3432d05e2794267e0a668e572ce37cc4d59a768c
+  generated_at: '1792276183'
+  generator: kuda-template/0.1.0

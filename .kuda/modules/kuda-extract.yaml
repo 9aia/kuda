@@ -1,0 +1,22 @@
+name: kuda-extract
+path: crates/kuda-extract/Cargo.toml
+purpose: kuda-extract
+api:
+- name: kuda-extract
+  kind: module
+  file: crates/kuda-extract/Cargo.toml
+  line: 1
+  module: kuda-extract
+deps:
+- kuda-core
+notes: ''
+verify:
+- crates/kuda-extract/Cargo.toml
+provenance:
+  files:
+  - crates/kuda-extract/Cargo.toml
+  hashes:
+  - 8474c16bc613412aaa22031cbce10ad3a1f9beea
+  commit_sha: 3432d05e2794267e0a668e572ce37cc4d59a768c
+  generated_at: '1792276183'
+  generator: kuda-template/0.1.0

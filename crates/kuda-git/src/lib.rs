@@ -17,6 +17,18 @@ fn git(repo: &Path, args: &[&str]) -> bool {
 }
 
 impl Vcs for GitVcs {
+    fn head_sha(&self, repo: &Path) -> Option<String> {
+        let out = Command::new("git")
+            .arg("-C")
+            .arg(repo)
+            .args(["rev-parse", "HEAD"])
+            .output()
+            .ok()?;
+        out.status
+            .success()
+            .then(|| String::from_utf8_lossy(&out.stdout).trim().to_owned())
+    }
+
     fn sync(&self, repo: &Path) -> bool {
         git(repo, &["fetch", "origin", "--prune"])
     }

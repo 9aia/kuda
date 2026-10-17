@@ -1,0 +1,25 @@
+name: kuda-docs
+path: docs/package.json
+purpose: kuda-docs
+api:
+- name: kuda-docs
+  kind: module
+  file: docs/package.json
+  line: 1
+  module: kuda-docs
+deps:
+- gh-pages
+- vite-plus
+- vitepress
+- vitepress-plugin-llms
+notes: ''
+verify:
+- docs/package.json
+provenance:
+  files:
+  - docs/package.json
+  hashes:
+  - 7dd14e4ebad201347de01d9ac9c8dc86857f66f2
+  commit_sha: 3432d05e2794267e0a668e572ce37cc4d59a768c
+  generated_at: '1792276183'
+  generator: kuda-template/0.1.0

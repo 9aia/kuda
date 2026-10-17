@@ -1,0 +1,22 @@
+name: kuda-keyring
+path: crates/kuda-keyring/Cargo.toml
+purpose: kuda-keyring
+api:
+- name: kuda-keyring
+  kind: module
+  file: crates/kuda-keyring/Cargo.toml
+  line: 1
+  module: kuda-keyring
+deps:
+- kuda-secret
+notes: ''
+verify:
+- crates/kuda-keyring/Cargo.toml
+provenance:
+  files:
+  - crates/kuda-keyring/Cargo.toml
+  hashes:
+  - 3b7a6eab09a7bdf9a5cf50809cab454325b920a7
+  commit_sha: 3432d05e2794267e0a668e572ce37cc4d59a768c
+  generated_at: '1792276183'
+  generator: kuda-template/0.1.0
