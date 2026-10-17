@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["EXAMPLE_TOML","LANG_TOMLS"],"enum":["Cmd"],"fn":["acp","acp_answer","card","cat_file","dependents","detect_commands","doctor","find","hash_files","init","langs","load_config","main","manifest_purpose","map","mcp","refs","root","safe","status","sync","sync_one","unix_now","workspace_roots"],"struct":["Cli"]};
