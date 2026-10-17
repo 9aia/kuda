@@ -2,7 +2,7 @@
 
 The default `template` summarizer is deterministic and zero-model —
 cards contain only what extraction found (APIs, deps, commands).
-The `llm` impl adds prose: purpose, invariants, "who calls me".
+The `llm` adapter adds prose: purpose, invariants, "who calls me".
 
 ## Enable
 
@@ -22,7 +22,7 @@ export KUDA_LLM_KEY=...   # or: kuda secret set KUDA_LLM_KEY
 
 Resolution order: env var -> OS keyring -> `~/.config/kuda/env`.
 
-## Grounding rules (enforced by the impl)
+## Grounding rules (enforced by the adapter)
 
 - Cards must cite the files they summarize — emitted as the
   `verify:` list.

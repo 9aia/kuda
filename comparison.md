@@ -14,7 +14,7 @@
 
 |                       | RAG store             | kuda                       |
 | --------------------- | --------------------- | -------------------------- |
-| fuzzy semantic lookup | strong                | (optional store impl later)|
+| fuzzy semantic lookup | strong                | (optional store adapter later)|
 | dep graph, provenance | weak                  | first-class                |
 | staleness             | opaque                | explicit sha/hash diff     |
 | determinism           | model-dependent       | `template` = deterministic |
@@ -23,7 +23,7 @@
 
 |                       | LSP                   | kuda                       |
 | --------------------- | --------------------- | -------------------------- |
-| cross-file refs       | strong (per language) | `lsp` impl reuses them     |
+| cross-file refs       | strong (per language) | `lsp` adapter reuses them     |
 | needs a running server| yes                   | only for the `lsp` tier    |
 | prose/cards           | none                  | L1/L0 artifacts            |
 | persistence           | session-scoped        | committed + rebuildable    |

@@ -20,9 +20,9 @@ Every card records `{files, content_hash, commit_sha}`.
 property of the data, not a promise in prose. `sync` regenerates
 only cards whose `files` changed.
 
-## Ports and impls
+## Ports and adapters
 
-Every concern is a trait crate + impl crates (ADR-0001):
+Every concern is a trait crate + adapter crates (ADR-0001):
 
 - extract: `manifest` (free, no parser) -> `treesitter`
   (grammar+query data) -> `lsp` (cross-file refs where a server

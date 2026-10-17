@@ -9,7 +9,7 @@ OS keyring -> `~/.config/kuda/env`; never this file.
 # root = "."
 
 [extract]
-kinds = ["manifest", "treesitter"] # impl crates, tried in order
+kinds = ["manifest", "treesitter"] # adapter crates, tried in order
 # lsp_server = "rust-analyzer"
 
 [summarize]

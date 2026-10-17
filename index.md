@@ -31,7 +31,7 @@ features:
     linkText: workspace setup
   - icon: 🧩
     title: Ports, not frameworks
-    details: extract (manifest | treesitter | lsp), summarize (template | llm), store, vcs — swap via config or a new impl crate
+    details: extract (manifest | treesitter | lsp), summarize (template | llm), store, vcs — swap via config or a new adapter crate
     link: /explanation/architecture
     linkText: architecture
   - icon: 📄

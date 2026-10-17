@@ -9,17 +9,17 @@ Crate map (target topology — see `project/TODO.md` for status):
 | -------------------- | ------------------------------------------- |
 | `kuda-core`          | domain: cards, symbols, edges, provenance   |
 | `kuda-extract`       | port: `Extractor`                           |
-| `kuda-manifest`      | impl: manifests -> package graph            |
-| `kuda-treesitter`    | impl: grammar+query data -> symbols         |
-| `kuda-lsp`           | impl: server-backed extraction (planned)    |
+| `kuda-manifest`      | adapter: manifests -> package graph            |
+| `kuda-treesitter`    | adapter: grammar+query data -> symbols         |
+| `kuda-lsp`           | adapter: server-backed extraction (planned)    |
 | `kuda-summarize`     | port: `Summarizer`                          |
-| `kuda-template`      | impl: deterministic cards (default)         |
-| `kuda-llm`           | impl: prose cards (planned, opt-in)         |
+| `kuda-template`      | adapter: deterministic cards (default)         |
+| `kuda-llm`           | adapter: prose cards (planned, opt-in)         |
 | `kuda-store`         | port: `IndexStore`                          |
-| `kuda-store-sqlite`  | impl: sqlite L2 graph                       |
-| `kuda-vcs` / `kuda-git` | port/impl: sha, diff, staleness          |
+| `kuda-store-sqlite`  | adapter: sqlite L2 graph                       |
+| `kuda-vcs` / `kuda-git` | port/adapter: sha, diff, staleness          |
 | `kuda-query`         | find/dependents/card/refs engine            |
 | `kuda-cards`         | .kuda/*.yaml render                         |
-| `kuda-config*`       | config port + toml impl                     |
-| `kuda-secret*`       | secrets port + keyring/dotenv impls         |
+| `kuda-config*`       | config port + toml adapter                     |
+| `kuda-secret*`       | secrets port + keyring/dotenv adapters         |
 | `kuda` (cli)         | composition root                            |
