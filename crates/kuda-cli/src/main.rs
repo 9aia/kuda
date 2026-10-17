@@ -767,6 +767,6 @@ fn doctor(cli: &Cli) -> i32 {
         ),
         Err(e) => println!("  config   --  {e}"),
     }
-    println!("  impls    manifest, template, sqlite (treesitter/lsp/llm/mcp pending)");
+    println!("  impls    manifest, treesitter, lsp, template, sqlite (llm pending)");
     0
 }
