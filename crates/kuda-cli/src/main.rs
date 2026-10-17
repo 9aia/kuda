@@ -75,6 +75,9 @@ enum Cmd {
     Acp,
     /// Extractor/store/config health.
     Doctor,
+    /// Emit CLI reference markdown (docs pipeline).
+    #[command(hide = true, name = "gen-cli-docs")]
+    GenCliDocs,
 }
 
 fn main() {
@@ -91,6 +94,10 @@ fn main() {
         Cmd::Doctor => doctor(&cli),
         Cmd::Mcp => mcp(&cli),
         Cmd::Acp => acp(&cli),
+        Cmd::GenCliDocs => {
+            println!("{}", clap_markdown::help_markdown::<Cli>());
+            0
+        }
     };
     std::process::exit(code);
 }
