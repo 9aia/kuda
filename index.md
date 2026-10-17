@@ -39,7 +39,7 @@ features:
     details: per-language knowledge lives in grammar + query + manifest files — a new language is a data change, not a release
   - icon: 🤖
     title: Built for agents
-    details: CLI for humans and scripts, MCP for agents — cards end in verify: lists so memory stays a hypothesis
+    details: 'CLI for humans and scripts, MCP for agents — cards end in verify: lists so memory stays a hypothesis'
     link: /how-to/mcp
     linkText: MCP setup
 ---

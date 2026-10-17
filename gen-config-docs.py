@@ -9,14 +9,11 @@ OUT  = pathlib.Path(__file__).parent / "reference" / "config.md"
 # file → {struct: section title}; order preserved
 SRCS = {
     "crates/kuda-core/src/lib.rs": {
-        "Config": "Top level", "RepoEntry": "`[[repo]]`",
-        "TriggerCfg": "`[trigger]`", "RunnerCfg": "`[runner]`",
-        "StatusCfg": "`[status]`", "TunnelCfg": "`[tunnel]`",
-        "CacheCfg": "`[cache]`", "WorktreeCfg": "`[worktree]`",
+        "Config": "Top level", "RepoCfg": "`[repo]`",
+        "ExtractCfg": "`[extract]`", "SummarizeCfg": "`[summarize]`",
+        "StoreCfg": "`[store]`", "CardsCfg": "`[cards]`",
+        "WorkspaceCfg": "`[workspace]`",
     },
-    "crates/kuda-dagger/src/lib.rs": {"DaggerCfg": "`[runner]` — kind `dagger`"},
-    "crates/kuda-shell/src/lib.rs":  {"ShellCfg": "`[runner]` — kind `shell`"},
-    "crates/kuda-ssh/src/lib.rs":    {"SshCfg": "`[runner]` — kind `ssh`"},
 }
 SRC = {n: (ROOT / f).read_text()
        for f, names in SRCS.items() for n in names}

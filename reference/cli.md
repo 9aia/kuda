@@ -1,19 +1,165 @@
-# Reference: CLI
+# Command-Line Help for `kuda`
 
-Generated from `kuda --help` by `bun run docs:cli` — seed listing:
+This document contains the help content for the `kuda` command-line program.
 
-```
-kuda init              detect langs -> kuda.toml + .kuda/
-kuda sync [--full]     incremental index
-kuda status            provenance vs HEAD -> per-card drift
-kuda map               render the L0 repo card
-kuda card <module>     L1 card + freshness
-kuda find <symbol>     symbol -> file:line
-kuda dependents <x>    reverse dep lookup
-kuda refs <x> [--docs] code + docs/comments mentions
-kuda mcp [--workspace] serve the index over MCP
-kuda doctor            extractor/store health
-```
+**Command Overview:**
 
-Global flags: `--config <path>` (else `$KUDA_CONFIG`, `./kuda.toml`,
-`~/.config/kuda/kuda.toml`), `--workspace` (multi-repo mode).
+* [`kuda`↴](#kuda)
+* [`kuda init`↴](#kuda-init)
+* [`kuda sync`↴](#kuda-sync)
+* [`kuda status`↴](#kuda-status)
+* [`kuda map`↴](#kuda-map)
+* [`kuda card`↴](#kuda-card)
+* [`kuda find`↴](#kuda-find)
+* [`kuda dependents`↴](#kuda-dependents)
+* [`kuda refs`↴](#kuda-refs)
+* [`kuda mcp`↴](#kuda-mcp)
+* [`kuda acp`↴](#kuda-acp)
+* [`kuda doctor`↴](#kuda-doctor)
+
+## `kuda`
+
+A hippocampus for your codebase — repo memory: index, query, verify
+
+**Usage:** `kuda [OPTIONS] <COMMAND>`
+
+###### **Subcommands:**
+
+* `init` — Detect languages -> kuda.toml + .kuda/ scaffold
+* `sync` — Incremental index (hash -> extract -> summarize -> store)
+* `status` — Provenance vs HEAD: per-card drift report
+* `map` — Render the L0 repo card (the always-load blob)
+* `card` — Module card + freshness
+* `find` — Symbol -> file:line
+* `dependents` — Reverse dep lookup — impact analysis
+* `refs` — Code + docs/comments mentions — the doc-sweep query
+* `mcp` — Serve the index over MCP (stdio)
+* `acp` — Speak ACP — Agent Client Protocol surface for any agent client (zed, cline, cursor)
+* `doctor` — Extractor/store/config health
+
+###### **Options:**
+
+* `--config <CONFIG>` — Config path (else $KUDA_CONFIG, ./kuda.toml, ~/.config/kuda/kuda.toml)
+* `--workspace` — Workspace mode — all roots in .kuda/workspace.yaml
+
+
+
+## `kuda init`
+
+Detect languages -> kuda.toml + .kuda/ scaffold
+
+**Usage:** `kuda init`
+
+
+
+## `kuda sync`
+
+Incremental index (hash -> extract -> summarize -> store)
+
+**Usage:** `kuda sync [OPTIONS]`
+
+###### **Options:**
+
+* `--full` — Rebuild everything, ignoring content-hash freshness
+
+
+
+## `kuda status`
+
+Provenance vs HEAD: per-card drift report
+
+**Usage:** `kuda status`
+
+
+
+## `kuda map`
+
+Render the L0 repo card (the always-load blob)
+
+**Usage:** `kuda map`
+
+
+
+## `kuda card`
+
+Module card + freshness
+
+**Usage:** `kuda card <MODULE>`
+
+###### **Arguments:**
+
+* `<MODULE>`
+
+
+
+## `kuda find`
+
+Symbol -> file:line
+
+**Usage:** `kuda find <SYMBOL>`
+
+###### **Arguments:**
+
+* `<SYMBOL>`
+
+
+
+## `kuda dependents`
+
+Reverse dep lookup — impact analysis
+
+**Usage:** `kuda dependents <NAME>`
+
+###### **Arguments:**
+
+* `<NAME>`
+
+
+
+## `kuda refs`
+
+Code + docs/comments mentions — the doc-sweep query
+
+**Usage:** `kuda refs [OPTIONS] <NAME>`
+
+###### **Arguments:**
+
+* `<NAME>`
+
+###### **Options:**
+
+* `--docs` — Only docs/comments/markdown mentions
+
+
+
+## `kuda mcp`
+
+Serve the index over MCP (stdio)
+
+**Usage:** `kuda mcp`
+
+
+
+## `kuda acp`
+
+Speak ACP — Agent Client Protocol surface for any agent client (zed, cline, cursor)
+
+**Usage:** `kuda acp`
+
+
+
+## `kuda doctor`
+
+Extractor/store/config health
+
+**Usage:** `kuda doctor`
+
+
+
+<hr/>
+
+<small><i>
+    This document was generated automatically by
+    <a href="https://crates.io/crates/clap-markdown"><code>clap-markdown</code></a>.
+</i></small>
+
