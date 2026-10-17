@@ -30,7 +30,11 @@ impl Extractor for ManifestExtractor {
                 let name = e.file_name();
                 let name = name.to_string_lossy();
                 if path.is_dir() {
-                    if !matches!(name.as_ref(), ".git" | "target" | "node_modules" | ".kuda") {
+                    // skip noise dirs + mounted git worktrees (.git
+                    // as a *file* marks a worktree, not a repo dir)
+                    if !matches!(name.as_ref(), ".git" | "target" | "node_modules" | ".kuda")
+                        && !path.join(".git").is_file()
+                    {
                         stack.push(path);
                     }
                     continue;

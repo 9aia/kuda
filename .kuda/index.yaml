@@ -1,15 +1,13 @@
-name: repo
-root: .
+name: kuda
+root: /home/luis/GitHub/9aia/kuda
 purpose: ''
 modules:
-- Cargo.toml
 - dagger
 - kuda
 - kuda-cards
 - kuda-config
 - kuda-config-toml
 - kuda-core
-- kuda-docs
 - kuda-dotenv
 - kuda-extract
 - kuda-git
@@ -46,7 +44,6 @@ provenance:
   - crates/kuda-manifest/Cargo.toml
   - crates/kuda-dotenv/Cargo.toml
   - crates/kuda-store-sqlite/Cargo.toml
-  - docs/package.json
   hashes:
   - 074a73a182ccd1a3c4e2384c5c7b2774889085e5
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
@@ -67,7 +64,6 @@ provenance:
   - 09304a6086811eeff016b23d1f232497106acac0
   - b3ca0f6db5ead37391a81a75b2af04535c38427f
   - e51e875c9840301a679caeeaa3b5cc56080e7496
-  - 7dd14e4ebad201347de01d9ac9c8dc86857f66f2
-  commit_sha: 3432d05e2794267e0a668e572ce37cc4d59a768c
-  generated_at: '1792276183'
+  commit_sha: da99110ee65052c65aa1cf278deb5ee628fd8f78
+  generated_at: '1792276446'
   generator: kuda/0.1.0

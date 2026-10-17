@@ -95,12 +95,14 @@ fn main() {
 }
 
 fn root(cli: &Cli) -> PathBuf {
-    cli.config
+    let p = cli
+        .config
         .as_deref()
         .map(Path::new)
         .and_then(Path::parent)
         .map(Path::to_path_buf)
-        .unwrap_or_else(|| ".".into())
+        .unwrap_or_else(|| ".".into());
+    std::fs::canonicalize(&p).unwrap_or(p)
 }
 
 fn load_config(cli: &Cli) -> Config {
@@ -217,13 +219,13 @@ fn sync(cli: &Cli, _full: bool) -> i32 {
             .filter(|e| e.from == *module)
             .cloned()
             .collect();
-        let card = match summ.summarize(
+        let mut card = match summ.summarize(
             module,
             &syms[0].file,
             &kuda_extract::Extraction {
                 symbols: syms.clone(),
                 edges: mod_edges.clone(),
-                files: mfiles,
+                files: mfiles.clone(),
             },
             prov,
         ) {
@@ -233,6 +235,12 @@ fn sync(cli: &Cli, _full: bool) -> i32 {
                 continue;
             }
         };
+        // purpose: manifest description field when present
+        if card.purpose == card.name {
+            if let Some(d) = manifest_purpose(&dir.join(&syms[0].file)) {
+                card.purpose = d;
+            }
+        }
         let out = cards_dir.join("modules").join(format!("{}.yaml", safe(&card.name)));
         match kuda_cards::render_module_card(&card) {
             Ok(y) => {
@@ -287,6 +295,23 @@ fn sync(cli: &Cli, _full: bool) -> i32 {
     );
     println!("indexed {} module(s) at {sha:.7}", module_names.len());
     0
+}
+
+/// Pull `description` from a manifest (Cargo.toml/package.json).
+fn manifest_purpose(manifest: &Path) -> Option<String> {
+    let text = std::fs::read_to_string(manifest).ok()?;
+    if manifest.file_name()? == "Cargo.toml" {
+        let t = text.parse::<toml::Table>().ok()?;
+        t.get("package")?
+            .get("description")?
+            .as_str()
+            .map(str::to_owned)
+    } else if manifest.file_name()? == "package.json" {
+        let v = serde_json::from_str::<serde_json::Value>(&text).ok()?;
+        v.get("description")?.as_str().map(str::to_owned)
+    } else {
+        None
+    }
 }
 
 fn safe(name: &str) -> String {

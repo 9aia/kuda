@@ -1,6 +1,6 @@
 name: kuda-store
 path: crates/kuda-store/Cargo.toml
-purpose: kuda-store
+purpose: Store port — L2 index persistence (rebuildable)
 api:
 - name: kuda-store
   kind: module
@@ -17,6 +17,6 @@ provenance:
   - crates/kuda-store/Cargo.toml
   hashes:
   - fcd81b2ab4c0c8bd258d2a0d32162f1ff7ae9bd9
-  commit_sha: 3432d05e2794267e0a668e572ce37cc4d59a768c
-  generated_at: '1792276183'
+  commit_sha: da99110ee65052c65aa1cf278deb5ee628fd8f78
+  generated_at: '1792276446'
   generator: kuda-template/0.1.0
