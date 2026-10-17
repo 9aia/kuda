@@ -19,7 +19,7 @@ Ideas parked, not scheduled. Pull into project/TODO.md when picked up.
       sibling-checkout resolution; cross-repo `dependents`
 
 ## Surfaces
-- [ ] `kuda-mcp` — MCP server impl; agents query index as tools
+- [x] `kuda-mcp` — MCP server impl; agents query index as tools
 - [ ] `kuda watch` — reindex on file events (daemon)
 - [ ] `kuda session` — episodic memory: learnings from agent sessions
       distilled into cards (semantic vs episodic split)

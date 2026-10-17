@@ -86,10 +86,7 @@ fn main() {
         Cmd::Dependents { name } => dependents(&cli, name),
         Cmd::Refs { name, docs } => refs(&cli, name, *docs),
         Cmd::Doctor => doctor(&cli),
-        Cmd::Mcp => {
-            eprintln!("kuda mcp: not yet implemented — see project/BACKLOG.md");
-            2
-        }
+        Cmd::Mcp => mcp(&cli),
     };
     std::process::exit(code);
 }
@@ -512,6 +509,107 @@ fn refs(cli: &Cli, name: &str, docs_only: bool) -> i32 {
     }
     if hits == 0 {
         println!("no mentions of `{name}`");
+    }
+    0
+}
+
+/// Minimal MCP stdio server — the index as agent tools.
+/// Line-delimited JSON-RPC 2.0; tools: repo_card, module_card,
+/// find, dependents, status, refs.
+fn mcp(cli: &Cli) -> i32 {
+    use serde_json::{json, Value};
+    use std::io::BufRead;
+    let stdin = std::io::stdin();
+    let dir = root(cli);
+    let cfg = load_config(cli);
+    for line in stdin.lock().lines() {
+        let Ok(line) = line else { break };
+        if line.trim().is_empty() {
+            continue;
+        }
+        let Ok(req) = serde_json::from_str::<Value>(&line) else {
+            continue;
+        };
+        let method = req["method"].as_str().unwrap_or("");
+        let id = req.get("id").cloned().unwrap_or(Value::Null);
+        let reply = |result: Value| {
+            println!("{}", json!({"jsonrpc":"2.0","id":id,"result":result}));
+        };
+        let tool_text = |text: String| {
+            json!({"content":[{"type":"text","text":text}]})
+        };
+        match method {
+            "initialize" => reply(json!({
+                "protocolVersion": "2024-11-05",
+                "capabilities": {"tools": {}},
+                "serverInfo": {"name": "kuda", "version": "0.1.0"}
+            })),
+            "tools/list" => reply(json!({"tools":[
+                {"name":"repo_card","description":"L0 repo card — always-load summary","inputSchema":{"type":"object","properties":{}}},
+                {"name":"module_card","description":"L1 module card + freshness","inputSchema":{"type":"object","properties":{"module":{"type":"string"}},"required":["module"]}},
+                {"name":"find","description":"symbol -> file:line","inputSchema":{"type":"object","properties":{"name":{"type":"string"}},"required":["name"]}},
+                {"name":"dependents","description":"reverse dep lookup (impact analysis)","inputSchema":{"type":"object","properties":{"name":{"type":"string"}},"required":["name"]}},
+                {"name":"status","description":"provenance drift vs HEAD","inputSchema":{"type":"object","properties":{}}},
+                {"name":"refs","description":"code+docs mentions","inputSchema":{"type":"object","properties":{"name":{"type":"string"},"docs":{"type":"boolean"}},"required":["name"]}},
+            ]})),
+            "tools/call" => {
+                let name = req["params"]["name"].as_str().unwrap_or("");
+                let args = &req["params"]["arguments"];
+                let arg_s = |k: &str| args[k].as_str().unwrap_or("").to_owned();
+                let text = match name {
+                    "repo_card" => std::fs::read_to_string(dir.join(".kuda/index.yaml"))
+                        .unwrap_or_else(|e| format!("error: {e}")),
+                    "module_card" => std::fs::read_to_string(
+                        dir.join(format!(".kuda/modules/{}.yaml", safe(&arg_s("module")))),
+                    )
+                    .unwrap_or_else(|e| format!("error: {e}")),
+                    "find" | "dependents" => {
+                        let n = arg_s("name");
+                        match kuda_store_sqlite::SqliteStore::open(&dir.join(&cfg.store.path)) {
+                            Ok(store) => {
+                                if name == "find" {
+                                    kuda_query::find(&store, &n)
+                                        .map(|v| {
+                                            v.iter()
+                                                .map(|s| {
+                                                    format!(
+                                                        "{}:{} {:?} {}",
+                                                        s.file.display(),
+                                                        s.line,
+                                                        s.kind,
+                                                        s.module
+                                                    )
+                                                })
+                                                .collect::<Vec<_>>()
+                                                .join("\n")
+                                        })
+                                        .unwrap_or_else(|e| format!("error: {e}"))
+                                } else {
+                                    kuda_query::dependents(&store, &n)
+                                        .map(|v| {
+                                            v.iter()
+                                                .map(|e| {
+                                                    format!(
+                                                        "{} --{:?}--> {}",
+                                                        e.from, e.kind, e.to
+                                                    )
+                                                })
+                                                .collect::<Vec<_>>()
+                                                .join("\n")
+                                        })
+                                        .unwrap_or_else(|e| format!("error: {e}"))
+                                }
+                            }
+                            Err(e) => format!("error: {e}"),
+                        }
+                    }
+                    _ => format!("unknown tool {name}"),
+                };
+                reply(tool_text(text));
+            }
+            _ => {} // notifications — ignore
+        }
+        let _ = std::io::Write::flush(&mut std::io::stdout());
     }
     0
 }
