@@ -8,13 +8,13 @@ ROOT = pathlib.Path(__file__).parent / ".."
 WST = (ROOT / "Cargo.toml").read_text()
 
 LAYER = {
-    "bupha": "binary",
-    "bupha-core": "domain",
-    "bupha-runner": "port", "bupha-tunnel": "port",
-    "bupha-trigger": "port", "bupha-status": "port",
-    "bupha-vcs": "port", "bupha-queue": "port",
-    "bupha-service": "port", "bupha-secret": "port",
-    "bupha-config": "port", "bupha-cache": "port",
+    "kuda": "binary",
+    "kuda-core": "domain",
+    "kuda-runner": "port", "kuda-tunnel": "port",
+    "kuda-trigger": "port", "kuda-status": "port",
+    "kuda-vcs": "port", "kuda-queue": "port",
+    "kuda-service": "port", "kuda-secret": "port",
+    "kuda-config": "port", "kuda-cache": "port",
 }
 
 # workspace members — match `"crates/…"` paths only (not dep paths)
@@ -24,9 +24,9 @@ for m in members:
     if m not in seen:
         seen.add(m)
         order_dedup.append(m)
-# include the binary crate (path crates/bupha-cli, package name bupha)
-if "crates/bupha-cli" not in order_dedup:
-    order_dedup.append("crates/bupha-cli")
+# include the binary crate (path crates/kuda-cli, package name kuda)
+if "crates/kuda-cli" not in order_dedup:
+    order_dedup.append("crates/kuda-cli")
 
 rows = []
 for rel in order_dedup:
@@ -56,6 +56,6 @@ out = ["# Crate API", "",
        "documented at source (doc comments).", ""]
 for n, l, _ in rows:
     und = n.replace("-", "_")
-    out.append(f"- [{n}](/bupha/api/{und}/index.html) — {l}")
+    out.append(f"- [{n}](/kuda/api/{und}/index.html) — {l}")
 pathlib.Path("reference/crate-api.md").write_text("\n".join(out) + "\n")
 print("crate-api regenerated")

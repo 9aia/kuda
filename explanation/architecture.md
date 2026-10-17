@@ -1,103 +1,45 @@
-# Architecture
+# Explanation: architecture
 
-bupha is a port/adapter monorepo: every external concern sits
-behind a trait (a _port_), and each integration is a crate that
-implements it (an _impl_). `bupha-core` is the pure domain — config
-shape, queue semantics, shared primitives — and depends on nothing
-outside itself; the binary is a thin composition root that wires
-impls to ports.
+## Tiered memory, not one big summary
 
-## Crate map
+A monolithic repo summary fails twice: too coarse to plan with, or
+too big for context. kuda produces a hierarchy agents zoom into:
 
-<!-- gen:crate-map -->
+- **L0 — repo card** (`index.yaml`, ~1k tokens): purpose, module
+  map, entry points, build/test commands. Always-loadable.
+- **L1 — module cards** (`modules/*.yaml`): API surface, deps,
+  invariants, `verify:` file list. Fetched when planning.
+- **L2 — symbol/dep graph** (`index.sqlite`): symbol -> file:line
+  and dep edges both directions. Queried, not loaded.
+- **L3 — source**: the code. Memory indexes it; never replaces it.
 
-| crate | layer | purpose |
-|---|---|---|
-| `bupha-core` | domain | bupha domain core: config types, job queues, shared primitives — no ports, no integrations |
-| `bupha-cache` | port | Cache port: artifact-cache backend for runners |
-| `bupha-config` | port | Config port: where bupha.toml-shaped config comes from |
-| `bupha-queue` | port | QueueStore port: queue persistence |
-| `bupha-runner` | port | Runner port: how a job becomes a spawned process |
-| `bupha-secret` | port | Secret port: resolve named secrets from storage |
-| `bupha-service` | port | Service port: OS service lifecycle |
-| `bupha-status` | port | StatusSink port: where run outcomes are reported |
-| `bupha-trigger` | port | Trigger port: where pushes come from |
-| `bupha-tunnel` | port | Tunnel port: expose the webhook listener publicly |
-| `bupha-vcs` | port | Vcs port: VCS operations for repos and worktrees |
-| `bupha-cache-sccache` | impl | Cache impl: sccache-compatible conf (file/S3/R2/GCS via conf) |
-| `bupha-cloudflared` | impl | Tunnel impl: cloudflared (named tunnel preferred, quick tunnel fallback) |
-| `bupha-config-toml` | impl | Config impl: bupha.toml file (explicit path, env, ./, ~/.config) |
-| `bupha-dagger` | impl | Runner impl: `dagger call &lt;fn&gt;` per job |
-| `bupha-dotenv` | impl | Secret impl: KEY=VAL env file (chmod 600) |
-| `bupha-git` | impl | Vcs impl: git via the git CLI |
-| `bupha-github` | impl | GitHub impl: push-webhook trigger + commit-status sink |
-| `bupha-keyring` | impl | Secret impl: OS keyring via secret-tool (libsecret) |
-| `bupha-queue-redb` | impl | QueueStore impl: redb embedded store (single file, ACID) |
-| `bupha-shell` | impl | Runner impl: bash -c &lt;cmd&gt; per job — no containers |
-| `bupha-ssh` | impl | Runner impl: remote execution over ssh (rsync worktree + run) |
-| `bupha-systemd` | impl | Service impl: systemd user units |
-| `bupha` | binary | bupha — the oxpecker on your repo's back: headless CI CLI |
+## Provenance is the staleness model
 
-<!-- /gen:crate-map -->
+Every card records `{files, content_hash, commit_sha}`.
+`kuda status` diffs the recorded sha against HEAD — drift is a
+property of the data, not a promise in prose. `sync` regenerates
+only cards whose `files` changed.
 
-`modules/dagger/` (Python SDK) is the shared pipeline module
-`bupha init` installs into consumer repos — pinned to a sha.
+## Ports and impls
 
-## Request flow
+Every concern is a trait crate + impl crates (ADR-0001):
 
-```
-POST /hook
-  → 1. path check (404 otherwise)
-  → 2. read body (≤ 2 MiB)
-  → 3. signature verify (Trigger port — github impl: HMAC
-       sha256, constant-time)
-  → 4. dedup delivery id (bounded 10k ring; github impl uses
-       X-GitHub-Delivery)
-  → 5. parse — skip deletes/zero-sha; revision must be path-safe
-  → 6. route — repository.full_name → watched [[repo]] entry;
-       git_ref must equal repo.branch
-  → 7. enqueue — per-repo queue; persist via QueueStore (redb,
-       ACID)
-  → 8. one global worker — Vcs fetch, detached worktree
-       at <base>-<repo>-<sha12>
-  → 9. spawn run handle (token via env:// name, never argv)
-  → 10. status — pending → success/error; superseded and
-        cancelled shas get honest error statuses
-```
+- extract: `manifest` (free, no parser) -> `treesitter`
+  (grammar+query data) -> `lsp` (cross-file refs where a server
+  exists)
+- summarize: `template` (deterministic default) | `llm` (opt-in
+  prose — provider key stays in env/keyring)
+- store: `sqlite` (rebuildable, gitignored)
+- serve: `cli` | `mcp`
 
-## Queue semantics
+## Language as data
 
-| policy             | pending           | on new push                                                                                           | use for  |
-| ------------------ | ----------------- | ----------------------------------------------------------------------------------------------------- | -------- |
-| `latest` (default) | 1 sha             | supersedes pending; `cancel_running` may kill in-flight                                               | CI gates |
-| `all`              | bounded FIFO (32) | appends; oldest evicted past cap; `cancel_running` rejected at load — it would drop a promised commit | releases |
+Per-language knowledge — grammar refs, symbol queries, manifest
+kinds — lives in `data/langs/*`, not in extractor code. A new
+language is a data change; the engine's vocabulary is fixed.
 
-Persistence: accepted work writes through the `QueueStore` port
-(`redb`, single embedded file) inside `worktree.base`; on restart
-the interrupted `running` sha is re-queued at the front.
+## Trust model
 
-One **global worker** serializes runs across all repos — a second
-push queues behind the in-flight job. Deliberate (one box, bounded
-resource use), not a hang: `journalctl --user -u bupha-watch` shows
-the queue moving.
-
-## Security model
-
-- mandatory HMAC (constant-time compare) — unauthenticated payloads
-  never reach the queue
-- body cap, delivery-id replay dedup, hex-sha validation before the
-  value touches paths or status URLs
-- webhook takeover is exact-URL only; hook API calls are timed out
-- config names secrets (`secret_env`/`token_env`) — values resolve
-  env → OS keyring → `~/.config/bupha/env` (0600); the runner gets
-  the token through its own mechanism (`env://` for dagger)
-
-## Extending
-
-| to add…                 | write…                              | core changes? |
-| ----------------------- | ----------------------------------- | ------------- |
-| forge (gitea/gitlab)    | `Trigger` + `StatusSink` impl crate | no            |
-| pipeline backend        | `Runner` impl crate                 | no            |
-| ingress (fly/tailscale) | `Tunnel` impl crate                 | no            |
-
-Remaining couplings → [project/BACKLOG.md](https://github.com/9aia/bupha/blob/main/project/BACKLOG.md).
+Cards end with `verify:` — the files an agent should open before
+acting on the card. Memory is a hypothesis that narrows the search
+space; the code remains the only truth.

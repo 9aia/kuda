@@ -1,33 +1,33 @@
-# bupha vs hosted CI
+# kuda vs the alternatives
 
-bupha runs push-triggered CI on self-controlled hardware —
-not a GHA replacement at fleet scale.
+## vs grep + re-read every session
 
-## vs GitHub Actions
+|                       | grep/ripgrep          | kuda                       |
+| --------------------- | --------------------- | -------------------------- |
+| find a symbol         | fast, per-query       | fast — plus kind + card    |
+| "what depends on X"   | manual, cross-repo pain | one query                |
+| overall comprehension | none                  | L0 card in ~1k tokens      |
+| freshness             | always current        | provenance-checked         |
+| doc/comment mentions  | same grep             | unified `refs --docs`      |
 
-|              | bupha                                           | GitHub Actions                    |
-| ------------ | ----------------------------------------------- | --------------------------------- |
-| compute      | your box                                        | managed fleet                     |
-| queue        | latest-wins + bounded `all`, no cold start      | unlimited parallelism, queue wait |
-| secrets      | never leave the machine                         | hosted on GitHub                  |
-| cache        | your backend — local disk or your S3/R2/minio   | hosted cache                      |
-| pipeline def | your runner — `ci.sh` or dagger module          | YAML DSL + marketplace actions    |
-| local == CI  | `bupha run` is literally the same path          | `act` approximates                |
-| batching     | supersede built-in, honest "cancelled" statuses | `concurrency` groups              |
-| scale        | one worker, serialized runs                     | matrix/fleet                      |
-| cost         | your box only                                   | minutes billing                   |
+## vs embeddings / RAG
 
-**When GHA is better:** you need parallelism, matrices across OSes,
-hosted macOS/Windows builds, or marketplace actions. **When bupha
-fits:** instant feedback on self-owned hardware, secrets that
-never leave the machine, warm caches on self-owned storage, no
-YAML.
+|                       | RAG store             | kuda                       |
+| --------------------- | --------------------- | -------------------------- |
+| fuzzy semantic lookup | strong                | (optional store impl later)|
+| dep graph, provenance | weak                  | first-class                |
+| staleness             | opaque                | explicit sha/hash diff     |
+| determinism           | model-dependent       | `template` = deterministic |
 
-## vs others
+## vs LSP alone
 
-- **Jenkins/Buildkite** — bupha is a single binary with a TOML file,
-  not a server product to operate.
-- **Woodpecker/Forgejo CI** — bupha is forge-webhook driven and much
-  smaller; those are full pipeline platforms.
-- **self-hosted GHA runner** — bupha is lighter (no runner service,
-  no org config) but has no matrix or marketplace.
+|                       | LSP                   | kuda                       |
+| --------------------- | --------------------- | -------------------------- |
+| cross-file refs       | strong (per language) | `lsp` impl reuses them     |
+| needs a running server| yes                   | only for the `lsp` tier    |
+| prose/cards           | none                  | L1/L0 artifacts            |
+| persistence           | session-scoped        | committed + rebuildable    |
+
+Trade-off: kuda adds an index step and committed artifacts — the
+payoff is that "overall comprehension" becomes a fixed ~1k-token
+load instead of a per-session expedition.

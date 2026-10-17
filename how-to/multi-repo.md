@@ -1,26 +1,36 @@
-# How-to: watch multiple repos
+# How-to: index a multi-repo workspace
 
-Add one `[[repo]]` entry per repository; `name` must equal the
-payload's `repository.full_name`. Each repo gets its own pending
-slot; a single global worker serializes runs (deliberate — safe on
-one box). Same-repo pushes may cancel their own in-flight run
-(`cancel_running`); a push never cancels another repo's run.
+For orgs spread across sibling checkouts (mono-repos too — a
+workspace is just a set of roots).
 
-```toml
-[[repo]]
-name = "org/api"
-dir = "/srv/checkouts/api"
-queue = "all" # every push runs (releases)
+## Workspace file
 
-[[repo]]
-name = "org/web"
-dir = "/srv/checkouts/web" # default latest-wins
+Create `.kuda/workspace.yaml` in the parent dir of your checkouts:
 
-# [repo.runner]                # per-repo override; replaces global
-#   kind = "shell"
-#   cmd = "./release.sh"
+```yaml
+roots:
+  - platform
+  - cli
+  - lsp
+  - kit-canonical
+resolve_git_deps: true   # github.com/org/repo deps -> siblings
 ```
 
-Run `bupha deploy webhook` once — it registers the hook on every
-watched repo. `status_repo` on an entry redirects statuses (e.g.
-mirror repos); it defaults to `name`.
+## Sync the workspace
+
+```sh
+kuda sync --workspace          # indexes every root
+kuda dependents Foo --workspace # cross-repo reverse lookup
+```
+
+With `resolve_git_deps`, manifest edges like
+`git = "https://github.com/org/cli"` resolve to the `../cli`
+checkout — "X moved to the sibling repo" stops being prose-only
+knowledge and becomes a graph edge.
+
+## Tips
+
+- Each repo keeps its own `kuda.toml` + `.kuda/`; the workspace
+  layer only links them.
+- Run `kuda status --workspace` after pulling several repos —
+  it reports drift per repo.
