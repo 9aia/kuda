@@ -1,0 +1,12 @@
+[package]
+name = "kuda-config"
+description = "Config port: where kuda.toml-shaped config comes from"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords = ["ci", "kuda"]
+categories = ["development-tools"]
+
+[dependencies]
+kuda-core.workspace = true

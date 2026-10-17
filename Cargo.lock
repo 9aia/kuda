@@ -80,207 +80,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bupha"
-version = "0.1.0"
-dependencies = [
- "bupha-cache",
- "bupha-cache-sccache",
- "bupha-cloudflared",
- "bupha-config",
- "bupha-config-toml",
- "bupha-core",
- "bupha-dagger",
- "bupha-dotenv",
- "bupha-git",
- "bupha-github",
- "bupha-keyring",
- "bupha-queue",
- "bupha-queue-redb",
- "bupha-runner",
- "bupha-secret",
- "bupha-service",
- "bupha-shell",
- "bupha-ssh",
- "bupha-status",
- "bupha-systemd",
- "bupha-trigger",
- "bupha-tunnel",
- "bupha-vcs",
- "clap",
- "clap-markdown",
- "dirs",
- "hex",
- "hmac",
- "serde_json",
- "sha2",
- "tiny_http",
- "toml",
- "ureq",
-]
-
-[[package]]
-name = "bupha-cache"
-version = "0.1.0"
-
-[[package]]
-name = "bupha-cache-sccache"
-version = "0.1.0"
-dependencies = [
- "bupha-cache",
-]
-
-[[package]]
-name = "bupha-cloudflared"
-version = "0.1.0"
-dependencies = [
- "bupha-core",
- "bupha-tunnel",
-]
-
-[[package]]
-name = "bupha-config"
-version = "0.1.0"
-dependencies = [
- "bupha-core",
-]
-
-[[package]]
-name = "bupha-config-toml"
-version = "0.1.0"
-dependencies = [
- "bupha-config",
- "bupha-core",
- "toml",
-]
-
-[[package]]
-name = "bupha-core"
-version = "0.1.0"
-dependencies = [
- "serde",
- "serde_json",
- "toml",
-]
-
-[[package]]
-name = "bupha-dagger"
-version = "0.1.0"
-dependencies = [
- "bupha-core",
- "bupha-runner",
- "serde",
- "toml",
-]
-
-[[package]]
-name = "bupha-dotenv"
-version = "0.1.0"
-dependencies = [
- "bupha-secret",
-]
-
-[[package]]
-name = "bupha-git"
-version = "0.1.0"
-dependencies = [
- "bupha-vcs",
-]
-
-[[package]]
-name = "bupha-github"
-version = "0.1.0"
-dependencies = [
- "bupha-core",
- "bupha-status",
- "bupha-trigger",
- "hex",
- "hmac",
- "serde_json",
- "sha2",
- "ureq",
-]
-
-[[package]]
-name = "bupha-keyring"
-version = "0.1.0"
-dependencies = [
- "bupha-secret",
-]
-
-[[package]]
-name = "bupha-queue"
-version = "0.1.0"
-dependencies = [
- "serde",
-]
-
-[[package]]
-name = "bupha-queue-redb"
-version = "0.1.0"
-dependencies = [
- "bupha-core",
- "bupha-queue",
- "redb",
- "serde_json",
-]
-
-[[package]]
-name = "bupha-runner"
-version = "0.1.0"
-
-[[package]]
-name = "bupha-secret"
-version = "0.1.0"
-
-[[package]]
-name = "bupha-service"
-version = "0.1.0"
-
-[[package]]
-name = "bupha-shell"
-version = "0.1.0"
-dependencies = [
- "bupha-core",
- "bupha-runner",
- "serde",
- "toml",
-]
-
-[[package]]
-name = "bupha-ssh"
-version = "0.1.0"
-dependencies = [
- "bupha-core",
- "bupha-runner",
- "serde",
- "toml",
-]
-
-[[package]]
-name = "bupha-status"
-version = "0.1.0"
-
-[[package]]
-name = "bupha-systemd"
-version = "0.1.0"
-dependencies = [
- "bupha-core",
- "bupha-service",
-]
-
-[[package]]
-name = "bupha-trigger"
-version = "0.1.0"
-
-[[package]]
-name = "bupha-tunnel"
-version = "0.1.0"
-
-[[package]]
-name = "bupha-vcs"
-version = "0.1.0"
-
-[[package]]
 name = "bytes"
 version = "1.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -705,6 +504,207 @@ name = "itoa"
 version = "1.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682"
+
+[[package]]
+name = "kuda"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "clap-markdown",
+ "dirs",
+ "hex",
+ "hmac",
+ "kuda-cache",
+ "kuda-cache-sccache",
+ "kuda-cloudflared",
+ "kuda-config",
+ "kuda-config-toml",
+ "kuda-core",
+ "kuda-dagger",
+ "kuda-dotenv",
+ "kuda-git",
+ "kuda-github",
+ "kuda-keyring",
+ "kuda-queue",
+ "kuda-queue-redb",
+ "kuda-runner",
+ "kuda-secret",
+ "kuda-service",
+ "kuda-shell",
+ "kuda-ssh",
+ "kuda-status",
+ "kuda-systemd",
+ "kuda-trigger",
+ "kuda-tunnel",
+ "kuda-vcs",
+ "serde_json",
+ "sha2",
+ "tiny_http",
+ "toml",
+ "ureq",
+]
+
+[[package]]
+name = "kuda-cache"
+version = "0.1.0"
+
+[[package]]
+name = "kuda-cache-sccache"
+version = "0.1.0"
+dependencies = [
+ "kuda-cache",
+]
+
+[[package]]
+name = "kuda-cloudflared"
+version = "0.1.0"
+dependencies = [
+ "kuda-core",
+ "kuda-tunnel",
+]
+
+[[package]]
+name = "kuda-config"
+version = "0.1.0"
+dependencies = [
+ "kuda-core",
+]
+
+[[package]]
+name = "kuda-config-toml"
+version = "0.1.0"
+dependencies = [
+ "kuda-config",
+ "kuda-core",
+ "toml",
+]
+
+[[package]]
+name = "kuda-core"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "toml",
+]
+
+[[package]]
+name = "kuda-dagger"
+version = "0.1.0"
+dependencies = [
+ "kuda-core",
+ "kuda-runner",
+ "serde",
+ "toml",
+]
+
+[[package]]
+name = "kuda-dotenv"
+version = "0.1.0"
+dependencies = [
+ "kuda-secret",
+]
+
+[[package]]
+name = "kuda-git"
+version = "0.1.0"
+dependencies = [
+ "kuda-vcs",
+]
+
+[[package]]
+name = "kuda-github"
+version = "0.1.0"
+dependencies = [
+ "hex",
+ "hmac",
+ "kuda-core",
+ "kuda-status",
+ "kuda-trigger",
+ "serde_json",
+ "sha2",
+ "ureq",
+]
+
+[[package]]
+name = "kuda-keyring"
+version = "0.1.0"
+dependencies = [
+ "kuda-secret",
+]
+
+[[package]]
+name = "kuda-queue"
+version = "0.1.0"
+dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "kuda-queue-redb"
+version = "0.1.0"
+dependencies = [
+ "kuda-core",
+ "kuda-queue",
+ "redb",
+ "serde_json",
+]
+
+[[package]]
+name = "kuda-runner"
+version = "0.1.0"
+
+[[package]]
+name = "kuda-secret"
+version = "0.1.0"
+
+[[package]]
+name = "kuda-service"
+version = "0.1.0"
+
+[[package]]
+name = "kuda-shell"
+version = "0.1.0"
+dependencies = [
+ "kuda-core",
+ "kuda-runner",
+ "serde",
+ "toml",
+]
+
+[[package]]
+name = "kuda-ssh"
+version = "0.1.0"
+dependencies = [
+ "kuda-core",
+ "kuda-runner",
+ "serde",
+ "toml",
+]
+
+[[package]]
+name = "kuda-status"
+version = "0.1.0"
+
+[[package]]
+name = "kuda-systemd"
+version = "0.1.0"
+dependencies = [
+ "kuda-core",
+ "kuda-service",
+]
+
+[[package]]
+name = "kuda-trigger"
+version = "0.1.0"
+
+[[package]]
+name = "kuda-tunnel"
+version = "0.1.0"
+
+[[package]]
+name = "kuda-vcs"
+version = "0.1.0"
 
 [[package]]
 name = "libc"
@@ -1160,9 +1160,9 @@ dependencies = [
 
 [[package]]
 name = "ureq-proto"
-version = "0.6.4"
+version = "0.6.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f86fd172ccca569e458f61b6bdd6220965a9ef36e672a6852953b51a0e1583be"
+checksum = "841583fc36089d7d59419568ae157f43a5a03a2e5a81ba87c77d1596ef46e922"
 dependencies = [
  "base64",
  "http",

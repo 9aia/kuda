@@ -1,38 +1,38 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/bupha-cli",
-    "crates/bupha-systemd",
-    "crates/bupha-core",
-    "crates/bupha-trigger",
-    "crates/bupha-vcs",
-    "crates/bupha-git",
-    "crates/bupha-queue",
-    "crates/bupha-queue-redb",
-    "crates/bupha-service",
-    "crates/bupha-secret",
-    "crates/bupha-keyring",
-    "crates/bupha-dotenv",
-    "crates/bupha-config",
-    "crates/bupha-config-toml",
-    "crates/bupha-cache",
-    "crates/bupha-cache-sccache",
-    "crates/bupha-ssh",
-    "crates/bupha-status",
-    "crates/bupha-github",
-    "crates/bupha-runner",
-    "crates/bupha-dagger",
-    "crates/bupha-shell",
-    "crates/bupha-tunnel",
-    "crates/bupha-cloudflared",
+    "crates/kuda-cli",
+    "crates/kuda-systemd",
+    "crates/kuda-core",
+    "crates/kuda-trigger",
+    "crates/kuda-vcs",
+    "crates/kuda-git",
+    "crates/kuda-queue",
+    "crates/kuda-queue-redb",
+    "crates/kuda-service",
+    "crates/kuda-secret",
+    "crates/kuda-keyring",
+    "crates/kuda-dotenv",
+    "crates/kuda-config",
+    "crates/kuda-config-toml",
+    "crates/kuda-cache",
+    "crates/kuda-cache-sccache",
+    "crates/kuda-ssh",
+    "crates/kuda-status",
+    "crates/kuda-github",
+    "crates/kuda-runner",
+    "crates/kuda-dagger",
+    "crates/kuda-shell",
+    "crates/kuda-tunnel",
+    "crates/kuda-cloudflared",
 ]
 
 [workspace.package]
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
-repository = "https://github.com/9aia/bupha"
-description = "The oxpecker on your repo's back — headless CI: watch, queue, run, report"
+repository = "https://github.com/9aia/kuda"
+description = "A hippocampus for your codebase — repo memory: index, query, verify"
 
 # The profile that 'dist' will build with
 [profile.dist]
@@ -40,27 +40,27 @@ inherits = "release"
 lto = "thin"
 
 [workspace.dependencies]
-bupha-core = { path = "crates/bupha-core", version = "0.1.0" }
-bupha-trigger = { path = "crates/bupha-trigger", version = "0.1.0" }
-bupha-vcs = { path = "crates/bupha-vcs", version = "0.1.0" }
-bupha-git = { path = "crates/bupha-git", version = "0.1.0" }
-bupha-queue = { path = "crates/bupha-queue", version = "0.1.0" }
-bupha-queue-redb = { path = "crates/bupha-queue-redb", version = "0.1.0" }
-bupha-service = { path = "crates/bupha-service", version = "0.1.0" }
-bupha-secret = { path = "crates/bupha-secret", version = "0.1.0" }
-bupha-keyring = { path = "crates/bupha-keyring", version = "0.1.0" }
-bupha-dotenv = { path = "crates/bupha-dotenv", version = "0.1.0" }
-bupha-config = { path = "crates/bupha-config", version = "0.1.0" }
-bupha-config-toml = { path = "crates/bupha-config-toml", version = "0.1.0" }
-bupha-cache = { path = "crates/bupha-cache", version = "0.1.0" }
-bupha-cache-sccache = { path = "crates/bupha-cache-sccache", version = "0.1.0" }
-bupha-ssh = { path = "crates/bupha-ssh", version = "0.1.0" }
+kuda-core = { path = "crates/kuda-core", version = "0.1.0" }
+kuda-trigger = { path = "crates/kuda-trigger", version = "0.1.0" }
+kuda-vcs = { path = "crates/kuda-vcs", version = "0.1.0" }
+kuda-git = { path = "crates/kuda-git", version = "0.1.0" }
+kuda-queue = { path = "crates/kuda-queue", version = "0.1.0" }
+kuda-queue-redb = { path = "crates/kuda-queue-redb", version = "0.1.0" }
+kuda-service = { path = "crates/kuda-service", version = "0.1.0" }
+kuda-secret = { path = "crates/kuda-secret", version = "0.1.0" }
+kuda-keyring = { path = "crates/kuda-keyring", version = "0.1.0" }
+kuda-dotenv = { path = "crates/kuda-dotenv", version = "0.1.0" }
+kuda-config = { path = "crates/kuda-config", version = "0.1.0" }
+kuda-config-toml = { path = "crates/kuda-config-toml", version = "0.1.0" }
+kuda-cache = { path = "crates/kuda-cache", version = "0.1.0" }
+kuda-cache-sccache = { path = "crates/kuda-cache-sccache", version = "0.1.0" }
+kuda-ssh = { path = "crates/kuda-ssh", version = "0.1.0" }
 serde_json = "1"
-bupha-status = { path = "crates/bupha-status", version = "0.1.0" }
-bupha-runner = { path = "crates/bupha-runner", version = "0.1.0" }
-bupha-tunnel = { path = "crates/bupha-tunnel", version = "0.1.0" }
-bupha-dagger = { path = "crates/bupha-dagger", version = "0.1.0" }
-bupha-shell = { path = "crates/bupha-shell", version = "0.1.0" }
-bupha-github = { path = "crates/bupha-github", version = "0.1.0" }
-bupha-cloudflared = { path = "crates/bupha-cloudflared", version = "0.1.0" }
-bupha-systemd = { path = "crates/bupha-systemd", version = "0.1.0" }
+kuda-status = { path = "crates/kuda-status", version = "0.1.0" }
+kuda-runner = { path = "crates/kuda-runner", version = "0.1.0" }
+kuda-tunnel = { path = "crates/kuda-tunnel", version = "0.1.0" }
+kuda-dagger = { path = "crates/kuda-dagger", version = "0.1.0" }
+kuda-shell = { path = "crates/kuda-shell", version = "0.1.0" }
+kuda-github = { path = "crates/kuda-github", version = "0.1.0" }
+kuda-cloudflared = { path = "crates/kuda-cloudflared", version = "0.1.0" }
+kuda-systemd = { path = "crates/kuda-systemd", version = "0.1.0" }

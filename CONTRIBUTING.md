@@ -5,28 +5,29 @@ dogfoods its own CI. Fork freely under MIT.
 
 ## Layout
 
-`crates/` — rust workspace. `bupha-core` is pure domain (queue,
-config); ports are crates: `bupha-runner`, `bupha-tunnel`,
-`bupha-trigger`, `bupha-status`; impls: `bupha-github` (trigger +
-sink), `bupha-shell`/`bupha-dagger`/`bupha-ssh` (runners), `bupha-cloudflared`
-(tunnel), `bupha-systemd` (install helpers — `Service` port pending);
-`bupha` (cli) is the composition root. `modules/dagger/` is the
-shared pipeline module (Python SDK).
+`crates/` — rust workspace. `kuda-core` is pure domain (cards,
+symbols, edges, provenance); ports are crates: `kuda-extract`,
+`kuda-summarize`, `kuda-store`, `kuda-vcs`; impls:
+`kuda-manifest`/`kuda-treesitter`/`kuda-lsp` (extractors),
+`kuda-template`/`kuda-llm` (summarizers), `kuda-store-sqlite`
+(store), `kuda-git` (vcs); `kuda` (cli) is the composition root.
+`modules/dagger/` is the shared pipeline module (Python SDK).
 
 ## Rules of thumb
 
-- New runner/tunnel/trigger = a new impl crate, not a core change.
+- New extractor/summarizer/store = a new impl crate, not a core
+  change. New language = a `data/langs/` file, not an engine edit.
 - `cargo build --workspace` and `cargo test --workspace` must stay green
-  (unit tests + the e2e in `crates/bupha-cli/tests/` — no docker needed).
+  (unit tests + the e2e in `crates/kuda-cli/tests/` — no docker needed).
 - Keep the binary dependency-light and sync; no async runtime.
 - Commits: conventional prefixes (`feat:`/`fix:`/`refactor:`/`docs:`/`chore:`).
-- Never commit secrets — `bupha.toml` takes names of env vars, not values.
+- Never commit secrets — `kuda.toml` takes names of env vars, not values.
 
 ## Releasing
 
-Seed once with `bupha deploy release` (publishes workspace crates,
+Seed once with `kuda deploy release` (publishes workspace crates,
 tags `{repo}-v{ver}`). Afterwards `scripts/release.sh` runs on each
-`main` push via bupha's own dogfood loop — bump, publish, tag, dist
+`main` push via kuda's own dogfood loop — bump, publish, tag, dist
 binaries. See `docs/explanation/release-model.md`.
 
 ## Docs

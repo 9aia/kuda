@@ -1,84 +1,79 @@
-# bupha
+# kuda
 
-*The oxpecker on your repo's back.*
+*A hippocampus for your codebase.*
 
-Headless CI, built for agent-driven setups. A single binary that
-watches pushes, queues them (latest-wins or bounded FIFO), runs your
-pipeline per sha, and reports commit statuses — on a Linux box
-with Git.
+Repo memory for agent-driven workflows. A single binary that crawls
+your repos and builds a compressed, freshness-tracked index — repo
+cards, module cards, a symbol/dependency graph — that agents query
+instead of re-exploring from scratch every session.
 
 ```
-push ──► webhook ──► HMAC ──► dedup ──► queue ──► worktree ──► runner ──► status
-            (signed delivery)   id     latest-wins   detached   per repo
-                                   or bounded "all"   git dir
+repos ──► extract ──► summarize ──► index ──► store ──► query
+           │            │            │         │         │
+     tree-sitter/LSP  card gen   graph +   .kuda/    CLI + MCP
+     manifests       per module   cards    artifacts   server
 ```
 
 ## Features
 
-- single binary — no CI server product, no UI, no YAML DSL
-- latest-wins batching: 1 run in flight, 1 pending sha per repo,
-  superseded commits get honest statuses
-- multi-repo webhook fan-in, HMAC-verified, repo-routed
-- every concern behind a port: runner (`dagger` | `shell` | `ssh`),
-  tunnel (`cloudflared` | `direct` | `none`), forge
-  (`github` today), VCS (`git`), queue store (`redb`), service
-  (`systemd`), secrets (`keyring` | `env` file), config (`toml`),
-  cache (`sccache`) — ports/impls are separate crates
-- persistent queue across restarts (embedded ACID store);
-  detached-git-worktree isolation
-- self-contained deploy: systemd unit, webhook registration, env seed,
-  endpoint check
-- sccache-compatible artifact cache (local, garage/minio/R2/S3)
-- Docker/dagger optional — `runner.kind = "shell"` needs only git;
-  `kind = "ssh"` runs on a remote host
+- tiered memory: **L0** repo card (~1k tokens, always-loadable),
+  **L1** module cards (on-demand), **L2** symbol/dep index —
+  memory is an index into code, never a copy of it
+- provenance on every card — `{files, content hashes, commit sha}`;
+  `kuda status` diffs against HEAD and reports per-card drift
+- every concern behind a port: extractors (`manifest` |
+  `tree-sitter` | `lsp`), summarizers (`template` | `llm`),
+  store (`sqlite`), vcs (`git`), serve (`cli` | `mcp`) —
+  ports/impls are separate crates
+- language knowledge is *data* (grammar + query + manifest files),
+  not engine code — a new language is a data change, not a release
+- summarizer defaults to `template` (deterministic, zero-model);
+  `llm` is an impl detail behind the port
+- multi-repo workspaces — sibling checkouts and git-dep edges
+  resolve across repo boundaries
+- agents consume via MCP; humans and scripts via CLI
 
-## vs GitHub Actions
+## vs. grep + re-read every session
 
-(full table: [comparison](https://9aia.com/bupha/comparison.html))
-
-- pushes hit **your** box — no runner minutes, no cold-queue wait,
-  secrets never leave the machine (cache backend is your pick:
-  local, or your own S3/R2/minio)
-- the same pipeline runs in CI and locally (`bupha run`); no YAML DSL
-- latest-wins batching built in (GHA `concurrency` groups without
-  the syntax)
-- trade-off: one box, serialized runs — no managed fleet, no matrix
-  UI, no marketplace
+- planning: `kuda dependents EvalScheme` → every caller, across repos
+- doc sweeps: `kuda refs OldFlow --docs` → code *and* markdown/
+  comment mentions, enumerable and verifiable
+- staleness is explicit: cards say which files they describe and
+  which sha they were built at — trust is checked, not assumed
+- cards end in `verify:` file lists — memory is a hypothesis,
+  not ground truth
 
 ## Install
 
-Platform: **Linux + systemd** — `deploy service` needs systemd, the
-shell runner needs bash. macOS/Windows are unsupported for now.
+Platform: **Linux + git**. Indexing needs nothing else for the
+`manifest`/`treesitter` path; `lsp` impl needs the language server.
 
 ```sh
-cargo install bupha                              # crates.io (post-0.1.0)
-cargo install --git https://github.com/9aia/bupha bupha   # today
+cargo install kuda                                  # crates.io (post-0.1.0)
+cargo install --git https://github.com/9aia/kuda kuda   # today
 ```
 
 ## Quickstart
 
 ```sh
 cd your-repo
-bupha init              # scaffold the dagger module + delegate
-bupha deploy env        # secrets: env → OS keyring → ~/.config/bupha/env
+kuda init              # detect languages -> kuda.toml + .kuda/
+kuda sync              # incremental index (hash -> extract -> cards)
+kuda status            # provenance vs HEAD: "3/40 cards stale"
+kuda map               # render the L0 repo card (always-load blob)
 
-# write bupha.toml — see examples/bupha.toml.example
-bupha deploy service    # write + enable the systemd unit
-bupha deploy webhook    # register the repo's push hook
-bupha deploy check      # verify unit, creds, endpoint
-
-# offboarding is one command per layer — nothing left behind:
-bupha destroy webhook   # remove the repo hook
-bupha destroy service   # stop + remove the unit
-bupha destroy worktrees # clean detached checkouts
+kuda card plugin-engine-exec     # module card + freshness
+kuda find EvalScheme             # symbol -> file:line
+kuda dependents apply_desugar    # reverse dep lookup
+kuda refs OldFlow --docs         # code + docs/comments mentions
+kuda mcp                         # serve the index over MCP
+kuda doctor                      # extractor/store health
 ```
-
-Push. `ci/bupha` commit statuses appear on each sha.
 
 ## Docs
 
-Full docs: **[9aia.com/bupha](https://9aia.com/bupha/)** — tutorial, how-tos,
-cli/config/crate-API reference, architecture (Diátaxis).
+Full docs: **[9aia.com/kuda](https://9aia.com/kuda/)** — tutorial,
+how-tos, cli/config/crate-API reference, architecture (Diátaxis).
 
 [CONTRIBUTING](CONTRIBUTING.md) · [SECURITY](SECURITY.md) ·
 [LICENSE](LICENSE) (MIT) · [project](project/index.md) — TODO, backlog, ADRs

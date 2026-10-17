@@ -1,16 +1,35 @@
-# TODO — next version (post-0.1.0)
+# TODO — 0.1.0
 
-## Post-publish
-- [ ] `MODULE_SHA` — bump pinned dagger install to the release tag.
-- [ ] `CHANGELOG.md` — 0.1.0 entry (manual now, generated later).
-- [ ] README badges — crates.io + license (resolve green once live).
+## Core model
+- [ ] `kuda-core` — RepoCard / ModuleCard / Symbol / DepEdge /
+      Provenance{files,hash,sha}; Lang descriptors loaded from
+      `data/langs/*.toml` — a new language is a data change.
 
-## Queue / jobs
-- [ ] `[[repo.jobs]]` — multiple pipelines per repo, each with own
-      queue policy + runner (e.g. `ci` gate + debounced `release`).
-- [ ] Distributed runners — `bupha-ssh` lands first; remote trigger
-      impl (`bupha-http`?) for cross-box fan-out; unblocks multi-arch
-      + release.sh's "other arches" dist step.
+## Ports + first impls
+- [ ] `kuda-extract` port + `kuda-manifest` impl (cargo/npm/go/py
+      manifests -> package graph; no parser needed — lands first)
+- [ ] `kuda-treesitter` impl — grammar+query data per language
+      (rust first)
+- [ ] `kuda-store` port + `kuda-store-sqlite` impl (L2 graph)
+- [ ] `kuda-vcs` port + `kuda-git` impl (sha, changed files ->
+      staleness) — bupha's vcs/git crates already fit; repurpose
+- [ ] `kuda-summarize` port + `kuda-template` impl (deterministic
+      cards: API list, deps, commands — zero-model default)
 
-## Tests
-- [ ] e2e for cancel/supersede path (second signed push in flight).
+## Pipeline + queries
+- [ ] `kuda sync` — incremental: hash -> re-extract changed ->
+      regen affected cards only; `--full` for cold start
+- [ ] `kuda status` — provenance sha vs HEAD -> per-card drift
+- [ ] `kuda-query` — find / dependents / card / refs (--docs)
+- [ ] `kuda-cards` — .kuda/index.yaml + modules/*.yaml render;
+      machine owns api/deps fields, humans own `notes:` region;
+      every card ends with `verify:` file list
+
+## Scaffold debt (forked from bupha — rewrite crate-by-crate)
+- [ ] Crates still implement bupha's CI domain. Per ADR-0001:
+      repurpose `kuda-core`/`kuda-config*`/`kuda-secret*`/`kuda-vcs`/
+      `kuda-git`/`kuda-cli`; drop `kuda-trigger`, `kuda-queue*`,
+      `kuda-runner`/`kuda-dagger`/`kuda-shell`, `kuda-tunnel*`,
+      `kuda-service`/`kuda-systemd`, `kuda-status`, `kuda-github`,
+      `kuda-cache*`; hold `kuda-ssh` (remote-index candidate).
+- [ ] `modules/dagger` — keep as kuda's own CI module (dogfoods bupha).

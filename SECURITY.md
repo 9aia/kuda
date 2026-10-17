@@ -1,29 +1,27 @@
 # Security Policy
 
 Report vulnerabilities privately to the maintainers via GitHub:
-https://github.com/9aia/bupha/security/advisories/new
+https://github.com/9aia/kuda/security/advisories/new
 
 Do not open public issues for security reports.
 
 ## Scope
 
-- `bupha watch` binds a webhook listener — HMAC verification of
-  `X-Hub-Signature-256` is mandatory; requests are capped at 2 MiB and
-  unauthenticated payloads never reach the runner.
-- Secrets (`BUPHA_WEBHOOK_SECRET`, `BUPHA_TOKEN`) resolve via env var
-  → OS keyring (`secret-tool`) → `~/.config/bupha/env` (chmod 600);
-  values never appear in config files and are passed to runners only
-  via the runner's own documented mechanism (`env://` for dagger).
-- The tunnel is a child process under supervision; failures are
-  restarted, credentials stay in `~/.cloudflared/`.
+- `kuda sync` parses source trees and (optionally) spawns language
+  servers — extractor plugins run with the user's privileges over
+  the indexed paths only.
+- `kuda mcp` serves the index to local agent clients; it exposes
+  repo structure and code locations — treat the bound socket like
+  the code itself.
+- Secrets (`KUDA_LLM_KEY` and future provider keys) resolve via
+  env var → OS keyring (`secret-tool`) → `~/.config/kuda/env`
+  (chmod 600); values never appear in `kuda.toml` or `.kuda/`
+  artifacts.
+- The `llm` summarizer sends code fragments to a third-party
+  provider — it is opt-in; `template` (default) is fully local.
 
 ## Notes
 
-Request bodies are capped (2 MiB), HMAC checks are constant-time,
-`X-GitHub-Delivery` replays are deduped (bounded 10k ring), the pushed
-sha must be hex before it touches worktree paths or status URLs,
-superseded/cancelled shas get honest statuses, and `bupha.toml`
-rejects unknown fields. See `project/TODO.md` for remaining hardening.
-
-We respond to reports as quickly as we can; expect acknowledgement
-within a few days.
+- Index artifacts (`index.sqlite`, cards) contain paths, symbol
+  names, and snippets — they inherit the repo's confidentiality;
+  `.kuda/` files committed to a repo travel with it.

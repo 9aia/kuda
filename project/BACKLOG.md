@@ -2,29 +2,34 @@
 
 Ideas parked, not scheduled. Pull into project/TODO.md when picked up.
 
-## Docs / site
-- [ ] Auto-deploy docs on docs-branch changes (and on repo changes
-      when the API surface moves — via the dogfood loop).
+## Extractors
+- [ ] `kuda-lsp` impl — SCIP / workspace-symbol crawl for cross-file
+      refs where a server exists (rust-analyzer, gopls, tsserver)
+- [ ] Per-lang data packs: python, ts, go, java — grammar+query files
+      under `data/langs/`
 
-## Migration
-- [ ] `bupha migrate` — one-shot GHA workflow → `ci.sh`+`bupha.toml`
-      converter (ADR-0001).
+## Summarizers
+- [ ] `kuda-llm` impl — prose cards, provider-pluggable; grounding
+      discipline: cards cite files (`verify:`), no invented facts
+- [ ] Embedding/RAG impl — optional L2 backend for semantic search
+      (see ADR-0001 option B)
 
-## Runners / triggers
-- [ ] `runner kind=shell/ssh cmd` — inline shell strings vs file
-      path; decide semantics.
-- [ ] Trigger impls: gitea/gitlab.
-- [ ] Runner impls: earthly, nix.
-- [ ] Cargo-feature the impls in the binary — today `cargo install
-      bupha` builds every impl's dep tree (incl. dagger's) even for
-      shell-only users; heavy impls should be opt-in features.
+## Workspace / multi-repo
+- [ ] `kuda-workspace` — workspace.yaml at parent level; git-dep ->
+      sibling-checkout resolution; cross-repo `dependents`
 
-- [ ] `LaunchdService`/`WinService` impls (`bupha-service` port)
-- [ ] `keyring`-crate impl (`bupha-secret` port — macOS/Win)
-- [ ] `bupha-jj`/`bupha-hg` impls (`bupha-vcs` port)
-- [ ] SQLite/remote queue store (`bupha-queue` port — prerequisite
-  for distributed runners)
-- [ ] Native file/S3/R2/GCS cache impls (`bupha-cache` port —
-  today sccache conf reaches them)
-- [ ] Remote runner impls beyond ssh (e.g. K8s, hosted agents —
-  `RunHandle` doesn't assume local processes)
+## Surfaces
+- [ ] `kuda-mcp` — MCP server impl; agents query index as tools
+- [ ] `kuda watch` — reindex on file events (daemon)
+- [ ] `kuda session` — episodic memory: learnings from agent sessions
+      distilled into cards (semantic vs episodic split)
+
+## Ecosystem
+- [ ] `malurus` — sibling critic tool (9aia/malurus): extracts claims
+      from docs/comments/cards and verifies them against this index;
+      third tool "reconcile" auto-fixes confirmed violations
+- [ ] Dogfood target: index the handl-lang org (~70 sibling repos)
+      as the proving ground
+
+## CI / release
+- [ ] Dogfood bupha for kuda's own CI (bupha.toml + modules/dagger)
