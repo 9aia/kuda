@@ -20,7 +20,7 @@ changed="$(git diff --name-only "${last}..HEAD")"
 order="kuda-core kuda-vcs kuda-config kuda-secret \
 kuda-extract kuda-store kuda-summarize kuda-cards \
 kuda-git kuda-config-toml kuda-keyring kuda-dotenv \
-kuda-manifest kuda-treesitter kuda-store-sqlite kuda-template \
+kuda-manifest kuda-treesitter kuda-lsp kuda-store-sqlite kuda-template \
 kuda-query kuda"
 
 touched=""

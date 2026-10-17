@@ -6,6 +6,7 @@ members = [
     "crates/kuda-extract",
     "crates/kuda-manifest",
     "crates/kuda-treesitter",
+    "crates/kuda-lsp",
     "crates/kuda-store",
     "crates/kuda-store-sqlite",
     "crates/kuda-summarize",
@@ -38,6 +39,7 @@ kuda-core = { path = "crates/kuda-core", version = "0.1.0" }
 kuda-extract = { path = "crates/kuda-extract", version = "0.1.0" }
 kuda-manifest = { path = "crates/kuda-manifest", version = "0.1.0" }
 kuda-treesitter = { path = "crates/kuda-treesitter", version = "0.1.0" }
+kuda-lsp = { path = "crates/kuda-lsp", version = "0.1.0" }
 kuda-store = { path = "crates/kuda-store", version = "0.1.0" }
 kuda-store-sqlite = { path = "crates/kuda-store-sqlite", version = "0.1.0" }
 kuda-summarize = { path = "crates/kuda-summarize", version = "0.1.0" }

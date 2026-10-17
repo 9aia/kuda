@@ -20,6 +20,7 @@ deps:
 - kuda-core
 - kuda-extract
 - kuda-git
+- kuda-lsp
 - kuda-manifest
 - kuda-query
 - kuda-store
@@ -40,8 +41,8 @@ provenance:
   - Cargo.toml
   - crates/kuda-cli/Cargo.toml
   hashes:
-  - 4bca7a30c292da35b4fb3543fa064535db13959a
-  - d5205ec590d515819f537164585ecb05709ea77d
-  commit_sha: 6418f61115c3a0d461be9fa78d8be254dffeed45
-  generated_at: '1792276990'
+  - 2f7be43b566485f612f08c426c324873ec57f009
+  - eb4e91a4a71ee317eb878cc8f2c72acdc3e6026d
+  commit_sha: 96c0cb3da733ebae58c2fa02d627ee8609ff04ee
+  generated_at: '1792277673'
   generator: kuda-template/0.1.0

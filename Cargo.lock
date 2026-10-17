@@ -234,6 +234,7 @@ dependencies = [
  "kuda-core",
  "kuda-extract",
  "kuda-git",
+ "kuda-lsp",
  "kuda-manifest",
  "kuda-query",
  "kuda-store",
@@ -307,6 +308,16 @@ name = "kuda-keyring"
 version = "0.1.0"
 dependencies = [
  "kuda-secret",
+]
+
+[[package]]
+name = "kuda-lsp"
+version = "0.1.0"
+dependencies = [
+ "kuda-core",
+ "kuda-extract",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

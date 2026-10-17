@@ -6,8 +6,8 @@
 # root = "."                       # repo root (default: toml's dir)
 
 [extract]
-kinds = ["manifest", "treesitter"] # impl crates, tried in order
-# lsp_server = "rust-analyzer"     # kuda-lsp impl: server cmd per lang
+kinds = ["manifest", "treesitter", "lsp"] # impl crates, tried in order
+lsp_server = "rust-analyzer"     # kuda-lsp impl: server cmd per lang
 
 [summarize]
 kind = "template"                  # deterministic cards, zero-model

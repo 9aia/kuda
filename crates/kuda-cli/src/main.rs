@@ -70,6 +70,9 @@ enum Cmd {
     },
     /// Serve the index over MCP (stdio).
     Mcp,
+    /// Speak ACP — Agent Client Protocol surface for any agent
+    /// client (zed, cline, cursor).
+    Acp,
     /// Extractor/store/config health.
     Doctor,
 }
@@ -87,6 +90,7 @@ fn main() {
         Cmd::Refs { name, docs } => refs(&cli, name, *docs),
         Cmd::Doctor => doctor(&cli),
         Cmd::Mcp => mcp(&cli),
+        Cmd::Acp => acp(&cli),
     };
     std::process::exit(code);
 }
@@ -211,6 +215,9 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
         match k.as_str() {
             "manifest" => extractors.push(Box::new(kuda_manifest::ManifestExtractor)),
             "treesitter" => extractors.push(Box::new(kuda_treesitter::TreesitterExtractor)),
+            "lsp" => extractors.push(Box::new(kuda_lsp::LspExtractor {
+                server_cmd: cfg.extract.lsp_server.clone(),
+            })),
             other => eprintln!("extract: unknown kind {other} (impl crate?)"),
         }
     }
@@ -657,6 +664,94 @@ fn mcp(cli: &Cli) -> i32 {
         let _ = std::io::Write::flush(&mut std::io::stdout());
     }
     0
+}
+
+/// Minimal ACP server — same index, different wire protocol.
+/// Prompts are tiny query strings: `find X`, `dependents X`,
+/// `card X`, `map`, `status`; anything else echoes the L0 card.
+fn acp(cli: &Cli) -> i32 {
+    use serde_json::{json, Value};
+    use std::io::BufRead;
+    let stdin = std::io::stdin();
+    let dir = root(cli);
+    let cfg = load_config(cli);
+    for line in stdin.lock().lines() {
+        let Ok(line) = line else { break };
+        if line.trim().is_empty() {
+            continue;
+        }
+        let Ok(req) = serde_json::from_str::<Value>(&line) else {
+            continue;
+        };
+        let method = req["method"].as_str().unwrap_or("");
+        let id = req.get("id").cloned().unwrap_or(Value::Null);
+        match method {
+            "initialize" => println!("{}", json!({
+                "jsonrpc":"2.0","id":id,
+                "result":{"protocolVersion":1,
+                    "agentCapabilities":{"loadSession":false,
+                        "promptCapabilities":{"image":false,"audio":false,"embeddedContext":true}},
+                    "agentInfo":{"name":"kuda","version":"0.1.0","title":"kuda — repo memory"}}
+            })),
+            "session/new" => println!("{}", json!({
+                "jsonrpc":"2.0","id":id,
+                "result":{"sessionId":"kuda-default"}
+            })),
+            "session/prompt" => {
+                let sid = req["params"]["sessionId"].as_str().unwrap_or("kuda-default");
+                let prompt: String = req["params"]["prompt"]
+                    .as_array()
+                    .map(|a| {
+                        a.iter()
+                            .filter_map(|b| b["text"].as_str())
+                            .collect::<Vec<_>>()
+                            .join(" ")
+                    })
+                    .unwrap_or_default();
+                let text = acp_answer(&dir, &cfg, &prompt);
+                println!("{}", json!({"jsonrpc":"2.0","method":"session/update",
+                    "params":{"sessionId":sid,"update":{"sessionUpdate":"agent_message_chunk",
+                        "content":{"type":"text","text":text}}}}));
+                println!("{}", json!({"jsonrpc":"2.0","id":id,
+                    "result":{"stopReason":"end_turn"}}));
+            }
+            "session/cancel" | "authenticated" => {}
+            _ => println!("{}", json!({"jsonrpc":"2.0","id":id,
+                "error":{"code":-32601,"message":"method not found"}})),
+        }
+        let _ = std::io::Write::flush(&mut std::io::stdout());
+    }
+    0
+}
+
+/// Turn a natural-ish prompt into an index query.
+fn acp_answer(dir: &Path, cfg: &Config, prompt: &str) -> String {
+    let p = prompt.trim();
+    let (verb, arg) = p.split_once(' ').map(|(v, a)| (v, a.trim())).unwrap_or((p, ""));
+    match verb.to_ascii_lowercase().as_str() {
+        "find" => kuda_store_sqlite::SqliteStore::open(&dir.join(&cfg.store.path))
+            .and_then(|s| kuda_query::find(&s, arg))
+            .map(|v| {
+                v.iter()
+                    .map(|s| format!("{}:{} {:?} {}", s.file.display(), s.line, s.kind, s.module))
+                    .collect::<Vec<_>>()
+                    .join("\n")
+            })
+            .unwrap_or_else(|e| format!("error: {e}")),
+        "dependents" | "deps" => kuda_store_sqlite::SqliteStore::open(&dir.join(&cfg.store.path))
+            .and_then(|s| kuda_query::dependents(&s, arg))
+            .map(|v| {
+                v.iter()
+                    .map(|e| format!("{} --{:?}--> {}", e.from, e.kind, e.to))
+                    .collect::<Vec<_>>()
+                    .join("\n")
+            })
+            .unwrap_or_else(|e| format!("error: {e}")),
+        "card" => std::fs::read_to_string(dir.join(format!(".kuda/modules/{}.yaml", safe(arg))))
+            .unwrap_or_else(|e| format!("error: {e}")),
+        "map" | "status" | _ => std::fs::read_to_string(dir.join(".kuda/index.yaml"))
+            .unwrap_or_else(|e| format!("error: {e}")),
+    }
 }
 
 fn doctor(cli: &Cli) -> i32 {

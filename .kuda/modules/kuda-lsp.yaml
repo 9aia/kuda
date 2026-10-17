@@ -1,0 +1,140 @@
+name: kuda-lsp
+path: crates/kuda-lsp/Cargo.toml
+purpose: 'Extract impl: LSP server-backed symbol extraction (documentSymbol)'
+api:
+- name: kuda-lsp
+  kind: module
+  file: crates/kuda-lsp/Cargo.toml
+  line: 1
+  module: kuda-lsp
+- name: LspExtractor
+  kind: type
+  file: crates/kuda-lsp/src/lib.rs
+  line: 14
+  module: kuda-lsp
+- name: LspClient
+  kind: type
+  file: crates/kuda-lsp/src/lib.rs
+  line: 19
+  module: kuda-lsp
+- name: spawn
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 27
+  module: kuda-lsp
+- name: send
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 56
+  module: kuda-lsp
+- name: recv
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 63
+  module: kuda-lsp
+- name: request
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 83
+  module: kuda-lsp
+- name: notify
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 98
+  module: kuda-lsp
+- name: shutdown
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 102
+  module: kuda-lsp
+- name: lsp_kind
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 110
+  module: kuda-lsp
+- name: flatten_syms
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 122
+  module: kuda-lsp
+- name: module_of
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 157
+  module: kuda-lsp
+- name: walk_files
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 174
+  module: kuda-lsp
+- name: kind
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 205
+  module: kuda-lsp
+- name: extract
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 209
+  module: kuda-lsp
+deps:
+- kuda-core
+- kuda-extract
+- serde
+- serde_json
+- kuda_core
+- kuda_extract
+- serde_json
+notes: ''
+verify:
+- crates/kuda-lsp/Cargo.toml
+- crates/kuda-lsp/src/lib.rs
+- crates/kuda-lsp/src/lib.rs
+- crates/kuda-lsp/src/lib.rs
+- crates/kuda-lsp/src/lib.rs
+- crates/kuda-lsp/src/lib.rs
+- crates/kuda-lsp/src/lib.rs
+- crates/kuda-lsp/src/lib.rs
+- crates/kuda-lsp/src/lib.rs
+- crates/kuda-lsp/src/lib.rs
+- crates/kuda-lsp/src/lib.rs
+- crates/kuda-lsp/src/lib.rs
+- crates/kuda-lsp/src/lib.rs
+- crates/kuda-lsp/src/lib.rs
+- crates/kuda-lsp/src/lib.rs
+provenance:
+  files:
+  - crates/kuda-lsp/Cargo.toml
+  - crates/kuda-lsp/src/lib.rs
+  - crates/kuda-lsp/src/lib.rs
+  - crates/kuda-lsp/src/lib.rs
+  - crates/kuda-lsp/src/lib.rs
+  - crates/kuda-lsp/src/lib.rs
+  - crates/kuda-lsp/src/lib.rs
+  - crates/kuda-lsp/src/lib.rs
+  - crates/kuda-lsp/src/lib.rs
+  - crates/kuda-lsp/src/lib.rs
+  - crates/kuda-lsp/src/lib.rs
+  - crates/kuda-lsp/src/lib.rs
+  - crates/kuda-lsp/src/lib.rs
+  - crates/kuda-lsp/src/lib.rs
+  - crates/kuda-lsp/src/lib.rs
+  hashes:
+  - 5973c4942412a280d2e776ea7a560066fd260da8
+  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
+  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
+  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
+  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
+  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
+  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
+  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
+  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
+  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
+  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
+  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
+  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
+  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
+  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
+  commit_sha: 96c0cb3da733ebae58c2fa02d627ee8609ff04ee
+  generated_at: '1792277673'
+  generator: kuda-template/0.1.0
