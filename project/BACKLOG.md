@@ -35,3 +35,5 @@ Ideas parked, not scheduled. Pull into project/TODO.md when picked up.
 
 ## CI / release
 - [ ] Dogfood bupha for kuda's own CI (bupha.toml + modules/dagger)
+- [ ] crates.io release — `scripts/release.sh` publishes the
+      crate graph in dep order; needs a dry-run pass + tags
