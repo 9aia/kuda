@@ -1,4 +1,4 @@
-//! TOML impl of `ConfigSource` — explicit path → $KUDA_CONFIG →
+//! TOML adapter of `ConfigSource` — explicit path → $KUDA_CONFIG →
 //! ./kuda.toml → ~/.config/kuda/kuda.toml.
 
 use kuda_config::ConfigSource;

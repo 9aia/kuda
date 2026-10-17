@@ -5,15 +5,15 @@
       Provenance{files,hash,sha}; Lang descriptors loaded from
       `data/langs/*.toml` — a new language is a data change.
 
-## Ports + first impls
-- [ ] `kuda-extract` port + `kuda-manifest` impl (cargo/npm/go/py
+## Ports + first adapters
+- [ ] `kuda-extract` port + `kuda-manifest` adapter (cargo/npm/go/py
       manifests -> package graph; no parser needed — lands first)
-- [ ] `kuda-treesitter` impl — grammar+query data per language
+- [ ] `kuda-treesitter` adapter — grammar+query data per language
       (rust first)
-- [ ] `kuda-store` port + `kuda-store-sqlite` impl (L2 graph)
-- [ ] `kuda-vcs` port + `kuda-git` impl (sha, changed files ->
+- [ ] `kuda-store` port + `kuda-store-sqlite` adapter (L2 graph)
+- [ ] `kuda-vcs` port + `kuda-git` adapter (sha, changed files ->
       staleness) — bupha's vcs/git crates already fit; repurpose
-- [ ] `kuda-summarize` port + `kuda-template` impl (deterministic
+- [ ] `kuda-summarize` port + `kuda-template` adapter (deterministic
       cards: API list, deps, commands — zero-model default)
 
 ## Pipeline + queries
@@ -27,7 +27,7 @@
 
 ## Scaffold debt (forked from bupha — rewrite crate-by-crate)
 - [x] Topology landed: CI crates dropped (recoverable from history
-      incl. `kuda-ssh`), ports+first impls stubbed, `kuda-core`
+      incl. `kuda-ssh`), ports+first adapters stubbed, `kuda-core`
       rewritten to the card/symbol/provenance domain, `kuda` CLI
       skeleton parses all subcommands (`init`/`doctor` work).
 - [ ] `modules/dagger` — keep as kuda's own CI module (dogfoods bupha).

@@ -1,6 +1,6 @@
 name: kuda-manifest
 path: crates/kuda-manifest/Cargo.toml
-purpose: 'Extract impl: package manifests -> package graph'
+purpose: 'Extract adapter: package manifests -> package graph'
 api:
 - name: kuda-manifest
   kind: module

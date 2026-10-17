@@ -1,6 +1,6 @@
 name: kuda-config-toml
 path: crates/kuda-config-toml/Cargo.toml
-purpose: 'Config impl: kuda.toml file (explicit path, env, ./, ~/.config)'
+purpose: 'Config adapter: kuda.toml file (explicit path, env, ./, ~/.config)'
 api:
 - name: kuda-config-toml
   kind: module

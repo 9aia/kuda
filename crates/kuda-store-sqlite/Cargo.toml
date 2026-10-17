@@ -1,6 +1,6 @@
 [package]
 name = "kuda-store-sqlite"
-description = "Store impl: sqlite L2 symbol/dep graph"
+description = "Store adapter: sqlite L2 symbol/dep graph"
 version.workspace = true
 edition.workspace = true
 license.workspace = true

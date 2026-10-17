@@ -1,6 +1,6 @@
 name: kuda-treesitter
 path: crates/kuda-treesitter/Cargo.toml
-purpose: 'Extract impl: tree-sitter grammar+query data -> symbols + import edges'
+purpose: 'Extract adapter: tree-sitter grammar+query data -> symbols + import edges'
 api:
 - name: kuda-treesitter
   kind: module

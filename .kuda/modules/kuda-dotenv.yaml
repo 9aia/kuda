@@ -1,6 +1,6 @@
 name: kuda-dotenv
 path: crates/kuda-dotenv/Cargo.toml
-purpose: 'Secret impl: KEY=VAL env file (chmod 600)'
+purpose: 'Secret adapter: KEY=VAL env file (chmod 600)'
 api:
 - name: kuda-dotenv
   kind: module

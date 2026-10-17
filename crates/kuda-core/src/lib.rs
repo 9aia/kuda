@@ -78,7 +78,7 @@ pub struct ModuleCard {
     pub name: String,
     /// Module root (dir or manifest path).
     pub path: PathBuf,
-    /// One line — template impl takes the first doc line.
+    /// One line — template adapter takes the first doc line.
     pub purpose: String,
     /// Public surface found by extraction.
     pub api: Vec<Symbol>,
@@ -159,7 +159,7 @@ pub struct ExtractCfg {
     /// Impl kinds tried in order: "manifest" | "treesitter" | "lsp".
     #[serde(default = "default_extract_kinds")]
     pub kinds: Vec<String>,
-    /// Server command for the lsp impl (per-language later).
+    /// Server command for the lsp adapter (per-language later).
     #[serde(default)]
     pub lsp_server: Option<String>,
 }
@@ -183,7 +183,7 @@ pub struct SummarizeCfg {
     /// "template" (deterministic, default) | "llm".
     #[serde(default = "default_summarize_kind")]
     pub kind: String,
-    /// Provider id for the llm impl; key resolves via secrets chain.
+    /// Provider id for the llm adapter; key resolves via secrets chain.
     #[serde(default)]
     pub provider: Option<String>,
     #[serde(default)]

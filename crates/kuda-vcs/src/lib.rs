@@ -1,5 +1,5 @@
 //! Vcs port — VCS operations over clones and detached worktrees.
-//! Git impl in `kuda-git`; jj/hg = new impl crates.
+//! Git adapter in `kuda-git`; jj/hg = new adapter crates.
 
 use std::path::Path;
 

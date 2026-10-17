@@ -6,17 +6,17 @@
 # root = "."                       # repo root (default: toml's dir)
 
 [extract]
-kinds = ["manifest", "treesitter", "lsp"] # impl crates, tried in order
-lsp_server = "rust-analyzer"     # kuda-lsp impl: server cmd per lang
+kinds = ["manifest", "treesitter", "lsp"] # adapter crates, tried in order
+lsp_server = "rust-analyzer"     # kuda-lsp adapter: server cmd per lang
 
 [summarize]
 kind = "template"                  # deterministic cards, zero-model
-# kind = "llm"                     # impl: kuda-llm
+# kind = "llm"                     # adapter: kuda-llm
 # provider = "anthropic"           # key via KUDA_LLM_KEY env/keyring
 # model = "..."
 
 [store]
-kind = "sqlite"                    # impl: kuda-store-sqlite
+kind = "sqlite"                    # adapter: kuda-store-sqlite
 path = ".kuda/index.sqlite"        # L2 graph — rebuildable, gitignored
 
 [cards]

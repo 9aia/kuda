@@ -1,6 +1,6 @@
 name: kuda-store-sqlite
 path: crates/kuda-store-sqlite/Cargo.toml
-purpose: 'Store impl: sqlite L2 symbol/dep graph'
+purpose: 'Store adapter: sqlite L2 symbol/dep graph'
 api:
 - name: kuda-store-sqlite
   kind: module

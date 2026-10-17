@@ -1,6 +1,6 @@
 [package]
 name = "kuda-lsp"
-description = "Extract impl: LSP server-backed symbol extraction (documentSymbol)"
+description = "Extract adapter: LSP server-backed symbol extraction (documentSymbol)"
 version.workspace = true
 edition.workspace = true
 license.workspace = true

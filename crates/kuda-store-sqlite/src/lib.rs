@@ -1,4 +1,4 @@
-//! Sqlite impl of `IndexStore` — single file, zero server,
+//! Sqlite adapter of `IndexStore` — single file, zero server,
 //! rebuildable. Lives at `.kuda/index.sqlite` (gitignored).
 
 use kuda_core::{DepEdge, EdgeKind, Symbol, SymbolKind};

@@ -7,7 +7,7 @@ dogfoods its own CI. Fork freely under MIT.
 
 `crates/` — rust workspace. `kuda-core` is pure domain (cards,
 symbols, edges, provenance); ports are crates: `kuda-extract`,
-`kuda-summarize`, `kuda-store`, `kuda-vcs`; impls:
+`kuda-summarize`, `kuda-store`, `kuda-vcs`; adapters:
 `kuda-manifest`/`kuda-treesitter`/`kuda-lsp` (extractors),
 `kuda-template`/`kuda-llm` (summarizers), `kuda-store-sqlite`
 (store), `kuda-git` (vcs); `kuda` (cli) is the composition root.
@@ -15,7 +15,7 @@ symbols, edges, provenance); ports are crates: `kuda-extract`,
 
 ## Rules of thumb
 
-- New extractor/summarizer/store = a new impl crate, not a core
+- New extractor/summarizer/store = a new adapter crate, not a core
   change. New language = a `data/langs/` file, not an engine edit.
 - `cargo build --workspace` and `cargo test --workspace` must stay green
   (unit tests + the e2e in `crates/kuda-cli/tests/` — no docker needed).

@@ -1,4 +1,4 @@
-//! Treesitter impl — grammar+query data -> symbols + import edges.
+//! Treesitter adapter — grammar+query data -> symbols + import edges.
 //! Per-language knowledge lives in `data/langs/*` (`grammar` id,
 //! `extensions`, `symbol_query`); this crate only runs a query
 //! over a grammar it has compiled in. New language = data file +

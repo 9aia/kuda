@@ -1,7 +1,7 @@
 //! Extract port — pull symbols/edges/structure out of source trees.
 //! Impls: `kuda-manifest` (manifests -> package graph, no parser),
 //! `kuda-treesitter` (grammar+query data), `kuda-lsp` (server-backed).
-//! New extractor = new impl crate; new language = data file.
+//! New extractor = new adapter crate; new language = data file.
 
 use kuda_core::{DepEdge, LangDef, Symbol};
 use std::path::{Path, PathBuf};

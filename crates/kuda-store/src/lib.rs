@@ -1,5 +1,5 @@
 //! Store port — L2 index persistence. Impls: `kuda-store-sqlite`;
-//! redb/remote/embedding = new impl crates. The store is
+//! redb/remote/embedding = new adapter crates. The store is
 //! rebuildable — never the source of truth.
 
 use kuda_core::{DepEdge, Symbol};

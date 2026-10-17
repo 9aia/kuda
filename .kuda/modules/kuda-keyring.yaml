@@ -1,6 +1,6 @@
 name: kuda-keyring
 path: crates/kuda-keyring/Cargo.toml
-purpose: 'Secret impl: OS keyring via secret-tool (libsecret)'
+purpose: 'Secret adapter: OS keyring via secret-tool (libsecret)'
 api:
 - name: kuda-keyring
   kind: module

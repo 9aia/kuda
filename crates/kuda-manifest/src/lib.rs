@@ -1,4 +1,4 @@
-//! Manifest impl — package manifests -> module graph. No parser,
+//! Manifest adapter — package manifests -> module graph. No parser,
 //! no language knowledge: reads manifest basenames declared by
 //! `LangDef` entries (Cargo.toml, package.json, go.mod, …).
 
@@ -73,7 +73,7 @@ impl Extractor for ManifestExtractor {
 }
 
 /// Manifest basename -> (package name, declared deps). Format
-/// detection by filename — impls are allowed to know concrete tech.
+/// detection by filename — adapters are allowed to know concrete tech.
 fn parse_manifest(basename: &str, text: &str) -> (Option<String>, Vec<String>) {
     match basename {
         "Cargo.toml" => cargo(text),

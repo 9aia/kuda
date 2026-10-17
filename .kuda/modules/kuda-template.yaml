@@ -1,6 +1,6 @@
 name: kuda-template
 path: crates/kuda-template/Cargo.toml
-purpose: 'Summarize impl: deterministic zero-model cards'
+purpose: 'Summarize adapter: deterministic zero-model cards'
 api:
 - name: kuda-template
   kind: module

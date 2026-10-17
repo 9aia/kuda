@@ -1,6 +1,6 @@
 name: kuda-lsp
 path: crates/kuda-lsp/Cargo.toml
-purpose: 'Extract impl: LSP server-backed symbol extraction (documentSymbol)'
+purpose: 'Extract adapter: LSP server-backed symbol extraction (documentSymbol)'
 api:
 - name: kuda-lsp
   kind: module

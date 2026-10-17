@@ -1,6 +1,6 @@
 [package]
 name = "kuda-config-toml"
-description = "Config impl: kuda.toml file (explicit path, env, ./, ~/.config)"
+description = "Config adapter: kuda.toml file (explicit path, env, ./, ~/.config)"
 version.workspace = true
 edition.workspace = true
 license.workspace = true

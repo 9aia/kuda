@@ -1,5 +1,5 @@
 //! kuda — a hippocampus for your codebase. Composition root:
-//! parses kuda.toml, wires impls behind ports, runs subcommands.
+//! parses kuda.toml, wires adapters behind ports, runs subcommands.
 
 use clap::{Parser, Subcommand};
 use kuda_config::ConfigSource;
@@ -218,7 +218,7 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
             "lsp" => extractors.push(Box::new(kuda_lsp::LspExtractor {
                 server_cmd: cfg.extract.lsp_server.clone(),
             })),
-            other => eprintln!("extract: unknown kind {other} (impl crate?)"),
+            other => eprintln!("extract: unknown kind {other} (adapter crate?)"),
         }
     }
     let mut ext = kuda_extract::Extraction::default();
@@ -767,6 +767,6 @@ fn doctor(cli: &Cli) -> i32 {
         ),
         Err(e) => println!("  config   --  {e}"),
     }
-    println!("  impls    manifest, treesitter, lsp, template, sqlite (llm pending)");
+    println!("  adapters    manifest, treesitter, lsp, template, sqlite (llm pending)");
     0
 }

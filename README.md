@@ -24,11 +24,11 @@ repos ──► extract ──► summarize ──► index ──► store ─�
 - every concern behind a port: extractors (`manifest` |
   `tree-sitter` | `lsp`), summarizers (`template` | `llm`),
   store (`sqlite`), vcs (`git`), serve (`cli` | `mcp`) —
-  ports/impls are separate crates
+  ports/adapters are separate crates
 - language knowledge is *data* (grammar + query + manifest files),
   not engine code — a new language is a data change, not a release
 - summarizer defaults to `template` (deterministic, zero-model);
-  `llm` is an impl detail behind the port
+  `llm` is an adapter detail behind the port
 - multi-repo workspaces — sibling checkouts and git-dep edges
   resolve across repo boundaries
 - agents consume via MCP; humans and scripts via CLI
@@ -46,7 +46,7 @@ repos ──► extract ──► summarize ──► index ──► store ─�
 ## Install
 
 Platform: **Linux + git**. Indexing needs nothing else for the
-`manifest`/`treesitter` path; `lsp` impl needs the language server.
+`manifest`/`treesitter` path; `lsp` adapter needs the language server.
 
 ```sh
 cargo install kuda                                  # crates.io (post-0.1.0)

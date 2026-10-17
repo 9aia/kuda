@@ -1,6 +1,6 @@
 [package]
 name = "kuda-manifest"
-description = "Extract impl: package manifests -> package graph"
+description = "Extract adapter: package manifests -> package graph"
 version.workspace = true
 edition.workspace = true
 license.workspace = true

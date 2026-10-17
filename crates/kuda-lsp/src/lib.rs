@@ -1,4 +1,4 @@
-//! Lsp impl — server-backed extraction via `textDocument/documentSymbol`.
+//! Lsp adapter — server-backed extraction via `textDocument/documentSymbol`.
 //! Spawns one server per root; per-server command comes from
 //! `extract.lsp_server`. Missing server = empty extraction
 //! (other extractors still run). Quality tier above treesitter:
