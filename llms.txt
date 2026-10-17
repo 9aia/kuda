@@ -14,12 +14,15 @@ repo memory — compressed, freshness-tracked, queryable
 
 - [How-to: index a multi-repo workspace](/kuda/how-to/multi-repo.md)
 - [How-to: serve the index over MCP](/kuda/how-to/mcp.md)
-- [How-to: opt into the LLM summarizer](/kuda/how-to/llm-summarizer.md)
+- [How-to: the ACP surface](/kuda/how-to/acp.md)
+- [How-to: add a language](/kuda/how-to/languages.md)
+- [How-to: summarizers](/kuda/how-to/llm-summarizer.md)
 
 ### Reference
 
 - [Command-Line Help for `kuda`](/kuda/reference/cli.md)
 - [Config — `kuda.toml`](/kuda/reference/config.md)
+- [Reference: card schema](/kuda/reference/cards.md)
 - [Crate API](/kuda/reference/crate-api.md)
 
 ### Explanation

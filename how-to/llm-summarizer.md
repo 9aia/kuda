@@ -1,40 +1,49 @@
 ---
 url: /kuda/how-to/llm-summarizer.md
 ---
-# How-to: opt into the LLM summarizer
+# How-to: summarizers
 
-The default `template` summarizer is deterministic and zero-model —
-cards contain only what extraction found (APIs, deps, commands).
-The `llm` adapter adds prose: purpose, invariants, "who calls me".
+`kuda-cards` turns extractions into the committed YAML artifacts.
+The `summarize` port has one shipping adapter — `template` — and
+one planned — `llm`.
 
-## Enable
+## `template` (default, shipping)
+
+Deterministic, zero-model. Each module card's `purpose` comes
+from the manifest `description` field (Cargo.toml
+`[package].description`, package.json `description`); `api` lists
+the extracted public symbols; `deps` lists the module's edges;
+`verify:` lists the files the card was built from.
+
+Because it is mechanical, `template` output is stable — the same
+inputs always produce the same card, so diffs mean real change.
+That is the property you want in committed, reviewed artifacts.
+
+## `llm` (planned adapter)
+
+Adds prose the manifest cannot carry: purpose narrative,
+invariants, "who calls me and why". Design constraints for when
+it lands:
+
+* **Grounded or silent** — every generated claim cites the files
+  it came from; uncited prose is not emitted.
+* **Never replaces `verify:`** — the file list stays mechanical.
+* **Human regions preserved** — `notes:` in cards is human-owned;
+  regeneration merges, never clobbers.
+* **Key resolution** — `provider`/`model` in `kuda.toml`, the key
+  itself via `KUDA_LLM_KEY` env → OS keyring →
+  `~/.config/kuda/env`. Never in the file.
+
+## Choosing
 
 ```toml
-# kuda.toml
 [summarize]
-kind = "llm"
-provider = "anthropic"
+kind = "template"     # deterministic (default)
+# kind = "llm"
+# provider = "anthropic"
 # model = "..."
 ```
 
-Set the key — never in the toml:
-
-```sh
-export KUDA_LLM_KEY=...   # or: kuda secret set KUDA_LLM_KEY
-```
-
-Resolution order: env var -> OS keyring -> `~/.config/kuda/env`.
-
-## Grounding rules (enforced by the adapter)
-
-* Cards must cite the files they summarize — emitted as the
-  `verify:` list.
-* No invented APIs: every symbol in a card must resolve in the
-  index.
-* `notes:` regions are human-owned — regen never overwrites them.
-
-## Cost control
-
-Summaries regenerate only when a card's `files` change
-(content-hash invalidation) — `sync` stays cheap; `--full`
-re-summarizes everything.
+Until `llm` ships, the meaningful `purpose:` source is the
+manifest `description` — worth writing well, since it becomes
+part of the agent-facing map.

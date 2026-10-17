@@ -3,7 +3,9 @@ url: /kuda/tutorials/first-run.md
 ---
 # Tutorial: your first index
 
-Goal: go from a checkout to a queryable memory in minutes.
+Goal: go from a checkout to a queryable, freshness-tracked memory
+of the repo — the artifact an agent loads before planning instead
+of re-exploring from scratch.
 
 ## 1. Init
 
@@ -12,10 +14,24 @@ cd your-repo
 kuda init
 ```
 
-Detects languages from file extensions + manifests, writes a
-commented `kuda.toml` and a `.kuda/` skeleton. Review the toml —
-defaults (`manifest` + `treesitter` extract, `template` summarize,
-`sqlite` store) are fully local and deterministic.
+This writes a commented `kuda.toml` and a `.kuda/` skeleton. Open
+the toml — the defaults are fully local and deterministic:
+
+```toml
+[extract]
+kinds = ["manifest", "treesitter"]   # adapter names, tried in order
+
+[summarize]
+kind = "template"                    # deterministic cards
+
+[store]
+kind = "sqlite"
+path = ".kuda/index.sqlite"
+```
+
+If `rust-analyzer` is on PATH you can add `"lsp"` to `kinds` —
+extraction quality tiers up automatically (see
+[extraction tiers](../explanation/architecture.md#extraction-tiers)).
 
 ## 2. Sync
 
@@ -23,33 +39,92 @@ defaults (`manifest` + `treesitter` extract, `template` summarize,
 kuda sync
 ```
 
-Hashes files, runs extractors, writes:
+Output:
 
 ```
-.kuda/index.yaml      L0 repo card  — commit this
-.kuda/modules/*.yaml  L1 cards      — commit these
-.kuda/index.sqlite    L2 graph      — gitignored, rebuildable
-.kuda/meta.json       provenance    — sha + hashes
+sync /home/you/your-repo
+indexed 19 module(s) at 3432d05
 ```
 
-## 3. Query
+`sync` walks manifests, runs the tree-sitter symbol queries from
+`data/langs/*`, summarizes each module into a card, and stores the
+symbol/edge graph in sqlite. It writes:
+
+| path                  | tier | commit?                  |
+| --------------------- | ---- | ------------------------ |
+| `.kuda/index.yaml`    | L0   | yes — the always-load card |
+| `.kuda/modules/*.yaml`| L1   | yes — reviewable in diffs  |
+| `.kuda/index.sqlite`  | L2   | no — rebuildable graph     |
+| `.kuda/meta.json`     | meta | no — provenance record     |
+
+## 3. Look at what it learned
 
 ```sh
-kuda map                    # the card an agent would load
-kuda card <module>          # purpose, api, deps, freshness
-kuda find <symbol>          # symbol -> file:line
-kuda dependents <symbol>    # who calls it — impact analysis
-kuda refs <name> --docs     # code + docs/comments mentions
+kuda map
 ```
 
-## 4. Stay fresh
+The L0 card: repo name, the module list, detected commands, and the
+provenance block (`commit_sha`, file hashes, generator). This is the
+\~1k-token blob an agent reads first.
 
 ```sh
-kuda status   # "3/40 cards stale" — provenance sha vs HEAD
-kuda sync     # regenerates only the drifted cards
+kuda card kuda-store
 ```
 
-Commit `index.yaml` + `modules/` — the prose is reviewable in diffs.
+An L1 card: purpose (from the manifest `description`), public API
+symbols, dependency edges, `verify:` — the files to open before
+trusting the card — and its own provenance.
+
+## 4. Query
+
+```sh
+kuda find IndexStore
+```
+
+```
+crates/kuda-store/src/lib.rs:9 Trait kuda-store
+```
+
+```sh
+kuda dependents serde
+```
+
+```
+kuda-cards --PackageDep--> serde
+kuda-core --Imports--> serde
+```
+
+And the doc-sweep query — everything that mentions a name, useful
+when a change must update code *and* docs and comments:
+
+```sh
+kuda refs SqliteStore --docs
+```
+
+## 5. Break it, then watch kuda notice
+
+Edit any `crates/*/Cargo.toml` — change a `description` — and:
+
+```sh
+kuda status
+```
+
+```
+drifted  kuda-store
+19 fresh, 1 drifted (HEAD af26b8c)
+```
+
+`status` re-hashes each card's `verify:` files and compares with the
+recorded provenance. `kuda sync` regenerates only what drifted.
+
+## You have built
+
+A committed, queryable, self-checking map of the repository. Point
+agents at it — via `kuda mcp` or `kuda acp` — and they plan against
+the map instead of grepping blindly.
+
+Next: [serve it over MCP](../how-to/mcp.md) or
+[index a multi-repo workspace](../how-to/multi-repo.md).
 
 ---
 
@@ -58,40 +133,73 @@ url: /kuda/how-to/multi-repo.md
 ---
 # How-to: index a multi-repo workspace
 
-For orgs spread across sibling checkouts (mono-repos too — a
-workspace is just a set of roots).
+For sibling checkouts — an org of repos that import each other —
+kuda keeps one index per repo *and* answers cross-repo questions
+over all of them.
 
-## Workspace file
+## 1. Declare the workspace
 
-Create `.kuda/workspace.yaml` in the parent dir of your checkouts:
+Create `.kuda/workspace.yaml` at the checkout root (the directory
+containing the sibling repos), or inside one repo's `.kuda/`:
 
 ```yaml
 roots:
-  - platform
-  - cli
-  - lsp
-  - kit-canonical
-resolve_git_deps: true   # github.com/org/repo deps -> siblings
+  - kuda
+  - mimus
+  - ../cli
+  - ../lsp
 ```
 
-## Sync the workspace
+Paths resolve relative to the file's directory. `[workspace]` in
+`kuda.toml` documents the same intent:
+
+```toml
+[workspace]
+roots = ["../cli", "../lsp"]
+resolve_git_deps = true
+```
+
+## 2. Sync all roots
 
 ```sh
-kuda sync --workspace          # indexes every root
-kuda dependents Foo --workspace # cross-repo reverse lookup
+kuda sync --workspace
 ```
 
-With `resolve_git_deps`, manifest edges like
-`git = "https://github.com/org/cli"` resolve to the `../cli`
-checkout — "X moved to the sibling repo" stops being prose-only
-knowledge and becomes a graph edge.
+```
+sync /home/you/GitHub/9aia/kuda
+indexed 19 module(s) at af26b8c
+sync /home/you/GitHub/9aia/mimus
+indexed 15 module(s) at 323421e
+```
 
-## Tips
+Each root gets its own `.kuda/` artifacts — the per-repo indexes
+stay independent and committable in their own repos.
 
-* Each repo keeps its own `kuda.toml` + `.kuda/`; the workspace
-  layer only links them.
-* Run `kuda status --workspace` after pulling several repos —
-  it reports drift per repo.
+## 3. Query across the set
+
+```sh
+kuda dependents kuda-core --workspace
+```
+
+Edges found in *every* root's store are merged — so an import of
+`kuda-core` inside `mimus` shows up alongside internal users.
+That is the impact-analysis query that matters for a breaking
+change: "who calls this, anywhere in the org".
+
+## 4. Git dependency edges
+
+`resolve_git_deps = true` records the intent for the extractor
+tier that maps `git = "…"` manifest dependencies onto sibling
+checkouts — turning "depends on github.com/x/y" into "depends on
+the sibling repo y". Until that lands, cross-repo edges come from
+module-name matching across the merged stores.
+
+## Current limits
+
+* `find` and `refs` remain per-root; `dependents` is the merged
+  query today.
+* Cards are generated per root — there is no aggregate workspace
+  card yet. Compose one from `kuda map` output across roots.
 
 ---
 
@@ -101,80 +209,239 @@ url: /kuda/how-to/mcp.md
 # How-to: serve the index over MCP
 
 `kuda mcp` exposes the index as tools to MCP-capable agents
-(Devin, Cursor, Claude Code, …).
+(Devin, Cursor, Claude Code, Zed, …). It is a stdio JSON-RPC
+server — no ports, no daemon.
 
 ## Run
 
 ```sh
-kuda mcp             # stdio server, serves the repo's index
-kuda mcp --workspace # all roots in .kuda/workspace.yaml
+cd your-repo
+kuda mcp
 ```
 
 ## Tools
 
-| tool          | query                                    |
-| ------------- | ---------------------------------------- |
-| `repo_card`   | L0 blob — the always-load summary        |
-| `module_card` | L1 card + freshness for one module       |
-| `find`        | symbol -> file:line                      |
-| `dependents`  | reverse dep edges (impact analysis)      |
-| `refs`        | code + docs/comments mentions            |
-| `status`      | provenance drift vs HEAD                 |
+| tool          | query                                   |
+| ------------- | --------------------------------------- |
+| `repo_card`   | L0 blob — the always-load summary       |
+| `module_card` | L1 card + freshness for one module      |
+| `find`        | symbol -> file:line                     |
+| `dependents`  | reverse dep edges (impact analysis)     |
+| `refs`        | code + docs/comments mentions           |
+| `status`      | provenance drift vs HEAD                |
 
 ## Register with your agent
 
-Point the agent's MCP config at `kuda mcp` (stdio). Exact config
-shape depends on the client — see your client's MCP docs.
+stdio servers are declared in the client's MCP config — the shape
+varies, but it is always "command + args":
+
+```json
+{
+  "mcpServers": {
+    "kuda": { "command": "kuda", "args": ["mcp"] }
+  }
+}
+```
+
+Run it from a repo that has been `kuda sync`'d — the tools read
+`.kuda/` at call time, so a re-`sync` is picked up without
+restarting the server.
+
+## Verify the handshake
+
+```sh
+printf '%s\n' \
+  '{"jsonrpc":"2.0","id":1,"method":"initialize"}' \
+  '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"find","arguments":{"name":"IndexStore"}}}' \
+  | kuda mcp
+```
+
+Two replies: the `initialize` result, then a `content[0].text`
+body like `crates/kuda-store/src/lib.rs:9 Trait kuda-store`.
 
 ## Trust model
 
 Cards are hypotheses. Every `module_card` response includes the
 `verify:` file list — agents should open those files before
-acting on card content. `status` tells them whether the whole
-index drifted.
+acting on card content, and `status` tells them whether the whole
+index has drifted. See [architecture](../explanation/architecture.md#trust-model).
+
+See also: [ACP surface](acp.md) — same index, the other wire
+protocol.
+
+---
+
+---
+url: /kuda/how-to/acp.md
+---
+# How-to: the ACP surface
+
+`kuda acp` speaks the Agent Client Protocol — the editor↔agent
+wire protocol used by Zed and supported by agent clients such as
+cline and Cursor. Where `kuda mcp` exposes *tools*, `kuda acp`
+exposes the index as an *agent* you can prompt.
+
+## Run
+
+```sh
+cd your-repo
+kuda acp     # stdio JSON-RPC server
+```
+
+## Prompts
+
+`session/prompt` accepts compact query strings:
+
+| prompt              | returns                                  |
+| ------------------- | ---------------------------------------- |
+| `find <symbol>`     | `file:line kind module` hits             |
+| `dependents <name>` | reverse dep edges                        |
+| `card <module>`     | the module card YAML                     |
+| `map` / `status`    | the L0 card (fallback for anything else) |
+
+Replies stream back as `session/update` notifications with
+`agent_message_chunk` content, then a `stopReason: end_turn`
+result.
+
+## Verify
+
+```sh
+printf '%s\n' \
+  '{"jsonrpc":"2.0","id":1,"method":"initialize"}' \
+  '{"jsonrpc":"2.0","id":2,"method":"session/new","params":{"cwd":"'"$PWD"'","mcpServers":[]}}' \
+  '{"jsonrpc":"2.0","id":3,"method":"session/prompt","params":{"sessionId":"kuda-default","prompt":[{"type":"text","text":"find IndexStore"}]}}' \
+  | kuda acp
+```
+
+You get `agentInfo`, a `sessionId`, an `agent_message_chunk`
+carrying `crates/kuda-store/src/lib.rs:9 Trait kuda-store`, and
+`end_turn`.
+
+## Which protocol when?
+
+* **MCP** — the agent already has tool-use wired and you want the
+  index as callable tools. Most current clients.
+* **ACP** — you want kuda to appear as an *agent* inside an
+  ACP-speaking client, sharing its own session model.
+
+Both read the same `.kuda/` artifacts — pick per client, or run
+both.
+
+---
+
+---
+url: /kuda/how-to/languages.md
+---
+# How-to: add a language
+
+Per-language knowledge is data, not code. A new language means a
+new `data/langs/*.toml` descriptor — the extractors' vocabulary
+stays fixed.
+
+## The descriptor
+
+`data/langs/rust.toml` is the template:
+
+```toml
+name = "rust"
+extensions = [".rs"]
+manifests = ["Cargo.toml"]          # module-boundary markers
+grammar = "rust"                    # adapter id — see below
+
+# Tree-sitter symbol query. Captures are @name.<kind> where
+# <kind> maps to SymbolKind: function|type|trait|const|module|macro.
+symbol_query = '''
+(function_item name: (identifier) @name.function)
+(struct_item name: (type_identifier) @name.type)
+...
+'''
+```
+
+| field          | used by                                  |
+| -------------- | ---------------------------------------- |
+| `name`         | reports, LSP `languageId`                |
+| `extensions`   | both extractors' file walking            |
+| `manifests`    | package graph + module attribution       |
+| `grammar`      | `kuda-treesitter` language registry      |
+| `symbol_query` | optional; falls back to a builtin        |
+
+## What the adapter id controls
+
+`grammar` is looked up in the adapter's registry — the match arm
+inside `kuda-treesitter::language()`. Today that registry has one
+entry (`rust`). Adding e.g. `python` needs the compiled
+`tree-sitter-python` crate as a dependency plus one arm — an
+adapter change, not an engine change. Descriptors for languages
+without a compiled grammar still get `manifest` extraction
+(module graph) for free.
+
+## Writing a symbol query
+
+1. Find the grammar's `node-types.json` (in the grammar repo) for
+   the node names your language uses.
+2. Capture the *name* child of each public-ish item as
+   `@name.<kind>` — the kind suffix must match `SymbolKind`
+   names or it lands in `Other`.
+3. Test locally: put the query in `symbol_query`, run
+   `kuda sync`, then `kuda find <a-symbol>`.
+
+## Deploying descriptors
+
+The CLI embeds `data/langs/*.toml` at build time. Adding a file
+there + rebuilding is the whole distribution path today — a
+config point for user-supplied descriptor dirs is a TODO item.
 
 ---
 
 ---
 url: /kuda/how-to/llm-summarizer.md
 ---
-# How-to: opt into the LLM summarizer
+# How-to: summarizers
 
-The default `template` summarizer is deterministic and zero-model —
-cards contain only what extraction found (APIs, deps, commands).
-The `llm` adapter adds prose: purpose, invariants, "who calls me".
+`kuda-cards` turns extractions into the committed YAML artifacts.
+The `summarize` port has one shipping adapter — `template` — and
+one planned — `llm`.
 
-## Enable
+## `template` (default, shipping)
+
+Deterministic, zero-model. Each module card's `purpose` comes
+from the manifest `description` field (Cargo.toml
+`[package].description`, package.json `description`); `api` lists
+the extracted public symbols; `deps` lists the module's edges;
+`verify:` lists the files the card was built from.
+
+Because it is mechanical, `template` output is stable — the same
+inputs always produce the same card, so diffs mean real change.
+That is the property you want in committed, reviewed artifacts.
+
+## `llm` (planned adapter)
+
+Adds prose the manifest cannot carry: purpose narrative,
+invariants, "who calls me and why". Design constraints for when
+it lands:
+
+* **Grounded or silent** — every generated claim cites the files
+  it came from; uncited prose is not emitted.
+* **Never replaces `verify:`** — the file list stays mechanical.
+* **Human regions preserved** — `notes:` in cards is human-owned;
+  regeneration merges, never clobbers.
+* **Key resolution** — `provider`/`model` in `kuda.toml`, the key
+  itself via `KUDA_LLM_KEY` env → OS keyring →
+  `~/.config/kuda/env`. Never in the file.
+
+## Choosing
 
 ```toml
-# kuda.toml
 [summarize]
-kind = "llm"
-provider = "anthropic"
+kind = "template"     # deterministic (default)
+# kind = "llm"
+# provider = "anthropic"
 # model = "..."
 ```
 
-Set the key — never in the toml:
-
-```sh
-export KUDA_LLM_KEY=...   # or: kuda secret set KUDA_LLM_KEY
-```
-
-Resolution order: env var -> OS keyring -> `~/.config/kuda/env`.
-
-## Grounding rules (enforced by the adapter)
-
-* Cards must cite the files they summarize — emitted as the
-  `verify:` list.
-* No invented APIs: every symbol in a card must resolve in the
-  index.
-* `notes:` regions are human-owned — regen never overwrites them.
-
-## Cost control
-
-Summaries regenerate only when a card's `files` change
-(content-hash invalidation) — `sync` stays cheap; `--full`
-re-summarizes everything.
+Until `llm` ships, the meaningful `purpose:` source is the
+manifest `description` — worth writing well, since it becomes
+part of the agent-facing map.
 
 ---
 
@@ -389,6 +656,77 @@ url: /kuda/reference/config.md
 ---
 
 ---
+url: /kuda/reference/cards.md
+---
+# Reference: card schema
+
+Two artifact files, both committed YAML under `.kuda/` (location
+configurable via `[cards].dir`).
+
+## `.kuda/index.yaml` — the L0 repo card
+
+```yaml
+name: kuda                     # repo display name
+root: /abs/path/to/repo
+purpose: ''                    # manifest/tagline — human-editable
+modules:                       # sorted module names
+- kuda-core
+- kuda-store
+commands:                      # detected verify/build commands
+- cargo check
+- cargo test --workspace
+provenance:
+  files: [crates/kuda-store/Cargo.toml, ...]
+  hashes: [sha1, ...]          # git hash-object per file
+  commit_sha: af26b8c…
+  generated_at: '1712345678'   # unix seconds
+  generator: kuda/0.1.0
+```
+
+## `.kuda/modules/<name>.yaml` — an L1 module card
+
+```yaml
+name: kuda-store
+path: crates/kuda-store/Cargo.toml
+purpose: Store port — IndexStore trait          # manifest description
+api:                           # extracted public symbols
+- IndexStore
+- SqliteStore
+deps:                          # outgoing edges
+- from: kuda-store
+  to: kuda-core
+  kind: PackageDep
+notes: ''                      # HUMAN-OWNED — preserved on regen
+verify:                        # files to open before trusting
+- crates/kuda-store/src/lib.rs
+provenance:
+  files: [...]
+  hashes: [...]
+  commit_sha: …
+  generated_at: '…'
+  generator: kuda-template/0.1.0
+```
+
+## Provenance semantics
+
+`files` + `hashes` are git `hash-object` digests of the card's
+inputs at sync time. `kuda status` (and `mimus audit`) re-hash
+the same files and compare — a mismatch marks the card `drifted`.
+`commit_sha` records the index point in history; `generator`
+records which adapter produced the card so format drift is
+auditable.
+
+## Ownership
+
+Machine fields (`api`, `deps`, `provenance`) are regenerated on
+every `sync`. `notes:` and `purpose:` (when hand-edited past the
+manifest default) are the human regions — a real merge story is
+a TODO; today regen overwrites `purpose` only when it still
+equals the old machine value.
+
+---
+
+---
 url: /kuda/reference/crate-api.md
 ---
 # Crate API
@@ -423,49 +761,92 @@ url: /kuda/explanation/architecture.md
 ---
 # Explanation: architecture
 
-## Tiered memory, not one big summary
+kuda answers one question — *"what does this project look like,
+right now, in a form an agent can load?"* — and treats a wrong
+answer as worse than none.
 
-A monolithic repo summary fails twice: too coarse to plan with, or
-too big for context. kuda produces a hierarchy agents zoom into:
+## The pipeline
 
-* **L0 — repo card** (`index.yaml`, ~1k tokens): purpose, module
-  map, entry points, build/test commands. Always-loadable.
-* **L1 — module cards** (`modules/*.yaml`): API surface, deps,
-  invariants, `verify:` file list. Fetched when planning.
-* **L2 — symbol/dep graph** (`index.sqlite`): symbol -> file:line
-  and dep edges both directions. Queried, not loaded.
-* **L3 — source**: the code. Memory indexes it; never replaces it.
+```
+repos ──► extract ──► summarize ──► index ──► store ──► serve
+          │             │            │         │         │
+   adapters:        adapters:    graph +   sqlite    cli |
+   manifest         template     cards    + yaml    mcp | acp
+   treesitter       (llm planned)  provenance
+   lsp
+```
 
-## Provenance is the staleness model
+**Extract** is mechanical — no model, fully rerunnable. It pulls
+symbols, package structure, and import edges.
 
-Every card records `{files, content_hash, commit_sha}`.
-`kuda status` diffs the recorded sha against HEAD — drift is a
-property of the data, not a promise in prose. `sync` regenerates
-only cards whose `files` changed.
+**Summarize** turns each module's extraction into an L1 card —
+committed YAML humans review in diffs.
 
-## Ports and adapters
+**Index** merges everything into the symbol/dependency graph with
+per-node provenance.
 
-Every concern is a trait crate + adapter crates (ADR-0001):
+**Serve** is read-side only: `find`, `dependents`, `refs`,
+`card`, `map`, `status` — plus the MCP and ACP wire surfaces.
 
-* extract: `manifest` (free, no parser) -> `treesitter`
-  (grammar+query data) -> `lsp` (cross-file refs where a server
-  exists)
-* summarize: `template` (deterministic default) | `llm` (opt-in
-  prose — provider key stays in env/keyring)
-* store: `sqlite` (rebuildable, gitignored)
-* serve: `cli` | `mcp`
+## The tiers of memory
+
+* **L0 repo card** (`.kuda/index.yaml`) — the ~1k-token
+  always-load blob: purpose, module map, commands, provenance.
+* **L1 module cards** (`.kuda/modules/*.yaml`) — fetched on
+  demand when planning touches a module.
+* **L2 graph** (`.kuda/index.sqlite`) — symbols, edges both
+  directions; gitignored, rebuildable, the query substrate.
+* **L3** — the source itself. Memory is an index *into* code,
+  never a replacement.
+
+Committed L0/L1 + ignored L2 is deliberate: cards are reviewed
+prose, the graph is derived state.
+
+## Extraction tiers
+
+Best-available wins, configured per repo via `[extract].kinds`:
+
+* `manifest` — free, no parser: package graph + module
+  boundaries from Cargo.toml/package.json/pyproject/go.mod.
+* `treesitter` — grammar+query data from `data/langs/*`:
+  symbols and `use`/import edges in ~any language.
+* `lsp` — `documentSymbol` against a real server
+  (`lsp_server = "rust-analyzer"`); the strongest signal where a
+  server exists. Absent server = silent skip.
+
+See [adding a language](../how-to/languages.md) — knowledge lives
+in descriptor files; adding one is a data change.
 
 ## Language as data
 
 Per-language knowledge — grammar refs, symbol queries, manifest
-kinds — lives in `data/langs/*`, not in extractor code. A new
-language is a data change; the engine's vocabulary is fixed.
+names — lives in `data/langs/*`, not in extractor code. The
+adapters' vocabulary (`language()` registries, `SymbolKind`,
+`EdgeKind`) is the only fixed part.
+
+## Ports and adapters
+
+`kuda-core` holds domain types only (`Symbol`, `ModuleCard`,
+`Provenance`, `Claim`-free config). Every concern is a trait
+crate + adapter crates:
+
+* `kuda-extract` → `kuda-manifest`, `kuda-treesitter`, `kuda-lsp`
+* `kuda-store` → `kuda-store-sqlite`
+* `kuda-summarize` → `kuda-template`, (`kuda-llm` planned)
+* `kuda-vcs` → `kuda-git`; `kuda-config` → `kuda-config-toml`;
+  `kuda-secret` → `kuda-keyring`, `kuda-dotenv`
+
+New capability = new adapter crate, not a core rewrite.
 
 ## Trust model
 
+Every artifact carries `provenance {files, hashes, commit_sha,
+generator}` — `kuda status` re-hashes and reports drift per card.
 Cards end with `verify:` — the files an agent should open before
-acting on the card. Memory is a hypothesis that narrows the search
-space; the code remains the only truth.
+acting on the card. Memory is a hypothesis that narrows the
+search space; the code remains the only truth. `mimus audit`
+independently re-verifies card provenance — memory with an
+external falsifier.
 
 ---
 
