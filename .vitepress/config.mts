@@ -6,7 +6,7 @@ export default defineConfig({
     plugins: [llmstxt()],
   },
   title: "kuda",
-  description: "headless CI — the oxpecker on your repo",
+  description: "repo memory — a hippocampus for your codebase",
   base: "/kuda/",
   ignoreDeadLinks: [/\/api\//],
   themeConfig: {
