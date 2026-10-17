@@ -17,9 +17,9 @@
       cards: API list, deps, commands — zero-model default)
 
 ## Pipeline + queries
-- [ ] `kuda sync` — incremental: hash -> re-extract changed ->
+- [x] `kuda sync` — incremental: hash -> re-extract changed ->
       regen affected cards only; `--full` for cold start
-- [ ] `kuda status` — provenance sha vs HEAD -> per-card drift
+- [x] `kuda status` — provenance sha vs HEAD -> per-card drift
 - [ ] `kuda-query` — find / dependents / card / refs (--docs)
 - [ ] `kuda-cards` — .kuda/index.yaml + modules/*.yaml render;
       machine owns api/deps fields, humans own `notes:` region;
