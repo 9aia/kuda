@@ -30,3 +30,4 @@ kuda-config-toml.workspace = true
 clap.workspace = true
 toml.workspace = true
 serde_json.workspace = true
+serde_yaml.workspace = true

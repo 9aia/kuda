@@ -164,10 +164,48 @@ fn init(cli: &Cli) -> i32 {
     0
 }
 
+/// Workspace roots from `.kuda/workspace.yaml` (`roots: [...]`),
+/// resolved relative to the file's dir.
+fn workspace_roots(dir: &Path) -> Vec<PathBuf> {
+    let p = dir.join(".kuda/workspace.yaml");
+    let Ok(text) = std::fs::read_to_string(&p) else {
+        return vec![];
+    };
+    let Ok(v) = serde_yaml::from_str::<serde_yaml::Value>(&text) else {
+        return vec![];
+    };
+    v["roots"]
+        .as_sequence()
+        .map(|s| {
+            s.iter()
+                .filter_map(|r| r.as_str())
+                .map(|r| {
+                    let p = dir.join(r);
+                    std::fs::canonicalize(&p).unwrap_or(p)
+                })
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
 /// The pipeline: extract -> per-module summarize -> cards + store.
 fn sync(cli: &Cli, _full: bool) -> i32 {
     let dir = root(cli);
     let cfg = load_config(cli);
+    let roots = if cli.workspace {
+        workspace_roots(&dir)
+    } else {
+        vec![dir.clone()]
+    };
+    let mut code = 0;
+    for r in if roots.is_empty() { vec![dir.clone()] } else { roots } {
+        println!("sync {}", r.display());
+        code |= sync_one(&r, &cfg, cli);
+    }
+    code
+}
+
+fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
     let mut extractors: Vec<Box<dyn Extractor>> = Vec::new();
     for k in &cfg.extract.kinds {
         match k.as_str() {
@@ -188,7 +226,7 @@ fn sync(cli: &Cli, _full: bool) -> i32 {
         }
     }
     let sha = kuda_git::GitVcs
-        .head_sha(&dir)
+        .head_sha(dir)
         .unwrap_or_else(|| "unknown".into());
     let now = unix_now();
 
@@ -216,7 +254,7 @@ fn sync(cli: &Cli, _full: bool) -> i32 {
         // verify/provenance files for this module: its manifest
         let mfiles: Vec<PathBuf> = syms.iter().map(|s| s.file.clone()).collect();
         let prov = Provenance {
-            hashes: hash_files(&dir, &mfiles),
+            hashes: hash_files(dir, &mfiles),
             files: mfiles.clone(),
             commit_sha: sha.clone(),
             generated_at: now.clone(),
@@ -275,7 +313,7 @@ fn sync(cli: &Cli, _full: bool) -> i32 {
         .unwrap_or_else(|| "repo".into());
     let prov = Provenance {
         files: ext.files.clone(),
-        hashes: hash_files(&dir, &ext.files),
+        hashes: hash_files(dir, &ext.files),
         commit_sha: sha.clone(),
         generated_at: now.clone(),
         generator: "kuda/0.1.0".into(),
@@ -357,7 +395,7 @@ fn status(cli: &Cli) -> i32 {
         eprintln!("no .kuda/modules — run `kuda sync` first");
         return 2;
     };
-    let head = kuda_git::GitVcs.head_sha(&dir).unwrap_or_default();
+    let head = kuda_git::GitVcs.head_sha(dir).unwrap_or_default();
     let (mut fresh, mut drifted) = (0, 0);
     for e in entries.flatten() {
         let p = e.path();
@@ -367,7 +405,7 @@ fn status(cli: &Cli) -> i32 {
             else {
                 continue;
             };
-            let hashes = hash_files(&dir, &card.provenance.files);
+            let hashes = hash_files(dir, &card.provenance.files);
             let stale = card
                 .provenance
                 .hashes
@@ -439,14 +477,21 @@ fn find(cli: &Cli, symbol: &str) -> i32 {
 fn dependents(cli: &Cli, name: &str) -> i32 {
     let dir = root(cli);
     let cfg = load_config(cli);
-    let store = match kuda_store_sqlite::SqliteStore::open(&dir.join(&cfg.store.path)) {
-        Ok(s) => s,
-        Err(e) => {
-            eprintln!("store: {e}");
-            return 1;
-        }
+    let roots = if cli.workspace {
+        let r = workspace_roots(&dir);
+        if r.is_empty() { vec![dir.clone()] } else { r }
+    } else {
+        vec![dir.clone()]
     };
-    match kuda_query::dependents(&store, name) {
+    let mut edges = Vec::new();
+    for r in &roots {
+        if let Ok(store) = kuda_store_sqlite::SqliteStore::open(&r.join(&cfg.store.path)) {
+            if let Ok(mut e) = kuda_query::dependents(&store, name) {
+                edges.append(&mut e);
+            }
+        }
+    }
+    match Ok::<Vec<kuda_core::DepEdge>, String>(edges) {
         Ok(edges) if edges.is_empty() => {
             println!("nothing depends on `{name}`");
             0
