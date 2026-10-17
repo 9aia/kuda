@@ -7,15 +7,23 @@ api:
   file: crates/kuda-vcs/Cargo.toml
   line: 1
   module: kuda-vcs
+- name: Vcs
+  kind: trait
+  file: crates/kuda-vcs/src/lib.rs
+  line: 9
+  module: kuda-vcs
 deps: []
 notes: ''
 verify:
 - crates/kuda-vcs/Cargo.toml
+- crates/kuda-vcs/src/lib.rs
 provenance:
   files:
   - crates/kuda-vcs/Cargo.toml
+  - crates/kuda-vcs/src/lib.rs
   hashes:
   - a3f3978c21457dd7be4e34dc16f31231d0a68777
-  commit_sha: da99110ee65052c65aa1cf278deb5ee628fd8f78
-  generated_at: '1792276446'
+  - 78b80203e4b15d50b96e5a4d615097d3f4676e05
+  commit_sha: c2b4981a881a740f26b23643f82584df00e559b3
+  generated_at: '1792276620'
   generator: kuda-template/0.1.0

@@ -7,16 +7,123 @@ api:
   file: crates/kuda-git/Cargo.toml
   line: 1
   module: kuda-git
+- name: repo
+  kind: function
+  file: crates/kuda-git/tests/git.rs
+  line: 5
+  module: kuda-git
+- name: sync_has_commit_worktree_tag
+  kind: function
+  file: crates/kuda-git/tests/git.rs
+  line: 47
+  module: kuda-git
+- name: GitVcs
+  kind: type
+  file: crates/kuda-git/src/lib.rs
+  line: 7
+  module: kuda-git
+- name: git
+  kind: function
+  file: crates/kuda-git/src/lib.rs
+  line: 9
+  module: kuda-git
+- name: head_sha
+  kind: function
+  file: crates/kuda-git/src/lib.rs
+  line: 20
+  module: kuda-git
+- name: sync
+  kind: function
+  file: crates/kuda-git/src/lib.rs
+  line: 32
+  module: kuda-git
+- name: has_commit
+  kind: function
+  file: crates/kuda-git/src/lib.rs
+  line: 35
+  module: kuda-git
+- name: worktree_add
+  kind: function
+  file: crates/kuda-git/src/lib.rs
+  line: 38
+  module: kuda-git
+- name: worktree_remove
+  kind: function
+  file: crates/kuda-git/src/lib.rs
+  line: 50
+  module: kuda-git
+- name: worktree_prune
+  kind: function
+  file: crates/kuda-git/src/lib.rs
+  line: 61
+  module: kuda-git
+- name: tag_exists
+  kind: function
+  file: crates/kuda-git/src/lib.rs
+  line: 64
+  module: kuda-git
+- name: tag
+  kind: function
+  file: crates/kuda-git/src/lib.rs
+  line: 70
+  module: kuda-git
+- name: push_tag
+  kind: function
+  file: crates/kuda-git/src/lib.rs
+  line: 73
+  module: kuda-git
 deps:
 - kuda-vcs
+- kuda_git
+- kuda_vcs
+- kuda_vcs
 notes: ''
 verify:
 - crates/kuda-git/Cargo.toml
+- crates/kuda-git/tests/git.rs
+- crates/kuda-git/tests/git.rs
+- crates/kuda-git/src/lib.rs
+- crates/kuda-git/src/lib.rs
+- crates/kuda-git/src/lib.rs
+- crates/kuda-git/src/lib.rs
+- crates/kuda-git/src/lib.rs
+- crates/kuda-git/src/lib.rs
+- crates/kuda-git/src/lib.rs
+- crates/kuda-git/src/lib.rs
+- crates/kuda-git/src/lib.rs
+- crates/kuda-git/src/lib.rs
+- crates/kuda-git/src/lib.rs
 provenance:
   files:
   - crates/kuda-git/Cargo.toml
+  - crates/kuda-git/tests/git.rs
+  - crates/kuda-git/tests/git.rs
+  - crates/kuda-git/src/lib.rs
+  - crates/kuda-git/src/lib.rs
+  - crates/kuda-git/src/lib.rs
+  - crates/kuda-git/src/lib.rs
+  - crates/kuda-git/src/lib.rs
+  - crates/kuda-git/src/lib.rs
+  - crates/kuda-git/src/lib.rs
+  - crates/kuda-git/src/lib.rs
+  - crates/kuda-git/src/lib.rs
+  - crates/kuda-git/src/lib.rs
+  - crates/kuda-git/src/lib.rs
   hashes:
   - aec38351b553b4e15d6e7fe0d6889449f042ddbc
-  commit_sha: da99110ee65052c65aa1cf278deb5ee628fd8f78
-  generated_at: '1792276446'
+  - 28459ad1496a8040109c9957bc1d88ef05b53911
+  - 28459ad1496a8040109c9957bc1d88ef05b53911
+  - 04ac701305121c8fc39fa1f192e1f1383c44c81b
+  - 04ac701305121c8fc39fa1f192e1f1383c44c81b
+  - 04ac701305121c8fc39fa1f192e1f1383c44c81b
+  - 04ac701305121c8fc39fa1f192e1f1383c44c81b
+  - 04ac701305121c8fc39fa1f192e1f1383c44c81b
+  - 04ac701305121c8fc39fa1f192e1f1383c44c81b
+  - 04ac701305121c8fc39fa1f192e1f1383c44c81b
+  - 04ac701305121c8fc39fa1f192e1f1383c44c81b
+  - 04ac701305121c8fc39fa1f192e1f1383c44c81b
+  - 04ac701305121c8fc39fa1f192e1f1383c44c81b
+  - 04ac701305121c8fc39fa1f192e1f1383c44c81b
+  commit_sha: c2b4981a881a740f26b23643f82584df00e559b3
+  generated_at: '1792276620'
   generator: kuda-template/0.1.0

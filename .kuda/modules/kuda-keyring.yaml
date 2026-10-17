@@ -7,16 +7,49 @@ api:
   file: crates/kuda-keyring/Cargo.toml
   line: 1
   module: kuda-keyring
+- name: KeyringSecrets
+  kind: type
+  file: crates/kuda-keyring/src/lib.rs
+  line: 9
+  module: kuda-keyring
+- name: default
+  kind: function
+  file: crates/kuda-keyring/src/lib.rs
+  line: 15
+  module: kuda-keyring
+- name: get
+  kind: function
+  file: crates/kuda-keyring/src/lib.rs
+  line: 23
+  module: kuda-keyring
+- name: set
+  kind: function
+  file: crates/kuda-keyring/src/lib.rs
+  line: 33
+  module: kuda-keyring
 deps:
 - kuda-secret
+- kuda_secret
 notes: ''
 verify:
 - crates/kuda-keyring/Cargo.toml
+- crates/kuda-keyring/src/lib.rs
+- crates/kuda-keyring/src/lib.rs
+- crates/kuda-keyring/src/lib.rs
+- crates/kuda-keyring/src/lib.rs
 provenance:
   files:
   - crates/kuda-keyring/Cargo.toml
+  - crates/kuda-keyring/src/lib.rs
+  - crates/kuda-keyring/src/lib.rs
+  - crates/kuda-keyring/src/lib.rs
+  - crates/kuda-keyring/src/lib.rs
   hashes:
   - 3b7a6eab09a7bdf9a5cf50809cab454325b920a7
-  commit_sha: da99110ee65052c65aa1cf278deb5ee628fd8f78
-  generated_at: '1792276446'
+  - 6305cb3a0c2aad4195505edc71a29866b8ac5025
+  - 6305cb3a0c2aad4195505edc71a29866b8ac5025
+  - 6305cb3a0c2aad4195505edc71a29866b8ac5025
+  - 6305cb3a0c2aad4195505edc71a29866b8ac5025
+  commit_sha: c2b4981a881a740f26b23643f82584df00e559b3
+  generated_at: '1792276620'
   generator: kuda-template/0.1.0

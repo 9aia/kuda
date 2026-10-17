@@ -1,0 +1,229 @@
+name: kuda-cli
+path: crates/kuda-cli/tests/e2e.rs
+purpose: kuda-cli
+api:
+- name: kuda
+  kind: function
+  file: crates/kuda-cli/tests/e2e.rs
+  line: 6
+  module: kuda-cli
+- name: help_and_stub
+  kind: function
+  file: crates/kuda-cli/tests/e2e.rs
+  line: 15
+  module: kuda-cli
+- name: init_scaffolds
+  kind: function
+  file: crates/kuda-cli/tests/e2e.rs
+  line: 28
+  module: kuda-cli
+- name: EXAMPLE_TOML
+  kind: const
+  file: crates/kuda-cli/src/main.rs
+  line: 16
+  module: kuda-cli
+- name: LANG_TOMLS
+  kind: const
+  file: crates/kuda-cli/src/main.rs
+  line: 17
+  module: kuda-cli
+- name: Cli
+  kind: type
+  file: crates/kuda-cli/src/main.rs
+  line: 30
+  module: kuda-cli
+- name: Cmd
+  kind: type
+  file: crates/kuda-cli/src/main.rs
+  line: 45
+  module: kuda-cli
+- name: main
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 77
+  module: kuda-cli
+- name: root
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 97
+  module: kuda-cli
+- name: load_config
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 108
+  module: kuda-cli
+- name: langs
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 116
+  module: kuda-cli
+- name: hash_files
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 124
+  module: kuda-cli
+- name: unix_now
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 142
+  module: kuda-cli
+- name: init
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 149
+  module: kuda-cli
+- name: sync
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 171
+  module: kuda-cli
+- name: manifest_purpose
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 313
+  module: kuda-cli
+- name: safe
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 329
+  module: kuda-cli
+- name: detect_commands
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 341
+  module: kuda-cli
+- name: status
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 356
+  module: kuda-cli
+- name: map
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 393
+  module: kuda-cli
+- name: card
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 397
+  module: kuda-cli
+- name: cat_file
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 401
+  module: kuda-cli
+- name: find
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 414
+  module: kuda-cli
+- name: dependents
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 442
+  module: kuda-cli
+- name: refs
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 471
+  module: kuda-cli
+- name: doctor
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 519
+  module: kuda-cli
+deps:
+- clap
+- kuda_config
+- kuda_config_toml
+- kuda_core
+- kuda_vcs
+- kuda_extract
+- kuda_store
+- kuda_summarize
+notes: ''
+verify:
+- crates/kuda-cli/tests/e2e.rs
+- crates/kuda-cli/tests/e2e.rs
+- crates/kuda-cli/tests/e2e.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+provenance:
+  files:
+  - crates/kuda-cli/tests/e2e.rs
+  - crates/kuda-cli/tests/e2e.rs
+  - crates/kuda-cli/tests/e2e.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  hashes:
+  - 0957ef1562103a61e15ff88377b9d026e0d140ab
+  - 0957ef1562103a61e15ff88377b9d026e0d140ab
+  - 0957ef1562103a61e15ff88377b9d026e0d140ab
+  - 4fb6fbe409e5d78cfe73c350941ccdc4ac3ab1cd
+  - 4fb6fbe409e5d78cfe73c350941ccdc4ac3ab1cd
+  - 4fb6fbe409e5d78cfe73c350941ccdc4ac3ab1cd
+  - 4fb6fbe409e5d78cfe73c350941ccdc4ac3ab1cd
+  - 4fb6fbe409e5d78cfe73c350941ccdc4ac3ab1cd
+  - 4fb6fbe409e5d78cfe73c350941ccdc4ac3ab1cd
+  - 4fb6fbe409e5d78cfe73c350941ccdc4ac3ab1cd
+  - 4fb6fbe409e5d78cfe73c350941ccdc4ac3ab1cd
+  - 4fb6fbe409e5d78cfe73c350941ccdc4ac3ab1cd
+  - 4fb6fbe409e5d78cfe73c350941ccdc4ac3ab1cd
+  - 4fb6fbe409e5d78cfe73c350941ccdc4ac3ab1cd
+  - 4fb6fbe409e5d78cfe73c350941ccdc4ac3ab1cd
+  - 4fb6fbe409e5d78cfe73c350941ccdc4ac3ab1cd
+  - 4fb6fbe409e5d78cfe73c350941ccdc4ac3ab1cd
+  - 4fb6fbe409e5d78cfe73c350941ccdc4ac3ab1cd
+  - 4fb6fbe409e5d78cfe73c350941ccdc4ac3ab1cd
+  - 4fb6fbe409e5d78cfe73c350941ccdc4ac3ab1cd
+  - 4fb6fbe409e5d78cfe73c350941ccdc4ac3ab1cd
+  - 4fb6fbe409e5d78cfe73c350941ccdc4ac3ab1cd
+  - 4fb6fbe409e5d78cfe73c350941ccdc4ac3ab1cd
+  - 4fb6fbe409e5d78cfe73c350941ccdc4ac3ab1cd
+  - 4fb6fbe409e5d78cfe73c350941ccdc4ac3ab1cd
+  - 4fb6fbe409e5d78cfe73c350941ccdc4ac3ab1cd
+  commit_sha: c2b4981a881a740f26b23643f82584df00e559b3
+  generated_at: '1792276620'
+  generator: kuda-template/0.1.0

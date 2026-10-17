@@ -16,6 +16,7 @@ path = "src/main.rs"
 kuda-core.workspace = true
 kuda-extract.workspace = true
 kuda-manifest.workspace = true
+kuda-treesitter.workspace = true
 kuda-store.workspace = true
 kuda-store-sqlite.workspace = true
 kuda-summarize.workspace = true

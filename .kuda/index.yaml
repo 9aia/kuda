@@ -5,6 +5,7 @@ modules:
 - dagger
 - kuda
 - kuda-cards
+- kuda-cli
 - kuda-config
 - kuda-config-toml
 - kuda-core
@@ -19,6 +20,7 @@ modules:
 - kuda-store-sqlite
 - kuda-summarize
 - kuda-template
+- kuda-treesitter
 - kuda-vcs
 commands:
 - cargo check
@@ -31,6 +33,7 @@ provenance:
   - crates/kuda-store/Cargo.toml
   - crates/kuda-config/Cargo.toml
   - crates/kuda-config-toml/Cargo.toml
+  - crates/kuda-treesitter/Cargo.toml
   - crates/kuda-core/Cargo.toml
   - crates/kuda-git/Cargo.toml
   - crates/kuda-keyring/Cargo.toml
@@ -44,26 +47,71 @@ provenance:
   - crates/kuda-manifest/Cargo.toml
   - crates/kuda-dotenv/Cargo.toml
   - crates/kuda-store-sqlite/Cargo.toml
+  - crates/kuda-secret/src/lib.rs
+  - crates/kuda-store/src/lib.rs
+  - crates/kuda-config/src/lib.rs
+  - crates/kuda-config-toml/tests/load.rs
+  - crates/kuda-config-toml/src/lib.rs
+  - crates/kuda-treesitter/src/lib.rs
+  - crates/kuda-core/src/lib.rs
+  - crates/kuda-git/tests/git.rs
+  - crates/kuda-git/src/lib.rs
+  - crates/kuda-keyring/src/lib.rs
+  - crates/kuda-vcs/src/lib.rs
+  - crates/kuda-template/src/lib.rs
+  - crates/kuda-extract/src/lib.rs
+  - crates/kuda-cli/tests/e2e.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cards/src/lib.rs
+  - crates/kuda-summarize/src/lib.rs
+  - crates/kuda-query/src/lib.rs
+  - crates/kuda-manifest/src/lib.rs
+  - crates/kuda-dotenv/tests/store.rs
+  - crates/kuda-dotenv/src/lib.rs
+  - crates/kuda-store-sqlite/src/lib.rs
   hashes:
-  - 074a73a182ccd1a3c4e2384c5c7b2774889085e5
+  - 4bca7a30c292da35b4fb3543fa064535db13959a
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
   - f826462ae7337233c57e6151c6a7b516a437abbc
   - fcd81b2ab4c0c8bd258d2a0d32162f1ff7ae9bd9
   - ea8d721cf84a29a6242dfb89a1cfe55211215dbb
   - 00ad189ce8101ee20046f23cb69225af620007b4
+  - b738b5c27df65ced25ed4ed3f341d72ea688b81a
   - 858a2d26892b5f1150a8b4663f27d32c408f6e1d
   - aec38351b553b4e15d6e7fe0d6889449f042ddbc
   - 3b7a6eab09a7bdf9a5cf50809cab454325b920a7
   - a3f3978c21457dd7be4e34dc16f31231d0a68777
   - abd77bfcf926f8f58b65fe76f7a4f75222ae11a5
   - 8474c16bc613412aaa22031cbce10ad3a1f9beea
-  - 26e170ba2525d1acb28d5f2df2f41708a7430e09
+  - eba61dc3eaea99249940af723b2d142aad4ef507
   - c2232432f5c2b51750ed9406059add07640caa15
   - 11910998e03f533e3852432fcb107e980fbe99f5
   - c09df8b9f1045151d00b8825259c76bf2e5a1fa7
   - 09304a6086811eeff016b23d1f232497106acac0
   - b3ca0f6db5ead37391a81a75b2af04535c38427f
   - e51e875c9840301a679caeeaa3b5cc56080e7496
-  commit_sha: da99110ee65052c65aa1cf278deb5ee628fd8f78
-  generated_at: '1792276446'
+  - 2c671110218f4f257b05a9d2c372abc80b50e1e2
+  - 3a283855bc358a7f0b2629edb666a5098c2eb79a
+  - c7e26cb91d6eab3c08d678dcc734bdf17136cb16
+  - 6f5371079a853f0282a1e9ce5afa661fcd1d1bcf
+  - 4d633c966b4997d72387343c124dab5fb4b301af
+  - 5a8944497635c3bd8a93a34365f39f01e36ab039
+  - 284eadce592e82f1e262a8b9bdcd2d91ee3e26ab
+  - 28459ad1496a8040109c9957bc1d88ef05b53911
+  - 04ac701305121c8fc39fa1f192e1f1383c44c81b
+  - 6305cb3a0c2aad4195505edc71a29866b8ac5025
+  - 78b80203e4b15d50b96e5a4d615097d3f4676e05
+  - f58520b87ec7d0122066dc9888b23350afcdf608
+  - 35528f568113751af273682ad4d5c3b12803ebc6
+  - 0957ef1562103a61e15ff88377b9d026e0d140ab
+  - 4fb6fbe409e5d78cfe73c350941ccdc4ac3ab1cd
+  - f432f7044c50e3cb9c64d394f3746ba0ce5d21df
+  - c39be362ce68f67043930e8b2a69ca1ada4ab670
+  - cc6af8912c7a6daf1143aee5359d7dd81082d279
+  - 221e36c0f3fc9cd24088e73a87bca05c57f01e9c
+  - 4d3dbaa112d4637449c1defd1780cf73f5683533
+  - d43c4a110af0d0523ac322b050fc2ead08556e85
+  - 998b4ffd9fd99a0ae67ef21b34b53cdf7e109128
+  commit_sha: c2b4981a881a740f26b23643f82584df00e559b3
+  generated_at: '1792276620'
   generator: kuda/0.1.0

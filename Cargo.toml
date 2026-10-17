@@ -5,6 +5,7 @@ members = [
     "crates/kuda-core",
     "crates/kuda-extract",
     "crates/kuda-manifest",
+    "crates/kuda-treesitter",
     "crates/kuda-store",
     "crates/kuda-store-sqlite",
     "crates/kuda-summarize",
@@ -36,6 +37,7 @@ lto = "thin"
 kuda-core = { path = "crates/kuda-core", version = "0.1.0" }
 kuda-extract = { path = "crates/kuda-extract", version = "0.1.0" }
 kuda-manifest = { path = "crates/kuda-manifest", version = "0.1.0" }
+kuda-treesitter = { path = "crates/kuda-treesitter", version = "0.1.0" }
 kuda-store = { path = "crates/kuda-store", version = "0.1.0" }
 kuda-store-sqlite = { path = "crates/kuda-store-sqlite", version = "0.1.0" }
 kuda-summarize = { path = "crates/kuda-summarize", version = "0.1.0" }
@@ -55,3 +57,5 @@ serde_yaml = "0.9"
 toml = "0.8"
 clap = { version = "4", features = ["derive"] }
 rusqlite = { version = "0.32", features = ["bundled"] }
+tree-sitter = "0.25"
+tree-sitter-rust = "0.24"

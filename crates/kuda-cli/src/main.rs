@@ -171,13 +171,25 @@ fn init(cli: &Cli) -> i32 {
 fn sync(cli: &Cli, _full: bool) -> i32 {
     let dir = root(cli);
     let cfg = load_config(cli);
-    let ext = match kuda_manifest::ManifestExtractor.extract(&dir, &langs()) {
-        Ok(e) => e,
-        Err(e) => {
-            eprintln!("extract: {e}");
-            return 1;
+    let mut extractors: Vec<Box<dyn Extractor>> = Vec::new();
+    for k in &cfg.extract.kinds {
+        match k.as_str() {
+            "manifest" => extractors.push(Box::new(kuda_manifest::ManifestExtractor)),
+            "treesitter" => extractors.push(Box::new(kuda_treesitter::TreesitterExtractor)),
+            other => eprintln!("extract: unknown kind {other} (impl crate?)"),
         }
-    };
+    }
+    let mut ext = kuda_extract::Extraction::default();
+    for x in &extractors {
+        match x.extract(&dir, &langs()) {
+            Ok(e) => {
+                ext.symbols.extend(e.symbols);
+                ext.edges.extend(e.edges);
+                ext.files.extend(e.files);
+            }
+            Err(e) => eprintln!("extract {}: {e}", x.kind()),
+        }
+    }
     let sha = kuda_git::GitVcs
         .head_sha(&dir)
         .unwrap_or_else(|| "unknown".into());

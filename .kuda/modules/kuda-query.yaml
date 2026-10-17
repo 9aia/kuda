@@ -7,17 +7,51 @@ api:
   file: crates/kuda-query/Cargo.toml
   line: 1
   module: kuda-query
+- name: find
+  kind: function
+  file: crates/kuda-query/src/lib.rs
+  line: 9
+  module: kuda-query
+- name: dependents
+  kind: function
+  file: crates/kuda-query/src/lib.rs
+  line: 14
+  module: kuda-query
+- name: module_symbols
+  kind: function
+  file: crates/kuda-query/src/lib.rs
+  line: 19
+  module: kuda-query
+- name: modules
+  kind: function
+  file: crates/kuda-query/src/lib.rs
+  line: 29
+  module: kuda-query
 deps:
 - kuda-core
 - kuda-store
+- kuda_core
+- kuda_store
 notes: ''
 verify:
 - crates/kuda-query/Cargo.toml
+- crates/kuda-query/src/lib.rs
+- crates/kuda-query/src/lib.rs
+- crates/kuda-query/src/lib.rs
+- crates/kuda-query/src/lib.rs
 provenance:
   files:
   - crates/kuda-query/Cargo.toml
+  - crates/kuda-query/src/lib.rs
+  - crates/kuda-query/src/lib.rs
+  - crates/kuda-query/src/lib.rs
+  - crates/kuda-query/src/lib.rs
   hashes:
   - c09df8b9f1045151d00b8825259c76bf2e5a1fa7
-  commit_sha: da99110ee65052c65aa1cf278deb5ee628fd8f78
-  generated_at: '1792276446'
+  - cc6af8912c7a6daf1143aee5359d7dd81082d279
+  - cc6af8912c7a6daf1143aee5359d7dd81082d279
+  - cc6af8912c7a6daf1143aee5359d7dd81082d279
+  - cc6af8912c7a6daf1143aee5359d7dd81082d279
+  commit_sha: c2b4981a881a740f26b23643f82584df00e559b3
+  generated_at: '1792276620'
   generator: kuda-template/0.1.0

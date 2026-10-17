@@ -1,0 +1,100 @@
+name: kuda-treesitter
+path: crates/kuda-treesitter/Cargo.toml
+purpose: 'Extract impl: tree-sitter grammar+query data -> symbols + import edges'
+api:
+- name: kuda-treesitter
+  kind: module
+  file: crates/kuda-treesitter/Cargo.toml
+  line: 1
+  module: kuda-treesitter
+- name: TreesitterExtractor
+  kind: type
+  file: crates/kuda-treesitter/src/lib.rs
+  line: 12
+  module: kuda-treesitter
+- name: language
+  kind: function
+  file: crates/kuda-treesitter/src/lib.rs
+  line: 16
+  module: kuda-treesitter
+- name: DEFAULT_RUST_QUERY
+  kind: const
+  file: crates/kuda-treesitter/src/lib.rs
+  line: 25
+  module: kuda-treesitter
+- name: DEP_QUERY
+  kind: const
+  file: crates/kuda-treesitter/src/lib.rs
+  line: 38
+  module: kuda-treesitter
+- name: kind_of
+  kind: function
+  file: crates/kuda-treesitter/src/lib.rs
+  line: 44
+  module: kuda-treesitter
+- name: module_of
+  kind: function
+  file: crates/kuda-treesitter/src/lib.rs
+  line: 58
+  module: kuda-treesitter
+- name: walk_files
+  kind: function
+  file: crates/kuda-treesitter/src/lib.rs
+  line: 75
+  module: kuda-treesitter
+- name: kind
+  kind: function
+  file: crates/kuda-treesitter/src/lib.rs
+  line: 106
+  module: kuda-treesitter
+- name: extract
+  kind: function
+  file: crates/kuda-treesitter/src/lib.rs
+  line: 110
+  module: kuda-treesitter
+deps:
+- kuda-core
+- kuda-extract
+- tree-sitter
+- tree-sitter-rust
+- kuda_core
+- kuda_extract
+- tree_sitter
+notes: ''
+verify:
+- crates/kuda-treesitter/Cargo.toml
+- crates/kuda-treesitter/src/lib.rs
+- crates/kuda-treesitter/src/lib.rs
+- crates/kuda-treesitter/src/lib.rs
+- crates/kuda-treesitter/src/lib.rs
+- crates/kuda-treesitter/src/lib.rs
+- crates/kuda-treesitter/src/lib.rs
+- crates/kuda-treesitter/src/lib.rs
+- crates/kuda-treesitter/src/lib.rs
+- crates/kuda-treesitter/src/lib.rs
+provenance:
+  files:
+  - crates/kuda-treesitter/Cargo.toml
+  - crates/kuda-treesitter/src/lib.rs
+  - crates/kuda-treesitter/src/lib.rs
+  - crates/kuda-treesitter/src/lib.rs
+  - crates/kuda-treesitter/src/lib.rs
+  - crates/kuda-treesitter/src/lib.rs
+  - crates/kuda-treesitter/src/lib.rs
+  - crates/kuda-treesitter/src/lib.rs
+  - crates/kuda-treesitter/src/lib.rs
+  - crates/kuda-treesitter/src/lib.rs
+  hashes:
+  - b738b5c27df65ced25ed4ed3f341d72ea688b81a
+  - 5a8944497635c3bd8a93a34365f39f01e36ab039
+  - 5a8944497635c3bd8a93a34365f39f01e36ab039
+  - 5a8944497635c3bd8a93a34365f39f01e36ab039
+  - 5a8944497635c3bd8a93a34365f39f01e36ab039
+  - 5a8944497635c3bd8a93a34365f39f01e36ab039
+  - 5a8944497635c3bd8a93a34365f39f01e36ab039
+  - 5a8944497635c3bd8a93a34365f39f01e36ab039
+  - 5a8944497635c3bd8a93a34365f39f01e36ab039
+  - 5a8944497635c3bd8a93a34365f39f01e36ab039
+  commit_sha: c2b4981a881a740f26b23643f82584df00e559b3
+  generated_at: '1792276620'
+  generator: kuda-template/0.1.0

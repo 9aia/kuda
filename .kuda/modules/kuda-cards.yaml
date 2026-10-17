@@ -7,18 +7,51 @@ api:
   file: crates/kuda-cards/Cargo.toml
   line: 1
   module: kuda-cards
+- name: render_repo_card
+  kind: function
+  file: crates/kuda-cards/src/lib.rs
+  line: 8
+  module: kuda-cards
+- name: parse_repo_card
+  kind: function
+  file: crates/kuda-cards/src/lib.rs
+  line: 12
+  module: kuda-cards
+- name: render_module_card
+  kind: function
+  file: crates/kuda-cards/src/lib.rs
+  line: 17
+  module: kuda-cards
+- name: parse_module_card
+  kind: function
+  file: crates/kuda-cards/src/lib.rs
+  line: 21
+  module: kuda-cards
 deps:
 - kuda-core
 - serde
 - serde_yaml
+- kuda_core
 notes: ''
 verify:
 - crates/kuda-cards/Cargo.toml
+- crates/kuda-cards/src/lib.rs
+- crates/kuda-cards/src/lib.rs
+- crates/kuda-cards/src/lib.rs
+- crates/kuda-cards/src/lib.rs
 provenance:
   files:
   - crates/kuda-cards/Cargo.toml
+  - crates/kuda-cards/src/lib.rs
+  - crates/kuda-cards/src/lib.rs
+  - crates/kuda-cards/src/lib.rs
+  - crates/kuda-cards/src/lib.rs
   hashes:
   - c2232432f5c2b51750ed9406059add07640caa15
-  commit_sha: da99110ee65052c65aa1cf278deb5ee628fd8f78
-  generated_at: '1792276446'
+  - f432f7044c50e3cb9c64d394f3746ba0ce5d21df
+  - f432f7044c50e3cb9c64d394f3746ba0ce5d21df
+  - f432f7044c50e3cb9c64d394f3746ba0ce5d21df
+  - f432f7044c50e3cb9c64d394f3746ba0ce5d21df
+  commit_sha: c2b4981a881a740f26b23643f82584df00e559b3
+  generated_at: '1792276620'
   generator: kuda-template/0.1.0

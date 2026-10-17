@@ -16,6 +16,6 @@ provenance:
   - modules/dagger/dagger/pyproject.toml
   hashes:
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
-  commit_sha: da99110ee65052c65aa1cf278deb5ee628fd8f78
-  generated_at: '1792276446'
+  commit_sha: c2b4981a881a740f26b23643f82584df00e559b3
+  generated_at: '1792276620'
   generator: kuda-template/0.1.0

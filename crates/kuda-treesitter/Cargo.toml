@@ -1,0 +1,15 @@
+[package]
+name = "kuda-treesitter"
+description = "Extract impl: tree-sitter grammar+query data -> symbols + import edges"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords = ["code-intelligence", "kuda"]
+categories = ["development-tools"]
+
+[dependencies]
+kuda-core.workspace = true
+kuda-extract.workspace = true
+tree-sitter.workspace = true
+tree-sitter-rust.workspace = true
