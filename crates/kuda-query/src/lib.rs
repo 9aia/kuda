@@ -10,6 +10,11 @@ pub fn find(store: &dyn IndexStore, name: &str) -> Result<Vec<Symbol>, String> {
     store.find(name)
 }
 
+/// Substring symbol search — the fuzzy tier under `find`.
+pub fn search(store: &dyn IndexStore, pattern: &str) -> Result<Vec<Symbol>, String> {
+    store.search(pattern)
+}
+
 /// `kuda dependents <name>` — who points at it (impact analysis).
 pub fn dependents(store: &dyn IndexStore, name: &str) -> Result<Vec<DepEdge>, String> {
     store.dependents(name)

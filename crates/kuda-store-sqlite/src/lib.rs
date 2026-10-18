@@ -146,6 +146,30 @@ impl IndexStore for SqliteStore {
         rows.collect::<Result<Vec<_>, _>>().map_err(|e| e.to_string())
     }
 
+    fn search(&self, pattern: &str) -> Result<Vec<Symbol>, String> {
+        let conn = self.lock()?;
+        let mut st = conn
+            .prepare("SELECT name,kind,file,line,module FROM symbols WHERE name LIKE ?1 ESCAPE '\\' ORDER BY name")
+            .map_err(|e| e.to_string())?;
+        // escape LIKE metachars so user text stays literal
+        let esc = pattern
+            .replace('\\', "\\\\")
+            .replace('%', "\\%")
+            .replace('_', "\\_");
+        let rows = st
+            .query_map(params![format!("%{esc}%")], |r| {
+                Ok(Symbol {
+                    name: r.get(0)?,
+                    kind: sk_from(&r.get::<_, String>(1)?),
+                    file: r.get::<_, String>(2)?.into(),
+                    line: r.get(3)?,
+                    module: r.get(4)?,
+                })
+            })
+            .map_err(|e| e.to_string())?;
+        rows.collect::<Result<Vec<_>, _>>().map_err(|e| e.to_string())
+    }
+
     fn dependents(&self, name: &str) -> Result<Vec<DepEdge>, String> {
         let conn = self.lock()?;
         let mut st = conn

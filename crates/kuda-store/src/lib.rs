@@ -16,6 +16,8 @@ pub trait IndexStore: Send + Sync {
     ) -> Result<(), String>;
     /// Exact-name lookup — `kuda find`.
     fn find(&self, name: &str) -> Result<Vec<Symbol>, String>;
+    /// Substring lookup — the fuzzy tier under `find`.
+    fn search(&self, pattern: &str) -> Result<Vec<Symbol>, String>;
     /// Reverse lookup — edges pointing at `name`. Impact analysis.
     fn dependents(&self, name: &str) -> Result<Vec<DepEdge>, String>;
     /// Module names currently indexed.

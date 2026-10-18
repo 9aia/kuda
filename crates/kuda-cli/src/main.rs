@@ -508,7 +508,15 @@ fn find(cli: &Cli, symbol: &str) -> i32 {
     let mut hits = Vec::new();
     for r in &roots {
         if let Ok(store) = kuda_store_sqlite::SqliteStore::open(&r.join(&cfg.store.path)) {
-            if let Ok(mut syms) = kuda_query::find(&store, symbol) {
+            // exact first; on miss, fuzzy substring tier (marked)
+            let mut syms = kuda_query::find(&store, symbol).unwrap_or_default();
+            if syms.is_empty() {
+                syms = kuda_query::search(&store, symbol).unwrap_or_default();
+                for s in syms.iter_mut() {
+                    s.module.push_str(" (fuzzy)");
+                }
+            }
+            {
                 // tag hits with their repo when spanning roots
                 for s in syms.iter_mut() {
                     if roots.len() > 1 {
