@@ -25,6 +25,12 @@
       machine owns api/deps fields, humans own `notes:` region;
       every card ends with `verify:` file list
 
+## Init ergonomics
+- [ ] `kuda init`/`sync` should append `.kuda/index.sqlite` +
+      `.kuda/meta.json` to `.gitignore` automatically — cards are
+      committed artifacts, the graph is rebuildable. Found via
+      dogfood: mimus+bupha committed the sqlite binary by hand.
+
 ## Languages
 - [ ] `.hnl` — add a data/langs/hnl.toml descriptor (extensions,
       manifests if any, symbol/dep queries). Blocked on a tree-sitter-handl
