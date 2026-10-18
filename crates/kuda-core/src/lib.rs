@@ -183,9 +183,13 @@ fn default_extract_kinds() -> Vec<String> {
 #[derive(Debug, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct SummarizeCfg {
-    /// "template" (deterministic, default) | "llm".
+    /// "template" (deterministic, default) | "acp" (agent-spawned).
+    /// "llm" is a backlog adapter — ACP is the semantic path.
     #[serde(default = "default_summarize_kind")]
     pub kind: String,
+    /// ACP agent command for kind="acp" — spawns per summarize.
+    #[serde(default)]
+    pub acp_cmd: Option<String>,
     /// Provider id for the llm adapter; key resolves via secrets chain.
     #[serde(default)]
     pub provider: Option<String>,
@@ -197,6 +201,7 @@ impl Default for SummarizeCfg {
     fn default() -> Self {
         Self {
             kind: default_summarize_kind(),
+            acp_cmd: None,
             provider: None,
             model: None,
         }

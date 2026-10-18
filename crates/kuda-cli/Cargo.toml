@@ -18,6 +18,7 @@ kuda-extract.workspace = true
 kuda-manifest.workspace = true
 kuda-treesitter.workspace = true
 kuda-lsp.workspace = true
+kuda-acp.workspace = true
 kuda-store.workspace = true
 kuda-store-sqlite.workspace = true
 kuda-summarize.workspace = true

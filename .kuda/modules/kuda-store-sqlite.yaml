@@ -57,25 +57,30 @@ api:
   file: crates/kuda-store-sqlite/src/lib.rs
   line: 130
   module: kuda-store-sqlite
-- name: dependents
+- name: search
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
   line: 149
   module: kuda-store-sqlite
+- name: dependents
+  kind: function
+  file: crates/kuda-store-sqlite/src/lib.rs
+  line: 173
+  module: kuda-store-sqlite
 - name: modules
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 166
+  line: 190
   module: kuda-store-sqlite
 - name: set_meta
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 175
+  line: 199
   module: kuda-store-sqlite
 - name: meta
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 185
+  line: 209
   module: kuda-store-sqlite
 deps:
 - kuda-core
@@ -87,6 +92,7 @@ deps:
 notes: ''
 verify:
 - crates/kuda-store-sqlite/Cargo.toml
+- crates/kuda-store-sqlite/src/lib.rs
 - crates/kuda-store-sqlite/src/lib.rs
 - crates/kuda-store-sqlite/src/lib.rs
 - crates/kuda-store-sqlite/src/lib.rs
@@ -118,22 +124,24 @@ provenance:
   - crates/kuda-store-sqlite/src/lib.rs
   - crates/kuda-store-sqlite/src/lib.rs
   - crates/kuda-store-sqlite/src/lib.rs
+  - crates/kuda-store-sqlite/src/lib.rs
   hashes:
   - 2d30a3d362d500ce8e4310218db2ea0f8da6ae99
-  - ffb95d298845b612c3a9172fd15f2cdc6393c3fc
-  - ffb95d298845b612c3a9172fd15f2cdc6393c3fc
-  - ffb95d298845b612c3a9172fd15f2cdc6393c3fc
-  - ffb95d298845b612c3a9172fd15f2cdc6393c3fc
-  - ffb95d298845b612c3a9172fd15f2cdc6393c3fc
-  - ffb95d298845b612c3a9172fd15f2cdc6393c3fc
-  - ffb95d298845b612c3a9172fd15f2cdc6393c3fc
-  - ffb95d298845b612c3a9172fd15f2cdc6393c3fc
-  - ffb95d298845b612c3a9172fd15f2cdc6393c3fc
-  - ffb95d298845b612c3a9172fd15f2cdc6393c3fc
-  - ffb95d298845b612c3a9172fd15f2cdc6393c3fc
-  - ffb95d298845b612c3a9172fd15f2cdc6393c3fc
-  - ffb95d298845b612c3a9172fd15f2cdc6393c3fc
-  - ffb95d298845b612c3a9172fd15f2cdc6393c3fc
-  commit_sha: 6592ee3bab21e6d9297bf4d421310cedec1f0b93
-  generated_at: '1792283282'
+  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
+  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
+  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
+  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
+  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
+  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
+  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
+  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
+  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
+  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
+  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
+  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
+  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
+  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
+  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
+  commit_sha: f44070073017d0b1e1f771396234ca0fdbf4e5e1
+  generated_at: '1792285762'
   generator: kuda-template/0.1.0

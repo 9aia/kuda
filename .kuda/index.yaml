@@ -2,8 +2,10 @@ name: kuda
 root: /home/luis/GitHub/9aia/kuda
 purpose: '*A hippocampus for your codebase.*'
 modules:
+- _root
 - dagger
 - kuda
+- kuda-acp
 - kuda-cards
 - kuda-cli
 - kuda-config
@@ -33,6 +35,7 @@ provenance:
   - crates/kuda-secret/Cargo.toml
   - crates/kuda-store/Cargo.toml
   - crates/kuda-config/Cargo.toml
+  - crates/kuda-acp/Cargo.toml
   - crates/kuda-config-toml/Cargo.toml
   - crates/kuda-treesitter/Cargo.toml
   - crates/kuda-core/Cargo.toml
@@ -52,6 +55,7 @@ provenance:
   - crates/kuda-secret/src/lib.rs
   - crates/kuda-store/src/lib.rs
   - crates/kuda-config/src/lib.rs
+  - crates/kuda-acp/src/lib.rs
   - crates/kuda-config-toml/tests/load.rs
   - crates/kuda-config-toml/src/lib.rs
   - crates/kuda-treesitter/src/lib.rs
@@ -72,14 +76,18 @@ provenance:
   - crates/kuda-dotenv/tests/store.rs
   - crates/kuda-dotenv/src/lib.rs
   - crates/kuda-store-sqlite/src/lib.rs
+  - modules/dagger/dagger/src/kuda/main.py
+  - modules/dagger/dagger/src/kuda/__init__.py
+  - modules/dagger/tests/test_self_patch.py
   hashes:
-  - 2f7be43b566485f612f08c426c324873ec57f009
+  - a9628d0c5439f13cf0803135f96457bfdadb7c89
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
   - f826462ae7337233c57e6151c6a7b516a437abbc
   - fcd81b2ab4c0c8bd258d2a0d32162f1ff7ae9bd9
   - ea8d721cf84a29a6242dfb89a1cfe55211215dbb
+  - 235538739af3a723c914cd6ede000fee3811ee2d
   - 69539d90b1b9cce1264bb96925db8212817849fa
-  - 986e340a5c0ce24362d0f4b93034b0e45901ef2d
+  - 8efb60e30909069b02678345442999b7e54671c6
   - 858a2d26892b5f1150a8b4663f27d32c408f6e1d
   - 04bbffa2faf364409f943e06689f50fb83b2e6c4
   - 91090b39dc802b32e546f0af5ad5f1aa9e994bb8
@@ -87,7 +95,7 @@ provenance:
   - f67a4e0af5e5702eea94a963c1b91e8349a246ab
   - 65d11baa59bc50d3fb5d1b6a488a87922b66c9a3
   - 8474c16bc613412aaa22031cbce10ad3a1f9beea
-  - a702bdf5baec49fef1c7743864b1a8f2cb494672
+  - 7b03ae9b198d29a234a4368a9cdbbcc7e3b95cc9
   - c2232432f5c2b51750ed9406059add07640caa15
   - 11910998e03f533e3852432fcb107e980fbe99f5
   - c09df8b9f1045151d00b8825259c76bf2e5a1fa7
@@ -95,12 +103,13 @@ provenance:
   - c00e5be2a18e90d8ecfd27f7e9f455e5343b7a86
   - 2d30a3d362d500ce8e4310218db2ea0f8da6ae99
   - 2c671110218f4f257b05a9d2c372abc80b50e1e2
-  - b0ca09a166015a2d870589accf07a2e81d0c84ea
+  - ca1b5281b4733624c444089af649e5c09ce5b470
   - 67df5f89ce57962d01a71781e96d8378f9c284c4
+  - e55d2b8e5e3b5ba7e6c39348a789caf6e6cbf627
   - 6f5371079a853f0282a1e9ce5afa661fcd1d1bcf
   - b12116b476081aedcaf4ea623af3ff70bc65999c
-  - ddb36f2d8eac8fdd50368b945a3f9ef371f056f4
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
+  - 7c2fd0389d4a5f973e8a3b12e27745cfb4e0ddae
+  - 00ad726678e0d61742554341ce79008434f7b5a4
   - 28459ad1496a8040109c9957bc1d88ef05b53911
   - 5b88b309efeef08b79d6da453518e135f13217d3
   - 5242918416df1b111afa3ac068a34dd434191191
@@ -109,14 +118,17 @@ provenance:
   - 8503206292175e9f857af5d2f6c22b02ab86aaa4
   - ae9ba06e36b09753f52ea9ca3b2f1c9639d96e7e
   - 0957ef1562103a61e15ff88377b9d026e0d140ab
-  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - 81ea556993921fdb599d20e00f76091a2edecae2
   - f432f7044c50e3cb9c64d394f3746ba0ce5d21df
   - c39be362ce68f67043930e8b2a69ca1ada4ab670
-  - cc6af8912c7a6daf1143aee5359d7dd81082d279
+  - fad52d157f36486e32de9ecaf3c02194aabdac8a
   - 8bbba445d79579dba9223047a3db4ab3990db439
   - 4d3dbaa112d4637449c1defd1780cf73f5683533
   - cb40b55b263aafbb6428aabc0c2efdfc983be879
-  - ffb95d298845b612c3a9172fd15f2cdc6393c3fc
-  commit_sha: 6592ee3bab21e6d9297bf4d421310cedec1f0b93
-  generated_at: '1792283282'
+  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
+  - d71646b878b3eae72aa42a5791588701197fdb2d
+  - 5b331a1baf30b49f5bf03dd9693297d498117deb
+  - 203086b883ed1477efd6f9befccd76e2614cc9ea
+  commit_sha: f44070073017d0b1e1f771396234ca0fdbf4e5e1
+  generated_at: '1792285762'
   generator: kuda/0.1.0

@@ -55,107 +55,107 @@ api:
 - name: Config
   kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 131
+  line: 134
   module: kuda-core
 - name: RepoCfg
   kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 148
+  line: 151
   module: kuda-core
 - name: ExtractCfg
   kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 158
+  line: 161
   module: kuda-core
 - name: default
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 168
+  line: 171
   module: kuda-core
 - name: default_extract_kinds
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 176
+  line: 179
   module: kuda-core
 - name: SummarizeCfg
   kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 182
+  line: 185
   module: kuda-core
 - name: default
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 194
+  line: 201
   module: kuda-core
 - name: default_summarize_kind
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 203
+  line: 211
   module: kuda-core
 - name: StoreCfg
   kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 209
+  line: 217
   module: kuda-core
 - name: default
-  kind: function
-  file: crates/kuda-core/src/lib.rs
-  line: 218
-  module: kuda-core
-- name: default_store_kind
   kind: function
   file: crates/kuda-core/src/lib.rs
   line: 226
   module: kuda-core
+- name: default_store_kind
+  kind: function
+  file: crates/kuda-core/src/lib.rs
+  line: 234
+  module: kuda-core
 - name: default_store_path
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 229
+  line: 237
   module: kuda-core
 - name: CardsCfg
   kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 235
+  line: 243
   module: kuda-core
 - name: default
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 242
+  line: 250
   module: kuda-core
 - name: default_cards_dir
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 249
+  line: 257
   module: kuda-core
 - name: WorkspaceCfg
   kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 255
+  line: 263
   module: kuda-core
 - name: is_valid_sha
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 266
+  line: 274
   module: kuda-core
 - name: publish_order
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 278
+  line: 286
   module: kuda-core
 - name: tests
   kind: module
   file: crates/kuda-core/src/lib.rs
-  line: 306
+  line: 314
   module: kuda-core
 - name: order_respects_path_deps
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 310
+  line: 318
   module: kuda-core
 - name: cycle_errors
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 324
+  line: 332
   module: kuda-core
 deps:
 - serde
@@ -230,36 +230,36 @@ provenance:
   - crates/kuda-core/src/lib.rs
   hashes:
   - 858a2d26892b5f1150a8b4663f27d32c408f6e1d
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  - d3ad5eb16a28132e69ac24915690a329b1c66e53
-  commit_sha: 6592ee3bab21e6d9297bf4d421310cedec1f0b93
-  generated_at: '1792283282'
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  - 00ad726678e0d61742554341ce79008434f7b5a4
+  commit_sha: f44070073017d0b1e1f771396234ca0fdbf4e5e1
+  generated_at: '1792285762'
   generator: kuda-template/0.1.0

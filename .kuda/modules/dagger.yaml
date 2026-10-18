@@ -7,15 +7,135 @@ api:
   file: modules/dagger/dagger/pyproject.toml
   line: 1
   module: dagger
+- name: Kuda
+  kind: type
+  file: modules/dagger/dagger/src/kuda/main.py
+  line: 102
+  module: dagger
+- name: _base
+  kind: function
+  file: modules/dagger/dagger/src/kuda/main.py
+  line: 105
+  module: dagger
+- name: _workspace
+  kind: function
+  file: modules/dagger/dagger/src/kuda/main.py
+  line: 137
+  module: dagger
+- name: _link_repo
+  kind: function
+  file: modules/dagger/dagger/src/kuda/main.py
+  line: 190
+  module: dagger
+- name: workspace
+  kind: function
+  file: modules/dagger/dagger/src/kuda/main.py
+  line: 209
+  module: dagger
+- name: with_sibling
+  kind: function
+  file: modules/dagger/dagger/src/kuda/main.py
+  line: 222
+  module: dagger
+- name: run_script
+  kind: function
+  file: modules/dagger/dagger/src/kuda/main.py
+  line: 238
+  module: dagger
+- name: _exec
+  kind: function
+  file: modules/dagger/dagger/src/kuda/main.py
+  line: 248
+  module: dagger
+- name: doctor
+  kind: function
+  file: modules/dagger/dagger/src/kuda/main.py
+  line: 268
+  module: dagger
+- name: test_shard
+  kind: function
+  file: modules/dagger/dagger/src/kuda/main.py
+  line: 292
+  module: dagger
+- name: doctests
+  kind: function
+  file: modules/dagger/dagger/src/kuda/main.py
+  line: 318
+  module: dagger
+- name: test
+  kind: function
+  file: modules/dagger/dagger/src/kuda/main.py
+  line: 335
+  module: dagger
+- name: coverage_report
+  kind: function
+  file: modules/dagger/dagger/src/kuda/main.py
+  line: 372
+  module: dagger
+- name: coverage_gate
+  kind: function
+  file: modules/dagger/dagger/src/kuda/main.py
+  line: 398
+  module: dagger
+- name: run
+  kind: function
+  file: modules/dagger/dagger/src/kuda/main.py
+  line: 416
+  module: dagger
 deps: []
 notes: ''
 verify:
 - modules/dagger/dagger/pyproject.toml
+- modules/dagger/dagger/src/kuda/main.py
+- modules/dagger/dagger/src/kuda/main.py
+- modules/dagger/dagger/src/kuda/main.py
+- modules/dagger/dagger/src/kuda/main.py
+- modules/dagger/dagger/src/kuda/main.py
+- modules/dagger/dagger/src/kuda/main.py
+- modules/dagger/dagger/src/kuda/main.py
+- modules/dagger/dagger/src/kuda/main.py
+- modules/dagger/dagger/src/kuda/main.py
+- modules/dagger/dagger/src/kuda/main.py
+- modules/dagger/dagger/src/kuda/main.py
+- modules/dagger/dagger/src/kuda/main.py
+- modules/dagger/dagger/src/kuda/main.py
+- modules/dagger/dagger/src/kuda/main.py
+- modules/dagger/dagger/src/kuda/main.py
 provenance:
   files:
   - modules/dagger/dagger/pyproject.toml
+  - modules/dagger/dagger/src/kuda/main.py
+  - modules/dagger/dagger/src/kuda/main.py
+  - modules/dagger/dagger/src/kuda/main.py
+  - modules/dagger/dagger/src/kuda/main.py
+  - modules/dagger/dagger/src/kuda/main.py
+  - modules/dagger/dagger/src/kuda/main.py
+  - modules/dagger/dagger/src/kuda/main.py
+  - modules/dagger/dagger/src/kuda/main.py
+  - modules/dagger/dagger/src/kuda/main.py
+  - modules/dagger/dagger/src/kuda/main.py
+  - modules/dagger/dagger/src/kuda/main.py
+  - modules/dagger/dagger/src/kuda/main.py
+  - modules/dagger/dagger/src/kuda/main.py
+  - modules/dagger/dagger/src/kuda/main.py
+  - modules/dagger/dagger/src/kuda/main.py
   hashes:
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
-  commit_sha: 6592ee3bab21e6d9297bf4d421310cedec1f0b93
-  generated_at: '1792283282'
+  - d71646b878b3eae72aa42a5791588701197fdb2d
+  - d71646b878b3eae72aa42a5791588701197fdb2d
+  - d71646b878b3eae72aa42a5791588701197fdb2d
+  - d71646b878b3eae72aa42a5791588701197fdb2d
+  - d71646b878b3eae72aa42a5791588701197fdb2d
+  - d71646b878b3eae72aa42a5791588701197fdb2d
+  - d71646b878b3eae72aa42a5791588701197fdb2d
+  - d71646b878b3eae72aa42a5791588701197fdb2d
+  - d71646b878b3eae72aa42a5791588701197fdb2d
+  - d71646b878b3eae72aa42a5791588701197fdb2d
+  - d71646b878b3eae72aa42a5791588701197fdb2d
+  - d71646b878b3eae72aa42a5791588701197fdb2d
+  - d71646b878b3eae72aa42a5791588701197fdb2d
+  - d71646b878b3eae72aa42a5791588701197fdb2d
+  - d71646b878b3eae72aa42a5791588701197fdb2d
+  commit_sha: f44070073017d0b1e1f771396234ca0fdbf4e5e1
+  generated_at: '1792285762'
   generator: kuda-template/0.1.0

@@ -238,6 +238,7 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "clap-markdown",
+ "kuda-acp",
  "kuda-cards",
  "kuda-config",
  "kuda-config-toml",
@@ -256,6 +257,17 @@ dependencies = [
  "serde_json",
  "serde_yaml",
  "toml",
+]
+
+[[package]]
+name = "kuda-acp"
+version = "0.1.0"
+dependencies = [
+ "kuda-core",
+ "kuda-extract",
+ "kuda-summarize",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

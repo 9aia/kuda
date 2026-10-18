@@ -1,0 +1,94 @@
+name: kuda-acp
+path: crates/kuda-acp/Cargo.toml
+purpose: 'Summarizer adapter: spawns an ACP agent to write grounded module cards'
+api:
+- name: kuda-acp
+  kind: module
+  file: crates/kuda-acp/Cargo.toml
+  line: 1
+  module: kuda-acp
+- name: AcpSummarizer
+  kind: type
+  file: crates/kuda-acp/src/lib.rs
+  line: 15
+  module: kuda-acp
+- name: AcpClient
+  kind: type
+  file: crates/kuda-acp/src/lib.rs
+  line: 22
+  module: kuda-acp
+- name: spawn
+  kind: function
+  file: crates/kuda-acp/src/lib.rs
+  line: 30
+  module: kuda-acp
+- name: send
+  kind: function
+  file: crates/kuda-acp/src/lib.rs
+  line: 48
+  module: kuda-acp
+- name: request
+  kind: function
+  file: crates/kuda-acp/src/lib.rs
+  line: 56
+  module: kuda-acp
+- name: prompt_for
+  kind: function
+  file: crates/kuda-acp/src/lib.rs
+  line: 86
+  module: kuda-acp
+- name: kind
+  kind: function
+  file: crates/kuda-acp/src/lib.rs
+  line: 107
+  module: kuda-acp
+- name: summarize
+  kind: function
+  file: crates/kuda-acp/src/lib.rs
+  line: 111
+  module: kuda-acp
+deps:
+- kuda-core
+- kuda-extract
+- kuda-summarize
+- serde
+- serde_json
+- kuda_core
+- kuda_extract
+- kuda_summarize
+- serde_json
+notes: ''
+verify:
+- crates/kuda-acp/Cargo.toml
+- crates/kuda-acp/src/lib.rs
+- crates/kuda-acp/src/lib.rs
+- crates/kuda-acp/src/lib.rs
+- crates/kuda-acp/src/lib.rs
+- crates/kuda-acp/src/lib.rs
+- crates/kuda-acp/src/lib.rs
+- crates/kuda-acp/src/lib.rs
+- crates/kuda-acp/src/lib.rs
+provenance:
+  files:
+  - crates/kuda-acp/Cargo.toml
+  - crates/kuda-acp/src/lib.rs
+  - crates/kuda-acp/src/lib.rs
+  - crates/kuda-acp/src/lib.rs
+  - crates/kuda-acp/src/lib.rs
+  - crates/kuda-acp/src/lib.rs
+  - crates/kuda-acp/src/lib.rs
+  - crates/kuda-acp/src/lib.rs
+  - crates/kuda-acp/src/lib.rs
+  hashes:
+  - 235538739af3a723c914cd6ede000fee3811ee2d
+  - e55d2b8e5e3b5ba7e6c39348a789caf6e6cbf627
+  - e55d2b8e5e3b5ba7e6c39348a789caf6e6cbf627
+  - e55d2b8e5e3b5ba7e6c39348a789caf6e6cbf627
+  - e55d2b8e5e3b5ba7e6c39348a789caf6e6cbf627
+  - e55d2b8e5e3b5ba7e6c39348a789caf6e6cbf627
+  - e55d2b8e5e3b5ba7e6c39348a789caf6e6cbf627
+  - e55d2b8e5e3b5ba7e6c39348a789caf6e6cbf627
+  - e55d2b8e5e3b5ba7e6c39348a789caf6e6cbf627
+  commit_sha: f44070073017d0b1e1f771396234ca0fdbf4e5e1
+  generated_at: '1792285762'
+  generator: kuda-template/0.1.0

@@ -262,6 +262,14 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
         }
     };
 
+    // summarizer adapter: acp spawns an agent; anything else is template
+    let acp = cfg.summarize.acp_cmd.clone().map(|cmd| {
+        kuda_acp::AcpSummarizer {
+            cmd,
+            root: dir.to_path_buf(),
+        }
+    });
+    let use_acp = cfg.summarize.kind == "acp" && acp.is_some();
     let summ = kuda_template::TemplateSummarizer;
     let mut module_names = Vec::new();
     for (module, syms) in &by_mod {
@@ -280,16 +288,45 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
             .filter(|e| e.from == *module)
             .cloned()
             .collect();
-        let mut card = match summ.summarize(
-            module,
-            &syms[0].file,
-            &kuda_extract::Extraction {
-                symbols: syms.clone(),
-                edges: mod_edges.clone(),
-                files: mfiles.clone(),
-            },
-            prov,
-        ) {
+        let card_res = if use_acp {
+            acp.as_ref()
+                .unwrap()
+                .summarize(
+                    module,
+                    &syms[0].file,
+                    &kuda_extract::Extraction {
+                        symbols: syms.clone(),
+                        edges: mod_edges.clone(),
+                        files: mfiles.clone(),
+                    },
+                    prov.clone(),
+                )
+                .or_else(|e| {
+                    eprintln!("acp {module}: {e} — template fallback");
+                    summ.summarize(
+                        module,
+                        &syms[0].file,
+                        &kuda_extract::Extraction {
+                            symbols: syms.clone(),
+                            edges: mod_edges.clone(),
+                            files: mfiles.clone(),
+                        },
+                        prov.clone(),
+                    )
+                })
+        } else {
+            summ.summarize(
+                module,
+                &syms[0].file,
+                &kuda_extract::Extraction {
+                    symbols: syms.clone(),
+                    edges: mod_edges.clone(),
+                    files: mfiles.clone(),
+                },
+                prov.clone(),
+            )
+        };
+        let mut card = match card_res {
             Ok(c) => c,
             Err(e) => {
                 eprintln!("summarize {module}: {e}");
