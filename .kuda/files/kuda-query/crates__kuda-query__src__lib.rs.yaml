@@ -1,0 +1,17 @@
+path: crates/kuda-query/src/lib.rs
+module: kuda-query
+purpose: 'The `kuda-query` crate — the agent-facing read layer over the `IndexStore` port plus committed cards, providing the query functions backing CLI subcommands like `find`, `dependents`, `card`, and `status`. Deliberately thin: filtering/formatting lives here, storage stays behind the port.'
+symbols:
+- find
+- search
+- dependents
+- module_symbols
+- modules
+provenance:
+  files:
+  - crates/kuda-query/src/lib.rs
+  hashes:
+  - fad52d157f36486e32de9ecaf3c02194aabdac8a
+  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
+  generated_at: '1792313269'
+  generator: kuda-acp/0.1.0

@@ -1,0 +1,19 @@
+path: crates/kuda-manifest/src/lib.rs
+module: kuda-manifest
+purpose: 'Manifest adapter implementing the `kuda_extract::Extractor` port (`kind` = `"manifest"`) — walks the tree for manifest basenames declared by `LangDef` entries (Cargo.toml, package.json, go.mod, …) and turns each into a module-graph node: a `SymbolKind::Module` symbol plus `EdgeKind::PackageDep` edges to its declared dependencies. No parser or language knowledge beyond concrete-format adapters keyed by manifest filename.'
+symbols:
+- ManifestExtractor
+- kind
+- extract
+- parse_manifest
+- cargo
+- package_json
+- go_mod
+provenance:
+  files:
+  - crates/kuda-manifest/src/lib.rs
+  hashes:
+  - 44f6cf18ea1722cc51ccb13532d3b5a6fff18eb8
+  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
+  generated_at: '1792313269'
+  generator: kuda-acp/0.1.0

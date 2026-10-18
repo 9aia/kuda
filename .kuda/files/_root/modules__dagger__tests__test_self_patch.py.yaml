@@ -1,0 +1,23 @@
+path: modules/dagger/tests/test_self_patch.py
+module: _root
+purpose: Regression-test suite for the embedded `_SELF_PATCH_PY` script that ships inside a bash heredoc in `main.py`; it extracts the script via AST parsing, substitutes the same placeholders `_link_repo` uses, and runs it against fixture Cargo.toml files in tmp dirs. Tests verify that a `[patch."<url>"]` block is appended from the `repository` field or an overriding `patch_host`, that re-runs are idempotent, that stale rows and inner comments are stripped while surrounding tables/comments survive, that a missing repository and patch_host raises an error, and that no function in `main.py` forwards undeclared names.
+symbols:
+- module_source
+- extract
+- run
+- run_raw
+- make_repo
+- test_appends_patch_block_from_repository_field
+- test_patch_host_overrides_repository
+- test_idempotent_rerun
+- test_strips_stale_rows_and_inner_comments
+- test_no_repository_no_patch_host_errors
+- test_no_public_fn_forwards_undeclared_names
+provenance:
+  files:
+  - modules/dagger/tests/test_self_patch.py
+  hashes:
+  - 203086b883ed1477efd6f9befccd76e2614cc9ea
+  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
+  generated_at: '1792313269'
+  generator: kuda-acp/0.1.0

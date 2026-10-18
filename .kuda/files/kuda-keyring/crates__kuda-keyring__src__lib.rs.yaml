@@ -1,0 +1,16 @@
+path: crates/kuda-keyring/src/lib.rs
+module: kuda-keyring
+purpose: 'Keyring adapter implementing the `kuda_secret::Secrets` port by shelling out to `secret-tool` (libsecret). Groups all kuda entries under a `service` attribute (default `"kuda"`), with a deliberate degradation path: headless boxes without dbus simply miss every lookup, letting the caller fall through to the dotenv/file store.'
+symbols:
+- KeyringSecrets
+- default
+- get
+- set
+provenance:
+  files:
+  - crates/kuda-keyring/src/lib.rs
+  hashes:
+  - 5242918416df1b111afa3ac068a34dd434191191
+  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
+  generated_at: '1792313269'
+  generator: kuda-acp/0.1.0

@@ -1,0 +1,27 @@
+path: crates/kuda-lsp/src/lib.rs
+module: kuda-lsp
+purpose: 'LSP adapter implementing the `kuda_extract::Extractor` port for server-backed extraction via `textDocument/documentSymbol` — the quality tier above treesitter, yielding "real symbols where a language server exists." Spawns one server per root (command from `extract.lsp_server`), and degrades gracefully: a missing/unspawnable server or no configured command returns an empty extraction so the other extractors still run.'
+symbols:
+- LspExtractor
+- LspClient
+- spawn
+- send
+- recv
+- request
+- notify
+- shutdown
+- lsp_kind
+- flatten_syms
+- module_of
+- walk_files
+- references
+- kind
+- extract
+provenance:
+  files:
+  - crates/kuda-lsp/src/lib.rs
+  hashes:
+  - 93513838ec089aab964d987283f0d1ff3dcc18fc
+  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
+  generated_at: '1792313269'
+  generator: kuda-acp/0.1.0

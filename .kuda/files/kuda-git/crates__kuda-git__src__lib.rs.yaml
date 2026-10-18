@@ -1,0 +1,23 @@
+path: crates/kuda-git/src/lib.rs
+module: kuda-git
+purpose: 'Git adapter implementing the `kuda_vcs::Vcs` port by shelling out to the `git` binary (with `-C <repo>` for every call). Provides the operations kuda needs for provenance and release flows: `head_sha`, `sync` (fetch --prune), `has_commit` (cat-file -e), worktree add/remove/prune, and tag exists/create/push.'
+symbols:
+- GitVcs
+- git
+- head_sha
+- sync
+- has_commit
+- worktree_add
+- worktree_remove
+- worktree_prune
+- tag_exists
+- tag
+- push_tag
+provenance:
+  files:
+  - crates/kuda-git/src/lib.rs
+  hashes:
+  - 5b88b309efeef08b79d6da453518e135f13217d3
+  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
+  generated_at: '1792313269'
+  generator: kuda-acp/0.1.0

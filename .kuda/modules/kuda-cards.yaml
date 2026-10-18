@@ -1,6 +1,6 @@
 name: kuda-cards
 path: crates/kuda-cards/Cargo.toml
-purpose: '`kuda-cards` renders and parses the committed YAML card artifacts — `RepoCard` ↔ `.kuda/index.yaml` (the L0 always-load artifact) and `ModuleCard` ↔ `.kuda/modules/<name>.yaml` (L1 cards) — via serde_yaml round-trips that preserve machine fields and the human-owned `notes:` region.'
+purpose: Serialization boundary between the `kuda_core` domain types (`RepoCard`, `ModuleCard`, `FileCard`) and the committed `.kuda/*.yaml` artifacts, providing render/parse pairs for each card level via `serde_yaml`. Covers the L0 `index.yaml` repo card, L1 `modules/<name>.yaml` cards, and L1.5 `files/<module>/<file>.yaml` per-file cards, so machine fields and the human-owned `notes:` region round-trip through these functions.
 api:
 - name: kuda-cards
   kind: module
@@ -27,17 +27,30 @@ api:
   file: crates/kuda-cards/src/lib.rs
   line: 21
   module: kuda-cards
+- name: render_file_card
+  kind: function
+  file: crates/kuda-cards/src/lib.rs
+  line: 26
+  module: kuda-cards
+- name: parse_file_card
+  kind: function
+  file: crates/kuda-cards/src/lib.rs
+  line: 30
+  module: kuda-cards
 deps:
 - kuda-core
 - serde
 - serde_yaml
 - kuda_core
 notes: |
-  - All four functions are thin serde_yaml wrappers: `render_*` = `serde_yaml::to_string`, `parse_*` = `serde_yaml::from_str`, each mapping errors to `String` via `e.to_string()`.
-  - Types come from `kuda-core` (`ModuleCard`, `RepoCard`); the crate's only other deps are `serde = "1"` and `serde_yaml = "0.9"` (note: direct semver ranges, not `.workspace = true`).
-  - No validation or normalization beyond serde — a parse failure returns the serde error string; round-trip fidelity depends entirely on `kuda-core`'s serde attributes on the card types.
+  - Round-trip must preserve both machine fields and the human-owned `notes:` region — the module docs state this is the contract of these functions.
+
+  - All six functions are thin `serde_yaml` wrappers that map errors to `String` — no validation or transformation logic lives here, so malformed YAML surfaces only as a parse error string.
+  - The three card levels map to distinct artifact paths: `.kuda/index.yaml` (L0, always-load), `.kuda/modules/<name>.yaml` (L1), and `.kuda/files/<module>/<file>.yaml` (L1.5).
 verify:
 - crates/kuda-cards/Cargo.toml
+- crates/kuda-cards/src/lib.rs
+- crates/kuda-cards/src/lib.rs
 - crates/kuda-cards/src/lib.rs
 - crates/kuda-cards/src/lib.rs
 - crates/kuda-cards/src/lib.rs
@@ -49,12 +62,16 @@ provenance:
   - crates/kuda-cards/src/lib.rs
   - crates/kuda-cards/src/lib.rs
   - crates/kuda-cards/src/lib.rs
+  - crates/kuda-cards/src/lib.rs
+  - crates/kuda-cards/src/lib.rs
   hashes:
   - c2232432f5c2b51750ed9406059add07640caa15
-  - f432f7044c50e3cb9c64d394f3746ba0ce5d21df
-  - f432f7044c50e3cb9c64d394f3746ba0ce5d21df
-  - f432f7044c50e3cb9c64d394f3746ba0ce5d21df
-  - f432f7044c50e3cb9c64d394f3746ba0ce5d21df
-  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
-  generated_at: '1792295084'
+  - a0818022d3de6360d0fca779bf0f16ea13661d21
+  - a0818022d3de6360d0fca779bf0f16ea13661d21
+  - a0818022d3de6360d0fca779bf0f16ea13661d21
+  - a0818022d3de6360d0fca779bf0f16ea13661d21
+  - a0818022d3de6360d0fca779bf0f16ea13661d21
+  - a0818022d3de6360d0fca779bf0f16ea13661d21
+  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
+  generated_at: '1792313269'
   generator: kuda-template/0.1.0

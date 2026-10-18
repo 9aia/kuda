@@ -1,0 +1,13 @@
+path: crates/kuda-summarize/src/lib.rs
+module: kuda-summarize
+purpose: 'Defines the `Summarizer` port trait — transforms an `Extraction` (plus caller-composed `Provenance`) into a `ModuleCard` for a given module. Implementations live in adapter crates: `kuda-template` (deterministic, the default) and `kuda-llm` (prose, provider-pluggable) — plus the ACP agent adapter in `kuda-acp`.'
+symbols:
+- Summarizer
+provenance:
+  files:
+  - crates/kuda-summarize/src/lib.rs
+  hashes:
+  - c39be362ce68f67043930e8b2a69ca1ada4ab670
+  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
+  generated_at: '1792313269'
+  generator: kuda-acp/0.1.0

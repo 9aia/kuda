@@ -1,0 +1,15 @@
+path: crates/kuda-template/src/lib.rs
+module: kuda-template
+purpose: Template adapter implementing the `kuda_summarize::Summarizer` port (`kind` = `"template"`) — the deterministic, zero-model, zero-cost default summarizer, building `ModuleCard`s purely from what extraction found. It's the fallback when the ACP/LLM agent path fails or is disabled.
+symbols:
+- TemplateSummarizer
+- kind
+- summarize
+provenance:
+  files:
+  - crates/kuda-template/src/lib.rs
+  hashes:
+  - 8503206292175e9f857af5d2f6c22b02ab86aaa4
+  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
+  generated_at: '1792313269'
+  generator: kuda-acp/0.1.0

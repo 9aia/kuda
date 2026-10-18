@@ -4,7 +4,7 @@
 use clap::{Parser, Subcommand};
 use kuda_config::ConfigSource;
 use kuda_config_toml::TomlSource;
-use kuda_core::{Config, LangDef, Provenance, RepoCard};
+use kuda_core::{Config, LangDef, Provenance, RepoCard, Symbol};
 use kuda_vcs::Vcs;
 use kuda_extract::Extractor;
 use kuda_store::IndexStore;
@@ -298,6 +298,25 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
             .filter(|e| e.from == *module)
             .cloned()
             .collect();
+        // L1.5 file cards — per-source-file chunked summaries.
+        // Per-file hash-skip makes the steady state free; only
+        // changed files spend an agent prompt.
+        if use_acp && cfg.summarize.file_cards {
+            if let Some(acp) = acp.as_ref() {
+                sync_file_cards(
+                    dir,
+                    module,
+                    syms,
+                    &mfiles,
+                    &prov.hashes,
+                    &manifest_names,
+                    acp,
+                    &cards_dir.join("files"),
+                    &sha,
+                    &now,
+                );
+            }
+        }
         // incremental: identical input hashes -> reuse the committed
         // card, skip the summarizer entirely (saves agent calls)
         let out = cards_dir.join("modules").join(format!("{}.yaml", safe(module)));
@@ -430,6 +449,149 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
     );
     println!("indexed {} module(s) at {sha:.7}", module_names.len());
     0
+}
+
+/// L1.5 sync — one card per source file. Chunk with text-splitter
+/// (code-aware via tree-sitter where a grammar exists), prompt the
+/// shared ACP session, write `.kuda/files/<module>/<slug>.yaml`.
+/// Per-file provenance hash gates: unchanged files cost nothing.
+fn sync_file_cards(
+    dir: &Path,
+    module: &str,
+    syms: &[Symbol],
+    mfiles: &[PathBuf],
+    hashes: &[String],
+    manifest_names: &std::collections::HashSet<String>,
+    acp: &kuda_acp::AcpSummarizer,
+    files_dir: &Path,
+    sha: &str,
+    now: &str,
+) {
+    use text_splitter::{ChunkConfig, CodeSplitter, MarkdownSplitter, TextSplitter};
+    const CHUNK: usize = 1_500; // chars per chunk
+    const BUDGET: usize = 14_000; // total source chars per prompt
+    const SKIP_BYTES: u64 = 200_000; // files bigger than this: not prose-material
+    for (rel, hash) in mfiles.iter().zip(hashes) {
+        if rel
+            .file_name()
+            .and_then(|n| n.to_str())
+            .map(|n| manifest_names.contains(n))
+            .unwrap_or(false)
+        {
+            continue; // manifests are card inputs, not file cards
+        }
+        let slug = rel.display().to_string().replace('/', "__");
+        let out = files_dir
+            .join(safe(module))
+            .join(format!("{slug}.yaml"));
+        if out.exists() {
+            if let Ok(old) = std::fs::read_to_string(&out)
+                .map_err(|e| e.to_string())
+                .and_then(|t| kuda_cards::parse_file_card(&t))
+            {
+                if old.provenance.hashes.first() == Some(hash) {
+                    continue;
+                }
+            }
+        }
+        let abs = dir.join(rel);
+        let Ok(text) = std::fs::read_to_string(&abs) else {
+            continue;
+        };
+        if abs.metadata().map(|m| m.len()).unwrap_or(0) > SKIP_BYTES {
+            continue;
+        }
+        let cfg = ChunkConfig::new(CHUNK);
+        let chunks: Vec<String> = match rel.extension().and_then(|e| e.to_str()) {
+            Some("rs") => CodeSplitter::new(tree_sitter_rust::LANGUAGE, cfg)
+                .map(|s| s.chunk_indices(&text).map(|(_, c)| c.to_string()).collect())
+                .unwrap_or_else(|_| vec![text.clone()]),
+            Some("ts") | Some("tsx") => {
+                CodeSplitter::new(tree_sitter_typescript::LANGUAGE_TYPESCRIPT, cfg)
+                    .map(|s| s.chunk_indices(&text).map(|(_, c)| c.to_string()).collect())
+                    .unwrap_or_else(|_| vec![text.clone()])
+            }
+            Some("py") => CodeSplitter::new(tree_sitter_python::LANGUAGE, cfg)
+                .map(|s| s.chunk_indices(&text).map(|(_, c)| c.to_string()).collect())
+                .unwrap_or_else(|_| vec![text.clone()]),
+            Some("md") | Some("mdx") => MarkdownSplitter::new(cfg)
+                .chunk_indices(&text)
+                .map(|(_, c)| c.to_string())
+                .collect(),
+            _ => TextSplitter::new(cfg)
+                .chunk_indices(&text)
+                .map(|(_, c)| c.to_string())
+                .collect(),
+        };
+        // budget the prompt: take chunks until the char cap
+        let mut body = String::new();
+        let mut used = 0usize;
+        for c in &chunks {
+            if body.len() + c.len() > BUDGET {
+                break;
+            }
+            used += 1;
+            body.push_str("\n---\n");
+            body.push_str(c);
+        }
+        let sym_names: Vec<String> = syms
+            .iter()
+            .filter(|s| &s.file == rel)
+            .map(|s| s.name.clone())
+            .take(30)
+            .collect();
+        let prompt = format!(
+            "Summarize this source file for the repo memory index.\n\
+             File: {}\nModule: {module}\nSymbols defined: {}\n\n\
+             Contents ({used} of {} semantic chunks{}):\n{body}\n\n\
+             Reply with ONLY `purpose:` followed by 1-3 grounded \
+             sentences — this text is re-verified against the file.",
+            rel.display(),
+            sym_names.join(", "),
+            chunks.len(),
+            if used < chunks.len() { ", truncated" } else { "" },
+        );
+        let prose = match acp.complete(&prompt) {
+            Ok(p) => p,
+            Err(e) => {
+                eprintln!("acp file {}: {e}", rel.display());
+                continue;
+            }
+        };
+        // purpose = first non-empty line, `purpose:` stripped
+        let purpose = prose
+            .lines()
+            .find_map(|l| {
+                let t = l.trim();
+                t.strip_prefix("purpose:")
+                    .or_else(|| t.strip_prefix("Purpose:"))
+                    .map(|p| p.trim().to_owned())
+                    .filter(|p| !p.is_empty())
+                    .or_else(|| (!t.is_empty()).then(|| t.to_owned()))
+            })
+            .unwrap_or_else(|| rel.display().to_string());
+        let card = kuda_core::FileCard {
+            path: rel.clone(),
+            module: module.to_string(),
+            purpose,
+            symbols: sym_names,
+            provenance: Provenance {
+                files: vec![rel.clone()],
+                hashes: vec![hash.clone()],
+                commit_sha: sha.to_string(),
+                generated_at: now.to_string(),
+                generator: "kuda-acp/0.1.0".into(),
+            },
+        };
+        if let Ok(y) = kuda_cards::render_file_card(&card) {
+            if let Some(parent) = out.parent() {
+                let _ = std::fs::create_dir_all(parent);
+            }
+            if let Err(e) = std::fs::write(&out, y) {
+                eprintln!("write {}: {e}", out.display());
+            }
+        }
+    }
 }
 
 /// Purpose fallback chain: manifest `description` -> crate `//!`

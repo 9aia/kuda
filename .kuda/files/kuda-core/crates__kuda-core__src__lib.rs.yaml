@@ -1,0 +1,42 @@
+path: crates/kuda-core/src/lib.rs
+module: kuda-core
+purpose: 'The `kuda-core` domain crate — pure data types with no ports or integrations: cards (`RepoCard` L0, `ModuleCard` L1, `FileCard` L1.5), the `Symbol`/`DepEdge` graph (L2), `Provenance` (staleness as computed data, not prose), `LangDef` language descriptors, and the full `kuda.toml` `Config` model with `deny_unknown_fields`. Per its docs (ADR-0001), memory tiers are L0 always-load / L1 on-demand / L2 queried, and every card carries `Provenance` so staleness is "a property of the data, not a promise in prose."'
+symbols:
+- ContentHash
+- Provenance
+- Symbol
+- SymbolKind
+- DepEdge
+- EdgeKind
+- ModuleCard
+- FileCard
+- RepoCard
+- LangDef
+- Config
+- RepoCfg
+- ExtractCfg
+- default_excludes
+- dir_excluded
+- default
+- default_extract_kinds
+- SummarizeCfg
+- default
+- default_summarize_kind
+- StoreCfg
+- default
+- default_store_kind
+- default_store_path
+- CardsCfg
+- default
+- default_cards_dir
+- WorkspaceCfg
+- is_valid_sha
+- publish_order
+provenance:
+  files:
+  - crates/kuda-core/src/lib.rs
+  hashes:
+  - 3c1da11570226da4b7aeb344907ac062fc0f7169
+  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
+  generated_at: '1792313269'
+  generator: kuda-acp/0.1.0

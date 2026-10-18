@@ -1,6 +1,6 @@
 name: kuda-cli
 path: crates/kuda-cli/tests/e2e.rs
-purpose: '`kuda-cli` is the binary composition root for kuda — a clap-parsed CLI that loads `kuda.toml`, wires config/VCS/extractor/store/summarizer adapters, and runs subcommands (init, sync, status, map, card, find, dependents, refs, doctor, mcp, acp, gen-cli-docs) against a repo root or `.kuda/workspace.yaml` roots. It renders L0/L1 cards to `.kuda/index.yaml` and `.kuda/modules/*.yaml`, and serves the index over MCP stdio and ACP.'
+purpose: 'The `kuda` CLI binary and composition root — parses `kuda.toml`, wires adapters (extractors, VCS, summarizers, store) behind `kuda_core` ports, and runs the subcommands (`init`, `sync`, `status`, `map`, `card`, `find`, `dependents`, `refs`, `mcp`, `acp`, `doctor`, plus a hidden `gen-cli-docs`). Self-described as "a hippocampus for your codebase — repo memory: index, query, verify."'
 api:
 - name: kuda
   kind: function
@@ -87,100 +87,120 @@ api:
   file: crates/kuda-cli/src/main.rs
   line: 222
   module: kuda-cli
+- name: sync_file_cards
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 458
+  module: kuda-cli
+- name: CHUNK
+  kind: const
+  file: crates/kuda-cli/src/main.rs
+  line: 471
+  module: kuda-cli
+- name: BUDGET
+  kind: const
+  file: crates/kuda-cli/src/main.rs
+  line: 472
+  module: kuda-cli
+- name: SKIP_BYTES
+  kind: const
+  file: crates/kuda-cli/src/main.rs
+  line: 473
+  module: kuda-cli
 - name: module_purpose
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 437
+  line: 599
   module: kuda-cli
 - name: crate_doc_purpose
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 446
+  line: 608
   module: kuda-cli
 - name: readme_purpose
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 463
+  line: 625
   module: kuda-cli
 - name: manifest_purpose
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 472
+  line: 634
   module: kuda-cli
 - name: safe
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 488
+  line: 650
   module: kuda-cli
 - name: detect_commands
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 500
+  line: 662
   module: kuda-cli
 - name: status
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 515
+  line: 677
   module: kuda-cli
 - name: map
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 552
+  line: 714
   module: kuda-cli
 - name: card
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 556
+  line: 718
   module: kuda-cli
 - name: cat_file
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 560
+  line: 722
   module: kuda-cli
 - name: find
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 573
+  line: 735
   module: kuda-cli
 - name: repo_tag
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 614
+  line: 776
   module: kuda-cli
 - name: dependents
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 620
+  line: 782
   module: kuda-cli
 - name: refs
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 658
+  line: 820
   module: kuda-cli
 - name: refs_in
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 700
+  line: 862
   module: kuda-cli
 - name: mcp
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 758
+  line: 920
   module: kuda-cli
 - name: acp
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 859
+  line: 1021
   module: kuda-cli
 - name: acp_answer
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 915
+  line: 1077
   module: kuda-cli
 - name: doctor
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 944
+  line: 1106
   module: kuda-cli
 deps:
 - clap
@@ -191,24 +211,27 @@ deps:
 - kuda_extract
 - kuda_store
 - kuda_summarize
+- text_splitter
 - serde_json
 - serde_json
 notes: |
-  - `init` writes `kuda.toml` from `EXAMPLE_TOML` plus `.kuda/` and `.kuda/modules/`, and refuses to clobber an existing `kuda.toml` (exit code 1) — asserted by `init_scaffolds`.
-  - `sync` pipeline order is hash → extract → summarize → store; provenance hashes come from `git hash-object` (`hash_files`), and module purpose falls back manifest `description` → crate `//!` doc → crate README → root README.
-  - `safe()` sanitizes module names to `[A-Za-z0-9_.-]` before building card paths (`.kuda/modules/{safe(name)}.yaml`).
-  - Every subcommand returns an `i32` exit code that `main` passes to `std::process::exit`; `--help` succeeds and lists the subcommands checked in `help_and_stub`.
+  - Content hashes are git-native (`git hash-object`), and every card's provenance records the HEAD SHA, file hashes, and generator string `kuda-template/0.1.0`.
+  - `init` never overwrites an existing `kuda.toml` — it exits 1 rather than clobbering.
 
-  - `load_config` never fails — on config error it prints to stderr and falls back to `Config::default()`; same pattern for `workspace_roots` (returns `vec![]` on missing/invalid YAML, and `sync`/`find`/`dependents`/`refs` then fall back to the current dir).
-  - `sync_one`'s `full` flag is accepted but ignored (`_full: bool`), despite the `--full` help text promising a rebuild ignoring freshness.
-  - `hash_files` shells out to `git` and silently yields an empty string on failure, so non-git dirs produce empty hashes that `status` can then report as drift/length mismatch.
-  - `find` falls back from exact to fuzzy substring search, appending `" (fuzzy)"` to the module field; hits are tagged with `repo_tag(dir)` (directory basename) only when spanning multiple workspace roots.
-  - `refs` intentionally ignores the `[extract]` exclude list (uses `dir_excluded(name, &[])` so only hard-noise dirs are skipped) — fixtures/testdata are meant to be grepped; LSP semantic refs are tried only when not `--docs` and `lsp` is in `extract.kinds`.
-  - `status` returns exit 2 when `.kuda/modules` doesn't exist; the e2e test explicitly skips running `sync` in `$TMPDIR` because it would walk the whole directory.
+  - `sync` is the main pipeline: extract (manifest/treesitter/LSP per `cfg.extract.kinds`) → group symbols by module → summarize (ACP agent if `cfg.summarize.kind == "acp"`, else `TemplateSummarizer`, with template fallback on ACP errors) → render cards + store. `sync --full` currently ignores its `full` flag (parameter is `_full`).
+  - Incremental behavior reuses committed module cards when input hashes match, but never caches a "name-echo" purpose (agent produced nothing) — it re-prompts next time instead of pinning it.
+  - Manifest-only pseudo-modules (e.g. root Cargo.toml, docs/package.json) skip the agent prompt entirely since there's no source to ground on; L1.5 per-file cards (`cfg.summarize.file_cards`) are hash-skipped so only changed files spend an agent prompt.
+  - Config resolution order for `--config`: `$KUDA_CONFIG`, `./kuda.toml`, `~/.config/kuda/kuda.toml` (via `TomlSource`); a missing/broken config falls back to `Config::default()` with a warning rather than failing.
+  - `workspace` mode reads roots from `.kuda/workspace.yaml` (`roots: [...]`, resolved relative to the file's dir); otherwise sync runs on the single current root.
+  - E2E tests (`crates/kuda-cli/tests/e2e.rs`) smoke the compiled binary via `env!("CARGO_BIN_EXE_kuda")`: `--help` must list all subcommands, and `init` must scaffold `kuda.toml` + `.kuda/modules` and refuse a second run with exit code 1.
 verify:
 - crates/kuda-cli/tests/e2e.rs
 - crates/kuda-cli/tests/e2e.rs
 - crates/kuda-cli/tests/e2e.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
 - crates/kuda-cli/src/main.rs
 - crates/kuda-cli/src/main.rs
 - crates/kuda-cli/src/main.rs
@@ -280,43 +303,51 @@ provenance:
   - crates/kuda-cli/src/main.rs
   - crates/kuda-cli/src/main.rs
   - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
   hashes:
   - febd57a3490e9ff3c5fb4c2d599e68a62fbfc9ef
   - febd57a3490e9ff3c5fb4c2d599e68a62fbfc9ef
   - febd57a3490e9ff3c5fb4c2d599e68a62fbfc9ef
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  - 061b0028feb1e60294a633b6c8fd5866f86db313
-  commit_sha: c576c1a811de0a7d1760061bcb1bd990cc9bfebd
-  generated_at: '1792303033'
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
+  generated_at: '1792313269'
   generator: kuda-template/0.1.0

@@ -1,0 +1,18 @@
+path: crates/kuda-cards/src/lib.rs
+module: kuda-cards
+purpose: Serialization boundary between the `kuda_core` domain types (`RepoCard`, `ModuleCard`, `FileCard`) and the committed `.kuda/*.yaml` artifacts, providing render/parse pairs for each card level via `serde_yaml`. Covers the L0 `index.yaml` repo card, L1 `modules/<name>.yaml` cards, and L1.5 `files/<module>/<file>.yaml` per-file cards, so machine fields and the human-owned `notes:` region round-trip through these functions.
+symbols:
+- render_repo_card
+- parse_repo_card
+- render_module_card
+- parse_module_card
+- render_file_card
+- parse_file_card
+provenance:
+  files:
+  - crates/kuda-cards/src/lib.rs
+  hashes:
+  - a0818022d3de6360d0fca779bf0f16ea13661d21
+  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
+  generated_at: '1792313269'
+  generator: kuda-acp/0.1.0

@@ -1,0 +1,14 @@
+path: crates/kuda-git/tests/git.rs
+module: kuda-git
+purpose: 'Integration tests for the `kuda-git` crate''s `GitVcs` implementation of the `kuda_vcs::Vcs` port, run against a throwaway temp git repo (single commit on `main`). Exercises the full Vcs surface in one test: `has_commit` (true for HEAD''s SHA, false for an all-zeros fake), tag create/existence-check, and worktree add/remove.'
+symbols:
+- repo
+- sync_has_commit_worktree_tag
+provenance:
+  files:
+  - crates/kuda-git/tests/git.rs
+  hashes:
+  - 28459ad1496a8040109c9957bc1d88ef05b53911
+  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
+  generated_at: '1792313269'
+  generator: kuda-acp/0.1.0

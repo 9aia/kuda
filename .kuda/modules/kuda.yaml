@@ -1,6 +1,6 @@
 name: kuda
 path: Cargo.toml
-purpose: 'Root Cargo workspace for kuda ("a hippocampus for your codebase — repo memory: index, query, verify"), a 20-crate Rust workspace whose binary crate `kuda-cli` produces the `kuda` CLI at `src/main.rs`.'
+purpose: '*A hippocampus for your codebase.*'
 api:
 - name: kuda
   kind: module
@@ -33,14 +33,12 @@ deps:
 - kuda-vcs
 - serde_json
 - serde_yaml
+- text-splitter
 - toml
-notes: |
-  - Workspace inherits shared metadata (`version = "0.1.0"`, `edition = "2021"`, `license = "MIT"`, `repository = "https://github.com/9aia/kuda"`) via `version.workspace = true` etc. in member crates.
-  - Intra-workspace deps are declared once in `[workspace.dependencies]` with `path = "crates/<name>", version = "0.1.0"` and referenced by members as `<crate>.workspace = true`; external crates (serde, toml, clap, tree-sitter, rusqlite…) share the same table with plain version specs.
-  - The package *and* binary are both named `kuda`; only the crate directory (`crates/kuda-cli`) diverges from the published name.
-  - `resolver = "2"`; a `dist` profile inherits `release` with `lto = "thin"`.
-  - `kuda-cli` links 16 `kuda-*` workspace crates plus `clap`, `toml`, `serde_json`, `serde_yaml`, and the non-workspace `clap-markdown = "0.1.5"`; `kuda-secret`, `kuda-keyring`, `kuda-dotenv` are workspace members not linked into the CLI.
-  - Workspace-level shared deps include `rusqlite` with `bundled` (0.32), `tree-sitter` 0.25, and the language grammars `tree-sitter-rust` 0.24, `tree-sitter-typescript` 0.23, `tree-sitter-python` 0.23.
+- tree-sitter-python
+- tree-sitter-rust
+- tree-sitter-typescript
+notes: ''
 verify:
 - Cargo.toml
 - crates/kuda-cli/Cargo.toml
@@ -50,7 +48,7 @@ provenance:
   - crates/kuda-cli/Cargo.toml
   hashes:
   - a9628d0c5439f13cf0803135f96457bfdadb7c89
-  - 7b03ae9b198d29a234a4368a9cdbbcc7e3b95cc9
-  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
-  generated_at: '1792295084'
+  - 64087f5bbf26f164260f297351cac7a70e563af4
+  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
+  generated_at: '1792313269'
   generator: kuda-template/0.1.0

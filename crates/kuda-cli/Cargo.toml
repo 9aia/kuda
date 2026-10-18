@@ -34,3 +34,7 @@ toml.workspace = true
 serde_json.workspace = true
 serde_yaml.workspace = true
 clap-markdown = "0.1.5"
+text-splitter = { version = "0.28.0", features = ["code", "markdown"] }
+tree-sitter-rust = "0.24"
+tree-sitter-typescript = "0.23"
+tree-sitter-python = "0.23"

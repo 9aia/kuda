@@ -1,0 +1,14 @@
+path: crates/kuda-config-toml/src/lib.rs
+module: kuda-config-toml
+purpose: 'TOML adapter implementing the `kuda_config::ConfigSource` port — resolves and loads the `Config` value from a `kuda.toml` file. Follows a documented candidate search order: explicit `--config` path → `$KUDA_CONFIG` env var → `./kuda.toml` → `~/.config/kuda/kuda.toml`.'
+symbols:
+- TomlSource
+- load
+provenance:
+  files:
+  - crates/kuda-config-toml/src/lib.rs
+  hashes:
+  - b12116b476081aedcaf4ea623af3ff70bc65999c
+  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
+  generated_at: '1792313269'
+  generator: kuda-acp/0.1.0

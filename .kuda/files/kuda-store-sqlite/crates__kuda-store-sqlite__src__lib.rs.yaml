@@ -1,0 +1,27 @@
+path: crates/kuda-store-sqlite/src/lib.rs
+module: kuda-store-sqlite
+purpose: SQLite adapter implementing the `kuda_store::IndexStore` port — a single-file, zero-server, rebuildable L2 index living at `.kuda/index.sqlite` (gitignored). Persists symbols, dependency edges, and provenance metadata (`meta` table) with indexed lookups backing `find`/`search`/`dependents`/`modules`.
+symbols:
+- SqliteStore
+- SCHEMA
+- sk_str
+- sk_from
+- ek_str
+- ek_from
+- open
+- lock
+- replace_module
+- find
+- search
+- dependents
+- modules
+- set_meta
+- meta
+provenance:
+  files:
+  - crates/kuda-store-sqlite/src/lib.rs
+  hashes:
+  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
+  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
+  generated_at: '1792313269'
+  generator: kuda-acp/0.1.0

@@ -1,0 +1,15 @@
+path: crates/kuda-dotenv/tests/store.rs
+module: kuda-dotenv
+purpose: Integration tests for the `kuda-dotenv` crate's `DotenvSecrets` secrets backend, exercising the `kuda_secret::Secrets` trait against a temp-file-backed store. Verifies the core CRUD contract (set, get, update-in-place without duplicating keys, missing-key returns `None`) and, on Unix, that the secrets file is created with restrictive `0600` permissions.
+symbols:
+- tmp
+- set_get_update
+- perms_600
+provenance:
+  files:
+  - crates/kuda-dotenv/tests/store.rs
+  hashes:
+  - 4d3dbaa112d4637449c1defd1780cf73f5683533
+  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
+  generated_at: '1792313269'
+  generator: kuda-acp/0.1.0

@@ -30,6 +30,34 @@ impl AcpSummarizer {
             inner: std::sync::Mutex::new(None),
         }
     }
+
+    /// Send one prompt on the shared session; returns streamed text.
+    /// Lazily initializes the agent + session on first call.
+    pub fn complete(&self, prompt: &str) -> Result<String, String> {
+        let mut guard = self.inner.lock().map_err(|e| e.to_string())?;
+        if guard.is_none() {
+            let mut client = AcpClient::spawn(&self.cmd)?;
+            client.request(
+                "initialize",
+                json!({"protocolVersion":1,"clientCapabilities":{},"clientInfo":{"name":"kuda","version":"0.1.0"}}),
+            )?;
+            let (session, _) = client.request(
+                "session/new",
+                json!({"cwd": self.root, "mcpServers": []}),
+            )?;
+            let sid = session["sessionId"].as_str().unwrap_or("kuda-default").to_owned();
+            *guard = Some((client, sid));
+        }
+        let (client, session_id) = guard
+            .as_mut()
+            .ok_or("agent session lost")?;
+        let (_res, prose) = client.request(
+            "session/prompt",
+            json!({"sessionId": session_id.as_str(),
+                   "prompt":[{"type":"text","text":prompt}]}),
+        )?;
+        Ok(prose)
+    }
 }
 
 struct AcpClient {
@@ -150,26 +178,7 @@ impl Summarizer for AcpSummarizer {
         ext: &Extraction,
         provenance: Provenance,
     ) -> Result<ModuleCard, String> {
-        let mut guard = self.inner.lock().map_err(|e| e.to_string())?;
-        if guard.is_none() {
-            let mut client = AcpClient::spawn(&self.cmd)?;
-            client.request(
-                "initialize",
-                json!({"protocolVersion":1,"clientCapabilities":{},"clientInfo":{"name":"kuda","version":"0.1.0"}}),
-            )?;
-            let (session, _) = client.request(
-                "session/new",
-                json!({"cwd": self.root, "mcpServers": []}),
-            )?;
-            let sid = session["sessionId"].as_str().unwrap_or("kuda-default").to_owned();
-            *guard = Some((client, sid));
-        }
-        let (client, session_id) = guard.as_mut().unwrap();
-        let (_res, prose) = client.request(
-            "session/prompt",
-            json!({"sessionId": session_id.as_str(),
-                   "prompt":[{"type":"text","text":prompt_for(module, ext)}]}),
-        )?;
+        let prose = self.complete(&prompt_for(module, ext))?;
 
         // Parse the agent's card body — it may arrive with thinking
         // preamble and `purpose:`/`invariants:`/`notes:` prefixes.

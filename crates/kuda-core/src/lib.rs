@@ -92,6 +92,22 @@ pub struct ModuleCard {
     pub provenance: Provenance,
 }
 
+/// L1.5 card — one per source file. Chunk-fed agent prose, the
+/// query tier between module cards and raw source.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FileCard {
+    /// Repo-relative path.
+    pub path: PathBuf,
+    pub module: String,
+    /// 1-3 sentence file purpose (agent or template).
+    pub purpose: String,
+    /// Symbol names defined here (cheap grep surface).
+    #[serde(default)]
+    pub symbols: Vec<String>,
+    /// Single-file provenance — `files`/`hashes` len 1.
+    pub provenance: Provenance,
+}
+
 /// L0 card — the always-load repo summary (~1k tokens rendered).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RepoCard {
@@ -227,6 +243,11 @@ pub struct SummarizeCfg {
     /// ACP agent command for kind="acp" — spawns per summarize.
     #[serde(default)]
     pub acp_cmd: Option<String>,
+    /// L1.5 per-file cards — chunked agent summaries per source
+    /// file. Opt-in: ~10-50x the prompt count of module cards,
+    /// bounded by per-file hash-skip.
+    #[serde(default)]
+    pub file_cards: bool,
     /// Provider id for the llm adapter; key resolves via secrets chain.
     #[serde(default)]
     pub provider: Option<String>,
@@ -239,6 +260,7 @@ impl Default for SummarizeCfg {
         Self {
             kind: default_summarize_kind(),
             acp_cmd: None,
+            file_cards: false,
             provider: None,
             model: None,
         }

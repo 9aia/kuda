@@ -1,0 +1,20 @@
+path: crates/kuda-treesitter/src/lib.rs
+module: kuda-treesitter
+purpose: Treesitter adapter implementing the `kuda_extract::Extractor` port (`kind` = `"treesitter"`) — runs compiled grammar + query data over source files to produce `Symbol`s and `EdgeKind::Imports` dependency edges. Per-language knowledge lives in `data/langs/*` (grammar id, extensions, symbol/dep queries); the crate only executes queries against a grammar it has compiled in — "new language = data file + a `language()` arm."
+symbols:
+- TreesitterExtractor
+- language
+- DEFAULT_RUST_QUERY
+- kind_of
+- module_of
+- walk_files
+- kind
+- extract
+provenance:
+  files:
+  - crates/kuda-treesitter/src/lib.rs
+  hashes:
+  - a9ee8b41b6850e4a5a987b63f3ab8f203a7eef45
+  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
+  generated_at: '1792313269'
+  generator: kuda-acp/0.1.0

@@ -1,0 +1,42 @@
+path: crates/kuda-cli/src/main.rs
+module: kuda-cli
+purpose: 'The `kuda` CLI binary and composition root — parses `kuda.toml`, wires adapters (extractors, VCS, summarizers, store) behind `kuda_core` ports, and runs the subcommands (`init`, `sync`, `status`, `map`, `card`, `find`, `dependents`, `refs`, `mcp`, `acp`, `doctor`, plus a hidden `gen-cli-docs`). Described in its own docs as "a hippocampus for your codebase — repo memory: index, query, verify."'
+symbols:
+- EXAMPLE_TOML
+- LANG_TOMLS
+- Cli
+- Cmd
+- main
+- root
+- load_config
+- langs
+- hash_files
+- unix_now
+- init
+- workspace_roots
+- sync
+- sync_one
+- sync_file_cards
+- CHUNK
+- BUDGET
+- SKIP_BYTES
+- module_purpose
+- crate_doc_purpose
+- readme_purpose
+- manifest_purpose
+- safe
+- detect_commands
+- status
+- map
+- card
+- cat_file
+- find
+- repo_tag
+provenance:
+  files:
+  - crates/kuda-cli/src/main.rs
+  hashes:
+  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
+  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
+  generated_at: '1792313269'
+  generator: kuda-acp/0.1.0

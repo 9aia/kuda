@@ -1,0 +1,16 @@
+path: crates/kuda-config-toml/tests/load.rs
+module: kuda-config-toml
+purpose: 'Integration tests for the `kuda-config-toml` crate''s `TomlSource` config loader, verifying both config-discovery paths and error handling. Confirms that `TomlSource { path: None }` picks up config via the `KUDA_CONFIG` environment variable, that an explicit `path: Some(...)` loads the file directly, and that a nonexistent path returns an `Err`.'
+symbols:
+- tmp
+- CFG
+- loads_via_env_var
+- explicit_path_and_missing_error
+provenance:
+  files:
+  - crates/kuda-config-toml/tests/load.rs
+  hashes:
+  - 6f5371079a853f0282a1e9ce5afa661fcd1d1bcf
+  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
+  generated_at: '1792313269'
+  generator: kuda-acp/0.1.0
