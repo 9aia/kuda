@@ -139,7 +139,7 @@ over all of them.
 
 ## 1. Declare the workspace
 
-Create `.kuda/workspace.yaml` at the checkout root (the directory
+Create `<checkout>/.kuda/workspace.yaml` (the directory
 containing the sibling repos), or inside one repo's `.kuda/`:
 
 ```yaml
@@ -290,7 +290,7 @@ kuda acp     # stdio JSON-RPC server
 
 ## Prompts
 
-`session/prompt` accepts compact query strings:
+The session/prompt method accepts compact query strings:
 
 | prompt              | returns                                  |
 | ------------------- | ---------------------------------------- |
@@ -299,7 +299,7 @@ kuda acp     # stdio JSON-RPC server
 | `card <module>`     | the module card YAML                     |
 | `map` / `status`    | the L0 card (fallback for anything else) |
 
-Replies stream back as `session/update` notifications with
+Replies stream back as session/update notifications with
 `agent_message_chunk` content, then a `stopReason: end_turn`
 result.
 
@@ -895,7 +895,7 @@ get an honest "cancelled" status.
 
 * **No release-plz / GHA**: the point of the project is that CI is a
   local loop — depending on hosted CI to ship it would be
-  self-defeating. `release.sh` is deliberately boring bash so it can
+  self-defeating. `scripts/release.sh` is deliberately boring bash so it can
   run as a plain `cmd` under `runner.kind = "shell"`.
 * **Latest-wins, not `all`**: a release that misses an intermediate
   push loses nothing — the tag lands on HEAD, which contains
