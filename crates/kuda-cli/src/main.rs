@@ -118,7 +118,10 @@ fn load_config(cli: &Cli) -> Config {
         path: cli.config.clone(),
     }
     .load()
-    .unwrap_or_default()
+    .unwrap_or_else(|e| {
+        eprintln!("config: {e} — defaults in use");
+        Config::default()
+    })
 }
 
 fn langs() -> Vec<LangDef> {

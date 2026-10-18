@@ -10,8 +10,8 @@ kinds = ["manifest", "treesitter", "lsp"] # adapter crates, tried in order
 lsp_server = "rust-analyzer"     # kuda-lsp adapter: server cmd per lang
 
 [summarize]
-kind = "template"                    # deterministic cards, zero-model
-# kind = "acp"                       # agent-written prose — needs acp_cmd
+kind = "template"                  # deterministic cards, zero-model
+# kind = "acp"                     # agent-written prose — needs acp_cmd
 # acp_cmd = "cline --acp"
 # kind = "llm"                     # adapter: kuda-llm
 # provider = "anthropic"           # key via KUDA_LLM_KEY env/keyring
