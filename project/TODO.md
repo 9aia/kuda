@@ -25,6 +25,14 @@
       machine owns api/deps fields, humans own `notes:` region;
       every card ends with `verify:` file list
 
+## Languages
+- [ ] `.hnl` — add `data/langs/hnl.toml` (extensions, manifests if
+      any, symbol/dep queries). Blocked on a tree-sitter-handl
+      grammar: check for an existing one; else write/publish it —
+      grammar is the only real work, the descriptor is data. Pays
+      off immediately: handl-lang fixtures/packages stop being
+      invisible to the index.
+
 ## Scaffold debt (forked from bupha — rewrite crate-by-crate)
 - [x] Topology landed: CI crates dropped (recoverable from history
       incl. `kuda-ssh`), ports+first adapters stubbed, `kuda-core`
