@@ -9,7 +9,9 @@ Two shipping adapters: `template` (deterministic) and `acp`
 ```toml
 [summarize]
 kind = "acp"
-acp_cmd = "cline --acp -P cline-pass -m cline-free/mimo-v2.6-flash"
+acp_cmd = "env CLINE_PROVIDER=cline-pass CLINE_MODEL=cline-free/mimo-v2.6-flash cline --acp"
+# NOTE: provider/model are env vars, not CLI flags — -P/-m are
+# ignored in ACP mode.
 ```
 
 `sync` spawns the agent once per run (one session, reused across
@@ -45,3 +47,12 @@ A direct-provider adapter (`provider`/`model` + keyring) is in
 the backlog — ACP is preferred because it is agent-agnostic and
 key-free. Same grounding rules apply when it lands: cite files or
 stay silent, never clobber `verify:` or human `notes:`.
+
+
+## Incremental sync
+
+`sync` compares each module's input-file hashes with the committed
+card's `provenance.hashes` before calling the summarizer — identical
+means the card is reused and the agent is never prompted. Change one
+file and only that module re-summarizes; the agent spend is
+per-drift, not per-sync.
