@@ -455,9 +455,21 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
         }
     }
     for (module, mfiles) in &mod_files {
+        // mechanism-version invalidation: a card written by an
+        // older generator is re-summarized even on byte-identical
+        // inputs — the memory format/procedure evolved.
+        const GENERATOR: &str = "kuda-template/0.1.1";
+        let card_path = cards_dir.join("modules").join(format!("{}.yaml", safe(module)));
         if !changed.contains(module) {
-            module_names.push(module.clone());
-            continue; // store + card already agree with the bytes
+            let stale_generator = std::fs::read_to_string(&card_path)
+                .ok()
+                .and_then(|t| kuda_cards::parse_module_card(&t).ok())
+                .map(|old| old.provenance.generator.as_str() != GENERATOR)
+                .unwrap_or(true);
+            if !stale_generator {
+                module_names.push(module.clone());
+                continue; // store + card already agree with the bytes
+            }
         }
         let prov = Provenance {
             hashes: mfiles
@@ -467,7 +479,7 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
             files: mfiles.clone(),
             commit_sha: sha.clone(),
             generated_at: now.clone(),
-            generator: "kuda-template/0.1.0".into(),
+            generator: GENERATOR.into(),
         };
         let empty: Vec<kuda_core::Symbol> = Vec::new();
         let syms: &[kuda_core::Symbol] =
