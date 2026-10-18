@@ -1,4 +1,13 @@
+# Language descriptor — data, not code (ADR-0001).
 name = "typescript"
 extensions = [".ts", ".tsx"]
 manifests = ["package.json"]
 grammar = "typescript"
+symbol_query = """
+(function_declaration name: (identifier) @name.function)
+(class_declaration name: (type_identifier) @name.type)
+(interface_declaration name: (type_identifier) @name.trait)
+(type_alias_declaration name: (type_identifier) @name.type)
+(enum_declaration name: (identifier) @name.type)
+(method_definition name: (property_identifier) @name.function)
+"""

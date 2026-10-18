@@ -1,4 +1,9 @@
+# Language descriptor — data, not code (ADR-0001).
 name = "python"
 extensions = [".py"]
 manifests = ["pyproject.toml", "setup.py"]
 grammar = "python"
+symbol_query = """
+(function_definition name: (identifier) @name.function)
+(class_definition name: (identifier) @name.type)
+"""

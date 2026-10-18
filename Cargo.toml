@@ -61,3 +61,5 @@ clap = { version = "4", features = ["derive"] }
 rusqlite = { version = "0.32", features = ["bundled"] }
 tree-sitter = "0.25"
 tree-sitter-rust = "0.24"
+tree-sitter-typescript = "0.23"
+tree-sitter-python = "0.23"

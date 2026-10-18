@@ -16,6 +16,8 @@ pub struct TreesitterExtractor;
 fn language(id: &str) -> Option<Language> {
     match id {
         "rust" => Some(tree_sitter_rust::LANGUAGE.into()),
+        "typescript" | "tsx" => Some(tree_sitter_typescript::LANGUAGE_TYPESCRIPT.into()),
+        "python" => Some(tree_sitter_python::LANGUAGE.into()),
         _ => None,
     }
 }
