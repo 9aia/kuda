@@ -17,7 +17,7 @@ fn help_and_stub() {
     let out = kuda(&["--help"], &tmp);
     assert!(out.status.success());
     let stdout = String::from_utf8_lossy(&out.stdout);
-    for sub in ["init", "sync", "status", "map", "card", "find", "dependents", "refs", "mcp", "doctor"] {
+    for sub in ["init", "sync", "status", "map", "card", "find", "dependents", "refs", "mcp", "acp", "doctor"] {
         assert!(stdout.contains(sub), "missing subcommand {sub}");
     }
     // `sync` is real now — running it in $TMPDIR would walk the

@@ -1,7 +1,7 @@
 //! Template adapter — deterministic cards built only from what
-//! extraction found. Zero-model, zero-cost: `purpose` is the first
-//! doc line when a module manifest/README supplies one, else the
-//! module name. Prose belongs to the `llm` adapter.
+//! extraction found. Zero-model, zero-cost: `purpose` is the module
+//! name — the caller applies the manifest/README/doc fallback chain.
+//! Prose belongs to the `acp` adapter (llm is parked).
 
 use kuda_core::{ModuleCard, Provenance};
 use kuda_extract::Extraction;
