@@ -1,8 +1,31 @@
 # How-to: summarizers
 
 `kuda-cards` turns extractions into the committed YAML artifacts.
-The `summarize` port has one shipping adapter — `template` — and
-one planned — `llm`.
+Two shipping adapters: `template` (deterministic) and `acp`
+(agent-written prose); `llm` is parked — ACP is the semantic path.
+
+## `acp` — agent-written cards
+
+```toml
+[summarize]
+kind = "acp"
+acp_cmd = "cline --acp -P cline-pass -m cline-free/mimo-v2.6-flash"
+```
+
+`sync` spawns the agent once per run (one session, reused across
+modules) and sends each module a `session/prompt` asking for
+`purpose:`/`invariants:`/`notes:` grounded in the file list. The
+agent's prose fills the card's `purpose` + `notes` regions —
+`api`/`deps`/`verify`/`provenance` stay mechanical.
+
+Protocol notes:
+
+- `session/request_permission` from the agent is auto-answered
+  with the first option — required, or the prompt deadlocks
+- Any ACP-capable agent works: `cline --acp`, `zed agent`,
+  `gemini --experimental-acp`, …
+- Auth lives in the agent — kuda holds no keys
+- Agent failure → silent `template` fallback per module
 
 ## `template` (default, shipping)
 
@@ -16,31 +39,9 @@ Because it is mechanical, `template` output is stable — the same
 inputs always produce the same card, so diffs mean real change.
 That is the property you want in committed, reviewed artifacts.
 
-## `llm` (planned adapter)
+## `llm` (parked)
 
-Adds prose the manifest cannot carry: purpose narrative,
-invariants, "who calls me and why". Design constraints for when
-it lands:
-
-- **Grounded or silent** — every generated claim cites the files
-  it came from; uncited prose is not emitted.
-- **Never replaces `verify:`** — the file list stays mechanical.
-- **Human regions preserved** — `notes:` in cards is human-owned;
-  regeneration merges, never clobbers.
-- **Key resolution** — `provider`/`model` in `kuda.toml`, the key
-  itself via `KUDA_LLM_KEY` env → OS keyring →
-  `~/.config/kuda/env`. Never in the file.
-
-## Choosing
-
-```toml
-[summarize]
-kind = "template"     # deterministic (default)
-# kind = "llm"
-# provider = "anthropic"
-# model = "..."
-```
-
-Until `llm` ships, the meaningful `purpose:` source is the
-manifest `description` — worth writing well, since it becomes
-part of the agent-facing map.
+A direct-provider adapter (`provider`/`model` + keyring) is in
+the backlog — ACP is preferred because it is agent-agnostic and
+key-free. Same grounding rules apply when it lands: cite files or
+stay silent, never clobber `verify:` or human `notes:`.
