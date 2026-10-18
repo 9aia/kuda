@@ -37,11 +37,6 @@ const DEFAULT_RUST_QUERY: &str = r#"
 (type_item name: (type_identifier) @name.type)
 "#;
 
-const DEP_QUERY: &str = r#"
-(use_declaration argument: (identifier) @use.root)
-(use_declaration argument: (scoped_identifier path: (identifier) @use.root))
-(use_declaration argument: (scoped_use_list path: (identifier) @use.root))
-"#;
 
 fn kind_of(cap: &str) -> SymbolKind {
     match cap.rsplit('.').next() {
@@ -117,9 +112,18 @@ impl Extractor for TreesitterExtractor {
             };
             let src = lang.symbol_query.as_deref().unwrap_or(DEFAULT_RUST_QUERY);
             let sym_q = Query::new(&grammar, src).map_err(|e| format!("query {e}"))?;
-            let dep_q = Query::new(&grammar, DEP_QUERY).map_err(|e| format!("query {e}"))?;
+            // dep query is per-language data (data/langs/*.dep_query);
+            // absent = no import edges for that lang
+            let dep_q = lang
+                .dep_query
+                .as_deref()
+                .map(|d| Query::new(&grammar, d).map_err(|e| format!("query {e}")))
+                .transpose()?;
             let sym_caps = sym_q.capture_names().to_vec();
-            let dep_caps = dep_q.capture_names().to_vec();
+            let dep_caps: Vec<&str> = dep_q
+                .as_ref()
+                .map(|q| q.capture_names().to_vec())
+                .unwrap_or_default();
             let mut parser = Parser::new();
             parser
                 .set_language(&grammar)
@@ -148,8 +152,11 @@ impl Extractor for TreesitterExtractor {
                         });
                     }
                 }
-                let mut dep_m = cursor.matches(&dep_q, tree.root_node(), text.as_bytes());
-                while let Some(m) = dep_m.next() {
+                let mut dep_cursor = QueryCursor::new();
+                let mut dep_m = dep_q
+                    .as_ref()
+                    .map(|q| dep_cursor.matches(q, tree.root_node(), text.as_bytes()));
+                while let Some(m) = dep_m.as_mut().and_then(|m| m.next()) {
                     for cap in m.captures {
                         let dep = &text[cap.node.byte_range()];
                         if matches!(dep, "self" | "crate" | "std" | "core" | "alloc" | "super")

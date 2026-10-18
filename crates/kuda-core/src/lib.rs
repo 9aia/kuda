@@ -122,6 +122,9 @@ pub struct LangDef {
     /// tree-sitter symbol query (source text of the query file).
     #[serde(default)]
     pub symbol_query: Option<String>,
+    /// Query for import edges — per-language (e.g. `use`/`import`).
+    #[serde(default)]
+    pub dep_query: Option<String>,
 }
 
 // ---- kuda.toml config model ----

@@ -15,3 +15,9 @@ symbol_query = '''
 (macro_definition name: (identifier) @name.macro)
 (type_item name: (type_identifier) @name.type)
 '''
+
+dep_query = """
+(use_declaration argument: (identifier) @use.root)
+(use_declaration argument: (scoped_identifier path: (identifier) @use.root))
+(use_declaration argument: (scoped_use_list path: (identifier) @use.root))
+"""
