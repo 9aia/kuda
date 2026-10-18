@@ -1,6 +1,6 @@
 name: kuda-core
 path: crates/kuda-core/Cargo.toml
-purpose: '`kuda-core` is the pure domain crate for kuda — card types (L0 `RepoCard`, L1 `ModuleCard`), the L2 `Symbol`/`DepEdge` graph, `Provenance`, `LangDef`, and the `kuda.toml` `Config` model, with no ports or integrations.'
+purpose: '`kuda-core` is the pure domain crate for kuda — serde types for the three memory tiers (L0 `RepoCard`, L1 `ModuleCard`, L2 `Symbol`/`DepEdge`), `Provenance`, `LangDef`, and the `kuda.toml` config model (`Config` and its sections), with no ports or integrations (deps: serde, serde_json, toml only). It also hosts shared helpers `default_excludes`/`dir_excluded`, `is_valid_sha`, and `publish_order`.'
 api:
 - name: kuda-core
   kind: module
@@ -67,95 +67,105 @@ api:
   file: crates/kuda-core/src/lib.rs
   line: 161
   module: kuda-core
+- name: default_excludes
+  kind: function
+  file: crates/kuda-core/src/lib.rs
+  line: 178
+  module: kuda-core
+- name: dir_excluded
+  kind: function
+  file: crates/kuda-core/src/lib.rs
+  line: 202
+  module: kuda-core
 - name: default
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 171
+  line: 207
   module: kuda-core
 - name: default_extract_kinds
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 179
+  line: 216
   module: kuda-core
 - name: SummarizeCfg
   kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 185
+  line: 222
   module: kuda-core
 - name: default
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 201
+  line: 238
   module: kuda-core
 - name: default_summarize_kind
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 211
+  line: 248
   module: kuda-core
 - name: StoreCfg
   kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 217
+  line: 254
   module: kuda-core
 - name: default
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 226
+  line: 263
   module: kuda-core
 - name: default_store_kind
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 234
+  line: 271
   module: kuda-core
 - name: default_store_path
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 237
+  line: 274
   module: kuda-core
 - name: CardsCfg
   kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 243
+  line: 280
   module: kuda-core
 - name: default
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 250
+  line: 287
   module: kuda-core
 - name: default_cards_dir
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 257
+  line: 294
   module: kuda-core
 - name: WorkspaceCfg
   kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 263
+  line: 300
   module: kuda-core
 - name: is_valid_sha
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 274
+  line: 311
   module: kuda-core
 - name: publish_order
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 286
+  line: 323
   module: kuda-core
 - name: tests
   kind: module
   file: crates/kuda-core/src/lib.rs
-  line: 314
+  line: 351
   module: kuda-core
 - name: order_respects_path_deps
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 318
+  line: 355
   module: kuda-core
 - name: cycle_errors
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 332
+  line: 369
   module: kuda-core
 deps:
 - serde
@@ -163,17 +173,20 @@ deps:
 - toml
 - serde
 notes: |
-  - Every card carries `Provenance { files, hashes, commit_sha, generated_at, generator }` where `hashes` runs parallel to `files`; drift is computed by `status` (re-hash + HEAD diff), never assumed.
-  - `ModuleCard.notes` is `#[serde(default)]` and human-owned — regeneration never clobbers it; `api`/`deps`/`verify` are machine-owned.
-  - `Config` and all sub-config structs use `#[serde(deny_unknown_fields)]` with serde defaults: `extract.kinds = ["manifest","treesitter"]`, `summarize.kind = "template"`, `store.kind = "sqlite"` at `.kuda/index.sqlite`, `cards.dir = ".kuda"`, `workspace.roots = []`/`resolve_git_deps = false`.
-  - Enums serialize with fixed renames: `SymbolKind` → lowercase, `EdgeKind` → kebab-case.
-  - `is_valid_sha` requires length 7–64, no `..`/`/`, and only `[A-Za-z0-9._-]` bytes (path-injection guard).
-  - `publish_order(members, deps)` topologically orders members so path-deps come first and returns `Err("dependency cycle in workspace")` on cycles (unit tests `order_respects_path_deps`, `cycle_errors`).
-  - Only serde-family deps (`serde`, `serde_json`, `toml`) — direct version specs, not `.workspace = true`.
-  - `LangDef.grammar`/`symbol_query`/`dep_query` are `Option` + `#[serde(default)]`, so language TOMLs may omit them; a new language is a data change in `data/langs/*`, not engine code.
-  - `SummarizeCfg.provider`/`model` are declared for a backlog `llm` adapter — `kind` docs say "llm" is backlog and ACP is the semantic path.
+  - Every card carries `Provenance` whose `hashes` is parallel to `files` — staleness/drift is computed by diffing hashes and `commit_sha` vs HEAD, never assumed from prose.
+  - `Symbol.line` is 1-based; `Symbol.module` is the index's primary grouping key; `ModuleCard.notes` is `#[serde(default)]` and human-owned so regeneration never clobbers it.
+  - All config structs use `#[serde(deny_unknown_fields)]`, so an unknown key in `kuda.toml` is a hard parse error; sections default via `#[serde(default)]` (`extract.kinds` → `["manifest","treesitter"]`, `summarize.kind` → `"template"`, `store.kind` → `"sqlite"`, `store.path` → `.kuda/index.sqlite`, `cards.dir` → `.kuda`).
+  - `dir_excluded` matches built-in `default_excludes()` (`.git`, `.kuda`, `target`, `node_modules`, …) plus `[extract] exclude` config extras, applied to every walk.
+  - `is_valid_sha` accepts 7–64 chars of `[A-Za-z0-9._-]` and rejects `..` and `/`; `publish_order` errs on a workspace dependency cycle (unit tests cover both).
+
+  - `ContentHash` is a plain `String` alias — the digest algorithm is pinned by the extractor, not the domain, so nothing here validates hex format.
+  - `SymbolKind` serializes lowercase; `EdgeKind` serializes kebab-case (`package-dep`, `workspace-member`) — YAML/JSON round-trips depend on these renames.
+  - Exclusion is by directory/file *name* only (e.g. `target`, `build`), so a source directory with one of those names anywhere in the tree is skipped, and excludes don't apply to file *contents* or extensions.
+  - `Config`'s `repo.name`/`repo.root` are `Option`s with no defaults — the CLI fills `name` from the directory basename; `WorkspaceCfg::resolve_git_deps` defaults to `false`.
 verify:
 - crates/kuda-core/Cargo.toml
+- crates/kuda-core/src/lib.rs
+- crates/kuda-core/src/lib.rs
 - crates/kuda-core/src/lib.rs
 - crates/kuda-core/src/lib.rs
 - crates/kuda-core/src/lib.rs
@@ -237,38 +250,42 @@ provenance:
   - crates/kuda-core/src/lib.rs
   - crates/kuda-core/src/lib.rs
   - crates/kuda-core/src/lib.rs
+  - crates/kuda-core/src/lib.rs
+  - crates/kuda-core/src/lib.rs
   hashes:
   - 858a2d26892b5f1150a8b4663f27d32c408f6e1d
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  - 00ad726678e0d61742554341ce79008434f7b5a4
-  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
-  generated_at: '1792295084'
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  - f8eeb83e35a1632ebff94cd56064fa9d6c94e303
+  commit_sha: c576c1a811de0a7d1760061bcb1bd990cc9bfebd
+  generated_at: '1792302877'
   generator: kuda-template/0.1.0

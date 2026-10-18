@@ -277,6 +277,10 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
         .map(|cmd| kuda_acp::AcpSummarizer::new(cmd, dir.to_path_buf()));
     let use_acp = cfg.summarize.kind == "acp" && acp.is_some();
     let summ = kuda_template::TemplateSummarizer;
+    let manifest_names: std::collections::HashSet<String> = langs()
+        .iter()
+        .flat_map(|l| l.manifests.iter().cloned())
+        .collect();
     let mut module_names = Vec::new();
     for (module, syms) in &by_mod {
         // verify/provenance files for this module: its manifest
@@ -311,7 +315,17 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
                 }
             }
         }
-        let card_res = if use_acp {
+        // manifest-only pseudo-modules (root Cargo.toml, docs/
+        // package.json) have no source to ground on — the agent
+        // would return empty prose. Skip the prompt entirely.
+        let only_manifests = !mfiles.is_empty()
+            && mfiles.iter().all(|f| {
+                f.file_name()
+                    .and_then(|n| n.to_str())
+                    .map(|n| manifest_names.contains(n))
+                    .unwrap_or(false)
+            });
+        let card_res = if use_acp && !only_manifests {
             acp.as_ref()
                 .unwrap()
                 .summarize(
@@ -698,6 +712,9 @@ fn refs_in(dir: &Path, name: &str, docs_only: bool, tag: bool) -> usize {
         for e in rd.flatten() {
             let p = e.path();
             if p.is_dir() {
+                // search uses hard-noise excludes only — NOT the
+                // [extract] exclude list: fixtures/testdata are
+                // legitimate places to grep for symbol uses.
                 if !e
                     .file_name()
                     .to_str()
