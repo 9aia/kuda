@@ -27,13 +27,16 @@ url: /kuda/reference/config.md
 |---|---|---|---|
 | `kinds` | `list` | optional | Impl kinds tried in order: "manifest" | "treesitter" | "lsp". |
 | `lsp_server` | `string` | optional | Server command for the lsp adapter (per-language later). |
+| `exclude` | `list` | optional | Extra dir/file names skipped during walks, on top of the built-in set (`.git`, `target`, `node_modules`, `.kuda`, `dist`, `build`, `out`, `.cache`, `.next`, `vendor`, `.venv`, `__pycache__`, `coverage`, `generated`, …). Keeps generated/vendored content out of the index, provenance hashes, and agent prompts — direct agent-cost control. |
 
 ## `[summarize]`
 
 | field | type | required | notes |
 |---|---|---|---|
-| `kind` | `string` | optional | "template" (deterministic, default) | "llm". |
-| `provider` | `string` | optional | Provider id for the llm adapter; key resolves via secrets chain. |
+| `kind` | `string` | optional | "template" (deterministic, default) | "acp" (agent-spawned). |
+| `acp_cmd` | `string` | optional | ACP agent spawn command for kind="acp" — e.g. `env CLINE_PROVIDER=… CLINE_MODEL=… cline --acp`. |
+| `file_cards` | `bool` | optional | L1.5 per-file chunked summaries (`.kuda/files/`). ~10-50x module-card prompt count; per-file hash gate bounds steady state. |
+| `provider` | `string` | optional | Provider id for the llm adapter (parked); key resolves via secrets chain. |
 | `model` | `string` | optional | — |
 
 ## `[store]`

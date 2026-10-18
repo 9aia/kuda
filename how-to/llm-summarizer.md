@@ -58,3 +58,11 @@ card's `provenance.hashes` before calling the summarizer — identical
 means the card is reused and the agent is never prompted. Change one
 file and only that module re-summarizes; the agent spend is
 per-drift, not per-sync.
+
+## File-tier cards
+
+`file_cards = true` under `[summarize]` adds an L1.5 level: every
+source file gets a `.kuda/files/<module>/<file>.yaml` card. Files
+are split into ~1.5k-char semantic chunks (tree-sitter aware via
+text-splitter), budgeted to ~14k chars per prompt, and each card
+carries its own blob hash — an unchanged file never re-prompts.

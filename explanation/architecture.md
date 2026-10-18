@@ -36,13 +36,39 @@ per-node provenance.
   always-load blob: purpose, module map, commands, provenance.
 * **L1 module cards** (`.kuda/modules/*.yaml`) — fetched on
   demand when planning touches a module.
+* **L1.5 file cards** (`.kuda/files/<module>/*.yaml`) — per-source-file
+  `purpose` written by the semantic tier (opt-in,
+  `[summarize] file_cards = true`). Files are chunked with a
+  code-aware splitter (tree-sitter boundaries via text-splitter),
+  fed to the agent, and hash-gated per file.
 * **L2 graph** (`.kuda/index.sqlite`) — symbols, edges both
-  directions; gitignored, rebuildable, the query substrate.
+  directions, per-file hashes; gitignored, rebuildable, the query
+  substrate.
 * **L3** — the source itself. Memory is an index *into* code,
   never a replacement.
 
-Committed L0/L1 + ignored L2 is deliberate: cards are reviewed
+Committed L0/L1/L1.5 + ignored L2 is deliberate: cards are reviewed
 prose, the graph is derived state.
+
+## Incremental sync
+
+`sync` is diff-driven end to end:
+
+1. One walk groups manifests + source files by module (manifest
+   package names, not dir names — `kuda-docs`, not `docs`).
+2. Every file gets an in-process git blob hash — no subprocess
+   per file.
+3. Hashes are compared against the store's `files` table —
+   unchanged modules are never re-parsed; a changed file re-parses
+   only its own module.
+4. Cards whose provenance matches are reused verbatim — the
+   summarizer (and the agent, in `acp` mode) is only invoked for
+   drift.
+
+Steady-state on a warm index is sub-second; agent spend is
+per-drift, never per-sync. Deleted files and vanished modules are
+detected by the same diff — their cards and store rows are
+removed.
 
 ## Extraction tiers
 
