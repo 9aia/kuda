@@ -26,8 +26,8 @@
       every card ends with `verify:` file list
 
 ## Languages
-- [ ] `.hnl` — add `data/langs/hnl.toml` (extensions, manifests if
-      any, symbol/dep queries). Blocked on a tree-sitter-handl
+- [ ] `.hnl` — add a data/langs/hnl.toml descriptor (extensions,
+      manifests if any, symbol/dep queries). Blocked on a tree-sitter-handl
       grammar: check for an existing one; else write/publish it —
       grammar is the only real work, the descriptor is data. Pays
       off immediately: handl-lang fixtures/packages stop being
