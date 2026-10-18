@@ -45,11 +45,11 @@ provenance:
   - crates/kuda-keyring/src/lib.rs
   - crates/kuda-keyring/src/lib.rs
   hashes:
-  - 3b7a6eab09a7bdf9a5cf50809cab454325b920a7
-  - 6305cb3a0c2aad4195505edc71a29866b8ac5025
-  - 6305cb3a0c2aad4195505edc71a29866b8ac5025
-  - 6305cb3a0c2aad4195505edc71a29866b8ac5025
-  - 6305cb3a0c2aad4195505edc71a29866b8ac5025
-  commit_sha: 96c0cb3da733ebae58c2fa02d627ee8609ff04ee
-  generated_at: '1792277673'
+  - 91090b39dc802b32e546f0af5ad5f1aa9e994bb8
+  - 5242918416df1b111afa3ac068a34dd434191191
+  - 5242918416df1b111afa3ac068a34dd434191191
+  - 5242918416df1b111afa3ac068a34dd434191191
+  - 5242918416df1b111afa3ac068a34dd434191191
+  commit_sha: 6592ee3bab21e6d9297bf4d421310cedec1f0b93
+  generated_at: '1792283282'
   generator: kuda-template/0.1.0

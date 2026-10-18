@@ -1,6 +1,6 @@
 name: dagger
 path: modules/dagger/dagger/pyproject.toml
-purpose: dagger
+purpose: '*A hippocampus for your codebase.*'
 api:
 - name: dagger
   kind: module
@@ -16,6 +16,6 @@ provenance:
   - modules/dagger/dagger/pyproject.toml
   hashes:
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
-  commit_sha: 96c0cb3da733ebae58c2fa02d627ee8609ff04ee
-  generated_at: '1792277673'
+  commit_sha: 6592ee3bab21e6d9297bf4d421310cedec1f0b93
+  generated_at: '1792283282'
   generator: kuda-template/0.1.0

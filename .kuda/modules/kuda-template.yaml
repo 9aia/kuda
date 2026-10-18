@@ -42,10 +42,10 @@ provenance:
   - crates/kuda-template/src/lib.rs
   - crates/kuda-template/src/lib.rs
   hashes:
-  - abd77bfcf926f8f58b65fe76f7a4f75222ae11a5
-  - f58520b87ec7d0122066dc9888b23350afcdf608
-  - f58520b87ec7d0122066dc9888b23350afcdf608
-  - f58520b87ec7d0122066dc9888b23350afcdf608
-  commit_sha: 96c0cb3da733ebae58c2fa02d627ee8609ff04ee
-  generated_at: '1792277673'
+  - 65d11baa59bc50d3fb5d1b6a488a87922b66c9a3
+  - 8503206292175e9f857af5d2f6c22b02ab86aaa4
+  - 8503206292175e9f857af5d2f6c22b02ab86aaa4
+  - 8503206292175e9f857af5d2f6c22b02ab86aaa4
+  commit_sha: 6592ee3bab21e6d9297bf4d421310cedec1f0b93
+  generated_at: '1792283282'
   generator: kuda-template/0.1.0

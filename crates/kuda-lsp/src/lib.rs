@@ -49,7 +49,7 @@ impl LspClient {
                 "workspaceFolders": [{"uri": root_uri, "name": "root"}],
             }),
         )?;
-        c.notify("initialized", json!({}));
+        let _ = c.notify("initialized", json!({}));
         Ok(c)
     }
 
@@ -199,6 +199,54 @@ fn walk_files(root: &Path, exts: &[String]) -> Vec<PathBuf> {
         }
     }
     out
+}
+
+/// Semantic references — `workspace/symbol` to locate, then
+/// `textDocument/references` per hit. Real cross-file usage, the
+/// tier above text search. Returns (file, line) pairs.
+pub fn references(server_cmd: &str, root: &Path, name: &str) -> Result<Vec<(PathBuf, u32)>, String> {
+    let mut client = LspClient::spawn(server_cmd, root)?;
+    let res = client.request(
+        "workspace/symbol",
+        json!({"query": name}),
+    );
+    let syms = match res {
+        Ok(Value::Array(a)) => a,
+        Ok(Value::Null) | Err(_) => {
+            client.shutdown();
+            return Ok(vec![]);
+        }
+        Ok(_) => vec![],
+    };
+    let mut out = Vec::new();
+    for s in syms {
+        let uri = s["location"]["uri"].as_str().unwrap_or("");
+        let pos = &s["location"]["range"]["start"];
+        if uri.is_empty() {
+            continue;
+        }
+        let refs = client.request(
+            "textDocument/references",
+            json!({
+                "textDocument": {"uri": uri},
+                "position": {"line": pos["line"], "character": pos["character"]},
+                "context": {"includeDeclaration": true},
+            }),
+        );
+        if let Ok(Value::Array(locs)) = refs {
+            for l in locs {
+                let luri = l["uri"].as_str().unwrap_or("");
+                let line = l["range"]["start"]["line"].as_u64().unwrap_or(0) as u32 + 1;
+                if let Some(path) = luri.strip_prefix("file://") {
+                    out.push((PathBuf::from(path), line));
+                }
+            }
+        }
+    }
+    client.shutdown();
+    out.sort();
+    out.dedup();
+    Ok(out)
 }
 
 impl Extractor for LspExtractor {

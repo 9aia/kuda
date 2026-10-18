@@ -1,6 +1,6 @@
 name: kuda
 path: Cargo.toml
-purpose: kuda
+purpose: '*A hippocampus for your codebase.*'
 api:
 - name: kuda
   kind: module
@@ -14,6 +14,7 @@ api:
   module: kuda
 deps:
 - clap
+- clap-markdown
 - kuda-cards
 - kuda-config
 - kuda-config-toml
@@ -42,7 +43,7 @@ provenance:
   - crates/kuda-cli/Cargo.toml
   hashes:
   - 2f7be43b566485f612f08c426c324873ec57f009
-  - eb4e91a4a71ee317eb878cc8f2c72acdc3e6026d
-  commit_sha: 96c0cb3da733ebae58c2fa02d627ee8609ff04ee
-  generated_at: '1792277673'
+  - a702bdf5baec49fef1c7743864b1a8f2cb494672
+  commit_sha: 6592ee3bab21e6d9297bf4d421310cedec1f0b93
+  generated_at: '1792283282'
   generator: kuda-template/0.1.0

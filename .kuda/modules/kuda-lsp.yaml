@@ -67,15 +67,20 @@ api:
   file: crates/kuda-lsp/src/lib.rs
   line: 174
   module: kuda-lsp
+- name: references
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 207
+  module: kuda-lsp
 - name: kind
   kind: function
   file: crates/kuda-lsp/src/lib.rs
-  line: 205
+  line: 253
   module: kuda-lsp
 - name: extract
   kind: function
   file: crates/kuda-lsp/src/lib.rs
-  line: 209
+  line: 257
   module: kuda-lsp
 deps:
 - kuda-core
@@ -88,6 +93,7 @@ deps:
 notes: ''
 verify:
 - crates/kuda-lsp/Cargo.toml
+- crates/kuda-lsp/src/lib.rs
 - crates/kuda-lsp/src/lib.rs
 - crates/kuda-lsp/src/lib.rs
 - crates/kuda-lsp/src/lib.rs
@@ -119,22 +125,24 @@ provenance:
   - crates/kuda-lsp/src/lib.rs
   - crates/kuda-lsp/src/lib.rs
   - crates/kuda-lsp/src/lib.rs
+  - crates/kuda-lsp/src/lib.rs
   hashes:
-  - 5973c4942412a280d2e776ea7a560066fd260da8
-  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
-  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
-  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
-  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
-  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
-  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
-  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
-  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
-  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
-  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
-  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
-  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
-  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
-  - 1d2ea2d2558b57d1afb50de24f3a9dec6cf90c78
-  commit_sha: 96c0cb3da733ebae58c2fa02d627ee8609ff04ee
-  generated_at: '1792277673'
+  - f67a4e0af5e5702eea94a963c1b91e8349a246ab
+  - 93513838ec089aab964d987283f0d1ff3dcc18fc
+  - 93513838ec089aab964d987283f0d1ff3dcc18fc
+  - 93513838ec089aab964d987283f0d1ff3dcc18fc
+  - 93513838ec089aab964d987283f0d1ff3dcc18fc
+  - 93513838ec089aab964d987283f0d1ff3dcc18fc
+  - 93513838ec089aab964d987283f0d1ff3dcc18fc
+  - 93513838ec089aab964d987283f0d1ff3dcc18fc
+  - 93513838ec089aab964d987283f0d1ff3dcc18fc
+  - 93513838ec089aab964d987283f0d1ff3dcc18fc
+  - 93513838ec089aab964d987283f0d1ff3dcc18fc
+  - 93513838ec089aab964d987283f0d1ff3dcc18fc
+  - 93513838ec089aab964d987283f0d1ff3dcc18fc
+  - 93513838ec089aab964d987283f0d1ff3dcc18fc
+  - 93513838ec089aab964d987283f0d1ff3dcc18fc
+  - 93513838ec089aab964d987283f0d1ff3dcc18fc
+  commit_sha: 6592ee3bab21e6d9297bf4d421310cedec1f0b93
+  generated_at: '1792283282'
   generator: kuda-template/0.1.0

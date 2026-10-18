@@ -61,13 +61,13 @@ provenance:
   - crates/kuda-dotenv/src/lib.rs
   - crates/kuda-dotenv/src/lib.rs
   hashes:
-  - b3ca0f6db5ead37391a81a75b2af04535c38427f
+  - c00e5be2a18e90d8ecfd27f7e9f455e5343b7a86
   - 4d3dbaa112d4637449c1defd1780cf73f5683533
   - 4d3dbaa112d4637449c1defd1780cf73f5683533
   - 4d3dbaa112d4637449c1defd1780cf73f5683533
-  - d43c4a110af0d0523ac322b050fc2ead08556e85
-  - d43c4a110af0d0523ac322b050fc2ead08556e85
-  - d43c4a110af0d0523ac322b050fc2ead08556e85
-  commit_sha: 96c0cb3da733ebae58c2fa02d627ee8609ff04ee
-  generated_at: '1792277673'
+  - cb40b55b263aafbb6428aabc0c2efdfc983be879
+  - cb40b55b263aafbb6428aabc0c2efdfc983be879
+  - cb40b55b263aafbb6428aabc0c2efdfc983be879
+  commit_sha: 6592ee3bab21e6d9297bf4d421310cedec1f0b93
+  generated_at: '1792283282'
   generator: kuda-template/0.1.0

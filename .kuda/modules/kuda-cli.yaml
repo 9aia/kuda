@@ -1,6 +1,6 @@
 name: kuda-cli
 path: crates/kuda-cli/tests/e2e.rs
-purpose: kuda-cli
+purpose: '*A hippocampus for your codebase.*'
 api:
 - name: kuda
   kind: function
@@ -40,122 +40,147 @@ api:
 - name: main
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 80
+  line: 83
   module: kuda-cli
 - name: root
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 98
+  line: 105
   module: kuda-cli
 - name: load_config
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 109
+  line: 116
   module: kuda-cli
 - name: langs
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 117
+  line: 124
   module: kuda-cli
 - name: hash_files
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 125
+  line: 132
   module: kuda-cli
 - name: unix_now
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 143
+  line: 150
   module: kuda-cli
 - name: init
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 150
+  line: 157
   module: kuda-cli
 - name: workspace_roots
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 173
+  line: 180
   module: kuda-cli
 - name: sync
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 196
+  line: 203
   module: kuda-cli
 - name: sync_one
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 212
+  line: 219
+  module: kuda-cli
+- name: module_purpose
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 363
+  module: kuda-cli
+- name: crate_doc_purpose
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 372
+  module: kuda-cli
+- name: readme_purpose
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 389
   module: kuda-cli
 - name: manifest_purpose
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 355
+  line: 398
   module: kuda-cli
 - name: safe
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 371
+  line: 414
   module: kuda-cli
 - name: detect_commands
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 383
+  line: 426
   module: kuda-cli
 - name: status
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 398
+  line: 441
   module: kuda-cli
 - name: map
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 435
+  line: 478
   module: kuda-cli
 - name: card
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 439
+  line: 482
   module: kuda-cli
 - name: cat_file
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 443
+  line: 486
   module: kuda-cli
 - name: find
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 456
+  line: 499
+  module: kuda-cli
+- name: repo_tag
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 532
   module: kuda-cli
 - name: dependents
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 484
+  line: 538
   module: kuda-cli
 - name: refs
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 520
+  line: 576
+  module: kuda-cli
+- name: refs_in
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 618
   module: kuda-cli
 - name: mcp
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 571
+  line: 671
   module: kuda-cli
 - name: acp
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 672
+  line: 772
   module: kuda-cli
 - name: acp_answer
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 728
+  line: 828
   module: kuda-cli
 - name: doctor
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 757
+  line: 857
   module: kuda-cli
 deps:
 - clap
@@ -173,6 +198,11 @@ verify:
 - crates/kuda-cli/tests/e2e.rs
 - crates/kuda-cli/tests/e2e.rs
 - crates/kuda-cli/tests/e2e.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/src/main.rs
 - crates/kuda-cli/src/main.rs
 - crates/kuda-cli/src/main.rs
 - crates/kuda-cli/src/main.rs
@@ -234,38 +264,48 @@ provenance:
   - crates/kuda-cli/src/main.rs
   - crates/kuda-cli/src/main.rs
   - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/src/main.rs
   hashes:
   - 0957ef1562103a61e15ff88377b9d026e0d140ab
   - 0957ef1562103a61e15ff88377b9d026e0d140ab
   - 0957ef1562103a61e15ff88377b9d026e0d140ab
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  - bd879a0c57c070b52b4095eddf53da4957680e53
-  commit_sha: 96c0cb3da733ebae58c2fa02d627ee8609ff04ee
-  generated_at: '1792277673'
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  - b9e76f57af0e03102864f7b0e4505dd49b8b77df
+  commit_sha: 6592ee3bab21e6d9297bf4d421310cedec1f0b93
+  generated_at: '1792283282'
   generator: kuda-template/0.1.0

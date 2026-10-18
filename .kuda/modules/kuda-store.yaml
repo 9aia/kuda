@@ -25,7 +25,7 @@ provenance:
   - crates/kuda-store/src/lib.rs
   hashes:
   - fcd81b2ab4c0c8bd258d2a0d32162f1ff7ae9bd9
-  - 3a283855bc358a7f0b2629edb666a5098c2eb79a
-  commit_sha: 96c0cb3da733ebae58c2fa02d627ee8609ff04ee
-  generated_at: '1792277673'
+  - b0ca09a166015a2d870589accf07a2e81d0c84ea
+  commit_sha: 6592ee3bab21e6d9297bf4d421310cedec1f0b93
+  generated_at: '1792283282'
   generator: kuda-template/0.1.0

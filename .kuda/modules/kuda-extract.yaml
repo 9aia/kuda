@@ -32,8 +32,8 @@ provenance:
   - crates/kuda-extract/src/lib.rs
   hashes:
   - 8474c16bc613412aaa22031cbce10ad3a1f9beea
-  - 35528f568113751af273682ad4d5c3b12803ebc6
-  - 35528f568113751af273682ad4d5c3b12803ebc6
-  commit_sha: 96c0cb3da733ebae58c2fa02d627ee8609ff04ee
-  generated_at: '1792277673'
+  - ae9ba06e36b09753f52ea9ca3b2f1c9639d96e7e
+  - ae9ba06e36b09753f52ea9ca3b2f1c9639d96e7e
+  commit_sha: 6592ee3bab21e6d9297bf4d421310cedec1f0b93
+  generated_at: '1792283282'
   generator: kuda-template/0.1.0

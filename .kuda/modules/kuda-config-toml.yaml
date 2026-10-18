@@ -63,13 +63,13 @@ provenance:
   - crates/kuda-config-toml/src/lib.rs
   - crates/kuda-config-toml/src/lib.rs
   hashes:
-  - 00ad189ce8101ee20046f23cb69225af620007b4
+  - 69539d90b1b9cce1264bb96925db8212817849fa
   - 6f5371079a853f0282a1e9ce5afa661fcd1d1bcf
   - 6f5371079a853f0282a1e9ce5afa661fcd1d1bcf
   - 6f5371079a853f0282a1e9ce5afa661fcd1d1bcf
   - 6f5371079a853f0282a1e9ce5afa661fcd1d1bcf
-  - 4d633c966b4997d72387343c124dab5fb4b301af
-  - 4d633c966b4997d72387343c124dab5fb4b301af
-  commit_sha: 96c0cb3da733ebae58c2fa02d627ee8609ff04ee
-  generated_at: '1792277673'
+  - b12116b476081aedcaf4ea623af3ff70bc65999c
+  - b12116b476081aedcaf4ea623af3ff70bc65999c
+  commit_sha: 6592ee3bab21e6d9297bf4d421310cedec1f0b93
+  generated_at: '1792283282'
   generator: kuda-template/0.1.0

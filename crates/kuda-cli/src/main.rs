@@ -296,9 +296,9 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
                 continue;
             }
         };
-        // purpose: manifest description field when present
+        // purpose: manifest description -> crate docs -> README
         if card.purpose == card.name {
-            if let Some(d) = manifest_purpose(&dir.join(&syms[0].file)) {
+            if let Some(d) = module_purpose(dir, &dir.join(&syms[0].file)) {
                 card.purpose = d;
             }
         }
@@ -335,7 +335,7 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
     let repo_card = RepoCard {
         name,
         root: dir.to_path_buf(),
-        purpose: String::new(),
+        purpose: readme_purpose(&dir.join("README.md")).unwrap_or_default(),
         modules: module_names.clone(),
         commands: detect_commands(&dir),
         provenance: prov,
@@ -356,6 +356,42 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
     );
     println!("indexed {} module(s) at {sha:.7}", module_names.len());
     0
+}
+
+/// Purpose fallback chain: manifest `description` -> crate `//!`
+/// doc comment -> module README first line.
+fn module_purpose(root: &Path, manifest: &Path) -> Option<String> {
+    manifest_purpose(manifest)
+        .or_else(|| crate_doc_purpose(&manifest.parent()?.join("src/lib.rs")))
+        .or_else(|| crate_doc_purpose(&manifest.parent()?.join("src/main.rs")))
+        .or_else(|| readme_purpose(&manifest.parent()?.join("README.md")))
+        .or_else(|| readme_purpose(&root.join("README.md")))
+}
+
+/// First `//!` doc line — the crate's self-description.
+fn crate_doc_purpose(lib: &Path) -> Option<String> {
+    let text = std::fs::read_to_string(lib).ok()?;
+    for line in text.lines() {
+        let l = line.trim_start();
+        if let Some(d) = l.strip_prefix("//!") {
+            let d = d.trim();
+            if !d.is_empty() {
+                return Some(d.to_owned());
+            }
+        } else if !l.is_empty() && !l.starts_with("//") {
+            return None; // first real code line — no doc comment
+        }
+    }
+    None
+}
+
+/// First non-heading, non-empty README line.
+fn readme_purpose(readme: &Path) -> Option<String> {
+    let text = std::fs::read_to_string(readme).ok()?;
+    text.lines()
+        .map(str::trim)
+        .find(|l| !l.is_empty() && !l.starts_with('#') && !l.starts_with('!') && !l.starts_with('['))
+        .map(str::to_owned)
 }
 
 /// Pull `description` from a manifest (Cargo.toml/package.json).
@@ -463,29 +499,40 @@ fn cat_file(p: &Path) -> i32 {
 fn find(cli: &Cli, symbol: &str) -> i32 {
     let dir = root(cli);
     let cfg = load_config(cli);
-    let store = match kuda_store_sqlite::SqliteStore::open(&dir.join(&cfg.store.path)) {
-        Ok(s) => s,
-        Err(e) => {
-            eprintln!("store: {e}");
-            return 1;
-        }
+    let roots = if cli.workspace {
+        let r = workspace_roots(&dir);
+        if r.is_empty() { vec![dir.clone()] } else { r }
+    } else {
+        vec![dir.clone()]
     };
-    match kuda_query::find(&store, symbol) {
-        Ok(syms) if syms.is_empty() => {
-            println!("no symbol `{symbol}` — run `kuda sync`?");
-            1
-        }
-        Ok(syms) => {
-            for s in syms {
-                println!("{}:{} {:?} {}", s.file.display(), s.line, s.kind, s.module);
+    let mut hits = Vec::new();
+    for r in &roots {
+        if let Ok(store) = kuda_store_sqlite::SqliteStore::open(&r.join(&cfg.store.path)) {
+            if let Ok(mut syms) = kuda_query::find(&store, symbol) {
+                // tag hits with their repo when spanning roots
+                for s in syms.iter_mut() {
+                    if roots.len() > 1 {
+                        s.module = format!("{}:{}", repo_tag(r), s.module);
+                    }
+                }
+                hits.append(&mut syms);
             }
-            0
-        }
-        Err(e) => {
-            eprintln!("find: {e}");
-            1
         }
     }
+    if hits.is_empty() {
+        println!("no symbol `{symbol}` — run `kuda sync`?");
+        return 1;
+    }
+    for s in hits {
+        println!("{}:{} {:?} {}", s.file.display(), s.line, s.kind, s.module);
+    }
+    0
+}
+
+fn repo_tag(root: &Path) -> String {
+    root.file_name()
+        .map(|f| f.to_string_lossy().into_owned())
+        .unwrap_or_else(|| "repo".into())
 }
 
 fn dependents(cli: &Cli, name: &str) -> i32 {
@@ -523,16 +570,59 @@ fn dependents(cli: &Cli, name: &str) -> i32 {
     }
 }
 
-/// Textual mention sweep — the doc-update use case.
+/// Textual mention sweep — the doc-update use case. With
+/// `--workspace`, sweeps every root; with `extract.lsp_server`
+/// set and `lsp` in kinds, tries semantic references first.
 fn refs(cli: &Cli, name: &str, docs_only: bool) -> i32 {
     let dir = root(cli);
+    let cfg = load_config(cli);
+    let roots = if cli.workspace {
+        let r = workspace_roots(&dir);
+        if r.is_empty() { vec![dir.clone()] } else { r }
+    } else {
+        vec![dir.clone()]
+    };
+    // semantic tier first (only when not docs-only)
+    if !docs_only && cfg.extract.kinds.iter().any(|k| k == "lsp") {
+        if let Some(cmd) = cfg.extract.lsp_server.clone() {
+            let mut any = false;
+            for r in &roots {
+                match kuda_lsp::references(&cmd, r, name) {
+                    Ok(locs) if !locs.is_empty() => {
+                        any = true;
+                        for (f, l) in locs {
+                            let rel = f.strip_prefix(r).unwrap_or(&f);
+                            println!("{}:{}{}", rel.display(), l,
+                                if roots.len() > 1 { format!("  [{}]", repo_tag(r)) } else { String::new() });
+                        }
+                    }
+                    Ok(_) => {}
+                    Err(e) => eprintln!("lsp refs: {e}"),
+                }
+            }
+            if any {
+                return 0;
+            }
+        }
+    }
+    let mut total = 0;
+    for dir in &roots {
+        total += refs_in(dir, name, docs_only, roots.len() > 1);
+    }
+    if total == 0 {
+        println!("no mentions of `{name}`");
+    }
+    0
+}
+
+fn refs_in(dir: &Path, name: &str, docs_only: bool, tag: bool) -> usize {
     let exts: &[&str] = if docs_only {
         &["md", "mdx", "rst", "txt"]
     } else {
         &["md", "mdx", "rs", "py", "ts", "tsx", "go", "toml", "yaml", "yml", "sh", "txt"]
     };
     let mut hits = 0;
-    let mut stack = vec![dir.clone()];
+    let mut stack = vec![dir.to_path_buf()];
     while let Some(d) = stack.pop() {
         let Ok(rd) = std::fs::read_dir(&d) else {
             continue;
@@ -560,16 +650,19 @@ fn refs(cli: &Cli, name: &str, docs_only: bool) -> i32 {
                 for (i, line) in text.lines().enumerate() {
                     if line.contains(name) {
                         hits += 1;
-                        println!("{}:{}: {}", p.display(), i + 1, line.trim());
+                        let rel = p.strip_prefix(dir).unwrap_or(&p);
+                        let t = if tag {
+                            format!("  [{}]", repo_tag(dir))
+                        } else {
+                            String::new()
+                        };
+                        println!("{}:{}: {}{t}", rel.display(), i + 1, line.trim());
                     }
                 }
             }
         }
     }
-    if hits == 0 {
-        println!("no mentions of `{name}`");
-    }
-    0
+    hits
 }
 
 /// Minimal MCP stdio server — the index as agent tools.

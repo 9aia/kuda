@@ -71,14 +71,14 @@ provenance:
   - crates/kuda-manifest/src/lib.rs
   - crates/kuda-manifest/src/lib.rs
   hashes:
-  - 09304a6086811eeff016b23d1f232497106acac0
-  - 221e36c0f3fc9cd24088e73a87bca05c57f01e9c
-  - 221e36c0f3fc9cd24088e73a87bca05c57f01e9c
-  - 221e36c0f3fc9cd24088e73a87bca05c57f01e9c
-  - 221e36c0f3fc9cd24088e73a87bca05c57f01e9c
-  - 221e36c0f3fc9cd24088e73a87bca05c57f01e9c
-  - 221e36c0f3fc9cd24088e73a87bca05c57f01e9c
-  - 221e36c0f3fc9cd24088e73a87bca05c57f01e9c
-  commit_sha: 96c0cb3da733ebae58c2fa02d627ee8609ff04ee
-  generated_at: '1792277673'
+  - e2ef5f546ee4d7eae4708f90a7e099497a44f675
+  - 8bbba445d79579dba9223047a3db4ab3990db439
+  - 8bbba445d79579dba9223047a3db4ab3990db439
+  - 8bbba445d79579dba9223047a3db4ab3990db439
+  - 8bbba445d79579dba9223047a3db4ab3990db439
+  - 8bbba445d79579dba9223047a3db4ab3990db439
+  - 8bbba445d79579dba9223047a3db4ab3990db439
+  - 8bbba445d79579dba9223047a3db4ab3990db439
+  commit_sha: 6592ee3bab21e6d9297bf4d421310cedec1f0b93
+  generated_at: '1792283282'
   generator: kuda-template/0.1.0
