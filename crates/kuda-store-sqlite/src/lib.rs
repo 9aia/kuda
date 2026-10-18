@@ -30,6 +30,11 @@ CREATE TABLE IF NOT EXISTS edges(
 );
 CREATE INDEX IF NOT EXISTS idx_edges_to ON edges(to_mod);
 CREATE TABLE IF NOT EXISTS meta(k TEXT PRIMARY KEY, v TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS files(
+    path TEXT PRIMARY KEY,
+    hash TEXT NOT NULL,
+    module TEXT NOT NULL
+);
 ";
 
 fn sk_str(k: SymbolKind) -> &'static str {
@@ -121,6 +126,39 @@ impl IndexStore for SqliteStore {
             tx.execute(
                 "INSERT INTO edges(from_mod,to_mod,kind) VALUES(?1,?2,?3)",
                 params![e.from, e.to, ek_str(e.kind)],
+            )
+            .map_err(|e| e.to_string())?;
+        }
+        tx.commit().map_err(|e| e.to_string())
+    }
+
+    fn file_hashes(&self) -> Result<std::collections::HashMap<String, (String, String)>, String> {
+        let conn = self.lock()?;
+        let mut st = conn
+            .prepare("SELECT path,hash,module FROM files")
+            .map_err(|e| e.to_string())?;
+        let rows = st
+            .query_map([], |r| {
+                Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?, r.get::<_, String>(2)?))
+            })
+            .map_err(|e| e.to_string())?;
+        let mut out = std::collections::HashMap::new();
+        for r in rows {
+            let (p, h, m) = r.map_err(|e| e.to_string())?;
+            out.insert(p, (h, m));
+        }
+        Ok(out)
+    }
+
+    fn record_files(&mut self, module: &str, files: &[(String, String)]) -> Result<(), String> {
+        let mut conn = self.lock()?;
+        let tx = conn.transaction().map_err(|e| e.to_string())?;
+        tx.execute("DELETE FROM files WHERE module = ?1", params![module])
+            .map_err(|e| e.to_string())?;
+        for (p, h) in files {
+            tx.execute(
+                "INSERT INTO files(path,hash,module) VALUES(?1,?2,?3)",
+                params![p, h, module],
             )
             .map_err(|e| e.to_string())?;
         }

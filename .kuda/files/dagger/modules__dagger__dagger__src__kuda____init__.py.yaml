@@ -1,0 +1,12 @@
+path: modules/dagger/dagger/src/kuda/__init__.py
+module: dagger
+purpose: This is the package entry point for the Kuda Dagger module, a project generated via `dagger init`. It serves as a reference module structure exposing the `Kuda` class by re-exporting it from `.main`, which contains the module's callable functions invocable from the Dagger CLI or SDKs.
+symbols: []
+provenance:
+  files:
+  - modules/dagger/dagger/src/kuda/__init__.py
+  hashes:
+  - 5b331a1baf30b49f5bf03dd9693297d498117deb
+  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
+  generated_at: '1792314296'
+  generator: kuda-acp/0.1.0

@@ -1,6 +1,6 @@
 name: kuda-query
 path: crates/kuda-query/Cargo.toml
-purpose: '`kuda-query` is the thin query engine — agent-facing read helpers (`find`, `search`, `dependents`, `module_symbols`, `modules`) over the `IndexStore` port, doing only filtering/formatting while storage lives behind the port.'
+purpose: '`kuda-query` is the thin query engine for kuda — the agent-facing read layer over `IndexStore` plus committed cards, where filtering/formatting lives in this crate and storage stays behind the port. It backs the `find`, `search`, `dependents`, `card`, and `status` CLI/MCP reads.'
 api:
 - name: kuda-query
   kind: module
@@ -38,32 +38,21 @@ deps:
 - kuda_core
 - kuda_store
 notes: |
-  - `find`, `search`, `dependents`, `modules` are direct pass-throughs to the corresponding `IndexStore` methods with `Result<_, String>` errors propagated unchanged (`find` = exact symbol lookup, `search` = substring/fuzzy tier, `dependents` = reverse-dep impact analysis, `modules` = indexed module list).
-  - `module_symbols(store, module)` = `store.find(module)` filtered to `s.module == module` (symbols the module owns).
-  - Only dependencies are `kuda-core` and `kuda-store` (both `.workspace = true`).
-  - `module_symbols` relies on `find(module)` returning enough matches to then filter by module name — the `chain(vec![])` is a no-op; if `find` is exact-name-only, a module whose symbol names differ from the module label may yield partial results.
+  - `find` (exact symbol lookup), `search` (substring/fuzzy tier), `dependents` (reverse edges for impact analysis), and `modules` are pass-throughs to the `IndexStore` port — errors propagate as `Result<_, String>`.
+  - `module_symbols` returns only symbols whose `module` field equals the queried module (it chains an empty vec as a no-op before filtering).
+
+  - Takes `&dyn IndexStore`, so it's store-agnostic (works with the SQLite adapter or any other implementation).
+  - Depends only on `kuda-core` and `kuda-store`; no file/YAML access — card prose is read elsewhere (e.g. CLI reads `.kuda/modules/<name>.yaml` directly).
 verify:
 - crates/kuda-query/Cargo.toml
-- crates/kuda-query/src/lib.rs
-- crates/kuda-query/src/lib.rs
-- crates/kuda-query/src/lib.rs
-- crates/kuda-query/src/lib.rs
 - crates/kuda-query/src/lib.rs
 provenance:
   files:
   - crates/kuda-query/Cargo.toml
   - crates/kuda-query/src/lib.rs
-  - crates/kuda-query/src/lib.rs
-  - crates/kuda-query/src/lib.rs
-  - crates/kuda-query/src/lib.rs
-  - crates/kuda-query/src/lib.rs
   hashes:
   - c09df8b9f1045151d00b8825259c76bf2e5a1fa7
   - fad52d157f36486e32de9ecaf3c02194aabdac8a
-  - fad52d157f36486e32de9ecaf3c02194aabdac8a
-  - fad52d157f36486e32de9ecaf3c02194aabdac8a
-  - fad52d157f36486e32de9ecaf3c02194aabdac8a
-  - fad52d157f36486e32de9ecaf3c02194aabdac8a
-  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
-  generated_at: '1792295084'
+  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
+  generated_at: '1792314296'
   generator: kuda-template/0.1.0

@@ -1,0 +1,12 @@
+path: modules/dagger/tests/test_self_patch.py
+module: kuda
+purpose: Regression tests for the embedded `_SELF_PATCH_PY` script in `modules/dagger/dagger/src/kuda/main.py`, which ships as a bash heredoc. The tests extract the decoded script body from the module AST (so `\n` escapes resolve as the runtime sees them), apply the same `REPO_DIR`/`REPO_NAME`/`__PATCH_HOST__` placeholder substitution `_link_repo` performs, and run it against fixture Cargo.tomls in tmp dirs. Also includes an AST lint asserting every Load name in each function in main.py is a param, local, module global, or builtin.
+symbols: []
+provenance:
+  files:
+  - modules/dagger/tests/test_self_patch.py
+  hashes:
+  - 203086b883ed1477efd6f9befccd76e2614cc9ea
+  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
+  generated_at: '1792314296'
+  generator: kuda-acp/0.1.0

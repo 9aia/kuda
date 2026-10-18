@@ -1,0 +1,15 @@
+path: crates/kuda-cli/tests/e2e.rs
+module: kuda
+purpose: End-to-end CLI smoke tests that spawn the compiled `kuda` binary, verifying `--help` renders successfully with all expected subcommands listed. Also tests that `init` scaffolds `kuda.toml` and `.kuda/modules` in a temp directory, and that a second `init` run refuses to clobber existing files by exiting with code 1.
+symbols:
+- kuda
+- help_and_stub
+- init_scaffolds
+provenance:
+  files:
+  - crates/kuda-cli/tests/e2e.rs
+  hashes:
+  - febd57a3490e9ff3c5fb4c2d599e68a62fbfc9ef
+  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
+  generated_at: '1792314596'
+  generator: kuda-acp/0.1.0

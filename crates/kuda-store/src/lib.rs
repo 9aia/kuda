@@ -25,4 +25,10 @@ pub trait IndexStore: Send + Sync {
     /// Provenance bookkeeping ("commit_sha", "extractor_versions").
     fn set_meta(&mut self, key: &str, value: &str) -> Result<(), String>;
     fn meta(&self, key: &str) -> Result<Option<String>, String>;
+    /// Per-file content hashes — the incremental-extraction diff
+    /// surface. Returns path -> (hash, module).
+    fn file_hashes(&self) -> Result<std::collections::HashMap<String, (String, String)>, String>;
+    /// Replace a module's file-hash rows (called with the module's
+    /// full current file set after replace_module).
+    fn record_files(&mut self, module: &str, files: &[(String, String)]) -> Result<(), String>;
 }

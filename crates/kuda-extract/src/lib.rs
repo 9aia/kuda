@@ -22,4 +22,15 @@ pub trait Extractor: Send + Sync {
     fn kind(&self) -> &'static str;
     /// Extract under `root` for the given language descriptors.
     fn extract(&self, root: &Path, langs: &[LangDef]) -> Result<Extraction, String>;
+    /// Extract only the listed files (repo-relative). Default
+    /// ignores the filter — adapters without per-file control are
+    /// always cheap or server-backed anyway.
+    fn extract_filtered(
+        &self,
+        root: &Path,
+        langs: &[LangDef],
+        _files: &std::collections::HashSet<PathBuf>,
+    ) -> Result<Extraction, String> {
+        self.extract(root, langs)
+    }
 }

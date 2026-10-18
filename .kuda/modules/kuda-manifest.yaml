@@ -1,6 +1,6 @@
 name: kuda-manifest
 path: crates/kuda-manifest/Cargo.toml
-purpose: '`kuda-manifest` is the manifest extraction adapter — it walks a repo root for manifest basenames declared by `LangDef.manifests` (Cargo.toml, package.json, go.mod, …) and turns each into a `SymbolKind::Module` symbol plus `EdgeKind::PackageDep` edges. It has no parser or language knowledge beyond filename-dispatched readers (`parse_manifest` → `cargo`/`package_json`/`go_mod`).'
+purpose: '`kuda-manifest` is a manifest-based extraction adapter — it implements the `Extractor` trait (`kind() == "manifest"`) by walking the tree for manifest basenames declared by `LangDef` entries (Cargo.toml, package.json, go.mod, …) and emitting a package graph: a `SymbolKind::Module` symbol per manifest plus `EdgeKind::PackageDep` edges for declared deps. No parser, no language knowledge — format detection is by filename.'
 api:
 - name: kuda-manifest
   kind: module
@@ -51,43 +51,24 @@ deps:
 - kuda_core
 - kuda_extract
 notes: |
-  - `kind()` always returns `"manifest"`; `extract` returns `Ok(Extraction)` even on unreadable dirs (skipped silently via `read_dir` error → `continue`).
-  - Directories are skipped when `kuda_core::dir_excluded(name, &self.excludes)` matches (built-in `default_excludes` + `[extract] exclude` extras) **or** when the dir contains a `.git` *file* (mounted git worktree marker).
-  - Only files whose basename is in the union of `langs[].manifests` are processed; each yields one `Symbol { kind: Module, line: 1 }` whose `name`/`module` is the package name (or parent-dir / basename fallback), one `DepEdge { kind: PackageDep }` per declared dep, and the root-relative path pushed to `out.files`.
-  - `parse_manifest` dispatch strictly on basename: `"Cargo.toml"` → `cargo`, `"package.json"` → `package_json`, `"go.mod"` → `go_mod`, anything else → `(None, [])`.
+  - Directory traversal skips excluded dirs (via `kuda_core::dir_excluded` using `[extract] exclude` names) and never descends into mounted git worktrees — `.git` as a *file* marks a worktree, not a repo dir.
+  - The module name comes from the manifest's package name, falling back to the parent directory name, then the manifest basename; every manifest read is recorded in `Extraction.files` and gets a symbol at `line: 1`.
+  - Dependency keys per format: Cargo → `dependencies` + `dev-dependencies` + `build-dependencies`; package.json → `dependencies` + `devDependencies`; go.mod → tab-indented require lines containing `" v"`. Unparseable manifests yield no name and no deps (never an error).
+  - Unknown manifest basenames return `(None, [])` from `parse_manifest`.
 
-  - Malformed manifests degrade gracefully: `cargo`/`package_json` return `(None, [])` on parse failure, so the fallback module name (parent directory name, else the manifest basename) kicks in — no error propagates.
-  - `cargo` collects keys of `dependencies`, `dev-dependencies`, `build-dependencies`; `package_json` collects `dependencies` + `devDependencies` — dev deps are therefore first-class graph edges, not filtered.
-  - `go_mod` dep detection is heuristic: lines starting with a tab and containing `" v"` (require-block entries); a single-line `require` block or comments mimicking that pattern may be missed or miscounted.
-  - `excludes` is a public field populated by the caller from `[extract] exclude`; it only affects directory descent, not which manifest filenames are accepted.
+  - `parse_manifest`, `cargo`, `package_json`, `go_mod` are private (not `pub`), despite being listed — only `ManifestExtractor` is public.
+  - Reads files with `unwrap_or_default()` — unreadable manifests parse as empty text rather than failing.
+  - Crates: `kuda-core`, `kuda-extract`, `toml = "0.8"`, `serde`, `serde_json`.
 verify:
 - crates/kuda-manifest/Cargo.toml
-- crates/kuda-manifest/src/lib.rs
-- crates/kuda-manifest/src/lib.rs
-- crates/kuda-manifest/src/lib.rs
-- crates/kuda-manifest/src/lib.rs
-- crates/kuda-manifest/src/lib.rs
-- crates/kuda-manifest/src/lib.rs
 - crates/kuda-manifest/src/lib.rs
 provenance:
   files:
   - crates/kuda-manifest/Cargo.toml
   - crates/kuda-manifest/src/lib.rs
-  - crates/kuda-manifest/src/lib.rs
-  - crates/kuda-manifest/src/lib.rs
-  - crates/kuda-manifest/src/lib.rs
-  - crates/kuda-manifest/src/lib.rs
-  - crates/kuda-manifest/src/lib.rs
-  - crates/kuda-manifest/src/lib.rs
   hashes:
   - e2ef5f546ee4d7eae4708f90a7e099497a44f675
   - 44f6cf18ea1722cc51ccb13532d3b5a6fff18eb8
-  - 44f6cf18ea1722cc51ccb13532d3b5a6fff18eb8
-  - 44f6cf18ea1722cc51ccb13532d3b5a6fff18eb8
-  - 44f6cf18ea1722cc51ccb13532d3b5a6fff18eb8
-  - 44f6cf18ea1722cc51ccb13532d3b5a6fff18eb8
-  - 44f6cf18ea1722cc51ccb13532d3b5a6fff18eb8
-  - 44f6cf18ea1722cc51ccb13532d3b5a6fff18eb8
-  commit_sha: c576c1a811de0a7d1760061bcb1bd990cc9bfebd
-  generated_at: '1792302877'
+  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
+  generated_at: '1792314296'
   generator: kuda-template/0.1.0

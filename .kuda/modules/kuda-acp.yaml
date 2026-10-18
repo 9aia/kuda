@@ -1,6 +1,6 @@
 name: kuda-acp
 path: crates/kuda-acp/Cargo.toml
-purpose: An ACP (Agent Client Protocol) summarizer adapter that spawns any client-capable agent binary (e.g. `cline --acp`, `zed agent`, `gemini --experimental-acp`) to write grounded module-card prose for the repo memory index — no API keys or provider lock-in, since auth lives in the user's agent. It implements the `kuda_summarize::Summarizer` trait and reuses a single lazy agent session across all modules.
+purpose: '`kuda-acp` is a summarizer adapter that spawns an external ACP agent binary (e.g. `cline --acp`, `zed agent`, `gemini --experimental-acp`) to write grounded module-card prose for the repo memory index — no API keys or provider lock, since auth lives in the user''s agent. It implements the `Summarizer` trait from `kuda-summarize`, using `kuda-core`''s `ModuleCard`/`Provenance` and `kuda-extract`''s `Extraction`.'
 api:
 - name: kuda-acp
   kind: module
@@ -68,51 +68,24 @@ deps:
 - kuda_summarize
 - serde_json
 notes: |
-  - Every claim in generated card prose must be grounded — it is re-verified against the named source files.
-  - The git token (if ever added here) must never persist in an image layer or cache — per this crate's sibling patterns, auth rewrites run inside exec, not in layers.
+  - One agent session (client + sessionId) is lazily created on first `complete()` call and reused across all modules, guarded by a `Mutex`; `AcpClient::spawn` runs the command via `sh -c` with piped stdin/stdout and null stderr.
+  - `request()` reads JSON lines until a reply matching its incrementing id, concatenating streamed `agent_message_chunk` text; JSON-RPC errors surface as `Err`.
+  - `summarize()` parses only marked sections from the agent's reply: text before the `purpose:` line is ignored, `invariants:`/`notes:` sections feed the card's `notes`, and with no marked sections the first non-empty line becomes the purpose (falling back to the module name if prose is empty).
+  - The constructed card's `api`, `deps`, and `verify` fields come from the `Extraction` (symbols, edge targets, files), not from agent prose.
 
-  - The private `AcpClient` speaks JSON-RPC over the agent's stdin/stdout; it auto-answers `session/request_permission` by granting the first option and replies method-not-found to unknown agent→client requests to avoid prompt deadlocks.
-  - `AcpSummarizer::complete` lazily initializes the session on first call (holds a `Mutex<Option<(AcpClient, String)>>`); construction never spawns the agent, and it respawns on failure per the struct docs.
-  - `summarize` parses the returned prose by marked sections only (`purpose:`/`invariants:`/`notes:`); anything before the `purpose:` line (e.g. thinking preamble) is ignored, and if no marked `purpose:` exists, the first non-empty line is used, ultimately falling back to the module name.
-  - The prompt caps context at 30 public symbols and 15 source files (`prompt_for`), so large modules get a truncated view.
-  - Fallback handling for a failed ACP summarizer is the caller's responsibility — this crate only errors "when there's nothing to say" per the module docs.
+  - `prompt_for()` truncates to 30 symbols and 15 source files in the prompt.
+  - Module docs state construction only fails when there's nothing to say; fallback handling is the caller's responsibility.
+  - `AcpClient` is private (only `AcpSummarizer` is public despite the spawn/send/request symbols); its `stderr` is discarded, which can hide agent startup errors.
 verify:
 - crates/kuda-acp/Cargo.toml
-- crates/kuda-acp/src/lib.rs
-- crates/kuda-acp/src/lib.rs
-- crates/kuda-acp/src/lib.rs
-- crates/kuda-acp/src/lib.rs
-- crates/kuda-acp/src/lib.rs
-- crates/kuda-acp/src/lib.rs
-- crates/kuda-acp/src/lib.rs
-- crates/kuda-acp/src/lib.rs
-- crates/kuda-acp/src/lib.rs
 - crates/kuda-acp/src/lib.rs
 provenance:
   files:
   - crates/kuda-acp/Cargo.toml
   - crates/kuda-acp/src/lib.rs
-  - crates/kuda-acp/src/lib.rs
-  - crates/kuda-acp/src/lib.rs
-  - crates/kuda-acp/src/lib.rs
-  - crates/kuda-acp/src/lib.rs
-  - crates/kuda-acp/src/lib.rs
-  - crates/kuda-acp/src/lib.rs
-  - crates/kuda-acp/src/lib.rs
-  - crates/kuda-acp/src/lib.rs
-  - crates/kuda-acp/src/lib.rs
   hashes:
   - 235538739af3a723c914cd6ede000fee3811ee2d
   - c72ac7576cadd3536300e47fe2934c968f9713bb
-  - c72ac7576cadd3536300e47fe2934c968f9713bb
-  - c72ac7576cadd3536300e47fe2934c968f9713bb
-  - c72ac7576cadd3536300e47fe2934c968f9713bb
-  - c72ac7576cadd3536300e47fe2934c968f9713bb
-  - c72ac7576cadd3536300e47fe2934c968f9713bb
-  - c72ac7576cadd3536300e47fe2934c968f9713bb
-  - c72ac7576cadd3536300e47fe2934c968f9713bb
-  - c72ac7576cadd3536300e47fe2934c968f9713bb
-  - c72ac7576cadd3536300e47fe2934c968f9713bb
-  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
-  generated_at: '1792313269'
+  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
+  generated_at: '1792314296'
   generator: kuda-template/0.1.0

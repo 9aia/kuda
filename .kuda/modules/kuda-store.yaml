@@ -1,6 +1,6 @@
 name: kuda-store
 path: crates/kuda-store/Cargo.toml
-purpose: '`kuda-store` is the store port for kuda — the `IndexStore` trait for L2 index persistence (symbols/edges/metadata) behind a rebuildable, never-source-of-truth store, with the SQLite implementation in `kuda-store-sqlite`.'
+purpose: '`kuda-store` defines the store port for kuda''s L2 index persistence — the `IndexStore` trait (`Send + Sync`) covering symbol/edge writes keyed by module, query reads (`find`, `search`, `dependents`, `modules`), provenance metadata (`set_meta`/`meta`), and per-file content hashes (`file_hashes`/`record_files`) for the incremental-extraction diff. The only implementation is `kuda-store-sqlite`; redb/remote/embedding backends would be new adapter crates.'
 api:
 - name: kuda-store
   kind: module
@@ -16,10 +16,13 @@ deps:
 - kuda-core
 - kuda_core
 notes: |
-  - `IndexStore: Send + Sync` with seven methods, all `Result<_, String>`: `replace_module(&mut self, module, syms, edges)`, `find(&self, name)`, `search(&self, pattern)`, `dependents(&self, name)`, `modules(&self)`, `set_meta(&mut self, key, value)`, `meta(&self, key) -> Result<Option<String>, String>`.
-  - Writes are keyed by module so incremental sync replaces one module's symbols and outgoing edges at a time.
-  - Read semantics: `find` = exact-name lookup, `search` = substring (fuzzy tier under `find`), `dependents` = reverse edges pointing at `name` (impact analysis), `modules` = currently indexed module names; `set_meta`/`meta` hold provenance bookkeeping like `"commit_sha"`.
-  - Only dependency is `kuda-core` (`.workspace = true`); the store is rebuildable — never the source of truth.
+  - The store is rebuildable — never the source of truth.
+  - `replace_module` replaces a module's symbols and its outgoing edges atomically per module, enabling incremental sync to update one module at a time.
+  - `record_files` replaces a module's file-hash rows and is called with the module's *full* current file set after `replace_module`; `file_hashes` returns path → (hash, module).
+  - All methods return `Result<_, String>`; `meta` returns `Option<String>` for missing keys.
+
+  - `IndexStore` requires `&mut self` for writes (`replace_module`, `set_meta`, `record_files`) but `&self` for reads — the query layer takes `&dyn IndexStore`.
+  - Depends only on `kuda-core` (for `Symbol`/`DepEdge`); storage choice (path, engine) is the adapter's concern, not the port's.
 verify:
 - crates/kuda-store/Cargo.toml
 - crates/kuda-store/src/lib.rs
@@ -29,7 +32,7 @@ provenance:
   - crates/kuda-store/src/lib.rs
   hashes:
   - fcd81b2ab4c0c8bd258d2a0d32162f1ff7ae9bd9
-  - ca1b5281b4733624c444089af649e5c09ce5b470
-  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
-  generated_at: '1792295084'
+  - ef1292fa02fee7a59914fde24485a4beeb33b25f
+  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
+  generated_at: '1792314296'
   generator: kuda-template/0.1.0

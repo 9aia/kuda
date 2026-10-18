@@ -1,6 +1,6 @@
 path: crates/kuda-cli/src/main.rs
 module: kuda-cli
-purpose: 'The `kuda` CLI binary and composition root — parses `kuda.toml`, wires adapters (extractors, VCS, summarizers, store) behind `kuda_core` ports, and runs the subcommands (`init`, `sync`, `status`, `map`, `card`, `find`, `dependents`, `refs`, `mcp`, `acp`, `doctor`, plus a hidden `gen-cli-docs`). Described in its own docs as "a hippocampus for your codebase — repo memory: index, query, verify."'
+purpose: '`kuda-cli` is the composition root of the kuda tool ("a hippocampus for your codebase" — repo memory: index, query, verify): it parses `kuda.toml`, wires adapters behind ports (extractors, summarizer, store, VCS), and runs the `kuda` subcommands via clap (`init`, `sync`, `status`, `map`, `card`, `find`, `dependents`, `refs`, `doctor`, `mcp`, `acp`, and a hidden `gen-cli-docs`).'
 symbols:
 - EXAMPLE_TOML
 - LANG_TOMLS
@@ -11,6 +11,7 @@ symbols:
 - load_config
 - langs
 - hash_files
+- blob_hash
 - unix_now
 - init
 - workspace_roots
@@ -31,12 +32,11 @@ symbols:
 - card
 - cat_file
 - find
-- repo_tag
 provenance:
   files:
   - crates/kuda-cli/src/main.rs
   hashes:
-  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
-  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
-  generated_at: '1792313269'
+  - 6db3a4ec9d598e000cccc5d18fc771e6a8df1691
+  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
+  generated_at: '1792314296'
   generator: kuda-acp/0.1.0

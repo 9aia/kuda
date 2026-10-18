@@ -11,7 +11,7 @@ use kuda_store::IndexStore;
 use kuda_summarize::Summarizer;
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
-use std::process::Command;
+
 
 const EXAMPLE_TOML: &str = include_str!("../../../examples/kuda.toml.example");
 const LANG_TOMLS: &[&str] = &[
@@ -131,22 +131,24 @@ fn langs() -> Vec<LangDef> {
         .collect()
 }
 
-/// git-native content hash — provenance key.
+/// git blob hash — provenance key. In-process sha1
+/// ("blob <len>\0" + bytes): identical values to
+/// `git hash-object`, no subprocess per file.
 fn hash_files(root: &Path, files: &[PathBuf]) -> Vec<String> {
-    files
+    files.iter().map(|f| blob_hash(&root.join(f))).collect()
+}
+
+fn blob_hash(path: &Path) -> String {
+    use sha1::Digest;
+    let Ok(bytes) = std::fs::read(path) else {
+        return String::new();
+    };
+    let mut h = sha1::Sha1::new();
+    h.update(format!("blob {}\0", bytes.len()).as_bytes());
+    h.update(&bytes);
+    h.finalize()
         .iter()
-        .map(|f| {
-            Command::new("git")
-                .arg("-C")
-                .arg(root)
-                .args(["hash-object"])
-                .arg(f)
-                .output()
-                .ok()
-                .filter(|o| o.status.success())
-                .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_owned())
-                .unwrap_or_default()
-        })
+        .map(|b| format!("{b:02x}"))
         .collect()
 }
 
@@ -220,6 +222,166 @@ fn sync(cli: &Cli, _full: bool) -> i32 {
 }
 
 fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
+    let langs = langs();
+    let manifest_list: Vec<String> = langs
+        .iter()
+        .flat_map(|l| l.manifests.iter().cloned())
+        .collect();
+    let manifest_names: std::collections::HashSet<String> =
+        manifest_list.iter().cloned().collect();
+    let src_exts: std::collections::HashSet<String> = langs
+        .iter()
+        .flat_map(|l| {
+            l.extensions
+                .iter()
+                .map(|e| e.trim_start_matches('.').to_owned())
+        })
+        .collect();
+
+    // --- manifest pass first (cheap): package names decide module
+    // identity — walk groups by manifest dir -> pkg name, matching
+    // the Module symbols the manifest extractor emits.
+    let manifest_ext = kuda_manifest::ManifestExtractor {
+        excludes: cfg.extract.exclude.clone(),
+    }
+    .extract(dir, &langs)
+    .unwrap_or_default();
+    // manifest parent dir (repo-relative) -> package name
+    let mut pkg_by_dir: std::collections::HashMap<PathBuf, String> =
+        std::collections::HashMap::new();
+    for s in &manifest_ext.symbols {
+        if let Some(d) = s.file.parent() {
+            pkg_by_dir.insert(d.to_path_buf(), s.module.clone());
+        }
+    }
+
+    // --- walk once: group manifests + source files by module ---
+    // Cheap (no parse): drives both the incremental diff and the
+    // per-module file lists.
+    let mut mod_files: BTreeMap<String, Vec<PathBuf>> = BTreeMap::new();
+    {
+        let mut stack = vec![dir.to_path_buf()];
+        while let Some(d) = stack.pop() {
+            let Ok(rd) = std::fs::read_dir(&d) else {
+                continue;
+            };
+            for e in rd.flatten() {
+                let p = e.path();
+                if p.is_dir() {
+                    if !e
+                        .file_name()
+                        .to_str()
+                        .map(|n| kuda_core::dir_excluded(n, &cfg.extract.exclude))
+                        .unwrap_or(true)
+                        && !p.join(".git").is_file()
+                    {
+                        stack.push(p);
+                    }
+                    continue;
+                }
+                let name = e.file_name().to_string_lossy().into_owned();
+                let is_manifest = manifest_names.contains(name.as_str());
+                let is_src = p
+                    .extension()
+                    .and_then(|x| x.to_str())
+                    .map(|x| src_exts.contains(x))
+                    .unwrap_or(false);
+                if !is_manifest && !is_src {
+                    continue;
+                }
+                let rel = p.strip_prefix(dir).unwrap_or(&p).to_path_buf();
+                let module = kuda_treesitter::manifest_dir_of(dir, &p, &manifest_list)
+                    .map(|d| {
+                        let rel_dir = d.strip_prefix(dir).unwrap_or(&d).to_path_buf();
+                        pkg_by_dir.get(&rel_dir).cloned().unwrap_or_else(|| {
+                            d.file_name()
+                                .map(|f| f.to_string_lossy().into_owned())
+                                .unwrap_or_else(|| "_root".into())
+                        })
+                    })
+                    .unwrap_or_else(|| "_root".into());
+                mod_files.entry(module).or_default().push(rel);
+            }
+        }
+        for v in mod_files.values_mut() {
+            v.sort();
+        }
+    }
+    // in-process blob hashes for every walked file
+    let filehash: std::collections::HashMap<PathBuf, String> = mod_files
+        .values()
+        .flatten()
+        .map(|f| (f.clone(), blob_hash(&dir.join(f))))
+        .collect();
+
+    let cards_dir = dir.join(&cfg.cards.dir);
+    if let Err(e) = std::fs::create_dir_all(cards_dir.join("modules")) {
+        eprintln!("mkdir {}: {e}", cards_dir.display());
+        return 1;
+    }
+    let mut store = match kuda_store_sqlite::SqliteStore::open(&dir.join(&cfg.store.path)) {
+        Ok(s) => s,
+        Err(e) => {
+            eprintln!("store {}: {e}", cfg.store.path.display());
+            return 1;
+        }
+    };
+    // upgrade path: no file-hash rows yet -> seed them from the
+    // committed cards' provenance so nothing re-parses (or
+    // re-prompts an agent) on the first post-upgrade sync.
+    let mut old_hashes = store.file_hashes().unwrap_or_default();
+    if old_hashes.is_empty() {
+        if let Ok(rd) = std::fs::read_dir(cards_dir.join("modules")) {
+            for e in rd.flatten() {
+                let Ok(text) = std::fs::read_to_string(e.path()) else {
+                    continue;
+                };
+                let Ok(card) = kuda_cards::parse_module_card(&text) else {
+                    continue;
+                };
+                let rows: Vec<(String, String)> = card
+                    .provenance
+                    .files
+                    .iter()
+                    .zip(&card.provenance.hashes)
+                    .map(|(f, h)| (f.display().to_string(), h.clone()))
+                    .collect();
+                let _ = store.record_files(&card.name, &rows);
+            }
+        }
+        old_hashes = store.file_hashes().unwrap_or_default();
+    }
+
+    // diff: which modules changed?
+    let mut changed: std::collections::HashSet<String> = std::collections::HashSet::new();
+    for (module, files) in &mod_files {
+        for f in files {
+            match old_hashes.get(&f.display().to_string()) {
+                Some((h, _)) if h == &filehash[f] => {}
+                _ => {
+                    changed.insert(module.clone());
+                    break;
+                }
+            }
+        }
+        // no card on disk -> force (store may outlive .kuda/modules)
+        let card_path = cards_dir
+            .join("modules")
+            .join(format!("{}.yaml", safe(module)));
+        if !card_path.exists() {
+            changed.insert(module.clone());
+        }
+    }
+    for (path, (_, module)) in &old_hashes {
+        if !filehash.contains_key(&PathBuf::from(path)) {
+            changed.insert(module.clone()); // deleted file
+        }
+    }
+    let parse_set: std::collections::HashSet<PathBuf> = changed
+        .iter()
+        .flat_map(|m| mod_files.get(m).cloned().unwrap_or_default())
+        .collect();
+
     let mut extractors: Vec<Box<dyn Extractor>> = Vec::new();
     for k in &cfg.extract.kinds {
         match k.as_str() {
@@ -228,6 +390,7 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
             })),
             "treesitter" => extractors.push(Box::new(kuda_treesitter::TreesitterExtractor {
                 excludes: cfg.extract.exclude.clone(),
+                pkg_names: pkg_by_dir.clone(),
             })),
             "lsp" => extractors.push(Box::new(kuda_lsp::LspExtractor {
                 server_cmd: cfg.extract.lsp_server.clone(),
@@ -237,7 +400,15 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
     }
     let mut ext = kuda_extract::Extraction::default();
     for x in &extractors {
-        match x.extract(&dir, &langs()) {
+        // manifest is cheap (few files) — full pass keeps module
+        // symbols + edges complete; treesitter honors the filter.
+        let filtered = x.kind() == "treesitter" && !parse_set.is_empty();
+        let res = if filtered {
+            x.extract_filtered(&dir, &langs, &parse_set)
+        } else {
+            x.extract(&dir, &langs)
+        };
+        match res {
             Ok(e) => {
                 ext.symbols.extend(e.symbols);
                 ext.edges.extend(e.edges);
@@ -251,23 +422,11 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
         .unwrap_or_else(|| "unknown".into());
     let now = unix_now();
 
-    // group symbols + edges by module
+    // group symbols + edges by module (filtered pass: changed only)
     let mut by_mod: BTreeMap<String, Vec<kuda_core::Symbol>> = BTreeMap::new();
     for s in &ext.symbols {
         by_mod.entry(s.module.clone()).or_default().push(s.clone());
     }
-    let cards_dir = dir.join(&cfg.cards.dir);
-    if let Err(e) = std::fs::create_dir_all(cards_dir.join("modules")) {
-        eprintln!("mkdir {}: {e}", cards_dir.display());
-        return 1;
-    }
-    let mut store = match kuda_store_sqlite::SqliteStore::open(&dir.join(&cfg.store.path)) {
-        Ok(s) => s,
-        Err(e) => {
-            eprintln!("store {}: {e}", cfg.store.path.display());
-            return 1;
-        }
-    };
 
     // summarizer adapter: acp spawns an agent; anything else is template
     let acp = cfg
@@ -277,21 +436,38 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
         .map(|cmd| kuda_acp::AcpSummarizer::new(cmd, dir.to_path_buf()));
     let use_acp = cfg.summarize.kind == "acp" && acp.is_some();
     let summ = kuda_template::TemplateSummarizer;
-    let manifest_names: std::collections::HashSet<String> = langs()
-        .iter()
-        .flat_map(|l| l.manifests.iter().cloned())
-        .collect();
     let mut module_names = Vec::new();
-    for (module, syms) in &by_mod {
-        // verify/provenance files for this module: its manifest
-        let mfiles: Vec<PathBuf> = syms.iter().map(|s| s.file.clone()).collect();
+    // modules that vanished from the walk entirely -> drop card +
+    // store rows
+    let present: std::collections::HashSet<&String> = mod_files.keys().collect();
+    if let Ok(old_mods) = store.modules() {
+        for m in old_mods {
+            if !present.contains(&m) {
+                let _ = store.replace_module(&m, &[], &[]);
+                let _ = store.record_files(&m, &[]);
+                let stale = cards_dir.join("modules").join(format!("{}.yaml", safe(&m)));
+                let _ = std::fs::remove_file(stale);
+            }
+        }
+    }
+    for (module, mfiles) in &mod_files {
+        if !changed.contains(module) {
+            module_names.push(module.clone());
+            continue; // store + card already agree with the bytes
+        }
         let prov = Provenance {
-            hashes: hash_files(dir, &mfiles),
+            hashes: mfiles
+                .iter()
+                .map(|f| filehash.get(f).cloned().unwrap_or_default())
+                .collect(),
             files: mfiles.clone(),
             commit_sha: sha.clone(),
             generated_at: now.clone(),
             generator: "kuda-template/0.1.0".into(),
         };
+        let empty: Vec<kuda_core::Symbol> = Vec::new();
+        let syms: &[kuda_core::Symbol] =
+            by_mod.get(module).map(|v| v.as_slice()).unwrap_or(&empty);
         let mod_edges: Vec<_> = ext
             .edges
             .iter()
@@ -317,23 +493,19 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
                 );
             }
         }
-        // incremental: identical input hashes -> reuse the committed
-        // card, skip the summarizer entirely (saves agent calls)
-        let out = cards_dir.join("modules").join(format!("{}.yaml", safe(module)));
-        if out.exists() {
-            if let Ok(old) = std::fs::read_to_string(&out)
-                .map_err(|e| e.to_string())
-                .and_then(|t| kuda_cards::parse_module_card(&t))
-            {
-                // identical hashes -> reuse, but never cache a
-                // name-echo purpose (agent produced nothing —
-                // re-prompt next time instead of pinning it)
-                if old.provenance.hashes == prov.hashes && old.purpose != old.name {
-                    module_names.push(module.clone());
-                    continue;
-                }
-            }
-        }
+        // module `path` for the card: its manifest if present,
+        // else first input file
+        let path = mfiles
+            .iter()
+            .find(|f| {
+                f.file_name()
+                    .and_then(|n| n.to_str())
+                    .map(|n| manifest_names.contains(n))
+                    .unwrap_or(false)
+            })
+            .cloned()
+            .or_else(|| mfiles.first().cloned())
+            .unwrap_or_else(|| PathBuf::from(module));
         // manifest-only pseudo-modules (root Cargo.toml, docs/
         // package.json) have no source to ground on — the agent
         // would return empty prose. Skip the prompt entirely.
@@ -349,9 +521,9 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
                 .unwrap()
                 .summarize(
                     module,
-                    &syms[0].file,
+                    &path,
                     &kuda_extract::Extraction {
-                        symbols: syms.clone(),
+                        symbols: syms.to_vec(),
                         edges: mod_edges.clone(),
                         files: mfiles.clone(),
                     },
@@ -361,9 +533,9 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
                     eprintln!("acp {module}: {e} — template fallback");
                     summ.summarize(
                         module,
-                        &syms[0].file,
+                        &path,
                         &kuda_extract::Extraction {
-                            symbols: syms.clone(),
+                            symbols: syms.to_vec(),
                             edges: mod_edges.clone(),
                             files: mfiles.clone(),
                         },
@@ -373,9 +545,9 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
         } else {
             summ.summarize(
                 module,
-                &syms[0].file,
+                &path,
                 &kuda_extract::Extraction {
-                    symbols: syms.clone(),
+                    symbols: syms.to_vec(),
                     edges: mod_edges.clone(),
                     files: mfiles.clone(),
                 },
@@ -391,7 +563,7 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
         };
         // purpose: manifest description -> crate docs -> README
         if card.purpose == card.name {
-            if let Some(d) = module_purpose(dir, &dir.join(&syms[0].file)) {
+            if let Some(d) = module_purpose(dir, &dir.join(&path)) {
                 card.purpose = d;
             }
         }
@@ -406,6 +578,14 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
         }
         if let Err(e) = store.replace_module(module, syms, &mod_edges) {
             eprintln!("store {module}: {e}");
+        }
+        let rows: Vec<(String, String)> = mfiles
+            .iter()
+            .zip(&prov.hashes)
+            .map(|(f, h)| (f.display().to_string(), h.clone()))
+            .collect();
+        if let Err(e) = store.record_files(module, &rows) {
+            eprintln!("record_files {module}: {e}");
         }
         module_names.push(card.name);
     }

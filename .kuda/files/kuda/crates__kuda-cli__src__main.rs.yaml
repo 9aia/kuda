@@ -1,0 +1,42 @@
+path: crates/kuda-cli/src/main.rs
+module: kuda
+purpose: 'Composition root of the kuda CLI: parses `kuda.toml` config, wires adapters (extractors, SQLite store, summarizer) behind ports, and dispatches clap subcommands (init, sync, status, map, card, find, dependents, refs, doctor, mcp, acp). It runs the incremental indexing pipeline (git-blob-hash freshness diff → extract → summarize → cards/store) and serves the index over MCP stdio and ACP JSON-RPC protocols.'
+symbols:
+- EXAMPLE_TOML
+- LANG_TOMLS
+- Cli
+- Cmd
+- main
+- root
+- load_config
+- langs
+- hash_files
+- blob_hash
+- unix_now
+- init
+- workspace_roots
+- sync
+- sync_one
+- sync_file_cards
+- CHUNK
+- BUDGET
+- SKIP_BYTES
+- module_purpose
+- crate_doc_purpose
+- readme_purpose
+- manifest_purpose
+- safe
+- detect_commands
+- status
+- map
+- card
+- cat_file
+- find
+provenance:
+  files:
+  - crates/kuda-cli/src/main.rs
+  hashes:
+  - 1f7ff2bf5a99bf6b50775785d83617e1ada08be1
+  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
+  generated_at: '1792314596'
+  generator: kuda-acp/0.1.0

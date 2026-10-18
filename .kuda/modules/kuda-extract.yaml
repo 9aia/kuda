@@ -1,6 +1,6 @@
 name: kuda-extract
 path: crates/kuda-extract/Cargo.toml
-purpose: '`kuda-extract` is the extract port for kuda — the `Extractor` trait and `Extraction` result type for mechanically pulling symbols, dependency edges, and read-file lists out of source trees, with all implementations living in adapter crates (`kuda-manifest`, `kuda-treesitter`, `kuda-lsp`).'
+purpose: '`kuda-extract` defines the extraction port of kuda — the `Extractor` trait and the `Extraction` result type (symbols, dep edges, and the files read, which feed `Provenance.files`) for pulling structure out of source trees. Implementations live in adapter crates: `kuda-manifest` (manifests → package graph, no parser), `kuda-treesitter` (grammar+query data), and `kuda-lsp` (server-backed).'
 api:
 - name: kuda-extract
   kind: module
@@ -17,27 +17,31 @@ api:
   file: crates/kuda-extract/src/lib.rs
   line: 20
   module: kuda-extract
+- name: extract_filtered
+  kind: function
+  file: crates/kuda-extract/src/lib.rs
+  line: 28
+  module: kuda-extract
 deps:
 - kuda-core
 - kuda_core
 notes: |
-  - `Extractor: Send + Sync` with `fn kind(&self) -> &'static str` (matched against `extract.kinds` in kuda.toml) and `fn extract(&self, root: &Path, langs: &[LangDef]) -> Result<Extraction, String>`.
-  - `Extraction { symbols, edges, files }` derives `Debug, Default`; `files` feeds `Provenance.files`.
-  - Extraction is strictly mechanical — report what the grammar/manifest says, never inferred structure; new extractor = new adapter crate, new language = data file.
-  - Only dependency is `kuda-core` (`.workspace = true`).
+  - Extraction is mechanical only — report what the grammar/manifest actually says, never inferred structure.
+  - `Extractor: Send + Sync`; `kind()` returns the string matched against `extract.kinds` in `kuda.toml`, and `extract`/`extract_filtered` return `Result<Extraction, String>`.
+  - `extract_filtered` has a default implementation that ignores the file filter and delegates to `extract` — adapters without per-file control are always cheap or server-backed.
+
+  - Extensibility rule: a new extractor = new adapter crate; a new language = data file (no code change).
+  - `Extraction` derives `Debug` and `Default`, so a default pass yields empty vectors.
 verify:
 - crates/kuda-extract/Cargo.toml
-- crates/kuda-extract/src/lib.rs
 - crates/kuda-extract/src/lib.rs
 provenance:
   files:
   - crates/kuda-extract/Cargo.toml
   - crates/kuda-extract/src/lib.rs
-  - crates/kuda-extract/src/lib.rs
   hashes:
   - 8474c16bc613412aaa22031cbce10ad3a1f9beea
-  - ae9ba06e36b09753f52ea9ca3b2f1c9639d96e7e
-  - ae9ba06e36b09753f52ea9ca3b2f1c9639d96e7e
-  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
-  generated_at: '1792295084'
+  - 911ab22276a47a1ee477ccc956cf1fe4ad4147b8
+  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
+  generated_at: '1792314296'
   generator: kuda-template/0.1.0

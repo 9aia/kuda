@@ -1,6 +1,6 @@
 name: dagger
 path: modules/dagger/dagger/pyproject.toml
-purpose: A Dagger module (`kuda`, installable via `dagger install github.com/9aia/kuda/modules/dagger`) exposing shared CI primitives for Rust workspaces — container setup, dev-link/self-patch of mounted repos, and `@function` pipelines for doctor, sharded nextest + doctests, coverage, and arbitrary scripts, all running with the consumer workspace mounted at `/work/<repo>`.
+purpose: A Dagger module (`kuda`) providing shared CI primitives for Rust workspaces — tests, doctests, coverage gates, and arbitrary script runs — installable into consumer repos via `dagger install github.com/9aia/kuda/modules/dagger` so the same pipeline runs on a laptop, VPS, or any orchestrator.
 api:
 - name: dagger
   kind: module
@@ -84,69 +84,29 @@ api:
   module: dagger
 deps: []
 notes: |
-  - Every `@function` pipeline (`doctor`, `test_shard`, `doctests`, `test`, `coverage_report`, `coverage_gate`, `run`) routes through `_workspace(...)` → `_exec(...)` with `authed = token is not None` and `sccache_env = sccache_conf is not None`.
-  - `_workspace` mounts the source at `/work/<repo>`, optional siblings at `/work/<name>`, sets `RUSTC_WRAPPER=sccache`, `SCCACHE_DIR=/sccache`, all `CARGO_ENV` vars, and cache volumes `kuda-cargo-registry`, `kuda-cargo-git`, `kuda-<repo>-target`, `kuda-sccache`; then `_link_repo`s every mounted repo (main + siblings).
-  - `_link_repo` runs the main repo's `scripts/dev-link.sh` if present (else sed-deletes the `# dev-link: begin/end` block), then applies `_SELF_PATCH_PY` with `REPO_DIR=/work/<name>`, `REPO_NAME=<name>`, `__PATCH_HOST__=patch_host`.
-  - The self-patch script derives the patch URL from `workspace.package.repository` (falling back to `package.repository`) when `patch_host` is empty, and exits non-zero ("no patch_host and no repository in Cargo.toml") if neither exists; rows are written as `path = "../<rel>"` relative to the parent of the repo dir.
-  - `test` warms `cargo fetch --locked` serially before fanning out `shards` nextest partitions plus doctests via `asyncio.gather(..., return_exceptions=True)`, raising `RuntimeError` aggregating all failures.
-  - The git token auth rewrite (`_AUTH_GIT_CONFIG`) runs inside each exec, never in an image layer.
-  - `Source` defaults to `.` but `Ignore`s `target`, `.git`, `coverage`, `node_modules`, `dagger/.venv`, `dagger/sdk` (target/ alone can be ~8.5 GB); `pyproject.toml` requires Python >=3.14 and pulls `dagger-io` as an editable path dep from `sdk`.
-  - `_SELF_PATCH_PY` uses naive `str.replace` on `REPO_DIR`/`REPO_NAME`/`__PATCH_HOST__` — `__PATCH_HOST__` substitution check is `not startswith("__")`, so an unsubstituted placeholder is treated as empty.
-  - `test_shard`'s `-j` defaults to 2 deliberately (suites are memory-bound; scale via `shards`, not `jobs`).
-  - `coverage_report`/`coverage_gate` require the consumer repo to ship `scripts/coverage.sh`; `coverage_report` exports via `dagger call ... coverage-report export --path=coverage`.
-  - The self-patch block rewrites only `crates/*/Cargo.toml` and `modules/*/Cargo.toml` for rows and normalizes the file tail to exactly two newlines for byte-identical reruns.
+  - Consumer workspace mounts at `/work/<repo>`; `scripts/dev-link.sh` rewrites the `[patch]` block to sibling checkouts actually mounted under `/work`, and remaining git deps resolve over https floating on `main`.
+  - Private git deps require a GitHub token passed as `test(token=...)` (mounted secret); the insteadOf credential rewrite runs inside each exec, never in an image layer, so the token never persists in an image layer or cache.
+  - `Source` defaults to `.` and always ignores `target`, `.git`, `coverage`, `node_modules`, `dagger/.venv`, and `dagger/sdk` (target/ alone can be ~8.5 GB).
+  - `cargo fetch --locked` warms the shared cargo git db serially before test-shard fan-out to avoid cache-volume races on concurrent first-time fetches.
+  - `test()` gathers all shards plus doctests concurrently and raises `RuntimeError` listing every failed stage if any fail.
+
+  - `pyproject.toml` requires Python >=3.14 and depends on `dagger-io` as an editable path dependency to `sdk` (`[tool.uv.sources]`), not PyPI.
+  - Coverage functions (`coverage_report`, `coverage_gate`) require the consumer repo to ship `scripts/coverage.sh`; `run()` is the escape hatch for repo-specific gates without module code.
+  - The self-patch (`_SELF_PATCH_PY`) uses the repo's `patch_host` if given, else derives the patch URL from `Cargo.toml`'s `repository` field, and fails if neither is available.
+  - `coverage_report` returns the `coverage/` directory; export with `dagger call ... coverage-report export --path=coverage`.
 verify:
 - modules/dagger/dagger/pyproject.toml
-- modules/dagger/dagger/src/kuda/main.py
-- modules/dagger/dagger/src/kuda/main.py
-- modules/dagger/dagger/src/kuda/main.py
-- modules/dagger/dagger/src/kuda/main.py
-- modules/dagger/dagger/src/kuda/main.py
-- modules/dagger/dagger/src/kuda/main.py
-- modules/dagger/dagger/src/kuda/main.py
-- modules/dagger/dagger/src/kuda/main.py
-- modules/dagger/dagger/src/kuda/main.py
-- modules/dagger/dagger/src/kuda/main.py
-- modules/dagger/dagger/src/kuda/main.py
-- modules/dagger/dagger/src/kuda/main.py
-- modules/dagger/dagger/src/kuda/main.py
-- modules/dagger/dagger/src/kuda/main.py
+- modules/dagger/dagger/src/kuda/__init__.py
 - modules/dagger/dagger/src/kuda/main.py
 provenance:
   files:
   - modules/dagger/dagger/pyproject.toml
-  - modules/dagger/dagger/src/kuda/main.py
-  - modules/dagger/dagger/src/kuda/main.py
-  - modules/dagger/dagger/src/kuda/main.py
-  - modules/dagger/dagger/src/kuda/main.py
-  - modules/dagger/dagger/src/kuda/main.py
-  - modules/dagger/dagger/src/kuda/main.py
-  - modules/dagger/dagger/src/kuda/main.py
-  - modules/dagger/dagger/src/kuda/main.py
-  - modules/dagger/dagger/src/kuda/main.py
-  - modules/dagger/dagger/src/kuda/main.py
-  - modules/dagger/dagger/src/kuda/main.py
-  - modules/dagger/dagger/src/kuda/main.py
-  - modules/dagger/dagger/src/kuda/main.py
-  - modules/dagger/dagger/src/kuda/main.py
+  - modules/dagger/dagger/src/kuda/__init__.py
   - modules/dagger/dagger/src/kuda/main.py
   hashes:
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
+  - 5b331a1baf30b49f5bf03dd9693297d498117deb
   - d71646b878b3eae72aa42a5791588701197fdb2d
-  - d71646b878b3eae72aa42a5791588701197fdb2d
-  - d71646b878b3eae72aa42a5791588701197fdb2d
-  - d71646b878b3eae72aa42a5791588701197fdb2d
-  - d71646b878b3eae72aa42a5791588701197fdb2d
-  - d71646b878b3eae72aa42a5791588701197fdb2d
-  - d71646b878b3eae72aa42a5791588701197fdb2d
-  - d71646b878b3eae72aa42a5791588701197fdb2d
-  - d71646b878b3eae72aa42a5791588701197fdb2d
-  - d71646b878b3eae72aa42a5791588701197fdb2d
-  - d71646b878b3eae72aa42a5791588701197fdb2d
-  - d71646b878b3eae72aa42a5791588701197fdb2d
-  - d71646b878b3eae72aa42a5791588701197fdb2d
-  - d71646b878b3eae72aa42a5791588701197fdb2d
-  - d71646b878b3eae72aa42a5791588701197fdb2d
-  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
-  generated_at: '1792295084'
+  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
+  generated_at: '1792314296'
   generator: kuda-template/0.1.0

@@ -10,8 +10,12 @@ use std::path::{Path, PathBuf};
 use tree_sitter::{Language, Parser, Query, QueryCursor, StreamingIterator};
 
 /// `excludes`: extra dir names from `[extract] exclude`.
+/// `pkg_names`: manifest dir (repo-relative) -> package name —
+/// module identity matches what the manifest extractor emits.
 pub struct TreesitterExtractor {
     pub excludes: Vec<String>,
+    #[doc(hidden)]
+    pub pkg_names: std::collections::HashMap<PathBuf, String>,
 }
 
 /// Grammar id -> compiled language. Impls know concrete grammars;
@@ -53,23 +57,22 @@ fn kind_of(cap: &str) -> SymbolKind {
     }
 }
 
-/// Nearest ancestor dir (under root) holding a declared manifest —
-/// that dir's name is the module. Fallback: "_root".
-fn module_of(root: &Path, file: &Path, manifests: &[String]) -> String {
+/// Nearest ancestor dir (under root) holding a declared manifest.
+/// Public: the CLI maps the returned dir to the package name the
+/// manifest extractor found — module identity is pkg name, not
+/// dir name.
+pub fn manifest_dir_of(root: &Path, file: &Path, manifests: &[String]) -> Option<PathBuf> {
     let mut dir = file.parent();
     while let Some(d) = dir {
         if manifests.iter().any(|m| d.join(m).exists()) {
-            return d
-                .file_name()
-                .map(|f| f.to_string_lossy().into_owned())
-                .unwrap_or_else(|| "_root".into());
+            return Some(d.to_path_buf());
         }
         dir = d.parent();
         if !d.starts_with(root) {
             break;
         }
     }
-    "_root".into()
+    None
 }
 
 fn walk_files(root: &Path, exts: &[String], excludes: &[String]) -> Vec<PathBuf> {
@@ -110,6 +113,28 @@ impl Extractor for TreesitterExtractor {
     }
 
     fn extract(&self, root: &Path, langs: &[LangDef]) -> Result<Extraction, String> {
+        self.extract_inner(root, langs, None)
+    }
+
+    /// Incremental path — parse only the listed repo-relative
+    /// files; everything else stays as stored.
+    fn extract_filtered(
+        &self,
+        root: &Path,
+        langs: &[LangDef],
+        files: &std::collections::HashSet<PathBuf>,
+    ) -> Result<Extraction, String> {
+        self.extract_inner(root, langs, Some(files))
+    }
+}
+
+impl TreesitterExtractor {
+    fn extract_inner(
+        &self,
+        root: &Path,
+        langs: &[LangDef],
+        filter: Option<&std::collections::HashSet<PathBuf>>,
+    ) -> Result<Extraction, String> {
         let mut out = Extraction::default();
         for lang in langs {
             let Some(grammar) = lang.grammar.as_deref().and_then(language) else {
@@ -135,14 +160,28 @@ impl Extractor for TreesitterExtractor {
                 .map_err(|e| format!("lang {e}"))?;
 
             for file in walk_files(root, &lang.extensions, &self.excludes) {
+                let rel = file.strip_prefix(root).unwrap_or(&file).to_path_buf();
+                if let Some(f) = filter {
+                    if !f.contains(&rel) {
+                        continue;
+                    }
+                }
                 let Ok(text) = std::fs::read_to_string(&file) else {
                     continue;
                 };
                 let Some(tree) = parser.parse(&text, None) else {
                     continue;
                 };
-                let rel = file.strip_prefix(root).unwrap_or(&file).to_path_buf();
-                let module = module_of(root, &file, &lang.manifests);
+                let module = manifest_dir_of(root, &file, &lang.manifests)
+                    .map(|d| {
+                        let rel = d.strip_prefix(root).unwrap_or(&d).to_path_buf();
+                        self.pkg_names.get(&rel).cloned().unwrap_or_else(|| {
+                            d.file_name()
+                                .map(|f| f.to_string_lossy().into_owned())
+                                .unwrap_or_else(|| "_root".into())
+                        })
+                    })
+                    .unwrap_or_else(|| "_root".into());
                 let mut cursor = QueryCursor::new();
                 let mut sym_m = cursor.matches(&sym_q, tree.root_node(), text.as_bytes());
                 while let Some(m) = sym_m.next() {

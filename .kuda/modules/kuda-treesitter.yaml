@@ -1,6 +1,6 @@
 name: kuda-treesitter
 path: crates/kuda-treesitter/Cargo.toml
-purpose: '`kuda-treesitter` is the tree-sitter extraction adapter — it compiles a grammar per `LangDef.grammar` id, runs the language''s `symbol_query` (or `DEFAULT_RUST_QUERY`) and optional `dep_query` over source files, and emits `Symbol`s plus `EdgeKind::Imports` edges. New languages require a data file (`data/langs/*`) plus a `language()` arm; the symbol-kind vocabulary stays fixed.'
+purpose: Tree-sitter extraction adapter implementing the `Extractor` port — compiles per-language grammars and queries (grammar/queries come from `data/langs/*`; this crate only runs queries over grammars it has compiled in) to emit symbols, import edges, and walked file lists. Module identity is the manifest-dir package name (via `manifest_dir_of` + `pkg_names`), not the directory name.
 api:
 - name: kuda-treesitter
   kind: module
@@ -10,42 +10,52 @@ api:
 - name: TreesitterExtractor
   kind: type
   file: crates/kuda-treesitter/src/lib.rs
-  line: 13
+  line: 15
   module: kuda-treesitter
 - name: language
   kind: function
   file: crates/kuda-treesitter/src/lib.rs
-  line: 19
+  line: 23
   module: kuda-treesitter
 - name: DEFAULT_RUST_QUERY
   kind: const
   file: crates/kuda-treesitter/src/lib.rs
-  line: 30
+  line: 34
   module: kuda-treesitter
 - name: kind_of
   kind: function
   file: crates/kuda-treesitter/src/lib.rs
-  line: 44
+  line: 48
   module: kuda-treesitter
-- name: module_of
+- name: manifest_dir_of
   kind: function
   file: crates/kuda-treesitter/src/lib.rs
-  line: 58
+  line: 64
   module: kuda-treesitter
 - name: walk_files
   kind: function
   file: crates/kuda-treesitter/src/lib.rs
-  line: 75
+  line: 78
   module: kuda-treesitter
 - name: kind
   kind: function
   file: crates/kuda-treesitter/src/lib.rs
-  line: 108
+  line: 111
   module: kuda-treesitter
 - name: extract
   kind: function
   file: crates/kuda-treesitter/src/lib.rs
-  line: 112
+  line: 115
+  module: kuda-treesitter
+- name: extract_filtered
+  kind: function
+  file: crates/kuda-treesitter/src/lib.rs
+  line: 121
+  module: kuda-treesitter
+- name: extract_inner
+  kind: function
+  file: crates/kuda-treesitter/src/lib.rs
+  line: 132
   module: kuda-treesitter
 deps:
 - kuda-core
@@ -58,47 +68,24 @@ deps:
 - kuda_extract
 - tree_sitter
 notes: |
-  - `kind()` returns `"treesitter"`; languages without a compiled grammar (`language()` returns `None`) are skipped silently — only `rust`, `typescript`/`tsx`, and `python` have arms.
-  - `walk_files` descends only into dirs where `kuda_core::dir_excluded(name, excludes)` is false **and** the dir lacks a `.git` *file* (worktree marker); files match when their extension (compared with the leading `.` trimmed) appears in `lang.extensions`. Non-UTF-8 dir names are excluded (`to_str().map(...).unwrap_or(true)`).
-  - Symbol `kind` derives from the capture name suffix after the last `.` (`@name.function` → `Function`, etc.; unknown → `Other`), and `line` is `start_position().row + 1` (1-based).
-  - `module_of` returns the nearest ancestor dir (under `root`) containing a declared manifest basename, named by that dir's filename; fallback is `"_root"`.
-  - Import edges skip the pseudo-deps `self`, `crate`, `std`, `core`, `alloc`, `super` and captures with empty capture names; a missing `dep_query` means no import edges for that language.
+  - New language support = data file + one `language()` match arm; the symbol vocabulary stays fixed (`kind_of` maps `@name.<kind>` captures to `SymbolKind`).
+  - `extract_filtered` parses only the listed repo-relative files (incremental path); `extract` parses everything `walk_files` finds for each language's extensions.
+  - Dep edges skip keyword/self refs (`self`, `crate`, `std`, `core`, `alloc`, `super`); absent `dep_query` data means no import edges for that language.
+  - `walk_files` skips excluded dirs (via `kuda_core::dir_excluded` + `excludes`) and any directory containing a `.git` entry.
 
-  - `DEFAULT_RUST_QUERY` is used as the symbol query fallback for *any* language that ships no `symbol_query` — a non-Rust language without a query will attempt Rust-node patterns against its own grammar, likely yielding zero or erroneous matches rather than an error.
-  - `extract` propagates only query-compile and `set_language` errors (`Err(String)`); unreadable/unparsable files are skipped via `continue`, and each walked file's root-relative path is pushed to `out.files` even if no symbols matched.
-  - `language()` maps both `"typescript"` and `"tsx"` ids to the TypeScript grammar (not the TSX grammar), so `.tsx`-specific syntax may parse incorrectly despite `tsx` being an accepted id.
-  - The `from` of every emitted `Imports` edge is the *file's module* (via `module_of`), and the `to` is the raw captured text (e.g. `kuda_core::DepEdge`), not a resolved package — dedup/normalization happens downstream.
+  - Only rust, typescript/tsx, and python have compiled grammars in `language()` — any other `grammar` id silently yields no extraction (`continue`), not an error.
+  - `DEFAULT_RUST_QUERY` doubles as the fallback symbol query for *any* language whose `LangDef` ships none, which will fail to compile against non-rust grammars.
+  - `pkg_names` is `#[doc(hidden)]` and populated by the CLI (kuda-cli's `sync_one`), not by this crate.
 verify:
 - crates/kuda-treesitter/Cargo.toml
-- crates/kuda-treesitter/src/lib.rs
-- crates/kuda-treesitter/src/lib.rs
-- crates/kuda-treesitter/src/lib.rs
-- crates/kuda-treesitter/src/lib.rs
-- crates/kuda-treesitter/src/lib.rs
-- crates/kuda-treesitter/src/lib.rs
-- crates/kuda-treesitter/src/lib.rs
 - crates/kuda-treesitter/src/lib.rs
 provenance:
   files:
   - crates/kuda-treesitter/Cargo.toml
   - crates/kuda-treesitter/src/lib.rs
-  - crates/kuda-treesitter/src/lib.rs
-  - crates/kuda-treesitter/src/lib.rs
-  - crates/kuda-treesitter/src/lib.rs
-  - crates/kuda-treesitter/src/lib.rs
-  - crates/kuda-treesitter/src/lib.rs
-  - crates/kuda-treesitter/src/lib.rs
-  - crates/kuda-treesitter/src/lib.rs
   hashes:
   - 8efb60e30909069b02678345442999b7e54671c6
-  - a9ee8b41b6850e4a5a987b63f3ab8f203a7eef45
-  - a9ee8b41b6850e4a5a987b63f3ab8f203a7eef45
-  - a9ee8b41b6850e4a5a987b63f3ab8f203a7eef45
-  - a9ee8b41b6850e4a5a987b63f3ab8f203a7eef45
-  - a9ee8b41b6850e4a5a987b63f3ab8f203a7eef45
-  - a9ee8b41b6850e4a5a987b63f3ab8f203a7eef45
-  - a9ee8b41b6850e4a5a987b63f3ab8f203a7eef45
-  - a9ee8b41b6850e4a5a987b63f3ab8f203a7eef45
-  commit_sha: c576c1a811de0a7d1760061bcb1bd990cc9bfebd
-  generated_at: '1792302877'
+  - aa9f91b8b41e6b9846914e3a399bc40a60532260
+  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
+  generated_at: '1792314596'
   generator: kuda-template/0.1.0

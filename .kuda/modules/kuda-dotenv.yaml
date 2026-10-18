@@ -1,6 +1,6 @@
 name: kuda-dotenv
 path: crates/kuda-dotenv/Cargo.toml
-purpose: '`kuda-dotenv` is the `Secrets` adapter backed by a plain `KEY=VAL` env file — the last store in the secrets chain for headless boxes without a desktop keyring — writing the file with 0600 permissions on Unix.'
+purpose: '`kuda-dotenv` is a secret-store adapter implementing `kuda_secret::Secrets` as `DotenvSecrets`, backed by a plain `KEY=VAL` env file written with 0600 permissions — the last store in the chain, for headless boxes without a desktop keyring. Its only dependency is `kuda-secret`.'
 api:
 - name: kuda-dotenv
   kind: module
@@ -43,38 +43,25 @@ deps:
 - kuda_secret
 - kuda_secret
 notes: |
-  - `DotenvSecrets { path }` implements `kuda_secret::Secrets` with `get`/`set`.
-  - `get(name)` reads the file, splits each line on the first `=`, trims key/value, and returns the value only if the key matches and the value is non-empty (missing file or no match → `None`).
-  - `set(name, value)` updates the matching line in place (one `name=` occurrence) or appends, creates the parent directory, writes all lines joined with `\n` + trailing `\n`, then (Unix) `chmod 0o600`.
-  - Only dependency is `kuda-secret` (`.workspace = true`).
-  - Comments/blank lines in the file are preserved as-is (they just don't match any key); `set` on an unreadable-but-existing file falls back to `unwrap_or_default()` — i.e. read failures silently start from an empty list and can truncate the file.
-  - `perms_600` test asserts `mode & 0o777 == 0o600` only under `#[cfg(unix)]`; on non-Unix the permission step is compiled out.
-  - `set` uses `split_once('=')`, so a value containing `=` survives (only the first `=` splits), but keys are matched after `trim()`.
+  - `set` updates an existing key in place (no duplicate entries — asserted by `set_get_update` checking `text.matches("A=").count() == 1`) or appends a new `KEY=VAL` line, creates the parent dir if needed, and on Unix chmods the file to `0o600` after every write (asserted by `perms_600`).
+  - `get` reads the file fresh each call, splits on the first `=`, trims key/value, and skips empty values — returning `None` for a missing file or missing key.
+
+  - Values are written unquoted and looked up by exact trimmed key match — values containing `=` or newlines aren't round-trip-safe, and matching is line-based (no quoting/escaping support).
+  - The 0600 permission is only enforced on `set` under `#[cfg(unix)]`; a pre-existing file's permissions aren't checked on `get`.
+  - Tests use per-PID temp paths (`kuda-env-<pid>-<tag>`) and clean up afterwards.
 verify:
 - crates/kuda-dotenv/Cargo.toml
-- crates/kuda-dotenv/tests/store.rs
-- crates/kuda-dotenv/tests/store.rs
-- crates/kuda-dotenv/tests/store.rs
 - crates/kuda-dotenv/src/lib.rs
-- crates/kuda-dotenv/src/lib.rs
-- crates/kuda-dotenv/src/lib.rs
+- crates/kuda-dotenv/tests/store.rs
 provenance:
   files:
   - crates/kuda-dotenv/Cargo.toml
-  - crates/kuda-dotenv/tests/store.rs
-  - crates/kuda-dotenv/tests/store.rs
-  - crates/kuda-dotenv/tests/store.rs
   - crates/kuda-dotenv/src/lib.rs
-  - crates/kuda-dotenv/src/lib.rs
-  - crates/kuda-dotenv/src/lib.rs
+  - crates/kuda-dotenv/tests/store.rs
   hashes:
   - c00e5be2a18e90d8ecfd27f7e9f455e5343b7a86
-  - 4d3dbaa112d4637449c1defd1780cf73f5683533
-  - 4d3dbaa112d4637449c1defd1780cf73f5683533
-  - 4d3dbaa112d4637449c1defd1780cf73f5683533
   - cb40b55b263aafbb6428aabc0c2efdfc983be879
-  - cb40b55b263aafbb6428aabc0c2efdfc983be879
-  - cb40b55b263aafbb6428aabc0c2efdfc983be879
-  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
-  generated_at: '1792295084'
+  - 4d3dbaa112d4637449c1defd1780cf73f5683533
+  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
+  generated_at: '1792314296'
   generator: kuda-template/0.1.0

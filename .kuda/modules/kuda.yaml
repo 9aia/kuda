@@ -1,6 +1,6 @@
 name: kuda
 path: Cargo.toml
-purpose: '*A hippocampus for your codebase.*'
+purpose: The `kuda` CLI crate — composition root binary that parses `kuda.toml`, wires adapters behind ports, and runs subcommands (init, sync, status, map, card, find, dependents, refs, mcp, acp, doctor, gen-cli-docs), including an incremental hash → extract → summarize → store indexing pipeline and MCP/ACP stdio servers. Also contains e2e smoke tests (`help_and_stub`, `init_scaffolds`) and, oddly, a Python test for the dagger self-patch script.
 api:
 - name: kuda
   kind: module
@@ -11,6 +11,211 @@ api:
   kind: module
   file: crates/kuda-cli/Cargo.toml
   line: 1
+  module: kuda
+- name: kuda
+  kind: function
+  file: crates/kuda-cli/tests/e2e.rs
+  line: 6
+  module: kuda
+- name: help_and_stub
+  kind: function
+  file: crates/kuda-cli/tests/e2e.rs
+  line: 15
+  module: kuda
+- name: init_scaffolds
+  kind: function
+  file: crates/kuda-cli/tests/e2e.rs
+  line: 28
+  module: kuda
+- name: EXAMPLE_TOML
+  kind: const
+  file: crates/kuda-cli/src/main.rs
+  line: 16
+  module: kuda
+- name: LANG_TOMLS
+  kind: const
+  file: crates/kuda-cli/src/main.rs
+  line: 17
+  module: kuda
+- name: Cli
+  kind: type
+  file: crates/kuda-cli/src/main.rs
+  line: 30
+  module: kuda
+- name: Cmd
+  kind: type
+  file: crates/kuda-cli/src/main.rs
+  line: 45
+  module: kuda
+- name: main
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 83
+  module: kuda
+- name: root
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 105
+  module: kuda
+- name: load_config
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 116
+  module: kuda
+- name: langs
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 127
+  module: kuda
+- name: hash_files
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 137
+  module: kuda
+- name: blob_hash
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 141
+  module: kuda
+- name: unix_now
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 155
+  module: kuda
+- name: init
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 162
+  module: kuda
+- name: workspace_roots
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 185
+  module: kuda
+- name: sync
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 208
+  module: kuda
+- name: sync_one
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 224
+  module: kuda
+- name: sync_file_cards
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 638
+  module: kuda
+- name: CHUNK
+  kind: const
+  file: crates/kuda-cli/src/main.rs
+  line: 651
+  module: kuda
+- name: BUDGET
+  kind: const
+  file: crates/kuda-cli/src/main.rs
+  line: 652
+  module: kuda
+- name: SKIP_BYTES
+  kind: const
+  file: crates/kuda-cli/src/main.rs
+  line: 653
+  module: kuda
+- name: module_purpose
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 779
+  module: kuda
+- name: crate_doc_purpose
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 788
+  module: kuda
+- name: readme_purpose
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 805
+  module: kuda
+- name: manifest_purpose
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 814
+  module: kuda
+- name: safe
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 830
+  module: kuda
+- name: detect_commands
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 842
+  module: kuda
+- name: status
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 857
+  module: kuda
+- name: map
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 894
+  module: kuda
+- name: card
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 898
+  module: kuda
+- name: cat_file
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 902
+  module: kuda
+- name: find
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 915
+  module: kuda
+- name: repo_tag
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 956
+  module: kuda
+- name: dependents
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 962
+  module: kuda
+- name: refs
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 1000
+  module: kuda
+- name: refs_in
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 1042
+  module: kuda
+- name: mcp
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 1100
+  module: kuda
+- name: acp
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 1201
+  module: kuda
+- name: acp_answer
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 1257
+  module: kuda
+- name: doctor
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 1286
   module: kuda
 deps:
 - clap
@@ -33,22 +238,49 @@ deps:
 - kuda-vcs
 - serde_json
 - serde_yaml
+- sha1
 - text-splitter
 - toml
 - tree-sitter-python
 - tree-sitter-rust
 - tree-sitter-typescript
-notes: ''
+- clap
+- kuda_config
+- kuda_config_toml
+- kuda_core
+- kuda_vcs
+- kuda_extract
+- kuda_store
+- kuda_summarize
+- sha1
+- text_splitter
+- serde_json
+- serde_json
+notes: |
+  - `init` refuses to overwrite an existing `kuda.toml` (exits 1 on second run, asserted in `init_scaffolds`).
+  - `--help` must list all subcommands: init, sync, status, map, card, find, dependents, refs, mcp, doctor (asserted in `help_and_stub`).
+
+  - `modules/dagger/tests/test_self_patch.py` in the source list is unrelated to the Rust CLI — it tests an embedded bash-heredoc `_SELF_PATCH_PY` script in `dagger/src/kuda/main.py`, so the module symbol list mixes Rust and Python surfaces.
+  - `blob_hash` computes git-compatible blob hashes in-process (no subprocess per file), and `sync` reuses it for content-hash freshness; `--full` is accepted but ignored (`_full` param).
 verify:
 - Cargo.toml
 - crates/kuda-cli/Cargo.toml
+- crates/kuda-cli/src/main.rs
+- crates/kuda-cli/tests/e2e.rs
+- modules/dagger/tests/test_self_patch.py
 provenance:
   files:
   - Cargo.toml
   - crates/kuda-cli/Cargo.toml
+  - crates/kuda-cli/src/main.rs
+  - crates/kuda-cli/tests/e2e.rs
+  - modules/dagger/tests/test_self_patch.py
   hashes:
   - a9628d0c5439f13cf0803135f96457bfdadb7c89
-  - 64087f5bbf26f164260f297351cac7a70e563af4
-  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
-  generated_at: '1792313269'
+  - 9658a9cdb99632ff498cf1fd91acf2c769abe9c2
+  - 1f7ff2bf5a99bf6b50775785d83617e1ada08be1
+  - febd57a3490e9ff3c5fb4c2d599e68a62fbfc9ef
+  - 203086b883ed1477efd6f9befccd76e2614cc9ea
+  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
+  generated_at: '1792314596'
   generator: kuda-template/0.1.0

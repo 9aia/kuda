@@ -1,6 +1,6 @@
 name: kuda-cards
 path: crates/kuda-cards/Cargo.toml
-purpose: Serialization boundary between the `kuda_core` domain types (`RepoCard`, `ModuleCard`, `FileCard`) and the committed `.kuda/*.yaml` artifacts, providing render/parse pairs for each card level via `serde_yaml`. Covers the L0 `index.yaml` repo card, L1 `modules/<name>.yaml` cards, and L1.5 `files/<module>/<file>.yaml` per-file cards, so machine fields and the human-owned `notes:` region round-trip through these functions.
+purpose: '`kuda-cards` serializes and parses the repo memory index''s committed YAML artifacts, mapping `kuda_core` domain types (`RepoCard`, `ModuleCard`, `FileCard`) to and from text via serde_yaml. It renders the L0 always-load `.kuda/index.yaml`, L1 `.kuda/modules/<name>.yaml`, and L1.5 `.kuda/files/<module>/<file>.yaml` artifacts, with matching parse functions for round-tripping machine fields and the human-owned `notes:` region.'
 api:
 - name: kuda-cards
   kind: module
@@ -43,35 +43,20 @@ deps:
 - serde_yaml
 - kuda_core
 notes: |
-  - Round-trip must preserve both machine fields and the human-owned `notes:` region — the module docs state this is the contract of these functions.
+  - Every render/parse function pair is a pure serde_yaml `to_string`/`from_str` round-trip, mapping serde errors to `String`.
 
-  - All six functions are thin `serde_yaml` wrappers that map errors to `String` — no validation or transformation logic lives here, so malformed YAML surfaces only as a parse error string.
-  - The three card levels map to distinct artifact paths: `.kuda/index.yaml` (L0, always-load), `.kuda/modules/<name>.yaml` (L1), and `.kuda/files/<module>/<file>.yaml` (L1.5).
+  - Depends only on `kuda-core`, `serde = "1"`, and `serde_yaml = "0.9"` (note: serde_yaml is deprecated upstream, but 0.9 is pinned here).
+  - File layout conventions (`.kuda/index.yaml`, `.kuda/modules/<name>.yaml`, `.kuda/files/<module>/<file>.yaml`) are documented only in doc comments, not enforced by the code.
 verify:
 - crates/kuda-cards/Cargo.toml
-- crates/kuda-cards/src/lib.rs
-- crates/kuda-cards/src/lib.rs
-- crates/kuda-cards/src/lib.rs
-- crates/kuda-cards/src/lib.rs
-- crates/kuda-cards/src/lib.rs
 - crates/kuda-cards/src/lib.rs
 provenance:
   files:
   - crates/kuda-cards/Cargo.toml
   - crates/kuda-cards/src/lib.rs
-  - crates/kuda-cards/src/lib.rs
-  - crates/kuda-cards/src/lib.rs
-  - crates/kuda-cards/src/lib.rs
-  - crates/kuda-cards/src/lib.rs
-  - crates/kuda-cards/src/lib.rs
   hashes:
   - c2232432f5c2b51750ed9406059add07640caa15
   - a0818022d3de6360d0fca779bf0f16ea13661d21
-  - a0818022d3de6360d0fca779bf0f16ea13661d21
-  - a0818022d3de6360d0fca779bf0f16ea13661d21
-  - a0818022d3de6360d0fca779bf0f16ea13661d21
-  - a0818022d3de6360d0fca779bf0f16ea13661d21
-  - a0818022d3de6360d0fca779bf0f16ea13661d21
-  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
-  generated_at: '1792313269'
+  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
+  generated_at: '1792314296'
   generator: kuda-template/0.1.0

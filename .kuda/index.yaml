@@ -2,12 +2,10 @@ name: kuda
 root: /home/luis/GitHub/9aia/kuda
 purpose: '*A hippocampus for your codebase.*'
 modules:
-- _root
 - dagger
 - kuda
 - kuda-acp
 - kuda-cards
-- kuda-cli
 - kuda-config
 - kuda-config-toml
 - kuda-core
@@ -52,33 +50,8 @@ provenance:
   - crates/kuda-manifest/Cargo.toml
   - crates/kuda-dotenv/Cargo.toml
   - crates/kuda-store-sqlite/Cargo.toml
-  - crates/kuda-secret/src/lib.rs
-  - crates/kuda-store/src/lib.rs
-  - crates/kuda-config/src/lib.rs
-  - crates/kuda-acp/src/lib.rs
-  - crates/kuda-config-toml/tests/load.rs
-  - crates/kuda-config-toml/src/lib.rs
-  - crates/kuda-treesitter/src/lib.rs
-  - crates/kuda-core/src/lib.rs
   - crates/kuda-git/tests/git.rs
   - crates/kuda-git/src/lib.rs
-  - crates/kuda-keyring/src/lib.rs
-  - crates/kuda-vcs/src/lib.rs
-  - crates/kuda-lsp/src/lib.rs
-  - crates/kuda-template/src/lib.rs
-  - crates/kuda-extract/src/lib.rs
-  - crates/kuda-cli/tests/e2e.rs
-  - crates/kuda-cli/src/main.rs
-  - crates/kuda-cards/src/lib.rs
-  - crates/kuda-summarize/src/lib.rs
-  - crates/kuda-query/src/lib.rs
-  - crates/kuda-manifest/src/lib.rs
-  - crates/kuda-dotenv/tests/store.rs
-  - crates/kuda-dotenv/src/lib.rs
-  - crates/kuda-store-sqlite/src/lib.rs
-  - modules/dagger/dagger/src/kuda/main.py
-  - modules/dagger/dagger/src/kuda/__init__.py
-  - modules/dagger/tests/test_self_patch.py
   hashes:
   - a9628d0c5439f13cf0803135f96457bfdadb7c89
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
@@ -95,40 +68,15 @@ provenance:
   - f67a4e0af5e5702eea94a963c1b91e8349a246ab
   - 65d11baa59bc50d3fb5d1b6a488a87922b66c9a3
   - 8474c16bc613412aaa22031cbce10ad3a1f9beea
-  - 64087f5bbf26f164260f297351cac7a70e563af4
+  - 9658a9cdb99632ff498cf1fd91acf2c769abe9c2
   - c2232432f5c2b51750ed9406059add07640caa15
   - 11910998e03f533e3852432fcb107e980fbe99f5
   - c09df8b9f1045151d00b8825259c76bf2e5a1fa7
   - e2ef5f546ee4d7eae4708f90a7e099497a44f675
   - c00e5be2a18e90d8ecfd27f7e9f455e5343b7a86
   - 2d30a3d362d500ce8e4310218db2ea0f8da6ae99
-  - 2c671110218f4f257b05a9d2c372abc80b50e1e2
-  - ca1b5281b4733624c444089af649e5c09ce5b470
-  - 67df5f89ce57962d01a71781e96d8378f9c284c4
-  - c72ac7576cadd3536300e47fe2934c968f9713bb
-  - 6f5371079a853f0282a1e9ce5afa661fcd1d1bcf
-  - b12116b476081aedcaf4ea623af3ff70bc65999c
-  - a9ee8b41b6850e4a5a987b63f3ab8f203a7eef45
-  - 3c1da11570226da4b7aeb344907ac062fc0f7169
   - 28459ad1496a8040109c9957bc1d88ef05b53911
   - 5b88b309efeef08b79d6da453518e135f13217d3
-  - 5242918416df1b111afa3ac068a34dd434191191
-  - 42b4222d6e9b5d602a1923ed77281ca389f4261a
-  - 93513838ec089aab964d987283f0d1ff3dcc18fc
-  - 8503206292175e9f857af5d2f6c22b02ab86aaa4
-  - ae9ba06e36b09753f52ea9ca3b2f1c9639d96e7e
-  - febd57a3490e9ff3c5fb4c2d599e68a62fbfc9ef
-  - 4876d4e8f9bc7d3c0afeb9c8a96de34541f8cea0
-  - a0818022d3de6360d0fca779bf0f16ea13661d21
-  - c39be362ce68f67043930e8b2a69ca1ada4ab670
-  - fad52d157f36486e32de9ecaf3c02194aabdac8a
-  - 44f6cf18ea1722cc51ccb13532d3b5a6fff18eb8
-  - 4d3dbaa112d4637449c1defd1780cf73f5683533
-  - cb40b55b263aafbb6428aabc0c2efdfc983be879
-  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
-  - d71646b878b3eae72aa42a5791588701197fdb2d
-  - 5b331a1baf30b49f5bf03dd9693297d498117deb
-  - 203086b883ed1477efd6f9befccd76e2614cc9ea
-  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
-  generated_at: '1792313735'
+  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
+  generated_at: '1792314669'
   generator: kuda/0.1.0

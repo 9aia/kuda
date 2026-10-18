@@ -1,6 +1,6 @@
 name: kuda-lsp
 path: crates/kuda-lsp/Cargo.toml
-purpose: '`kuda-lsp` is the LSP-backed extract adapter — spawns a language server (from `extract.lsp_server`, one per root) and uses `textDocument/documentSymbol` for real symbol extraction (a quality tier above treesitter), plus a public `references()` for semantic cross-file lookups via `workspace/symbol` + `textDocument/references`.'
+purpose: '`kuda-lsp` is the LSP-backed extraction adapter for kuda — it implements the `Extractor` trait (`kind() == "lsp"`) by spawning a language server (command from `extract.lsp_server`, e.g. `rust-analyzer`) per root and pulling symbols via `textDocument/documentSymbol`, plus a `references` helper for `textDocument/references`. It''s the quality tier above treesitter: real symbols wherever a language server exists.'
 api:
 - name: kuda-lsp
   kind: module
@@ -91,68 +91,24 @@ deps:
 - kuda_extract
 - serde_json
 notes: |
-  - `LspExtractor { server_cmd: Option<String> }` implements `Extractor` with `kind() == "lsp"`; `extract` returns an empty `Extraction` (never an error) when `server_cmd` is `None` or the server fails to spawn — other extractor tiers still run.
-  - `LspClient` speaks LSP framing: `send` writes `Content-Length: <len>\r\n\r\n<body>`, `recv` reads header lines until blank then `read_exact`s the body; `request` increments `next_id` and loops until the matching response id, surfacing `error` as `"<method>: <err>"`; `shutdown` = `shutdown` request → `exit` notify → `child.wait()`.
-  - Spawn performs `initialize` (with `rootUri`/`workspaceFolders` from `file://<root>`) then notifies `initialized`; stderr is nulled.
-  - Per file: `didOpen` → `documentSymbol` → `didClose`; both SymbolInformation (flat, has `location`) and DocumentSymbol (hierarchical, flattened with `Container::child` names) forms are handled; lines are 1-based (`+1`).
-  - `module_of` walks up from the file to the first ancestor containing one of `lang.manifests`, using the dir basename, else `"_root"`; `walk_files` recurses (skipping `.git`/`target`/`node_modules`/`.kuda` and any dir containing a `.git` file) matching extensions with leading dots stripped.
-  - `references()` returns sorted, deduped `(file, line)` pairs (line 1-based), returning `Ok(vec![])` on `workspace/symbol` Null/error.
-  - `lsp_kind` mapping: 5/23/8/9/10 → Type, 11 → Trait, 12/6 → Function, 13/14 → Const, 2/3 → Module, everything else → Other.
-  - Extraction `out.files` only includes files whose `documentSymbol` call *succeeded* (`let Ok(syms) = res else { continue }` skips the push), but symbols/files use paths relative to `root`; spawn failure is silently swallowed (`Err(_) => return Ok(out)`).
-  - `request` ignores non-matching messages (server notifications/requests are dropped without replies — no `workspace/configuration` answering, unlike the ACP client), so chatty servers could stall if the response id never arrives.
-  - Deps: `kuda-core`, `kuda-extract`, `serde`, `serde_json` (all workspace = true).
+  - Missing configuration or a missing server binary are non-fatal: `server_cmd: None` or a failed `spawn` yields an empty `Extraction` so other extractor tiers still run.
+  - LSP framing is `Content-Length: N\r\n\r\n<body>`; `request` increments `next_id`, loops `recv` until the matching id (dropping notifications), and surfaces JSON-RPC `error` as `Err`.
+  - The client sends `initialize` (with `rootUri` + one workspace folder) then `initialized` on spawn, `didOpen`/`documentSymbol`/`didClose` per file, and `shutdown()` after extraction/references.
+  - Symbol lines are 1-based (LSP 0-based line + 1); both flat `SymbolInformation` (with `location`) and nested `DocumentSymbol` responses are handled, the latter via `flatten_syms`; `references` results are sorted and deduped.
+
+  - Server stderr is discarded (`Stdio::null()`), which can hide startup diagnostics; unreadable files are skipped silently.
+  - `walk_files` and `module_of` reuse the manifest-based module grouping (per-lang `manifests` + extensions), so `out.files` records every file opened — feeding `Provenance.files`.
+  - Dependencies: `kuda-core`, `kuda-extract`, `serde`, `serde_json`; no LSP client library — the protocol is hand-rolled over stdio pipes.
 verify:
 - crates/kuda-lsp/Cargo.toml
-- crates/kuda-lsp/src/lib.rs
-- crates/kuda-lsp/src/lib.rs
-- crates/kuda-lsp/src/lib.rs
-- crates/kuda-lsp/src/lib.rs
-- crates/kuda-lsp/src/lib.rs
-- crates/kuda-lsp/src/lib.rs
-- crates/kuda-lsp/src/lib.rs
-- crates/kuda-lsp/src/lib.rs
-- crates/kuda-lsp/src/lib.rs
-- crates/kuda-lsp/src/lib.rs
-- crates/kuda-lsp/src/lib.rs
-- crates/kuda-lsp/src/lib.rs
-- crates/kuda-lsp/src/lib.rs
-- crates/kuda-lsp/src/lib.rs
 - crates/kuda-lsp/src/lib.rs
 provenance:
   files:
   - crates/kuda-lsp/Cargo.toml
   - crates/kuda-lsp/src/lib.rs
-  - crates/kuda-lsp/src/lib.rs
-  - crates/kuda-lsp/src/lib.rs
-  - crates/kuda-lsp/src/lib.rs
-  - crates/kuda-lsp/src/lib.rs
-  - crates/kuda-lsp/src/lib.rs
-  - crates/kuda-lsp/src/lib.rs
-  - crates/kuda-lsp/src/lib.rs
-  - crates/kuda-lsp/src/lib.rs
-  - crates/kuda-lsp/src/lib.rs
-  - crates/kuda-lsp/src/lib.rs
-  - crates/kuda-lsp/src/lib.rs
-  - crates/kuda-lsp/src/lib.rs
-  - crates/kuda-lsp/src/lib.rs
-  - crates/kuda-lsp/src/lib.rs
   hashes:
   - f67a4e0af5e5702eea94a963c1b91e8349a246ab
   - 93513838ec089aab964d987283f0d1ff3dcc18fc
-  - 93513838ec089aab964d987283f0d1ff3dcc18fc
-  - 93513838ec089aab964d987283f0d1ff3dcc18fc
-  - 93513838ec089aab964d987283f0d1ff3dcc18fc
-  - 93513838ec089aab964d987283f0d1ff3dcc18fc
-  - 93513838ec089aab964d987283f0d1ff3dcc18fc
-  - 93513838ec089aab964d987283f0d1ff3dcc18fc
-  - 93513838ec089aab964d987283f0d1ff3dcc18fc
-  - 93513838ec089aab964d987283f0d1ff3dcc18fc
-  - 93513838ec089aab964d987283f0d1ff3dcc18fc
-  - 93513838ec089aab964d987283f0d1ff3dcc18fc
-  - 93513838ec089aab964d987283f0d1ff3dcc18fc
-  - 93513838ec089aab964d987283f0d1ff3dcc18fc
-  - 93513838ec089aab964d987283f0d1ff3dcc18fc
-  - 93513838ec089aab964d987283f0d1ff3dcc18fc
-  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
-  generated_at: '1792295084'
+  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
+  generated_at: '1792314296'
   generator: kuda-template/0.1.0

@@ -1,6 +1,6 @@
 name: kuda-store-sqlite
 path: crates/kuda-store-sqlite/Cargo.toml
-purpose: '`kuda-store-sqlite` is the SQLite adapter of the `IndexStore` port — a single-file, rebuildable L2 symbol/dep-graph store at `.kuda/index.sqlite` (gitignored) using rusqlite''s bundled build, with no server.'
+purpose: '`kuda-store-sqlite` is the SQLite adapter of kuda''s `IndexStore` port — a single, zero-server, rebuildable file (typically `.kuda/index.sqlite`) holding the L2 symbol/dep graph plus meta and per-file hash tables. `SqliteStore::open` creates parent dirs, opens the connection, and applies `SCHEMA` (tables `symbols`, `edges`, `meta`, `files`, with indexes on `symbols(name)`, `symbols(module)`, `edges(to_mod)`).'
 api:
 - name: kuda-store-sqlite
   kind: module
@@ -20,67 +20,77 @@ api:
 - name: sk_str
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 35
+  line: 40
   module: kuda-store-sqlite
 - name: sk_from
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 47
+  line: 52
   module: kuda-store-sqlite
 - name: ek_str
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 59
+  line: 64
   module: kuda-store-sqlite
 - name: ek_from
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 68
+  line: 73
   module: kuda-store-sqlite
 - name: open
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 79
+  line: 84
   module: kuda-store-sqlite
 - name: lock
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 90
+  line: 95
   module: kuda-store-sqlite
 - name: replace_module
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 96
+  line: 101
+  module: kuda-store-sqlite
+- name: file_hashes
+  kind: function
+  file: crates/kuda-store-sqlite/src/lib.rs
+  line: 135
+  module: kuda-store-sqlite
+- name: record_files
+  kind: function
+  file: crates/kuda-store-sqlite/src/lib.rs
+  line: 153
   module: kuda-store-sqlite
 - name: find
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 130
+  line: 168
   module: kuda-store-sqlite
 - name: search
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 149
+  line: 187
   module: kuda-store-sqlite
 - name: dependents
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 173
+  line: 211
   module: kuda-store-sqlite
 - name: modules
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 190
+  line: 228
   module: kuda-store-sqlite
 - name: set_meta
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 199
+  line: 237
   module: kuda-store-sqlite
 - name: meta
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 209
+  line: 247
   module: kuda-store-sqlite
 deps:
 - kuda-core
@@ -90,66 +100,25 @@ deps:
 - kuda_store
 - rusqlite
 notes: |
-  - `SqliteStore { conn: Mutex<Connection> }` (the mutex exists because `Connection` is `!Sync`, satisfying the port's `Send + Sync` bound; single-writer anyway); every trait method goes through `lock()` and maps errors to `String`.
-  - `open(path)` creates parent dirs, opens the DB, and `execute_batch(SCHEMA)` — tables `symbols(name,kind,file,line,module)` + indexes on `name`/`module`, `edges(from_mod,to_mod,kind)` + index on `to_mod`, `meta(k PRIMARY KEY, v)`.
-  - `replace_module(module, syms, edges)` runs in one transaction: `DELETE FROM symbols WHERE module=?` + `DELETE FROM edges WHERE from_mod=?`, then inserts all symbols and edges, then commits.
-  - Kind mapping round-trips via `sk_str`/`sk_from` (function/type/trait/const/module/macro/other — unknown reads back as `Other`) and `ek_str`/`ek_from` (imports/calls/package-dep/workspace-member — unknown reads back as `PackageDep`).
-  - Read semantics: `find` = exact `WHERE name = ?`; `search` = `LIKE %pattern% ESCAPE '\'` with `\`, `%`, `_` escaped (literal substring, `ORDER BY name`); `dependents` = `WHERE to_mod = ?`; `modules` = `SELECT DISTINCT module ... ORDER BY module`; `set_meta` = upsert `ON CONFLICT(k) DO UPDATE`; `meta` returns `Ok(None)` on `QueryReturnedNoRows`.
-  - No tests ship with this crate; deps are `kuda-core`, `kuda-store` (workspace) + `rusqlite = "0.32"` with `bundled`.
-  - `line` is stored as INTEGER (u32 fits), `file` via `to_string_lossy` (non-UTF-8 paths degrade); rows have no primary key — duplicates are only prevented by the delete-then-insert in `replace_module`.
-  - A poisoned mutex (`lock()` err) surfaces as a plain `String` error like any DB failure — no distinction.
+  - `SqliteStore` wraps `rusqlite::Connection` in a `Mutex` because `Connection` is `!Sync` — this satisfies the port's `Send + Sync` bound; it's single-writer anyway. Every operation acquires the lock and maps errors to `String`.
+  - `replace_module` runs in one transaction: `DELETE` the module's symbols and its outgoing edges (`from_mod = module`), then insert all new rows; `record_files` likewise deletes the module's `files` rows then re-inserts the full set.
+  - Kind strings round-trip through `sk_str`/`sk_from` (lowercase, e.g. `function`, `trait`) and `ek_str`/`ek_from` (kebab-case: `imports`, `calls`, `package-dep`, `workspace-member`); unknown/missing strings decode to `SymbolKind::Other` / `EdgeKind::PackageDep`.
+  - `search` is a case-sensitive `LIKE '%pattern%'` with `\` as ESCAPE — `%`, `_`, and `\` in user input are escaped so they match literally; results ordered by name.
+  - `set_meta` upserts (`ON CONFLICT(k) DO UPDATE`); `meta` returns `Ok(None)` only for `QueryReturnedNoRows`, other errors propagate.
+
+  - Depends on `rusqlite 0.32` with the `bundled` feature (SQLite compiled in — no system libsqlite required), plus `kuda-core` and `kuda-store`.
+  - `file_hashes` returns a `HashMap<path, (hash, module)>` built from a full table scan; `files.path` is `PRIMARY KEY`, so a path can only belong to one row — a file appearing under two modules would collide.
+  - `open` is idempotent-safe (`CREATE ... IF NOT EXISTS`), so re-opening an existing store preserves data.
 verify:
 - crates/kuda-store-sqlite/Cargo.toml
-- crates/kuda-store-sqlite/src/lib.rs
-- crates/kuda-store-sqlite/src/lib.rs
-- crates/kuda-store-sqlite/src/lib.rs
-- crates/kuda-store-sqlite/src/lib.rs
-- crates/kuda-store-sqlite/src/lib.rs
-- crates/kuda-store-sqlite/src/lib.rs
-- crates/kuda-store-sqlite/src/lib.rs
-- crates/kuda-store-sqlite/src/lib.rs
-- crates/kuda-store-sqlite/src/lib.rs
-- crates/kuda-store-sqlite/src/lib.rs
-- crates/kuda-store-sqlite/src/lib.rs
-- crates/kuda-store-sqlite/src/lib.rs
-- crates/kuda-store-sqlite/src/lib.rs
-- crates/kuda-store-sqlite/src/lib.rs
 - crates/kuda-store-sqlite/src/lib.rs
 provenance:
   files:
   - crates/kuda-store-sqlite/Cargo.toml
   - crates/kuda-store-sqlite/src/lib.rs
-  - crates/kuda-store-sqlite/src/lib.rs
-  - crates/kuda-store-sqlite/src/lib.rs
-  - crates/kuda-store-sqlite/src/lib.rs
-  - crates/kuda-store-sqlite/src/lib.rs
-  - crates/kuda-store-sqlite/src/lib.rs
-  - crates/kuda-store-sqlite/src/lib.rs
-  - crates/kuda-store-sqlite/src/lib.rs
-  - crates/kuda-store-sqlite/src/lib.rs
-  - crates/kuda-store-sqlite/src/lib.rs
-  - crates/kuda-store-sqlite/src/lib.rs
-  - crates/kuda-store-sqlite/src/lib.rs
-  - crates/kuda-store-sqlite/src/lib.rs
-  - crates/kuda-store-sqlite/src/lib.rs
-  - crates/kuda-store-sqlite/src/lib.rs
   hashes:
   - 2d30a3d362d500ce8e4310218db2ea0f8da6ae99
-  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
-  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
-  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
-  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
-  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
-  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
-  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
-  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
-  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
-  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
-  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
-  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
-  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
-  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
-  - ee2f0d527be3f2e769ea60eebc1f7d05178ed506
-  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
-  generated_at: '1792295084'
+  - a5237e4182f8f90a5883968b265e4eb11a4cdeba
+  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
+  generated_at: '1792314296'
   generator: kuda-template/0.1.0
