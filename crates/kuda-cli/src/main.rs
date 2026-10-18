@@ -381,6 +381,25 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
             changed.insert(module.clone()); // deleted file
         }
     }
+    // sturn WAL ops feed the diff *additively* — non-sturn
+    // writes still surface via the hash walk; sturn-managed
+    // writes (write/rename/delete/claim/release) mark their
+    // modules changed even when content happened to match.
+    let wal_touched = sturn_wal_changes(dir, &mut store);
+    if !wal_touched.is_empty() {
+        eprintln!("sturn wal: {}", wal_touched.iter().cloned().collect::<Vec<_>>().join(", "));
+    }
+    for t in wal_touched {
+        for (module, mfiles) in &mod_files {
+            let hit = mfiles.iter().any(|f| {
+                let fs = f.display().to_string();
+                fs == t || fs.starts_with(&format!("{t}/"))
+            });
+            if hit {
+                changed.insert(module.clone());
+            }
+        }
+    }
     let parse_set: std::collections::HashSet<PathBuf> = changed
         .iter()
         .flat_map(|m| mod_files.get(m).cloned().unwrap_or_default())
@@ -1314,6 +1333,85 @@ fn doctor(cli: &Cli) -> i32 {
     }
     println!("  adapters    manifest, treesitter, lsp, template, sqlite (llm pending)");
     0
+}
+
+/// sturn WAL → repo-relative paths touched since last sync.
+/// Walks `refs/sturn/wal/*` commits newer than each ref's stored
+/// head (`meta` key `sturn_wal:<ref>`), pulling `path`/`from`/`to`
+/// and static glob prefixes out of `event.json` ops. No sturn refs
+/// = no work — the hash diff still covers everything else.
+fn sturn_wal_changes(
+    dir: &Path,
+    store: &mut dyn IndexStore,
+) -> std::collections::HashSet<String> {
+    use std::process::Command;
+    let mut touched = std::collections::HashSet::new();
+    let Ok(out) = Command::new("git")
+        .args(["for-each-ref", "--format=%(refname)", "refs/sturn/wal"])
+        .current_dir(dir)
+        .output()
+    else {
+        return touched;
+    };
+    if !out.status.success() {
+        return touched;
+    }
+    for line in String::from_utf8_lossy(&out.stdout).lines() {
+        let refname = line.trim();
+        if refname.is_empty() {
+            continue;
+        }
+        let key = format!("sturn_wal:{refname}");
+        let since = store.meta(&key).ok().flatten().unwrap_or_default();
+        let range = if since.is_empty() {
+            refname.to_owned()
+        } else {
+            format!("{since}..{refname}")
+        };
+        let Ok(log) = Command::new("git")
+            .args(["log", "--format=%H", &range])
+            .current_dir(dir)
+            .output()
+        else {
+            continue;
+        };
+        for sha in String::from_utf8_lossy(&log.stdout).lines() {
+            let Ok(ev) = Command::new("git")
+                .args(["show", &format!("{sha}:event.json")])
+                .current_dir(dir)
+                .output()
+            else {
+                continue;
+            };
+            let Ok(v) = serde_json::from_slice::<serde_json::Value>(&ev.stdout) else {
+                continue;
+            };
+            let Some(op) = v.get("op") else { continue };
+            for k in ["path", "from", "to"] {
+                if let Some(p) = op.get(k).and_then(|x| x.as_str()) {
+                    touched.insert(p.to_owned());
+                }
+            }
+            // claim/release globs (docs/**) → static prefix dir
+            if let Some(g) = op.get("glob").and_then(|x| x.as_str()) {
+                let prefix = g.split('*').next().unwrap_or("").trim_end_matches('/');
+                if !prefix.is_empty() {
+                    touched.insert(prefix.to_owned());
+                }
+            }
+        }
+        if let Ok(head) = Command::new("git")
+            .args(["rev-parse", refname])
+            .current_dir(dir)
+            .output()
+        {
+            let h = String::from_utf8_lossy(&head.stdout).trim().to_owned();
+            if !h.is_empty() {
+                let _ = store.set_meta(&key, &h);
+            }
+        }
+    }
+    touched
 }
 
 fn watch(cli: &Cli) -> i32 {
