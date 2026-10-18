@@ -1,6 +1,6 @@
 name: kuda-query
 path: crates/kuda-query/Cargo.toml
-purpose: Query engine — find/dependents/card/refs over the index
+purpose: '`kuda-query` is the thin query engine — agent-facing read helpers (`find`, `search`, `dependents`, `module_symbols`, `modules`) over the `IndexStore` port, doing only filtering/formatting while storage lives behind the port.'
 api:
 - name: kuda-query
   kind: module
@@ -37,7 +37,11 @@ deps:
 - kuda-store
 - kuda_core
 - kuda_store
-notes: ''
+notes: |
+  - `find`, `search`, `dependents`, `modules` are direct pass-throughs to the corresponding `IndexStore` methods with `Result<_, String>` errors propagated unchanged (`find` = exact symbol lookup, `search` = substring/fuzzy tier, `dependents` = reverse-dep impact analysis, `modules` = indexed module list).
+  - `module_symbols(store, module)` = `store.find(module)` filtered to `s.module == module` (symbols the module owns).
+  - Only dependencies are `kuda-core` and `kuda-store` (both `.workspace = true`).
+  - `module_symbols` relies on `find(module)` returning enough matches to then filter by module name — the `chain(vec![])` is a no-op; if `find` is exact-name-only, a module whose symbol names differ from the module label may yield partial results.
 verify:
 - crates/kuda-query/Cargo.toml
 - crates/kuda-query/src/lib.rs
@@ -60,6 +64,6 @@ provenance:
   - fad52d157f36486e32de9ecaf3c02194aabdac8a
   - fad52d157f36486e32de9ecaf3c02194aabdac8a
   - fad52d157f36486e32de9ecaf3c02194aabdac8a
-  commit_sha: 9d5e2043ec3be40cfae41ef3c4bd78c1f59ad3ab
-  generated_at: '1792292935'
+  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
+  generated_at: '1792295084'
   generator: kuda-template/0.1.0

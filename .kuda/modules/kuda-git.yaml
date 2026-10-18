@@ -1,6 +1,6 @@
 name: kuda-git
 path: crates/kuda-git/Cargo.toml
-purpose: 'Vcs adapter: git via the git CLI'
+purpose: '`kuda-git` is the git adapter of the `Vcs` port — a thin `GitVcs` wrapper that shells out to the `git` CLI for head SHA, fetch, commit existence, worktree add/remove/prune, and tag create/verify/push.'
 api:
 - name: kuda-git
   kind: module
@@ -77,7 +77,12 @@ deps:
 - kuda_git
 - kuda_vcs
 - kuda_vcs
-notes: ''
+notes: |
+  - Every `Vcs` method returns `bool` (except `head_sha` → `Option<String>`): success = the git subprocess exited 0; spawn/status failures are `false`, and `head_sha` trims stdout and returns `None` on failure.
+  - `git(repo, args)` always runs with `git -C <repo> ...`; `sync` = `fetch origin --prune`, `has_commit` = `cat-file -e <sha>`, `worktree_add` uses `--detach`, `worktree_remove` uses `--force`, `tag_exists` verifies `refs/tags/<tag>` via `rev-parse -q --verify`, `tag` = `git tag <tag>`, `push_tag` = `push origin <tag>`.
+  - Only dependency is `kuda-vcs` (`.workspace = true`); the integration test `sync_has_commit_worktree_tag` builds a real temp repo (`git init -b main`, commit with `-c user.*`) and exercises has_commit/tag/worktree.
+  - The test constructs a 40-zero sha and asserts `has_commit` is false — `cat-file -e` is used as the existence probe; `sync` (fetch origin) is not exercised in the test (no origin configured).
+  - `worktree_add`/`remove` convert paths with `to_str().unwrap_or_default()`, so non-UTF-8 paths would become an empty arg; all errors are swallowed into `false` (no stderr surfaced).
 verify:
 - crates/kuda-git/Cargo.toml
 - crates/kuda-git/tests/git.rs
@@ -124,6 +129,6 @@ provenance:
   - 5b88b309efeef08b79d6da453518e135f13217d3
   - 5b88b309efeef08b79d6da453518e135f13217d3
   - 5b88b309efeef08b79d6da453518e135f13217d3
-  commit_sha: 9d5e2043ec3be40cfae41ef3c4bd78c1f59ad3ab
-  generated_at: '1792292935'
+  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
+  generated_at: '1792295084'
   generator: kuda-template/0.1.0

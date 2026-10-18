@@ -1,6 +1,6 @@
 name: dagger
 path: modules/dagger/dagger/pyproject.toml
-purpose: '*A hippocampus for your codebase.*'
+purpose: A Dagger module (`kuda`, installable via `dagger install github.com/9aia/kuda/modules/dagger`) exposing shared CI primitives for Rust workspaces — container setup, dev-link/self-patch of mounted repos, and `@function` pipelines for doctor, sharded nextest + doctests, coverage, and arbitrary scripts, all running with the consumer workspace mounted at `/work/<repo>`.
 api:
 - name: dagger
   kind: module
@@ -83,7 +83,18 @@ api:
   line: 416
   module: dagger
 deps: []
-notes: ''
+notes: |
+  - Every `@function` pipeline (`doctor`, `test_shard`, `doctests`, `test`, `coverage_report`, `coverage_gate`, `run`) routes through `_workspace(...)` → `_exec(...)` with `authed = token is not None` and `sccache_env = sccache_conf is not None`.
+  - `_workspace` mounts the source at `/work/<repo>`, optional siblings at `/work/<name>`, sets `RUSTC_WRAPPER=sccache`, `SCCACHE_DIR=/sccache`, all `CARGO_ENV` vars, and cache volumes `kuda-cargo-registry`, `kuda-cargo-git`, `kuda-<repo>-target`, `kuda-sccache`; then `_link_repo`s every mounted repo (main + siblings).
+  - `_link_repo` runs the main repo's `scripts/dev-link.sh` if present (else sed-deletes the `# dev-link: begin/end` block), then applies `_SELF_PATCH_PY` with `REPO_DIR=/work/<name>`, `REPO_NAME=<name>`, `__PATCH_HOST__=patch_host`.
+  - The self-patch script derives the patch URL from `workspace.package.repository` (falling back to `package.repository`) when `patch_host` is empty, and exits non-zero ("no patch_host and no repository in Cargo.toml") if neither exists; rows are written as `path = "../<rel>"` relative to the parent of the repo dir.
+  - `test` warms `cargo fetch --locked` serially before fanning out `shards` nextest partitions plus doctests via `asyncio.gather(..., return_exceptions=True)`, raising `RuntimeError` aggregating all failures.
+  - The git token auth rewrite (`_AUTH_GIT_CONFIG`) runs inside each exec, never in an image layer.
+  - `Source` defaults to `.` but `Ignore`s `target`, `.git`, `coverage`, `node_modules`, `dagger/.venv`, `dagger/sdk` (target/ alone can be ~8.5 GB); `pyproject.toml` requires Python >=3.14 and pulls `dagger-io` as an editable path dep from `sdk`.
+  - `_SELF_PATCH_PY` uses naive `str.replace` on `REPO_DIR`/`REPO_NAME`/`__PATCH_HOST__` — `__PATCH_HOST__` substitution check is `not startswith("__")`, so an unsubstituted placeholder is treated as empty.
+  - `test_shard`'s `-j` defaults to 2 deliberately (suites are memory-bound; scale via `shards`, not `jobs`).
+  - `coverage_report`/`coverage_gate` require the consumer repo to ship `scripts/coverage.sh`; `coverage_report` exports via `dagger call ... coverage-report export --path=coverage`.
+  - The self-patch block rewrites only `crates/*/Cargo.toml` and `modules/*/Cargo.toml` for rows and normalizes the file tail to exactly two newlines for byte-identical reruns.
 verify:
 - modules/dagger/dagger/pyproject.toml
 - modules/dagger/dagger/src/kuda/main.py
@@ -136,6 +147,6 @@ provenance:
   - d71646b878b3eae72aa42a5791588701197fdb2d
   - d71646b878b3eae72aa42a5791588701197fdb2d
   - d71646b878b3eae72aa42a5791588701197fdb2d
-  commit_sha: 9d5e2043ec3be40cfae41ef3c4bd78c1f59ad3ab
-  generated_at: '1792292935'
+  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
+  generated_at: '1792295084'
   generator: kuda-template/0.1.0

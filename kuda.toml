@@ -10,9 +10,9 @@ kinds = ["manifest", "treesitter", "lsp"] # adapter crates, tried in order
 lsp_server = "rust-analyzer"     # kuda-lsp adapter: server cmd per lang
 
 [summarize]
-kind = "template"                  # deterministic cards, zero-model
-# kind = "acp"                     # agent-written prose — needs acp_cmd
-# acp_cmd = "cline --acp"
+kind = "acp"                     # agent-written prose
+acp_cmd = "env CLINE_PROVIDER=cline-pass CLINE_MODEL=cline-free/mimo-v2.6-flash cline --acp"
+# kind = "template"                # deterministic fallback
 # kind = "llm"                     # adapter: kuda-llm
 # provider = "anthropic"           # key via KUDA_LLM_KEY env/keyring
 # model = "..."

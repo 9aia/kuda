@@ -1,6 +1,6 @@
 name: kuda
 path: Cargo.toml
-purpose: '*A hippocampus for your codebase.*'
+purpose: 'Root Cargo workspace for kuda ("a hippocampus for your codebase — repo memory: index, query, verify"), a 20-crate Rust workspace whose binary crate `kuda-cli` produces the `kuda` CLI at `src/main.rs`.'
 api:
 - name: kuda
   kind: module
@@ -34,7 +34,13 @@ deps:
 - serde_json
 - serde_yaml
 - toml
-notes: ''
+notes: |
+  - Workspace inherits shared metadata (`version = "0.1.0"`, `edition = "2021"`, `license = "MIT"`, `repository = "https://github.com/9aia/kuda"`) via `version.workspace = true` etc. in member crates.
+  - All intra-workspace deps are declared once in `[workspace.dependencies]` with `path = "crates/<name>", version = "0.1.0"` and referenced by members as `<crate>.workspace = true`.
+  - The binary package is named `kuda` (directory `crates/kuda-cli`), so the crate dir and published crate name diverge.
+  - `resolver = "2"`; the `dist` profile inherits `release` with `lto = "thin"` (used by `dist` builds).
+  - `kuda-cli` depends on 16 `kuda-*` workspace crates plus `clap`, `toml`, `serde_json`, `serde_yaml`, and the non-workspace `clap-markdown = "0.1.5"`; `kuda-secret`, `kuda-keyring`, `kuda-dotenv` are workspace members not linked into the CLI.
+  - Workspace-level shared deps include `rusqlite` with `bundled` (0.32), `tree-sitter` 0.25, and tree-sitter grammars for rust/typescript/python.
 verify:
 - Cargo.toml
 - crates/kuda-cli/Cargo.toml
@@ -45,6 +51,6 @@ provenance:
   hashes:
   - a9628d0c5439f13cf0803135f96457bfdadb7c89
   - 7b03ae9b198d29a234a4368a9cdbbcc7e3b95cc9
-  commit_sha: 9d5e2043ec3be40cfae41ef3c4bd78c1f59ad3ab
-  generated_at: '1792292935'
+  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
+  generated_at: '1792295084'
   generator: kuda-template/0.1.0

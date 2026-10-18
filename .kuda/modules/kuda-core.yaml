@@ -1,6 +1,6 @@
 name: kuda-core
 path: crates/kuda-core/Cargo.toml
-purpose: 'kuda domain core: cards, symbols, edges, provenance — no ports, no integrations'
+purpose: '`kuda-core` is the pure domain crate for kuda — card types (L0 `RepoCard`, L1 `ModuleCard`), the L2 `Symbol`/`DepEdge` graph, `Provenance`, `LangDef`, and the `kuda.toml` `Config` model, with no ports or integrations.'
 api:
 - name: kuda-core
   kind: module
@@ -162,7 +162,16 @@ deps:
 - serde_json
 - toml
 - serde
-notes: ''
+notes: |
+  - Every card carries `Provenance { files, hashes, commit_sha, generated_at, generator }` where `hashes` runs parallel to `files`; drift is computed by `status` (re-hash + HEAD diff), never assumed.
+  - `ModuleCard.notes` is `#[serde(default)]` and human-owned — regeneration never clobbers it; `api`/`deps`/`verify` are machine-owned.
+  - `Config` and all sub-config structs use `#[serde(deny_unknown_fields)]` with serde defaults: `extract.kinds = ["manifest","treesitter"]`, `summarize.kind = "template"`, `store.kind = "sqlite"` at `.kuda/index.sqlite`, `cards.dir = ".kuda"`, `workspace.roots = []`/`resolve_git_deps = false`.
+  - Enums serialize with fixed renames: `SymbolKind` → lowercase, `EdgeKind` → kebab-case.
+  - `is_valid_sha` requires length 7–64, no `..`/`/`, and only `[A-Za-z0-9._-]` bytes (path-injection guard).
+  - `publish_order(members, deps)` topologically orders members so path-deps come first and returns `Err("dependency cycle in workspace")` on cycles (unit tests `order_respects_path_deps`, `cycle_errors`).
+  - Only serde-family deps (`serde`, `serde_json`, `toml`) — direct version specs, not `.workspace = true`.
+  - `LangDef.grammar`/`symbol_query`/`dep_query` are `Option` + `#[serde(default)]`, so language TOMLs may omit them; a new language is a data change in `data/langs/*`, not engine code.
+  - `SummarizeCfg.provider`/`model` are declared for a backlog `llm` adapter — `kind` docs say "llm" is backlog and ACP is the semantic path.
 verify:
 - crates/kuda-core/Cargo.toml
 - crates/kuda-core/src/lib.rs
@@ -260,6 +269,6 @@ provenance:
   - 00ad726678e0d61742554341ce79008434f7b5a4
   - 00ad726678e0d61742554341ce79008434f7b5a4
   - 00ad726678e0d61742554341ce79008434f7b5a4
-  commit_sha: 9d5e2043ec3be40cfae41ef3c4bd78c1f59ad3ab
-  generated_at: '1792292935'
+  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
+  generated_at: '1792295084'
   generator: kuda-template/0.1.0

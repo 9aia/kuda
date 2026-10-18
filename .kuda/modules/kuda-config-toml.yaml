@@ -1,6 +1,6 @@
 name: kuda-config-toml
 path: crates/kuda-config-toml/Cargo.toml
-purpose: 'Config adapter: kuda.toml file (explicit path, env, ./, ~/.config)'
+purpose: '`kuda-config-toml` is the file-based `ConfigSource` adapter — `TomlSource::load` resolves and parses a kuda.toml file into `kuda_core::Config`, searching explicit path → `$KUDA_CONFIG` → `./kuda.toml` → `~/.config/kuda/kuda.toml`.'
 api:
 - name: kuda-config-toml
   kind: module
@@ -44,7 +44,13 @@ deps:
 - kuda_config
 - kuda_config_toml
 - kuda_config
-notes: ''
+notes: |
+  - Resolution order: `self.path` (explicit `--config`) else `$KUDA_CONFIG`; if either yields a path it becomes the *only* candidate (no fallback to defaults), otherwise the default pair `./kuda.toml` then `$HOME/.config/kuda/kuda.toml` (HOME unset → `./.config/kuda/kuda.toml`) is tried in order.
+  - Only existing candidates are read; the first existing one is parsed with `toml::from_str`, and read/parse errors are formatted as `read <path>: <e>` / `parse <path>: <e>`.
+  - If no candidate exists, `load` returns `Err("no kuda.toml found (search: $KUDA_CONFIG, ., ~/.config/kuda/)")`.
+  - Deps: `kuda-config` (port), `kuda-core`, and direct `toml = "0.8"`; tests exercise `ConfigSource::load` via `TomlSource { path: ... }`.
+  - An explicit/env path that doesn't exist is an immediate error (it short-circuits the candidate list) — tested by `explicit_path_and_missing_error` with `/nonexistent/x`.
+  - Tests mutate `KUDA_CONFIG` with `unsafe { std::env::set_var/remove_var }` (Rust 2024-style); they assume no parallel interference and clean up the temp file afterward.
 verify:
 - crates/kuda-config-toml/Cargo.toml
 - crates/kuda-config-toml/tests/load.rs
@@ -70,6 +76,6 @@ provenance:
   - 6f5371079a853f0282a1e9ce5afa661fcd1d1bcf
   - b12116b476081aedcaf4ea623af3ff70bc65999c
   - b12116b476081aedcaf4ea623af3ff70bc65999c
-  commit_sha: 9d5e2043ec3be40cfae41ef3c4bd78c1f59ad3ab
-  generated_at: '1792292935'
+  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
+  generated_at: '1792295084'
   generator: kuda-template/0.1.0

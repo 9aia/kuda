@@ -1,6 +1,6 @@
 name: kuda-acp
 path: crates/kuda-acp/Cargo.toml
-purpose: 'Summarizer adapter: spawns an ACP agent to write grounded module cards'
+purpose: '`kuda-acp` is the Summarizer adapter that spawns a user-configured ACP agent binary (e.g. `cline --acp`, `zed agent`) over JSON-RPC to write grounded module-card prose, avoiding API keys or provider lock-in since auth lives in the user''s agent.'
 api:
 - name: kuda-acp
   kind: module
@@ -62,7 +62,16 @@ deps:
 - kuda_extract
 - kuda_summarize
 - serde_json
-notes: ''
+notes: |
+  - `AcpSummarizer::new(cmd, root)` only fails later — the agent process is spawned lazily inside `summarize` on first use, with the `(AcpClient, session_id)` pair cached in a `Mutex<Option<...>>` and reused across all modules (respawned when `None`).
+  - Startup sequence is `initialize` (`protocolVersion:1`, `clientInfo` kuda/0.1.0) → `session/new` (`cwd` = repo root) → repeated `session/prompt`; `sessionId` falls back to `"kuda-default"` if absent.
+  - `request` increments a per-client `id`, reads stdout lines until the matching reply, and accumulates `session/update` `params.update.content.text` chunks as the returned prose.
+  - Agent→client requests are answered inline to avoid deadlock: `session/request_permission` selects the first option (defaulting `optionId` to `allow_once`), unknown methods get JSON-RPC `-32601 method not found`.
+  - The returned `ModuleCard` fills `api` from `ext.symbols`, `deps` from `ext.edges[*].to`, `verify` from `ext.files`, and passes through `provenance`; `purpose` comes from the `purpose:`/`Purpose:` line, else the first non-empty prose line, else the module name.
+  - `prompt_for` truncates to the first 30 symbol names and 15 file paths; the prompt is built with `format!` (module name/paths are interpolated as-is).
+  - Prose parsing treats everything before the first `purpose:` line as ignorable preamble, and once `invariants:`/`notes:`/`Notes:` is seen, all subsequent lines are swept into `notes` — an `invariants:` section's bullets land in `notes`, not a separate field.
+  - Agent runs with `stderr` nulled (`Stdio::null()`) and is launched through `sh -c`, so `cmd` is shell-interpreted; unparseable JSON-RPC lines and EOF mid-request produce errors (`"agent closed stdout"`).
+  - The `_child` handle is kept only to own the process; only stdout is read, and responses are newline-delimited JSON.
 verify:
 - crates/kuda-acp/Cargo.toml
 - crates/kuda-acp/src/lib.rs
@@ -97,6 +106,6 @@ provenance:
   - 1f544d46f04a7fcc3522f2f59b4113db8ce2321a
   - 1f544d46f04a7fcc3522f2f59b4113db8ce2321a
   - 1f544d46f04a7fcc3522f2f59b4113db8ce2321a
-  commit_sha: 9d5e2043ec3be40cfae41ef3c4bd78c1f59ad3ab
-  generated_at: '1792292935'
+  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
+  generated_at: '1792295084'
   generator: kuda-template/0.1.0

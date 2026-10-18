@@ -1,6 +1,6 @@
 name: kuda-treesitter
 path: crates/kuda-treesitter/Cargo.toml
-purpose: 'Extract adapter: tree-sitter grammar+query data -> symbols + import edges'
+purpose: '`kuda-treesitter` is the tree-sitter extract adapter — runs per-language symbol/dep queries over compiled grammars (rust, typescript, python) to produce `Symbol`s and `Imports` edges, with per-language knowledge held in `data/langs/*` (grammar id, extensions, `symbol_query`/`dep_query`).'
 api:
 - name: kuda-treesitter
   kind: module
@@ -57,7 +57,16 @@ deps:
 - kuda_core
 - kuda_extract
 - tree_sitter
-notes: ''
+notes: |
+  - `TreesitterExtractor` implements `Extractor` with `kind() == "treesitter"`; langs whose `grammar` id has no compiled grammar are skipped, and a lang without `symbol_query` falls back to `DEFAULT_RUST_QUERY` (a Rust-specific query capturing `@name.<kind>`).
+  - `language(id)` arms: `"rust"` → tree-sitter-rust, `"typescript" | "tsx"` → tree-sitter-typescript (`LANGUAGE_TYPESCRIPT`), `"python"` → tree-sitter-python, else `None`.
+  - Symbol kind comes from the capture suffix after the last `.` (`kind_of`: function/type/trait/const/module/macro → matching `SymbolKind`, else `Other`); lines are 1-based (`start_position().row + 1`); file paths are root-relative.
+  - `module_of` = nearest ancestor dir (under root) containing one of `lang.manifests` → that dir's basename, else `"_root"`; `walk_files` skips `.git`/`target`/`node_modules`/`.kuda` dirs and any dir containing a `.git` file, matching extensions with leading dots stripped.
+  - Dep edges skip `self|crate|std|core|alloc|super` and empty capture names; absent `dep_query` means no import edges for that lang. Edge `from` = the file's module, `kind = EdgeKind::Imports`.
+  - Query compile errors surface as `Err(format!("query {e}"))` (and `format!("lang {e}")` for `set_language`); unreadable/unparseable files are skipped, and `out.files` includes every file parsed.
+  - New language = data file + a `language()` arm — the vocabulary (kinds) stays fixed; deps are all workspace (`tree-sitter` 0.25, `tree-sitter-rust` 0.24, `-typescript`/`-python` 0.23, plus kuda-core/kuda-extract).
+  - `module_of`'s walk-up checks `d.starts_with(root)` *after* advancing to the parent, so it can check one dir above `root` for a manifest before breaking — a manifest just outside root could name the module (edge case vs the LSP twin, which checks before advancing).
+  - No tests ship with this crate; results depend on query data in `data/langs/*`, so a bad `symbol_query` fails the whole extraction with a `query` error rather than skipping that lang.
 verify:
 - crates/kuda-treesitter/Cargo.toml
 - crates/kuda-treesitter/src/lib.rs
@@ -89,6 +98,6 @@ provenance:
   - 7c2fd0389d4a5f973e8a3b12e27745cfb4e0ddae
   - 7c2fd0389d4a5f973e8a3b12e27745cfb4e0ddae
   - 7c2fd0389d4a5f973e8a3b12e27745cfb4e0ddae
-  commit_sha: 9d5e2043ec3be40cfae41ef3c4bd78c1f59ad3ab
-  generated_at: '1792292935'
+  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
+  generated_at: '1792295084'
   generator: kuda-template/0.1.0

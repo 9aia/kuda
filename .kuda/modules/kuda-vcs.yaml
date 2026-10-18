@@ -1,6 +1,6 @@
 name: kuda-vcs
 path: crates/kuda-vcs/Cargo.toml
-purpose: 'Vcs port: VCS operations for repos and worktrees'
+purpose: '`kuda-vcs` is the VCS port for kuda — the `Vcs` trait covering the operations the watcher and release flow need (fetch, HEAD sha, object existence, detached worktrees, tags), with the git implementation in `kuda-git` and jj/hg as future adapter crates.'
 api:
 - name: kuda-vcs
   kind: module
@@ -13,7 +13,11 @@ api:
   line: 9
   module: kuda-vcs
 deps: []
-notes: ''
+notes: |
+  - `Vcs: Send + Sync`; all methods return `bool` success — callers decide whether a failure is retryable (fetch-miss) or fatal — except `head_sha(&self, repo) -> Option<String>` (the provenance anchor, `None` on failure).
+  - Nine operations: `sync(repo)` (fetch + prune remotes so a sha can resolve), `has_commit(repo, sha)` (object existence after a sync attempt), `worktree_add(repo, dir, sha)` (detached worktree), `worktree_remove(repo, dir)` (best-effort, false on failure), `worktree_prune(repo)` (GC stale admin entries), `tag_exists(repo, tag)` (local), `tag(repo, tag)` (create, false on failure), `push_tag(repo, tag)` (to remote).
+  - The crate has **no dependencies** (`[dependencies]` is empty) — a pure port using only `std::path::Path`.
+  - Contract asymmetry to remember: `head_sha` is `Option<String>` while every other op is `bool`; `has_commit` assumes a prior `sync` attempt by the caller (the trait doc says "after a sync attempt").
 verify:
 - crates/kuda-vcs/Cargo.toml
 - crates/kuda-vcs/src/lib.rs
@@ -24,6 +28,6 @@ provenance:
   hashes:
   - a3f3978c21457dd7be4e34dc16f31231d0a68777
   - 42b4222d6e9b5d602a1923ed77281ca389f4261a
-  commit_sha: 9d5e2043ec3be40cfae41ef3c4bd78c1f59ad3ab
-  generated_at: '1792292935'
+  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
+  generated_at: '1792295084'
   generator: kuda-template/0.1.0

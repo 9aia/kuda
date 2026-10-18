@@ -1,6 +1,6 @@
 name: _root
 path: modules/dagger/tests/test_self_patch.py
-purpose: '*A hippocampus for your codebase.*'
+purpose: Regression-test harness for the embedded `_SELF_PATCH_PY` bash-heredoc script in `dagger/src/kuda/main.py`, extracting it from the module AST, applying the same placeholder substitution as `_link_repo`, and running it against fixture Cargo.tomls.
 api:
 - name: module_source
   kind: function
@@ -58,7 +58,16 @@ api:
   line: 135
   module: _root
 deps: []
-notes: ''
+notes: |
+  - `extract()` locates the `_SELF_PATCH_PY` assignment and returns the `<<'PYEOF' ... PYEOF` heredoc body; it asserts if either is absent.
+  - `run()` asserts exit code 0; `run_raw()` returns the raw `CompletedProcess` for failure assertions.
+  - The generated patch block is idempotent (exactly one `[patch."` block after rerun), rows use `../<repo>/<crate>` paths, stale rows/comments inside the old block are stripped while comments outside and later tables survive, and `patch_host` overrides the `repository` field as `host + repo name`.
+  - Missing both `repository` and `patch_host` must fail with "no patch_host" in stderr; every Load name in a public function must be a param, local, module global, or builtin.
+  - Substitution is naive `str.replace` on `REPO_DIR`, `REPO_NAME`, `__PATCH_HOST__` — `REPO_DIR` replacement happens first, so a path containing those tokens would be mangled (unlikely in fixtures).
+  - `run_raw()` always substitutes `__PATCH_HOST__` with `""`; only `run()` can pass a patch host.
+  - `make_repo()` creates `crates/foo`, `crates/bar`, `modules/baz` with trivial `Cargo.toml`s but no root `Cargo.toml` — tests write that themselves.
+  - `test_no_public_fn_forwards_undeclared_names` hardcodes an allowlist (`dagger`, `dag`, `function`, etc.); adding new module-level imports to `main.py` requires updating it.
+  - `MAIN` resolves to `dagger/src/kuda/main.py` relative to the test file's parent's parent, so the test file must stay under `modules/dagger/tests/`.
 verify:
 - modules/dagger/tests/test_self_patch.py
 - modules/dagger/tests/test_self_patch.py
@@ -96,6 +105,6 @@ provenance:
   - 203086b883ed1477efd6f9befccd76e2614cc9ea
   - 203086b883ed1477efd6f9befccd76e2614cc9ea
   - 203086b883ed1477efd6f9befccd76e2614cc9ea
-  commit_sha: 9d5e2043ec3be40cfae41ef3c4bd78c1f59ad3ab
-  generated_at: '1792292935'
+  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
+  generated_at: '1792295084'
   generator: kuda-template/0.1.0

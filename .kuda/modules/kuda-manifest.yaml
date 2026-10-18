@@ -1,6 +1,6 @@
 name: kuda-manifest
 path: crates/kuda-manifest/Cargo.toml
-purpose: 'Extract adapter: package manifests -> package graph'
+purpose: '`kuda-manifest` is the parser-free extract adapter that turns package manifests (Cargo.toml, package.json, go.mod — basenames declared by `LangDef.manifests`) into a module/package graph: one `Module` symbol per manifest plus `PackageDep` edges for declared dependencies.'
 api:
 - name: kuda-manifest
   kind: module
@@ -50,7 +50,15 @@ deps:
 - toml
 - kuda_core
 - kuda_extract
-notes: ''
+notes: |
+  - `ManifestExtractor` implements `Extractor` with `kind() == "manifest"` and always returns `Ok(Extraction)` (read/parse failures are tolerated via `unwrap_or_default` / fallbacks, never `Err`).
+  - Walk skips noise dirs `.git`/`target`/`node_modules`/`.kuda` and any dir containing a `.git` *file* (mounted worktrees); files are matched against the union of all langs' `manifests`.
+  - Module name: parsed package name (`package.name` / JSON `name` / `module ` line) else the manifest's parent dir basename, else the manifest filename; a `Symbol { kind: Module, line: 1, module }` is pushed per manifest, and `out.files` records the root-relative path.
+  - `parse_manifest` dispatches by exact basename: `Cargo.toml` → `cargo`, `package.json` → `package_json`, `go.mod` → `go_mod`, else `(None, [])`.
+  - Dep key sets: Cargo `dependencies`/`dev-dependencies`/`build-dependencies` table keys; npm `dependencies`/`devDependencies`; go.mod lines starting with `\t` and containing ` v` (first whitespace token).
+  - Unparseable manifest text yields `(None, deps=[])` — no error surfaces; deps are collected as *keys only* (versions/reqs ignored) and edges are `EdgeKind::PackageDep` regardless of format.
+  - go.mod dep heuristic (`starts_with('\t') && contains(" v")`) can match `replace`/`require`-block lines with tab indentation and any token containing " v"; `require (...)` single-line form (no leading tab) is missed.
+  - No language knowledge in the walker itself — new manifest formats are `LangDef.manifests` data plus a `parse_manifest` arm; deps (kuda-core, kuda-extract, toml, serde, serde_json) mix workspace and direct specs.
 verify:
 - crates/kuda-manifest/Cargo.toml
 - crates/kuda-manifest/src/lib.rs
@@ -79,6 +87,6 @@ provenance:
   - 8bbba445d79579dba9223047a3db4ab3990db439
   - 8bbba445d79579dba9223047a3db4ab3990db439
   - 8bbba445d79579dba9223047a3db4ab3990db439
-  commit_sha: 9d5e2043ec3be40cfae41ef3c4bd78c1f59ad3ab
-  generated_at: '1792292935'
+  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
+  generated_at: '1792295084'
   generator: kuda-template/0.1.0

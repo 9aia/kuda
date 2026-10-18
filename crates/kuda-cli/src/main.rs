@@ -290,6 +290,20 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
             .filter(|e| e.from == *module)
             .cloned()
             .collect();
+        // incremental: identical input hashes -> reuse the committed
+        // card, skip the summarizer entirely (saves agent calls)
+        let out = cards_dir.join("modules").join(format!("{}.yaml", safe(module)));
+        if out.exists() {
+            if let Ok(old) = std::fs::read_to_string(&out)
+                .map_err(|e| e.to_string())
+                .and_then(|t| kuda_cards::parse_module_card(&t))
+            {
+                if old.provenance.hashes == prov.hashes {
+                    module_names.push(module.clone());
+                    continue;
+                }
+            }
+        }
         let card_res = if use_acp {
             acp.as_ref()
                 .unwrap()

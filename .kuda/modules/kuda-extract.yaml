@@ -1,6 +1,6 @@
 name: kuda-extract
 path: crates/kuda-extract/Cargo.toml
-purpose: Extract port — pull symbols/deps/structure from source trees
+purpose: '`kuda-extract` is the extract port for kuda — the `Extractor` trait and `Extraction` result type for mechanically pulling symbols, dependency edges, and read-file lists out of source trees, with all implementations living in adapter crates (`kuda-manifest`, `kuda-treesitter`, `kuda-lsp`).'
 api:
 - name: kuda-extract
   kind: module
@@ -20,7 +20,11 @@ api:
 deps:
 - kuda-core
 - kuda_core
-notes: ''
+notes: |
+  - `Extractor: Send + Sync` with `fn kind(&self) -> &'static str` (matched against `extract.kinds` in kuda.toml) and `fn extract(&self, root: &Path, langs: &[LangDef]) -> Result<Extraction, String>`.
+  - `Extraction { symbols, edges, files }` derives `Debug, Default`; `files` feeds `Provenance.files`.
+  - Extraction is strictly mechanical — report what the grammar/manifest says, never inferred structure; new extractor = new adapter crate, new language = data file.
+  - Only dependency is `kuda-core` (`.workspace = true`).
 verify:
 - crates/kuda-extract/Cargo.toml
 - crates/kuda-extract/src/lib.rs
@@ -34,6 +38,6 @@ provenance:
   - 8474c16bc613412aaa22031cbce10ad3a1f9beea
   - ae9ba06e36b09753f52ea9ca3b2f1c9639d96e7e
   - ae9ba06e36b09753f52ea9ca3b2f1c9639d96e7e
-  commit_sha: 9d5e2043ec3be40cfae41ef3c4bd78c1f59ad3ab
-  generated_at: '1792292935'
+  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
+  generated_at: '1792295084'
   generator: kuda-template/0.1.0

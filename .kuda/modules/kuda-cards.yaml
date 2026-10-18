@@ -1,6 +1,6 @@
 name: kuda-cards
 path: crates/kuda-cards/Cargo.toml
-purpose: Card render — .kuda/index.yaml + modules/*.yaml
+purpose: '`kuda-cards` renders and parses the committed YAML card artifacts — `RepoCard` ↔ `.kuda/index.yaml` (the L0 always-load artifact) and `ModuleCard` ↔ `.kuda/modules/<name>.yaml` (L1 cards) — via serde_yaml round-trips that preserve machine fields and the human-owned `notes:` region.'
 api:
 - name: kuda-cards
   kind: module
@@ -32,7 +32,10 @@ deps:
 - serde
 - serde_yaml
 - kuda_core
-notes: ''
+notes: |
+  - All four functions are thin serde_yaml wrappers: `render_*` = `serde_yaml::to_string`, `parse_*` = `serde_yaml::from_str`, each mapping errors to `String` via `e.to_string()`.
+  - Types come from `kuda-core` (`ModuleCard`, `RepoCard`); the crate's only other deps are `serde = "1"` and `serde_yaml = "0.9"` (note: direct semver ranges, not `.workspace = true`).
+  - No validation or normalization beyond serde — a parse failure returns the serde error string; round-trip fidelity depends entirely on `kuda-core`'s serde attributes on the card types.
 verify:
 - crates/kuda-cards/Cargo.toml
 - crates/kuda-cards/src/lib.rs
@@ -52,6 +55,6 @@ provenance:
   - f432f7044c50e3cb9c64d394f3746ba0ce5d21df
   - f432f7044c50e3cb9c64d394f3746ba0ce5d21df
   - f432f7044c50e3cb9c64d394f3746ba0ce5d21df
-  commit_sha: 9d5e2043ec3be40cfae41ef3c4bd78c1f59ad3ab
-  generated_at: '1792292935'
+  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
+  generated_at: '1792295084'
   generator: kuda-template/0.1.0

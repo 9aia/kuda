@@ -1,6 +1,6 @@
 name: kuda-keyring
 path: crates/kuda-keyring/Cargo.toml
-purpose: 'Secret adapter: OS keyring via secret-tool (libsecret)'
+purpose: '`kuda-keyring` is the `Secrets` adapter for the OS keyring — shells out to `secret-tool` (libsecret) with a configurable `service` attribute, designed so headless boxes without dbus simply miss lookups and callers fall through to the file store.'
 api:
 - name: kuda-keyring
   kind: module
@@ -30,7 +30,13 @@ api:
 deps:
 - kuda-secret
 - kuda_secret
-notes: ''
+notes: |
+  - `KeyringSecrets { service }` implements `kuda_secret::Secrets` and `Default` (service `"kuda"`), which groups all kuda entries under `service = kuda`.
+  - `get(name)` runs `secret-tool lookup service <service> name <name>`, returning `None` on spawn failure/non-success/empty trimmed stdout, else the trimmed stdout.
+  - `set(name, value)` spawns `secret-tool store --label "<service>: <name>" service <service> name <name>` with piped stdin, writes `value` bytes, and returns `Err("secret-tool store failed")` (via `std::io::Error::other`) on non-success exit; spawn/write errors propagate as `io::Result`.
+  - Only dependency is `kuda-secret` (`.workspace = true`).
+  - No tests ship with this crate (all listed symbols come from `src/lib.rs` alone); behavior depends on the external `secret-tool` binary being present — `get` treats any lookup failure as "missing," which is the intended fall-through contract.
+  - `set` uses `c.stdin.as_mut().unwrap()` after spawn with `Stdio::piped`, so a pipe is guaranteed post-spawn; the label embeds the raw `name`.
 verify:
 - crates/kuda-keyring/Cargo.toml
 - crates/kuda-keyring/src/lib.rs
@@ -50,6 +56,6 @@ provenance:
   - 5242918416df1b111afa3ac068a34dd434191191
   - 5242918416df1b111afa3ac068a34dd434191191
   - 5242918416df1b111afa3ac068a34dd434191191
-  commit_sha: 9d5e2043ec3be40cfae41ef3c4bd78c1f59ad3ab
-  generated_at: '1792292935'
+  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
+  generated_at: '1792295084'
   generator: kuda-template/0.1.0

@@ -1,6 +1,6 @@
 name: kuda-config
 path: crates/kuda-config/Cargo.toml
-purpose: 'Config port: where kuda.toml-shaped config comes from'
+purpose: '`kuda-config` is the config port for kuda — a single `ConfigSource` trait declaring where `kuda_core::Config` (kuda.toml-shaped) is loaded from, with file/env/remote implementations living in adapter crates.'
 api:
 - name: kuda-config
   kind: module
@@ -14,7 +14,10 @@ api:
   module: kuda-config
 deps:
 - kuda-core
-notes: ''
+notes: |
+  - `ConfigSource: Send + Sync` with one method, `fn load(&self) -> Result<kuda_core::Config, String>`, where `Err` carries a readable message.
+  - The crate's only dependency is `kuda-core` (via `workspace = true`); the trait references `kuda_core::Config` by fully-qualified path (no `use` import).
+  - No implementations ship here — `kuda-config-toml` provides the file-based `TomlSource`, and env/remote sources are noted as future adapters.
 verify:
 - crates/kuda-config/Cargo.toml
 - crates/kuda-config/src/lib.rs
@@ -25,6 +28,6 @@ provenance:
   hashes:
   - ea8d721cf84a29a6242dfb89a1cfe55211215dbb
   - 67df5f89ce57962d01a71781e96d8378f9c284c4
-  commit_sha: 9d5e2043ec3be40cfae41ef3c4bd78c1f59ad3ab
-  generated_at: '1792292935'
+  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
+  generated_at: '1792295084'
   generator: kuda-template/0.1.0
