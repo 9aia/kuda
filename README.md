@@ -8,72 +8,76 @@ cards, module cards, a symbol/dependency graph — that agents query
 instead of re-exploring from scratch every session.
 
 ```
-repos ──► extract ──► summarize ──► index ──► store ──► query
+repos ──► extract ──► summarize ──► index ──► store ──► serve
            │            │            │         │         │
-     tree-sitter/LSP  card gen   graph +   .kuda/    CLI + MCP
-     manifests       per module   cards    artifacts   server
+   manifest/treesitter  template    graph +   .kuda/    cli |
+   /lsp                | acp        cards     artifacts  mcp | acp
 ```
 
 ## Features
 
-- tiered memory: **L0** repo card (~1k tokens, always-loadable),
-  **L1** module cards (on-demand), **L2** symbol/dep index —
-  memory is an index into code, never a copy of it
-- provenance on every card — `{files, content hashes, commit sha}`;
-  `kuda status` diffs against HEAD and reports per-card drift
-- every concern behind a port: extractors (`manifest` |
-  `tree-sitter` | `lsp`), summarizers (`template` | `llm`),
-  store (`sqlite`), vcs (`git`), serve (`cli` | `mcp`) —
-  ports/adapters are separate crates
-- language knowledge is *data* (grammar + query + manifest files),
-  not engine code — a new language is a data change, not a release
-- summarizer defaults to `template` (deterministic, zero-model);
-  `llm` is an adapter detail behind the port
-- multi-repo workspaces — sibling checkouts and git-dep edges
-  resolve across repo boundaries
-- agents consume via MCP; humans and scripts via CLI
-
-## vs. grep + re-read every session
-
-- planning: `kuda dependents EvalScheme` → every caller, across repos
-- doc sweeps: `kuda refs OldFlow --docs` → code *and* markdown/
-  comment mentions, enumerable and verifiable
-- staleness is explicit: cards say which files they describe and
-  which sha they were built at — trust is checked, not assumed
-- cards end in `verify:` file lists — memory is a hypothesis,
-  not ground truth
+- **Tiered memory**: L0 repo card (~1k tokens, always-loadable),
+  L1 module cards (on-demand), L2 symbol/dep index — memory is an
+  index *into* code, never a copy of it
+- **Provenance on every card** — `{files, hashes, commit_sha}`;
+  `kuda status` re-hashes and reports per-card drift; `mimus audit`
+  verifies independently
+- **Extraction tiers**: `manifest` (free) → `treesitter`
+  (data-driven symbol queries) → `lsp` (rust-analyzer
+  `documentSymbol`). Best available wins; absent server = silent skip
+- **Semantic summarization via ACP** — `kind = "acp"` spawns your
+  agent (`zed agent`, `claude`, `gemini`…) to write grounded card
+  prose; no API keys, template fallback always
+- **Multi-repo workspaces** — `kuda sync --workspace` indexes
+  sibling repos; `dependents`/`find`/`refs` merge across roots
+- **Agent surfaces**: MCP tool server *and* ACP session surface —
+  same index, two wire protocols
+- **Fuzzy find** — exact miss falls back to substring hits
 
 ## Install
 
-Platform: **Linux + git**. Indexing needs nothing else for the
-`manifest`/`treesitter` path; `lsp` adapter needs the language server.
-
 ```sh
-cargo install kuda                                  # crates.io (post-0.1.0)
-cargo install --git https://github.com/9aia/kuda kuda   # today
+cargo install --git https://github.com/9aia/kuda kuda
 ```
 
 ## Quickstart
 
 ```sh
 cd your-repo
-kuda init              # detect languages -> kuda.toml + .kuda/
-kuda sync              # incremental index (hash -> extract -> cards)
-kuda status            # provenance vs HEAD: "3/40 cards stale"
-kuda map               # render the L0 repo card (always-load blob)
-
-kuda card plugin-engine-exec     # module card + freshness
-kuda find EvalScheme             # symbol -> file:line
-kuda dependents apply_desugar    # reverse dep lookup
-kuda refs OldFlow --docs         # code + docs/comments mentions
-kuda mcp                         # serve the index over MCP
-kuda doctor                      # extractor/store health
+kuda init          # kuda.toml + .kuda/ skeleton
+kuda sync          # extract -> cards -> index
+kuda status        # provenance drift vs HEAD
+kuda map           # the L0 card
+kuda card <mod>    # an L1 module card
+kuda find <sym>    # exact; miss -> fuzzy hits
+kuda dependents X  # reverse dep edges (impact)
+kuda refs X --docs # code + docs/comments mentions
+kuda mcp           # MCP stdio tool server
+kuda acp           # ACP session surface
 ```
+
+## Config
+
+```toml
+[extract]
+kinds = ["manifest", "treesitter"]   # add "lsp" with rust-analyzer
+# lsp_server = "rust-analyzer"
+
+[summarize]
+kind = "template"                    # deterministic (default)
+# kind = "acp"                       # spawn an agent for card prose
+# acp_cmd = "zed agent"
+
+[workspace]
+roots = ["../cli", "../lsp"]
+```
+
+## The pair
+
+**kuda** remembers; **[mimus](https://github.com/9aia/mimus)**
+doubts — claim extraction + checkers + rules + `fix` + `audit`
+of these cards. Memory with a falsifier.
 
 ## Docs
 
-Full docs: **[9aia.com/kuda](https://9aia.com/kuda/)** — tutorial,
-how-tos, cli/config/crate-API reference, architecture (Diátaxis).
-
-[CONTRIBUTING](CONTRIBUTING.md) · [SECURITY](SECURITY.md) ·
-[LICENSE](LICENSE) (MIT) · [project](project/index.md) — TODO, backlog, ADRs
+https://9aia.com/kuda — tutorials, how-tos, reference, explanation.
