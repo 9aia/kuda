@@ -6,7 +6,7 @@ over all of them.
 
 ## 1. Declare the workspace
 
-Create `.kuda/workspace.yaml` at the checkout root (the directory
+Create `<checkout>/.kuda/workspace.yaml` (the directory
 containing the sibling repos), or inside one repo's `.kuda/`:
 
 ```yaml

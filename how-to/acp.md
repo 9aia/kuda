@@ -14,7 +14,7 @@ kuda acp     # stdio JSON-RPC server
 
 ## Prompts
 
-`session/prompt` accepts compact query strings:
+The session/prompt method accepts compact query strings:
 
 | prompt              | returns                                  |
 | ------------------- | ---------------------------------------- |
@@ -23,7 +23,7 @@ kuda acp     # stdio JSON-RPC server
 | `card <module>`     | the module card YAML                     |
 | `map` / `status`    | the L0 card (fallback for anything else) |
 
-Replies stream back as `session/update` notifications with
+Replies stream back as session/update notifications with
 `agent_message_chunk` content, then a `stopReason: end_turn`
 result.
 
