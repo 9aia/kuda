@@ -137,3 +137,13 @@ Extractor/store/config health
 
 &#xA;This document was generated automatically by
 clap-markdown.&#xA;
+
+## watch
+
+```console
+$ kuda watch
+```
+
+Watch the repo — fs events trigger debounced incremental syncs.
+Only changed modules/files re-summarize; `.git`, `.kuda`,
+`target`, `node_modules` events are ignored.
