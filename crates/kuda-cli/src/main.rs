@@ -223,8 +223,12 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
     let mut extractors: Vec<Box<dyn Extractor>> = Vec::new();
     for k in &cfg.extract.kinds {
         match k.as_str() {
-            "manifest" => extractors.push(Box::new(kuda_manifest::ManifestExtractor)),
-            "treesitter" => extractors.push(Box::new(kuda_treesitter::TreesitterExtractor)),
+            "manifest" => extractors.push(Box::new(kuda_manifest::ManifestExtractor {
+                excludes: cfg.extract.exclude.clone(),
+            })),
+            "treesitter" => extractors.push(Box::new(kuda_treesitter::TreesitterExtractor {
+                excludes: cfg.extract.exclude.clone(),
+            })),
             "lsp" => extractors.push(Box::new(kuda_lsp::LspExtractor {
                 server_cmd: cfg.extract.lsp_server.clone(),
             })),
@@ -298,7 +302,10 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
                 .map_err(|e| e.to_string())
                 .and_then(|t| kuda_cards::parse_module_card(&t))
             {
-                if old.provenance.hashes == prov.hashes {
+                // identical hashes -> reuse, but never cache a
+                // name-echo purpose (agent produced nothing —
+                // re-prompt next time instead of pinning it)
+                if old.provenance.hashes == prov.hashes && old.purpose != old.name {
                     module_names.push(module.clone());
                     continue;
                 }
@@ -691,10 +698,12 @@ fn refs_in(dir: &Path, name: &str, docs_only: bool, tag: bool) -> usize {
         for e in rd.flatten() {
             let p = e.path();
             if p.is_dir() {
-                if !matches!(
-                    e.file_name().to_str(),
-                    Some(".git" | "target" | "node_modules" | ".kuda")
-                ) {
+                if !e
+                    .file_name()
+                    .to_str()
+                    .map(|n| kuda_core::dir_excluded(n, &[]))
+                    .unwrap_or(true)
+                {
                     stack.push(p);
                 }
                 continue;

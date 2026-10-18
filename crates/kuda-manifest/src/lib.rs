@@ -7,7 +7,10 @@ use kuda_extract::{Extraction, Extractor};
 use std::collections::HashSet;
 use std::path::Path;
 
-pub struct ManifestExtractor;
+/// `excludes`: extra dir names from `[extract] exclude`.
+pub struct ManifestExtractor {
+    pub excludes: Vec<String>,
+}
 
 impl Extractor for ManifestExtractor {
     fn kind(&self) -> &'static str {
@@ -32,7 +35,7 @@ impl Extractor for ManifestExtractor {
                 if path.is_dir() {
                     // skip noise dirs + mounted git worktrees (.git
                     // as a *file* marks a worktree, not a repo dir)
-                    if !matches!(name.as_ref(), ".git" | "target" | "node_modules" | ".kuda")
+                    if !kuda_core::dir_excluded(name.as_ref(), &self.excludes)
                         && !path.join(".git").is_file()
                     {
                         stack.push(path);

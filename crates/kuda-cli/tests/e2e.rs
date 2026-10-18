@@ -20,8 +20,8 @@ fn help_and_stub() {
     for sub in ["init", "sync", "status", "map", "card", "find", "dependents", "refs", "mcp", "doctor"] {
         assert!(stdout.contains(sub), "missing subcommand {sub}");
     }
-    let out = kuda(&["sync"], &tmp);
-    assert_eq!(out.status.code(), Some(2), "stub exit code");
+    // `sync` is real now — running it in $TMPDIR would walk the
+    // whole dir; covered by init_scaffolds + dogfood instead.
 }
 
 #[test]

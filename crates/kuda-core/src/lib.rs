@@ -165,6 +165,42 @@ pub struct ExtractCfg {
     /// Server command for the lsp adapter (per-language later).
     #[serde(default)]
     pub lsp_server: Option<String>,
+    /// Extra dir/file names skipped during walks — beyond the
+    /// built-in noise set (`default_excludes`). Keeps generated,
+    /// vendored, and build output out of index, hashes, and agent
+    /// prompts (agent cost is per-file fed in).
+    #[serde(default)]
+    pub exclude: Vec<String>,
+}
+
+/// Dir names never worth indexing — applied to every walk.
+/// `[extract] exclude` adds repo-specific names on top.
+pub fn default_excludes() -> &'static [&'static str] {
+    &[
+        ".git",
+        ".kuda",
+        "target",
+        "node_modules",
+        "dist",
+        "build",
+        "out",
+        ".cache",
+        ".next",
+        ".nuxt",
+        "vendor",
+        ".venv",
+        "venv",
+        "__pycache__",
+        "coverage",
+        ".turbo",
+        ".parcel-cache",
+        "generated",
+    ]
+}
+
+/// Walk-time exclusion check: name against built-ins + config extras.
+pub fn dir_excluded(name: &str, extra: &[String]) -> bool {
+    default_excludes().contains(&name) || extra.iter().any(|e| e == name)
 }
 
 impl Default for ExtractCfg {
@@ -172,6 +208,7 @@ impl Default for ExtractCfg {
         Self {
             kinds: default_extract_kinds(),
             lsp_server: None,
+            exclude: Vec::new(),
         }
     }
 }

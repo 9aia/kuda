@@ -9,7 +9,10 @@ use kuda_extract::{Extraction, Extractor};
 use std::path::{Path, PathBuf};
 use tree_sitter::{Language, Parser, Query, QueryCursor, StreamingIterator};
 
-pub struct TreesitterExtractor;
+/// `excludes`: extra dir names from `[extract] exclude`.
+pub struct TreesitterExtractor {
+    pub excludes: Vec<String>,
+}
 
 /// Grammar id -> compiled language. Impls know concrete grammars;
 /// ids come from `data/langs/*`.
@@ -69,7 +72,7 @@ fn module_of(root: &Path, file: &Path, manifests: &[String]) -> String {
     "_root".into()
 }
 
-fn walk_files(root: &Path, exts: &[String]) -> Vec<PathBuf> {
+fn walk_files(root: &Path, exts: &[String], excludes: &[String]) -> Vec<PathBuf> {
     let mut out = Vec::new();
     let mut stack = vec![root.to_path_buf()];
     while let Some(d) = stack.pop() {
@@ -79,10 +82,12 @@ fn walk_files(root: &Path, exts: &[String]) -> Vec<PathBuf> {
         for e in rd.flatten() {
             let p = e.path();
             if p.is_dir() {
-                if !matches!(
-                    e.file_name().to_str(),
-                    Some(".git" | "target" | "node_modules" | ".kuda")
-                ) && !p.join(".git").is_file()
+                if !e
+                    .file_name()
+                    .to_str()
+                    .map(|n| kuda_core::dir_excluded(n, excludes))
+                    .unwrap_or(true)
+                    && !p.join(".git").is_file()
                 {
                     stack.push(p);
                 }
@@ -129,7 +134,7 @@ impl Extractor for TreesitterExtractor {
                 .set_language(&grammar)
                 .map_err(|e| format!("lang {e}"))?;
 
-            for file in walk_files(root, &lang.extensions) {
+            for file in walk_files(root, &lang.extensions, &self.excludes) {
                 let Ok(text) = std::fs::read_to_string(&file) else {
                     continue;
                 };
