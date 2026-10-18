@@ -10,7 +10,7 @@ cards = ".kuda/modules/*.yaml"   # audit the memory layer itself
 [check]
 mechanical = true                # paths, commands, symbols, counts
 semantic = true
-acp_cmd = "cline --acp"                 # prose-vs-behavior; report tier
+acp_cmd = "cline --acp -P cline-pass -m cline-free/mimo-v2.6-flash"                 # prose-vs-behavior; report tier
 kuda_index = ".kuda/index.sqlite"   # adapter: mimus-check-symbol — live
 
 [rules]
