@@ -1,6 +1,6 @@
 name: kuda-vcs
 path: crates/kuda-vcs/Cargo.toml
-purpose: '`kuda-vcs` is the VCS port for kuda — the `Vcs` trait covering the operations the watcher and release flow need (fetch, HEAD sha, object existence, detached worktrees, tags), with the git implementation in `kuda-git` and jj/hg as future adapter crates.'
+purpose: '`kuda-vcs` is the VCS port for kuda — the `Vcs` trait covering the operations the release flow needs (fetch, HEAD sha, object existence, detached worktrees, tags), with the git implementation in `kuda-git` and jj/hg as future adapter crates.'
 api:
 - name: kuda-vcs
   kind: module

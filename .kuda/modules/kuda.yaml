@@ -36,11 +36,11 @@ deps:
 - toml
 notes: |
   - Workspace inherits shared metadata (`version = "0.1.0"`, `edition = "2021"`, `license = "MIT"`, `repository = "https://github.com/9aia/kuda"`) via `version.workspace = true` etc. in member crates.
-  - All intra-workspace deps are declared once in `[workspace.dependencies]` with `path = "crates/<name>", version = "0.1.0"` and referenced by members as `<crate>.workspace = true`.
-  - The binary package is named `kuda` (directory `crates/kuda-cli`), so the crate dir and published crate name diverge.
-  - `resolver = "2"`; the `dist` profile inherits `release` with `lto = "thin"` (used by `dist` builds).
-  - `kuda-cli` depends on 16 `kuda-*` workspace crates plus `clap`, `toml`, `serde_json`, `serde_yaml`, and the non-workspace `clap-markdown = "0.1.5"`; `kuda-secret`, `kuda-keyring`, `kuda-dotenv` are workspace members not linked into the CLI.
-  - Workspace-level shared deps include `rusqlite` with `bundled` (0.32), `tree-sitter` 0.25, and tree-sitter grammars for rust/typescript/python.
+  - Intra-workspace deps are declared once in `[workspace.dependencies]` with `path = "crates/<name>", version = "0.1.0"` and referenced by members as `<crate>.workspace = true`; external crates (serde, toml, clap, tree-sitter, rusqlite…) share the same table with plain version specs.
+  - The package *and* binary are both named `kuda`; only the crate directory (`crates/kuda-cli`) diverges from the published name.
+  - `resolver = "2"`; a `dist` profile inherits `release` with `lto = "thin"`.
+  - `kuda-cli` links 16 `kuda-*` workspace crates plus `clap`, `toml`, `serde_json`, `serde_yaml`, and the non-workspace `clap-markdown = "0.1.5"`; `kuda-secret`, `kuda-keyring`, `kuda-dotenv` are workspace members not linked into the CLI.
+  - Workspace-level shared deps include `rusqlite` with `bundled` (0.32), `tree-sitter` 0.25, and the language grammars `tree-sitter-rust` 0.24, `tree-sitter-typescript` 0.23, `tree-sitter-python` 0.23.
 verify:
 - Cargo.toml
 - crates/kuda-cli/Cargo.toml
