@@ -1,6 +1,6 @@
 name: kuda-config
 path: crates/kuda-config/Cargo.toml
-purpose: 'purpose: Port crate that defines the `ConfigSource` trait, the abstraction for where kuda''s `Config` value (from `kuda-core`) comes from. Adapters implement it. The crate doc names `kuda-config-toml` (file) as the implementation and says env or remote sources would be new adapters.'
+purpose: 'Config port: where kuda.toml-shaped config comes from'
 api:
 - name: kuda-config
   kind: module
@@ -14,15 +14,7 @@ api:
   module: kuda-config
 deps:
 - kuda-core
-notes: |-
-  invariants:
-  - `ConfigSource: Send + Sync` has one method, `fn load(&self) -> Result<kuda_core::Config, String>`. The doc comment says it loads and validates, and that `Err` carries a readable message.
-  - The only dependency is `kuda-core` (workspace). The crate contains the trait only, with no implementations and no I/O.
-  notes:
-  - Errors are plain `String`, not a typed error. Callers cannot match on error kinds.
-  - The `Send + Sync` bound means every adapter must be thread-safe.
-  - `kuda-cli` consumes this port: it imports `kuda_config::ConfigSource` and calls `TomlSource { path }.load()`. `load_config` there turns any error into `Config::default()`, so a failed load can go unnoticed. Only `doctor` prints the error.
-  - `lib.rs` has no tests.
+notes: ''
 verify:
 - crates/kuda-config/Cargo.toml
 - crates/kuda-config/src/lib.rs
@@ -33,6 +25,6 @@ provenance:
   hashes:
   - ea8d721cf84a29a6242dfb89a1cfe55211215dbb
   - 67df5f89ce57962d01a71781e96d8378f9c284c4
-  commit_sha: f7a704f765bc369df6fb5fccdd8ad901ced30580
-  generated_at: '1792287417'
+  commit_sha: bb7eb68066ad06e04cc7f84e79938ce4a21ee87d
+  generated_at: '1792292542'
   generator: kuda-template/0.1.0

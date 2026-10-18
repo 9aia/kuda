@@ -1,6 +1,6 @@
 name: kuda
 path: Cargo.toml
-purpose: 'purpose: Root Cargo workspace for kuda, "A hippocampus for your codebase — repo memory: index, query, verify". It also defines the `kuda` CLI package (`crates/kuda-cli`), whose binary is named `kuda` and built from `src/main.rs`.'
+purpose: '*A hippocampus for your codebase.*'
 api:
 - name: kuda
   kind: module
@@ -34,20 +34,7 @@ deps:
 - serde_json
 - serde_yaml
 - toml
-notes: |-
-  invariants:
-  - The workspace uses `resolver = "2"` and lists 20 member crates, all under `crates/`: `kuda-cli`, `kuda-core`, `kuda-extract`, `kuda-manifest`, `kuda-treesitter`, `kuda-lsp`, `kuda-acp`, `kuda-store`, `kuda-store-sqlite`, `kuda-summarize`, `kuda-template`, `kuda-query`, `kuda-cards`, `kuda-vcs`, `kuda-git`, `kuda-secret`, `kuda-keyring`, `kuda-dotenv`, `kuda-config` and `kuda-config-toml`.
-  - `[workspace.package]` sets version `0.1.0`, edition `2021`, license `MIT` and repository `https://github.com/9aia/kuda`. The `kuda` CLI crate inherits `version`, `edition`, `license` and `repository` via `.workspace = true`.
-  - Each internal crate is declared in `[workspace.dependencies]` as `{ path = "crates/<name>", version = "0.1.0" }`. The CLI depends on them with `.workspace = true`.
-  - Shared third-party versions are pinned once in `[workspace.dependencies]`: `serde` 1 (derive), `serde_json` 1, `serde_yaml` 0.9, `toml` 0.8, `clap` 4 (derive), `rusqlite` 0.32 (bundled), `tree-sitter` 0.25, `tree-sitter-rust` 0.24, `tree-sitter-typescript` 0.23 and `tree-sitter-python` 0.23.
-  - The `kuda` CLI package depends on 16 internal crates: core, extract, manifest, treesitter, lsp, acp, store, store-sqlite, summarize, template, query, cards, vcs, git, config and config-toml. It also depends on workspace `clap`, `toml`, `serde_json` and `serde_yaml`.
-  - `[profile.dist]` inherits `release` with `lto = "thin"`. Its comment says it is the profile that `dist` builds with.
-  notes:
-  - The package name is `kuda` (the directory is `crates/kuda-cli`). Use `-p kuda`, not `-p kuda-cli`.
-  - `kuda-secret`, `kuda-keyring` and `kuda-dotenv` are workspace members with workspace dependency entries. The `kuda` CLI package does not depend on them.
-  - `clap-markdown = "0.1.5"` is the only dependency in the CLI manifest that is pinned locally rather than through `[workspace.dependencies]`.
-  - The root manifest is a pure workspace with no `[package]`. All `kuda-*` internal crates use the same version, `0.1.0`, in `[workspace.dependencies]`. Each version bump must change every entry there and `workspace.package.version`.
-  - The workspace `repository` URL is the one the dagger module's self-patch script derives the `[patch."..."]` key from when no `patch_host` is given.
+notes: ''
 verify:
 - Cargo.toml
 - crates/kuda-cli/Cargo.toml
@@ -58,6 +45,6 @@ provenance:
   hashes:
   - a9628d0c5439f13cf0803135f96457bfdadb7c89
   - 7b03ae9b198d29a234a4368a9cdbbcc7e3b95cc9
-  commit_sha: f7a704f765bc369df6fb5fccdd8ad901ced30580
-  generated_at: '1792287417'
+  commit_sha: bb7eb68066ad06e04cc7f84e79938ce4a21ee87d
+  generated_at: '1792292542'
   generator: kuda-template/0.1.0

@@ -1,6 +1,6 @@
 name: dagger
 path: modules/dagger/dagger/pyproject.toml
-purpose: 'Part of the file was truncated, so I''ll read lines 86–345.purpose: Dagger module `kuda`, a shared CI toolkit for Rust workspaces. It builds a toolchain container with the consumer repo mounted at `/work/<repo>`, links and self-patches the Cargo manifests, and exposes pipeline functions: `doctor`, `test` (sharded nextest plus doctests), coverage, and an arbitrary-script `run`.'
+purpose: '*A hippocampus for your codebase.*'
 api:
 - name: dagger
   kind: module
@@ -83,37 +83,7 @@ api:
   line: 416
   module: dagger
 deps: []
-notes: |-
-  invariants:
-  - `_base` builds the toolchain image from `rust:slim`. It adds git, python3, clang/lld and similar via apt, plus nextest, `llvm-tools-preview`, cargo-llvm-cov and sccache.
-  - `_workspace` mounts the source at `/work/<repo>` and each sibling at `/work/<name>`, and sets the workdir to `/work/<repo>`. It sets `RUSTC_WRAPPER=sccache`, `SCCACHE_DIR=/sccache` and every `CARGO_ENV` entry.
-  - Cache volumes: `kuda-cargo-registry`, `kuda-cargo-git`, `kuda-<repo>-target` (mounted at `/work/<repo>/target`) and `kuda-sccache`.
-  - Secrets are mounted only when supplied: `token` goes to `/run/secrets/kuda-token`, and `sccache_conf` goes to `/run/secrets/sccache-env`.
-  - The token is never baked into a layer. `_exec` prepends `_AUTH_GIT_CONFIG` (a git `insteadOf` rewrite that reads the secret) to the script inside the exec when `authed` is true. When `sccache_env` is true it also prepends a `set -a && . /run/secrets/sccache-env` sourcing step.
-  - `_link_repo` runs once per repo in `[repo, *siblings]` and does two things:
-  - dev-link: it runs `/work/<main_repo>/scripts/dev-link.sh /work/<name>` if that script exists. Otherwise it deletes the `# dev-link: begin` to `# dev-link: end` block from `Cargo.toml` with `sed`.
-  - self-patch: it runs `_SELF_PATCH_PY`, with `REPO_DIR`, `REPO_NAME` and `__PATCH_HOST__` substituted by plain string replacement.
-  - `_SELF_PATCH_PY` takes the patch URL from `patch_host` (`<patch_host>/<repo name>`) when given. Otherwise it uses the `repository` field of `Cargo.toml`, with any `.git` suffix removed, and it exits with an error if neither exists. It removes an existing patch table with the same key, then appends fresh path rows for `crates/*` and `modules/*` packages. Rows use `../<repo>/<dir>` paths, relative to the parent of the repo dir.
-  - `Source` defaults to the consumer's `.` and ignores `target`, `.git`, `coverage`, `node_modules`, `dagger/.venv` and `dagger/sdk`.
-  - `test` runs `cargo fetch --locked` once before fan-out, then runs `shards` `test_shard` calls plus `doctests` concurrently via `asyncio.gather(..., return_exceptions=True)`. It collects all failures into a single `RuntimeError` that reports how many of the stages failed.
-  - `test_shard` runs `cargo nextest run --workspace -j <jobs> --partition count:<shard>/<shards>`. `doctests` runs `cargo test --doc --workspace`.
-  - `coverage_report` runs `./scripts/coverage.sh --summary` and then `cargo llvm-cov --workspace --lcov --output-path coverage/lcov.info`. It returns the `/work/<repo>/coverage` directory.
-  - `coverage_gate` runs `./scripts/coverage.sh --tooling-gate`.
-  - `workspace`, `with_sibling` and `run_script` are synchronous composition primitives that return a `dagger.Container`. They exist for consumer modules.
-  - Project metadata in `pyproject.toml`: package `kuda`, Python `>=3.14`, depends on `dagger-io` from the local `sdk` path (editable) via `[tool.uv.sources]`.
-  notes:
-  - `_exec` accepts `patch_host`, but it is unused in its body. `patch_host` only takes effect through `_workspace` and `_link_repo`.
-  - `run_script` does not take `patch_host` or `token`. It only toggles auth and sccache sourcing through the `authed` and `sccache_env` flags, and it assumes the container already has the matching secrets mounted.
-  - `with_sibling` mounts the sibling with a `kuda-<name>-target` cache and links it with `main_repo`'s dev-link script. `_workspace` calls `_link_repo` for siblings but does not add a target cache for them.
-  - `_workspace` takes a `siblings` dict, but no public `@function` passes it. Siblings are only added through `with_sibling`.
-  - The `patch_host` regression is guarded by the sibling test `modules/dagger/tests/test_self_patch.py`. The test checks that function bodies don't use undeclared names.
-  - The self-patch script is a string constant. Its `\\n` escapes are decoded by Python before bash receives it. Editing it needs the same escape care, because the tests extract it from the AST.
-  - In `_SELF_PATCH_PY`, the `__PATCH_HOST__` replacement runs after `REPO_DIR` and `REPO_NAME`. The script treats a value that still starts with `__` as "not provided".
-  - `_SELF_PATCH_PY` normalizes the file tail to a trailing blank line before appending, so reruns are byte-identical. It only scans `crates/*/Cargo.toml` and `modules/*/Cargo.toml`, and only for a top-level-looking `name = "..."` line.
-  - `test_shard` keeps `-j` low by default (`jobs=2`) because heavy suites are memory-bound. The code comment says to scale with `shards`, not `jobs`.
-  - `_base` downloads "latest" nextest, cargo-llvm-cov and sccache (the last via the GitHub API) at build time. The cargo-llvm-cov and sccache tarballs are x86_64 musl builds, so the image is not pinned and is x86_64-only.
-  - `coverage_report` and `coverage_gate` require the consumer repo to have `scripts/coverage.sh`.
-  - `doctor` checks tool versions and prints `grep -c 'patch\.' Cargo.toml`. It doesn't compile any Rust.
+notes: ''
 verify:
 - modules/dagger/dagger/pyproject.toml
 - modules/dagger/dagger/src/kuda/main.py
@@ -166,6 +136,6 @@ provenance:
   - d71646b878b3eae72aa42a5791588701197fdb2d
   - d71646b878b3eae72aa42a5791588701197fdb2d
   - d71646b878b3eae72aa42a5791588701197fdb2d
-  commit_sha: f7a704f765bc369df6fb5fccdd8ad901ced30580
-  generated_at: '1792287417'
+  commit_sha: bb7eb68066ad06e04cc7f84e79938ce4a21ee87d
+  generated_at: '1792292542'
   generator: kuda-template/0.1.0

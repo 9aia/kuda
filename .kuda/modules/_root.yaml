@@ -1,6 +1,6 @@
 name: _root
 path: modules/dagger/tests/test_self_patch.py
-purpose: 'purpose: Pytest regression suite for the `_SELF_PATCH_PY` script embedded in `modules/dagger/dagger/src/kuda/main.py`. It pulls the script out of the module AST, substitutes the placeholders, runs it with `python3 -c` against fixture Cargo.toml workspaces in tmp dirs, and also statically checks that no function in `main.py` uses undeclared names. Run it with `pytest modules/dagger/tests/`.'
+purpose: '*A hippocampus for your codebase.*'
 api:
 - name: module_source
   kind: function
@@ -58,27 +58,7 @@ api:
   line: 135
   module: _root
 deps: []
-notes: |-
-  invariants:
-  - `extract()` reads the `_SELF_PATCH_PY` assignment from the AST of `main.py` and returns the text between `<<'PYEOF'\n` and `PYEOF`. It asserts if the heredoc or the assignment is missing.
-  - `run`/`run_raw` replace `REPO_DIR`, `REPO_NAME` and `__PATCH_HOST__` in the script before running it. `run` asserts a zero exit code. `run_raw` always passes an empty patch host and returns the `CompletedProcess` without asserting.
-  - `make_repo` builds a `fixture` repo with three crates: `crates/foo`, `crates/bar` and `modules/baz`. Each has a minimal `Cargo.toml` with `[package]`, name and version.
-  - Expected patch output:
-  - The script appends a `[patch."<url>"]` block to the root `Cargo.toml`.
-  - The URL comes from `workspace.package.repository`.
-  - Each row is `name = { path = "../fixture/<dir>" }`, for example `foo = { path = "../fixture/crates/foo" }`.
-  - A non-empty `patch_host` overrides `repository`. The patch table key becomes `<patch_host>/<repo name>`, for example `https://github.com/other-org/fixture`.
-  - The script is idempotent. A second run leaves `Cargo.toml` byte-identical, and the file contains exactly one `[patch."` block.
-  - Rerunning removes a pre-existing patch block for the same URL, including stale rows and comments inside it. Comments outside the block (`# keep this comment`) and later tables (`[dependencies]`) are kept.
-  - With no `repository` field and no patch host, the script exits non-zero and stderr contains "no patch_host".
-  - `test_no_public_fn_forwards_undeclared_names` checks every function in `main.py`. Each Load-context name must be a parameter, a local binding, a module-level assigned global, a builtin, or one of these allowed names: `dagger`, `dag`, `function`, `object_type`, `asyncio`, `Optional`, `Annotated`, `DefaultPath`, `Ignore`, `self`.
-  notes:
-  - The tests need `python3` on PATH and read `main.py` from disk. They do not run the Dagger module or bash.
-  - Placeholder replacement is plain string `.replace`, matching what `_link_repo` does according to the docstring. A repo path or name containing a placeholder substring would be mangled.
-  - The Cargo.toml fixtures are plain strings and are not parsed as TOML. The script is exercised on the text layout used in the tests.
-  - The undeclared-names check collects module globals only from top-level `ast.Assign` nodes with a single `Name` target. Globals defined through imports, `def`, `class` or annotated assignments are not counted. A function using such a name would need it added to the allow-list, or the test fails.
-  - The undeclared-names check is guarded by `ast.walk` over each function, so nested functions are checked together with their enclosing ones. Names bound in nested scopes count as bound for the outer function.
-  - The check exists for the "patch_host regression class", where a function referenced a name it never declared.
+notes: ''
 verify:
 - modules/dagger/tests/test_self_patch.py
 - modules/dagger/tests/test_self_patch.py
@@ -116,6 +96,6 @@ provenance:
   - 203086b883ed1477efd6f9befccd76e2614cc9ea
   - 203086b883ed1477efd6f9befccd76e2614cc9ea
   - 203086b883ed1477efd6f9befccd76e2614cc9ea
-  commit_sha: f7a704f765bc369df6fb5fccdd8ad901ced30580
-  generated_at: '1792287417'
+  commit_sha: bb7eb68066ad06e04cc7f84e79938ce4a21ee87d
+  generated_at: '1792292542'
   generator: kuda-template/0.1.0

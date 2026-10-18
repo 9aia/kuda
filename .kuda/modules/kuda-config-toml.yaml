@@ -1,6 +1,6 @@
 name: kuda-config-toml
 path: crates/kuda-config-toml/Cargo.toml
-purpose: 'purpose: TOML-file adapter implementing `kuda_config::ConfigSource` as `TomlSource`. It locates a `kuda.toml` and deserializes it into `kuda_core::Config`.'
+purpose: 'Config adapter: kuda.toml file (explicit path, env, ./, ~/.config)'
 api:
 - name: kuda-config-toml
   kind: module
@@ -44,22 +44,7 @@ deps:
 - kuda_config
 - kuda_config_toml
 - kuda_config
-notes: |-
-  invariants:
-  - `TomlSource { path: Option<String> }` holds the explicit `--config` path, or `None` for the default search.
-  - Lookup order is: explicit `path`, then the `KUDA_CONFIG` env var, then `./kuda.toml`, then `$HOME/.config/kuda/kuda.toml`. If `HOME` is unset, the last candidate is `./.config/kuda/kuda.toml`.
-  - An explicit path or `KUDA_CONFIG` becomes the only candidate. There is no fallback to `./kuda.toml` or `~/.config` if it doesn't exist.
-  - The first candidate that exists is read and parsed, and loading stops there. Read failures give `Err("read <path>: ...")`. Parse failures give `Err("parse <path>: ...")`, using `toml::from_str` directly into `Config`, so the file must match the `kuda_core::Config` shape.
-  - If no candidate exists, it returns `Err("no kuda.toml found (search: $KUDA_CONFIG, ., ~/.config/kuda/)")`. All errors are `String`.
-  - Dependencies are `kuda-config`, `kuda-core` and `toml` 0.8. `toml` is pinned in this crate's `Cargo.toml` rather than via `workspace = true`.
-  - The tests in `tests/load.rs` cover two cases. `loads_via_env_var` loads a config through `KUDA_CONFIG`. `explicit_path_and_missing_error` loads from an explicit path and checks that a nonexistent path gives an error. The helper `tmp(tag)` builds a temp-dir path from the process id, and `CFG` is the TOML fixture with the `extract`, `summarize` and `store` tables.
-  notes:
-  - The doc comment on `load` isn't spelled out, but the code does not validate the config beyond TOML deserialization. The `ConfigSource` trait doc says "load + validate".
-  - `loads_via_env_var` mutates the process-wide `KUDA_CONFIG` env var with `unsafe { set_var / remove_var }`, and the fixture file is removed only at the end. If an assertion fails, the env var and file are left behind. The other test in this file passes an explicit path, which takes precedence over `KUDA_CONFIG`, so it does not depend on that variable.
-  - `HOME` is read directly, with no `dirs` crate, so the `~/.config` lookup is Unix-style only.
-  - Search of `./kuda.toml` is relative to the current working directory at call time, not to the config root.
-  - The default-search tests (`./kuda.toml`, `~/.config`) are not covered.
-  - `kuda-cli` falls back to `Config::default()` on any error from this adapter.
+notes: ''
 verify:
 - crates/kuda-config-toml/Cargo.toml
 - crates/kuda-config-toml/tests/load.rs
@@ -85,6 +70,6 @@ provenance:
   - 6f5371079a853f0282a1e9ce5afa661fcd1d1bcf
   - b12116b476081aedcaf4ea623af3ff70bc65999c
   - b12116b476081aedcaf4ea623af3ff70bc65999c
-  commit_sha: f7a704f765bc369df6fb5fccdd8ad901ced30580
-  generated_at: '1792287417'
+  commit_sha: bb7eb68066ad06e04cc7f84e79938ce4a21ee87d
+  generated_at: '1792292542'
   generator: kuda-template/0.1.0
