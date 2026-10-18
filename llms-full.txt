@@ -411,14 +411,14 @@ acp_cmd = "cline --acp -P cline-pass -m cline-free/mimo-v2.6-flash"
 ```
 
 `sync` spawns the agent once per run (one session, reused across
-modules) and sends each module a `session/prompt` asking for
+modules) and sends each module a session/prompt asking for
 `purpose:`/`invariants:`/`notes:` grounded in the file list. The
 agent's prose fills the card's `purpose` + `notes` regions —
 `api`/`deps`/`verify`/`provenance` stay mechanical.
 
 Protocol notes:
 
-* `session/request_permission` from the agent is auto-answered
+* session/request_permission from the agent is auto-answered
   with the first option — required, or the prompt deadlocks
 * Any ACP-capable agent works: `cline --acp`, `zed agent`,
   `gemini --experimental-acp`, …
