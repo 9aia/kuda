@@ -34,6 +34,7 @@
 |---|---|---|---|
 | `kind` | `string` | optional | "template" (deterministic, default) \| "acp" (agent-spawned). |
 | `acp_cmd` | `string` | optional | ACP agent spawn command for kind="acp" — e.g. `env CLINE_PROVIDER=… CLINE_MODEL=… cline --acp`. |
+| `file_cards` | `bool` | optional | L1.5 per-file chunked summaries (`.kuda/files/`). ~10-50x module-card prompt count; per-file hash gate bounds steady state. |
 | `provider` | `string` | optional | Provider id for the llm adapter (parked); key resolves via secrets chain. |
 | `model` | `string` | optional | — |
 
