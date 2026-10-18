@@ -1,6 +1,6 @@
 name: kuda-cli
 path: crates/kuda-cli/tests/e2e.rs
-purpose: '*A hippocampus for your codebase.*'
+purpose: It's odd that the e2e test treats `sync` as a stub returning exit 2, yet it looks implemented—I should dig deeper into the rest of the file to understand the discrepancy.
 api:
 - name: kuda
   kind: function
@@ -90,97 +90,97 @@ api:
 - name: module_purpose
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 400
+  line: 399
   module: kuda-cli
 - name: crate_doc_purpose
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 409
+  line: 408
   module: kuda-cli
 - name: readme_purpose
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 426
+  line: 425
   module: kuda-cli
 - name: manifest_purpose
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 435
+  line: 434
   module: kuda-cli
 - name: safe
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 451
+  line: 450
   module: kuda-cli
 - name: detect_commands
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 463
+  line: 462
   module: kuda-cli
 - name: status
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 478
+  line: 477
   module: kuda-cli
 - name: map
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 515
+  line: 514
   module: kuda-cli
 - name: card
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 519
+  line: 518
   module: kuda-cli
 - name: cat_file
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 523
+  line: 522
   module: kuda-cli
 - name: find
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 536
+  line: 535
   module: kuda-cli
 - name: repo_tag
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 577
+  line: 576
   module: kuda-cli
 - name: dependents
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 583
+  line: 582
   module: kuda-cli
 - name: refs
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 621
+  line: 620
   module: kuda-cli
 - name: refs_in
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 663
+  line: 662
   module: kuda-cli
 - name: mcp
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 716
+  line: 715
   module: kuda-cli
 - name: acp
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 817
+  line: 816
   module: kuda-cli
 - name: acp_answer
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 873
+  line: 872
   module: kuda-cli
 - name: doctor
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 902
+  line: 901
   module: kuda-cli
 deps:
 - clap
@@ -193,7 +193,47 @@ deps:
 - kuda_summarize
 - serde_json
 - serde_json
-notes: ''
+notes: |-
+  I still need to see the truncated section and the remaining parts covering mcp, acp, and doctor. I also notice something worth checking: the e2e test expects `sync` to exit with code 2 as a stub, but sync appears to be implemented now, so that test may be stale and worth verifying against the actual behavior in a temp directory.
+  I notice the e2e test expects `kuda sync` to return exit code 2 as a stub, but since sync is now actually implemented, running it in a temp directory without config would likely just return 0 — meaning that test is probably stale and will fail now. I should flag this discrepancy carefully rather than assume it's correct.
+  I also want to double check the init test with no --config flag, which should default root to the current directory, and confirm the help list includes refs, mcp, doctor, and acp subcommands that actually exist in the code. Let me go look at the truncated mcp section around lines 747-836 to verify.
+  I'm noticing the e2e test for help_and_stub expects sync to exit with code 2, but the actual sync code path only returns 0 or 1 (since code 2 is reserved for status), so this test is likely stale and failing against current behavior.
+  purpose: Composition-root CLI `kuda` (package `kuda`, `crates/kuda-cli`). It parses `kuda.toml`, wires the extractor, summarizer, store and card adapters, and runs the subcommands `init`, `sync`, `status`, `map`, `card`, `find`, `dependents`, `refs`, `mcp`, `acp`, `doctor` and the hidden `gen-cli-docs`. `tests/e2e.rs` smoke-tests the binary.
+  invariants:
+  - `Cli` has global flags `--config` and `--workspace`. `root()` is the parent directory of `--config`, canonicalized, or `.` if that fails.
+  - `load_config` falls back to `Config::default()` on any load error. `EXAMPLE_TOML` and `LANG_TOMLS` (rust, typescript, python, go) are embedded with `include_str!` from `examples/` and `data/langs/`. `langs()` silently drops any lang TOML that fails to parse.
+  - `init` refuses to overwrite an existing `kuda.toml`: it prints a message and returns 1. Otherwise it writes `EXAMPLE_TOML` and creates `.kuda/` and `.kuda/modules/`.
+  - `sync` runs `sync_one` for each root, ORing the exit codes. With `--workspace` the roots come from `.kuda/workspace.yaml` (`roots:`, resolved relative to the file's directory). It falls back to the current dir if there are no roots. The `--full` flag is accepted but ignored (`_full`).
+  - `sync_one` builds extractors from `cfg.extract.kinds` (`manifest`, `treesitter`, `lsp`) and prints a message for an unknown kind. It groups symbols by module and creates `<cards.dir>/modules`. It opens the sqlite store at `cfg.store.path`, and returns 1 if either step fails.
+  - Per module, `sync_one` builds `Provenance` (file hashes from `git hash-object`, `commit_sha`, `generated_at` as unix seconds, and generator `kuda-template/0.1.0`). It then summarizes, writes `modules/<safe(name)>.yaml` via `kuda_cards::render_module_card`, and calls `store.replace_module`. Afterwards it writes `index.yaml` (the `RepoCard` with a detected `commands` list), sets `commit_sha` and `generated_at` in the store meta table, writes `meta.json`, and prints `indexed N module(s) at <sha7>`.
+  - ACP summarization is used only when `cfg.summarize.kind == "acp"` and `acp_cmd` is set. If it fails for a module, that module falls back to `TemplateSummarizer` with a message on stderr. Any other `kind` uses the template summarizer.
+  - Purpose fallback chain, applied only when `card.purpose == card.name`: manifest `description` (`Cargo.toml` `[package]` or `package.json`), then the first `//!` line in `src/lib.rs`, then in `src/main.rs`, then the module README, then the root README. README lines starting with `#`, `!` or `[` are skipped. The repo-card purpose uses `readme_purpose` of the root `README.md` only.
+  - `safe()` maps every character that is not ASCII alphanumeric, `-`, `_` or `.` to `_`. It is used for card file names in `sync_one`, `card`, `mcp` and `acp`.
+  - `status` reads `.kuda/modules/*.yaml` and compares each card's provenance hashes with fresh `git hash-object` output. A card is "drifted" if any hash differs or the file counts differ. It prints `N fresh, M drifted (HEAD <sha7>)` and returns 2 when `.kuda/modules` is missing.
+  - `map` and `card` print `.kuda/index.yaml` and `.kuda/modules/<safe(module)>.yaml` via `cat_file`, which returns 1 on a read error.
+  - `find` tries an exact `kuda_query::find` and falls back to `kuda_query::search`, tagging fuzzy hits with ` (fuzzy)`. In multi-root mode, hits and `refs` output are tagged with `repo_tag(root)`. `find` returns 1 when there are no hits.
+  - `dependents` collects edges across roots and prints `from --kind--> to`. It returns 0 even when nothing depends on the name.
+  - `refs`:
+  - It is a textual line scan of files with fixed extensions (`md`, `mdx`, `rst`, `txt` with `--docs`, a wider list otherwise).
+  - It skips `.git`, `target`, `node_modules` and `.kuda`.
+  - Without `--docs` it first tries LSP references if `lsp` is in `extract.kinds` and `lsp_server` is set. It returns after the LSP step if that finds hits.
+  - It returns 0 even when there are no mentions.
+  - `mcp` is a line-delimited JSON-RPC 2.0 stdio server (protocol `2024-11-05`) with tools `repo_card`, `module_card`, `find`, `dependents`, `status`, `refs`. Notifications are ignored.
+  - `acp` is a minimal ACP agent over stdio (protocolVersion 1). `session/new` always returns `sessionId` `"kuda-default"`. `session/prompt` streams one `agent_message_chunk` and then replies `end_turn`. `acp_answer` handles verbs `find`, `dependents`/`deps` and `card`. Any other prompt, including `map` and `status`, returns the L0 `index.yaml`.
+  - `doctor` only prints the config load result and a hardcoded adapters line. It always returns 0.
+  - `gen-cli-docs` prints `clap_markdown::help_markdown::<Cli>()`.
+  - `e2e.rs` runs the binary through `CARGO_BIN_EXE_kuda`. `help_and_stub` checks that `--help` lists `init`, `sync`, `status`, `map`, `card`, `find`, `dependents`, `refs`, `mcp` and `doctor`. `init_scaffolds` runs `init` in a temp dir, checks `kuda.toml` and `.kuda/modules`, and expects a second `init` to exit 1.
+  notes:
+  - `help_and_stub` asserts that `kuda sync` in the system temp dir exits with code 2 ("stub exit code"). `sync` now returns `sync_one`'s codes, which are 0 or 1, and nothing in `sync` returns 2, so this assertion looks stale. Only `status` returns 2. I did not run the tests.
+  - `status` and `sync` store `commit_sha` and write `meta.json` by hand-formatted JSON. `generated_at` is raw unix seconds and is not quoted in `meta.json`.
+  - `status` ignores `--workspace`, because it only scans `<root>/.kuda/modules`. `card`, `map`, `mcp` and `acp` are also single-root.
+  - `workspace` mode in `find`, `dependents` and `refs` opens each root's own store at `cfg.store.path`, using the config loaded from the current root.
+  - `init` doesn't detect languages despite its help text ("Detect languages -> kuda.toml + .kuda/ scaffold"). It copies `EXAMPLE_TOML`.
+  - `sync_one` uses `syms[0].file` as the card path. Each module's provenance covers only the files its symbols come from, not the module's other source files. Its provenance generator string is always `kuda-template/0.1.0`, even for ACP-written cards. The repo card uses `kuda/0.1.0`.
+  - `hash_files` yields an empty string for a file that git can't hash, such as one outside a repo or untracked and missing. Drift detection then compares against that empty value.
+  - `kuda_git::GitVcs.head_sha` failing gives the sha `"unknown"` in `sync_one`. `status` falls back to an empty string.
+  - `doctor`'s adapters line is hardcoded text and says "llm pending". It doesn't probe adapters.
+  - `mcp` and `acp` duplicate the find and dependents formatting code, as does `find` in the CLI.
 verify:
 - crates/kuda-cli/tests/e2e.rs
 - crates/kuda-cli/tests/e2e.rs
@@ -273,39 +313,39 @@ provenance:
   - 0957ef1562103a61e15ff88377b9d026e0d140ab
   - 0957ef1562103a61e15ff88377b9d026e0d140ab
   - 0957ef1562103a61e15ff88377b9d026e0d140ab
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  - 81ea556993921fdb599d20e00f76091a2edecae2
-  commit_sha: f44070073017d0b1e1f771396234ca0fdbf4e5e1
-  generated_at: '1792285762'
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  - 616b5558ee7bd2d5d82f2bba898dc2fc6eb0f1dc
+  commit_sha: f7a704f765bc369df6fb5fccdd8ad901ced30580
+  generated_at: '1792287417'
   generator: kuda-template/0.1.0

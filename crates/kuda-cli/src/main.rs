@@ -263,12 +263,11 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
     };
 
     // summarizer adapter: acp spawns an agent; anything else is template
-    let acp = cfg.summarize.acp_cmd.clone().map(|cmd| {
-        kuda_acp::AcpSummarizer {
-            cmd,
-            root: dir.to_path_buf(),
-        }
-    });
+    let acp = cfg
+        .summarize
+        .acp_cmd
+        .clone()
+        .map(|cmd| kuda_acp::AcpSummarizer::new(cmd, dir.to_path_buf()));
     let use_acp = cfg.summarize.kind == "acp" && acp.is_some();
     let summ = kuda_template::TemplateSummarizer;
     let mut module_names = Vec::new();

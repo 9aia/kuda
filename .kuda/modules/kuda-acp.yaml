@@ -1,6 +1,6 @@
 name: kuda-acp
 path: crates/kuda-acp/Cargo.toml
-purpose: 'Summarizer adapter: spawns an ACP agent to write grounded module cards'
+purpose: 'purpose: Summarizer adapter that implements `kuda_summarize::Summarizer` as `AcpSummarizer`. It spawns an external ACP agent command (for example `cline --acp`) and talks to it over JSON-RPC on stdio, and the agent writes the prose for a `ModuleCard`. Auth stays in the user''s agent, so kuda holds no API keys.'
 api:
 - name: kuda-acp
   kind: module
@@ -12,40 +12,45 @@ api:
   file: crates/kuda-acp/src/lib.rs
   line: 15
   module: kuda-acp
+- name: new
+  kind: function
+  file: crates/kuda-acp/src/lib.rs
+  line: 26
+  module: kuda-acp
 - name: AcpClient
   kind: type
   file: crates/kuda-acp/src/lib.rs
-  line: 22
+  line: 35
   module: kuda-acp
 - name: spawn
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 30
+  line: 43
   module: kuda-acp
 - name: send
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 48
+  line: 61
   module: kuda-acp
 - name: request
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 56
+  line: 69
   module: kuda-acp
 - name: prompt_for
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 86
+  line: 121
   module: kuda-acp
 - name: kind
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 107
+  line: 142
   module: kuda-acp
 - name: summarize
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 111
+  line: 146
   module: kuda-acp
 deps:
 - kuda-core
@@ -57,9 +62,34 @@ deps:
 - kuda_extract
 - kuda_summarize
 - serde_json
-notes: ''
+notes: |-
+  invariants:
+  - `AcpSummarizer::kind()` returns `"acp"`. `new(cmd, root)` stores `cmd` and `root` and starts with no client (`inner` is a `Mutex<Option<(AcpClient, String)>>` set to `None`).
+  - The agent process is started lazily on the first `summarize` call. That call sends `initialize` (protocolVersion 1, clientInfo `kuda` 0.1.0) and then `session/new` with `cwd` set to `root` and `mcpServers: []`. The session id is read from `sessionId` and falls back to `"kuda-default"`.
+  - The client and session id are kept in the mutex, so one agent session is reused across all modules. Each module sends a `session/prompt` request on that session.
+  - `AcpClient::spawn` runs `sh -c <cmd>` with piped stdin and stdout and stderr discarded (`Stdio::null()`).
+  - Wire format: `send` writes one JSON message per line and flushes. `request` increments a per-client `id` and sends a JSON-RPC 2.0 request. It then reads lines until a reply with its own id arrives, skipping lines that don't parse as JSON.
+  - While `request` waits, it handles other messages:
+  - Agent-to-client requests are always answered, so the prompt can't deadlock. `session/request_permission` gets the first option's `optionId` (default `"allow_once"`) as `selected`. Any other method gets error `-32601` "method not found".
+  - `session/update` notifications append `params.update.content.text` to the collected chunks.
+  - The final reply returns `(result, chunks)`, or an error `"<method>: <err>"` if the reply has an `error` field.
+  - `request` returns `Err("agent closed stdout")` on EOF.
+  - `prompt_for` asks the agent for ONLY the card body, a `purpose:` line then `invariants:` and `notes:` bullets, grounded in the named files. It includes at most the first 30 symbol names and the first 15 file paths from the `Extraction`.
+  - The `ModuleCard` structure comes from the extraction, not the agent: `api` is `ext.symbols`, `deps` is the `to` of each of `ext.edges`, and `verify` is `ext.files`. The agent's text sets only `purpose` and `notes`. `purpose` is the first non-empty trimmed line, falling back to the module name. `notes` is the remaining non-empty lines joined with `\n`. `provenance` is passed through.
+  - Dependencies are `kuda-core`, `kuda-extract`, `kuda-summarize`, `serde` and `serde_json`.
+  notes:
+  - Only the first non-empty line becomes `purpose`. The whole remaining reply, including the `invariants:` bullets, goes into `notes`, because the response is never parsed into sections.
+  - `session/request_permission` is auto-approved by choosing the first option, so the agent's permission prompts are effectively granted. The agent's cwd is the repo root.
+  - Every error is returned as `String`. There is no respawn: the doc comment on `inner` says "respawns on failure", but the code never clears it, so after a failure the same client is reused. Fallback is left to the caller.
+  - The `Mutex` is held across the whole request, so `summarize` calls are serialized.
+  - `AcpClient` is private. Only `AcpSummarizer`, `new` and the `Summarizer` impl are public. `spawn`, `send`, `request` and `prompt_for` are internal.
+  - `request` matches replies with `msg["id"].as_u64() == Some(id)`. There is no timeout, so a silent agent blocks forever.
+  - Agent-to-client requests are detected by having both an `id` and a `method`, and they are checked before the `session/update` branch.
+  - A comment in the code says merging human notes is a TODO. The card's purpose and notes are owned entirely by the agent output.
+  - The `clientCapabilities` are an empty object, and the client version in `clientInfo` is hardcoded as `"0.1.0"` rather than read from Cargo.
 verify:
 - crates/kuda-acp/Cargo.toml
+- crates/kuda-acp/src/lib.rs
 - crates/kuda-acp/src/lib.rs
 - crates/kuda-acp/src/lib.rs
 - crates/kuda-acp/src/lib.rs
@@ -79,16 +109,18 @@ provenance:
   - crates/kuda-acp/src/lib.rs
   - crates/kuda-acp/src/lib.rs
   - crates/kuda-acp/src/lib.rs
+  - crates/kuda-acp/src/lib.rs
   hashes:
   - 235538739af3a723c914cd6ede000fee3811ee2d
-  - e55d2b8e5e3b5ba7e6c39348a789caf6e6cbf627
-  - e55d2b8e5e3b5ba7e6c39348a789caf6e6cbf627
-  - e55d2b8e5e3b5ba7e6c39348a789caf6e6cbf627
-  - e55d2b8e5e3b5ba7e6c39348a789caf6e6cbf627
-  - e55d2b8e5e3b5ba7e6c39348a789caf6e6cbf627
-  - e55d2b8e5e3b5ba7e6c39348a789caf6e6cbf627
-  - e55d2b8e5e3b5ba7e6c39348a789caf6e6cbf627
-  - e55d2b8e5e3b5ba7e6c39348a789caf6e6cbf627
-  commit_sha: f44070073017d0b1e1f771396234ca0fdbf4e5e1
-  generated_at: '1792285762'
+  - 4f91558a7b01b29be2c2881cad5001298422d675
+  - 4f91558a7b01b29be2c2881cad5001298422d675
+  - 4f91558a7b01b29be2c2881cad5001298422d675
+  - 4f91558a7b01b29be2c2881cad5001298422d675
+  - 4f91558a7b01b29be2c2881cad5001298422d675
+  - 4f91558a7b01b29be2c2881cad5001298422d675
+  - 4f91558a7b01b29be2c2881cad5001298422d675
+  - 4f91558a7b01b29be2c2881cad5001298422d675
+  - 4f91558a7b01b29be2c2881cad5001298422d675
+  commit_sha: f7a704f765bc369df6fb5fccdd8ad901ced30580
+  generated_at: '1792287417'
   generator: kuda-template/0.1.0

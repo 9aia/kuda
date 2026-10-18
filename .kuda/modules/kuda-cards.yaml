@@ -1,6 +1,6 @@
 name: kuda-cards
 path: crates/kuda-cards/Cargo.toml
-purpose: Card render — .kuda/index.yaml + modules/*.yaml
+purpose: 'purpose: Thin YAML (de)serialization layer between the `kuda_core` domain types `RepoCard` and `ModuleCard` and the committed `.kuda/*.yaml` artifacts. `render_repo_card` and `parse_repo_card` handle `.kuda/index.yaml` (the "L0 always-load artifact"). `render_module_card` and `parse_module_card` handle `.kuda/modules/<name>.yaml` (the "L1 card artifacts").'
 api:
 - name: kuda-cards
   kind: module
@@ -32,7 +32,16 @@ deps:
 - serde
 - serde_yaml
 - kuda_core
-notes: ''
+notes: |-
+  invariants:
+  - The four public functions are `render_repo_card`, `parse_repo_card`, `render_module_card` and `parse_module_card`. Each is a one-line wrapper over `serde_yaml::to_string` or `serde_yaml::from_str`.
+  - Every function returns `Result<_, String>`. Errors are the `serde_yaml` error converted with `e.to_string()`.
+  - Rendering and parsing both come from the serde derives on the `kuda_core` types, so the YAML shape is defined in `kuda-core`, not here. The crate doc says machine fields and the human-owned `notes:` region round-trip through these functions.
+  - Dependencies are `kuda-core` (workspace), `serde` 1 and `serde_yaml` 0.9. `serde` and `serde_yaml` are pinned directly in this crate's `Cargo.toml` rather than through `workspace = true`.
+  notes:
+  - The crate does no file I/O and no path handling. Callers choose where `.kuda/index.yaml` and `.kuda/modules/<name>.yaml` are read from and written to.
+  - This crate has no validation, no schema versioning and no merge logic. Round-tripping `notes:` depends entirely on `ModuleCard` serializing it, and nothing here preserves YAML comments or key order beyond what `serde_yaml` does.
+  - `lib.rs` has no tests.
 verify:
 - crates/kuda-cards/Cargo.toml
 - crates/kuda-cards/src/lib.rs
@@ -52,6 +61,6 @@ provenance:
   - f432f7044c50e3cb9c64d394f3746ba0ce5d21df
   - f432f7044c50e3cb9c64d394f3746ba0ce5d21df
   - f432f7044c50e3cb9c64d394f3746ba0ce5d21df
-  commit_sha: f44070073017d0b1e1f771396234ca0fdbf4e5e1
-  generated_at: '1792285762'
+  commit_sha: f7a704f765bc369df6fb5fccdd8ad901ced30580
+  generated_at: '1792287417'
   generator: kuda-template/0.1.0

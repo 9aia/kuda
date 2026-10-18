@@ -1,6 +1,6 @@
 name: kuda-core
 path: crates/kuda-core/Cargo.toml
-purpose: 'kuda domain core: cards, symbols, edges, provenance — no ports, no integrations'
+purpose: 'purpose: Domain-core crate for kuda. It defines the card, symbol, edge and provenance types, the `kuda.toml` config model, and two small pure helpers: `is_valid_sha` and `publish_order`. It has no ports and no integrations.'
 api:
 - name: kuda-core
   kind: module
@@ -162,7 +162,36 @@ deps:
 - serde_json
 - toml
 - serde
-notes: ''
+notes: |-
+  invariants:
+  - Memory tiers (from the crate docs, ADR-0001): L0 is `RepoCard` (always-load), L1 is `ModuleCard` (on-demand), and L2 is the `Symbol`/`DepEdge` graph (queried). Every card carries `Provenance`: `files`, `hashes` (parallel to `files`), `commit_sha`, `generated_at` and `generator`.
+  - `ContentHash` is a `String` alias. The hash algorithm is chosen by the extractor, not the domain.
+  - Serde formats:
+  - `SymbolKind` serializes lowercase, with variants `Function`, `Type`, `Trait`, `Const`, `Module`, `Macro` and `Other`.
+  - `EdgeKind` serializes kebab-case, with variants `Imports`, `Calls`, `PackageDep` and `WorkspaceMember`.
+  - `ModuleCard` has `name`, `path`, `purpose`, `api: Vec<Symbol>`, `deps`, `notes` (`#[serde(default)]`), `verify` and `provenance`. `RepoCard` has `name`, `root`, `purpose`, `modules`, `commands` and `provenance`.
+  - `LangDef` is a language descriptor with `name`, `extensions`, `manifests` and optional `grammar`, `symbol_query` and `dep_query`.
+  - `Config` and every sub-config (`RepoCfg`, `ExtractCfg`, `SummarizeCfg`, `StoreCfg`, `CardsCfg`, `WorkspaceCfg`) use `#[serde(deny_unknown_fields)]`, so unknown keys in `kuda.toml` fail parsing. Every section is `#[serde(default)]`.
+  - Defaults:
+  - `extract.kinds = ["manifest", "treesitter"]` and `lsp_server = None`.
+  - `summarize.kind = "template"`, with no `acp_cmd`, `provider` or `model`.
+  - `store.kind = "sqlite"` and `store.path = ".kuda/index.sqlite"`.
+  - `cards.dir = ".kuda"`.
+  - `workspace.roots = []` and `resolve_git_deps = false`.
+  - `RepoCfg` has `name` and `root`, both optional.
+  - `is_valid_sha` accepts strings 7 to 64 bytes long that contain only ASCII alphanumerics, `-`, `_` or `.`, and that don't contain `..` or `/`. It is path-injection protection, and the code comments say it was "Kept from the fork".
+  - `publish_order(members, deps)` returns members in dependency-first order. Only deps whose target is itself a member count, since non-member deps are ignored. It returns `Err("dependency cycle in workspace")` if no progress can be made. Its doc says `scripts/release.sh` uses it.
+  - Unit tests in the crate: `order_respects_path_deps` and `cycle_errors`.
+  - Dependencies are `serde` (derive), `serde_json` and `toml` 0.8, each pinned in this crate's `Cargo.toml`.
+  notes:
+  - Only the config structs derive `Deserialize` alone (not `Serialize`), so `Config` can be parsed but not rendered back to TOML. The card types derive both.
+  - The `Provenance.generated_at` comment says "RFC3339", but `kuda-cli` writes unix seconds as a string.
+  - The `ModuleCard.notes` doc says humans own it and regeneration never clobbers it, but `kuda-cli`'s `sync_one` regenerates cards without merging existing notes. The `kuda-acp` code also marks the notes merge as a TODO.
+  - The `SummarizeCfg.acp_cmd` comment says it "spawns per summarize", but `kuda-acp` reuses one session across modules. The `provider` and `model` fields are for the backlog `llm` adapter and are not used elsewhere in the code I read.
+  - `Config` has no `Serialize`, so validity checking depends entirely on `deny_unknown_fields`. There is no validation of `kind` strings, such as an unknown `store.kind`.
+  - `is_valid_sha` accepts any such string, so a non-hex string like `abcdefg` is valid. It checks path safety, not that the string is a real SHA.
+  - `publish_order` follows the `members` input order among ready members, and it has quadratic cost. `deps` is a list of `(member, dependency)` pairs.
+  - `README.md` and a `tests/` directory exist in the crate, but the `tests/` directory has no files. All tests are in `src/lib.rs`.
 verify:
 - crates/kuda-core/Cargo.toml
 - crates/kuda-core/src/lib.rs
@@ -260,6 +289,6 @@ provenance:
   - 00ad726678e0d61742554341ce79008434f7b5a4
   - 00ad726678e0d61742554341ce79008434f7b5a4
   - 00ad726678e0d61742554341ce79008434f7b5a4
-  commit_sha: f44070073017d0b1e1f771396234ca0fdbf4e5e1
-  generated_at: '1792285762'
+  commit_sha: f7a704f765bc369df6fb5fccdd8ad901ced30580
+  generated_at: '1792287417'
   generator: kuda-template/0.1.0
