@@ -68,6 +68,9 @@ enum Cmd {
         #[arg(long)]
         docs: bool,
     },
+    /// Watch the repo — fs events trigger incremental syncs
+    /// (debounced; only changed modules re-summarize).
+    Watch,
     /// Serve the index over MCP (stdio).
     Mcp,
     /// Speak ACP — Agent Client Protocol surface for any agent
@@ -92,6 +95,7 @@ fn main() {
         Cmd::Dependents { name } => dependents(&cli, name),
         Cmd::Refs { name, docs } => refs(&cli, name, *docs),
         Cmd::Doctor => doctor(&cli),
+        Cmd::Watch => watch(&cli),
         Cmd::Mcp => mcp(&cli),
         Cmd::Acp => acp(&cli),
         Cmd::GenCliDocs => {
@@ -1298,4 +1302,39 @@ fn doctor(cli: &Cli) -> i32 {
     }
     println!("  adapters    manifest, treesitter, lsp, template, sqlite (llm pending)");
     0
+}
+
+fn watch(cli: &Cli) -> i32 {
+    use notify::{recommended_watcher, RecursiveMode, Watcher};
+    let dir = std::path::PathBuf::from(".");
+    let cfg = load_config(cli);
+    let (tx, rx) = std::sync::mpsc::channel();
+    let mut w = match recommended_watcher(move |r| { let _ = tx.send(r); }) {
+        Ok(w) => w,
+        Err(e) => { eprintln!("watch: {e}"); return 1; }
+    };
+    if let Err(e) = w.watch(&dir, RecursiveMode::Recursive) {
+        eprintln!("watch {e}");
+        return 1;
+    }
+    println!("watching — sync on change (ctrl-c to stop)");
+    loop {
+        match rx.recv() {
+            Ok(Ok(evt)) => {
+                let relevant = evt.paths.iter().any(|p| {
+                    !p.components().any(|c| {
+                        matches!(c.as_os_str().to_str(),
+                            Some(".git" | ".kuda" | "target" | "node_modules"))
+                    })
+                });
+                if !relevant { continue; }
+                // debounce: drain the burst, then one sync
+                std::thread::sleep(std::time::Duration::from_millis(300));
+                while rx.try_recv().is_ok() {}
+                let _ = sync_one(&dir, &cfg, cli);
+            }
+            Ok(Err(e)) => eprintln!("watch: {e}"),
+            Err(_) => return 0,
+        }
+    }
 }

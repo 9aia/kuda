@@ -31,6 +31,12 @@
       committed artifacts, the graph is rebuildable. Found via
       dogfood: mimus+bupha committed the sqlite binary by hand.
 
+## Semantic depth
+- [ ] Embedding-based claim clustering for doc↔doc contradiction
+      detection (today: identifier-token clustering — finds the
+      obvious pairs, misses paraphrases). Needs a local embedder
+      or embedding API; evaluate cost vs precision first.
+
 ## Languages
 - [ ] `.hnl` — add a data/langs/hnl.toml descriptor (extensions,
       manifests if any, symbol/dep queries). Blocked on a tree-sitter-handl
