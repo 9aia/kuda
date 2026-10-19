@@ -16,6 +16,7 @@ repo memory — compressed, freshness-tracked, queryable
 - [How-to: serve the index over MCP](/kuda/how-to/mcp.md)
 - [How-to: the ACP surface](/kuda/how-to/acp.md)
 - [How-to: add a language](/kuda/how-to/languages.md)
+- [How-to: sturn WAL integration](/kuda/how-to/sturn.md)
 - [How-to: summarizers](/kuda/how-to/llm-summarizer.md)
 
 ### Reference
