@@ -13,6 +13,7 @@ This document contains the help content for the `kuda` command-line program.
 * [`kuda find`↴](#kuda-find)
 * [`kuda dependents`↴](#kuda-dependents)
 * [`kuda refs`↴](#kuda-refs)
+* [`kuda watch`↴](#kuda-watch)
 * [`kuda mcp`↴](#kuda-mcp)
 * [`kuda acp`↴](#kuda-acp)
 * [`kuda doctor`↴](#kuda-doctor)
@@ -33,6 +34,7 @@ A hippocampus for your codebase — repo memory: index, query, verify
 * `find` — Symbol -> file:line
 * `dependents` — Reverse dep lookup — impact analysis
 * `refs` — Code + docs/comments mentions — the doc-sweep query
+* `watch` — Watch the repo — fs events trigger incremental syncs (debounced; only changed modules re-summarize)
 * `mcp` — Serve the index over MCP (stdio)
 * `acp` — Speak ACP — Agent Client Protocol surface for any agent client (zed, cline, cursor)
 * `doctor` — Extractor/store/config health
@@ -132,6 +134,14 @@ Code + docs/comments mentions — the doc-sweep query
 
 
 
+## `kuda watch`
+
+Watch the repo — fs events trigger incremental syncs (debounced; only changed modules re-summarize)
+
+**Usage:** `kuda watch`
+
+
+
 ## `kuda mcp`
 
 Serve the index over MCP (stdio)
@@ -163,14 +173,3 @@ Extractor/store/config health
     <a href="https://crates.io/crates/clap-markdown"><code>clap-markdown</code></a>.
 </i></small>
 
-
-
-## watch
-
-```console
-$ kuda watch
-```
-
-Watch the repo — fs events trigger debounced incremental syncs.
-Only changed modules/files re-summarize; `.git`, `.kuda`,
-`target`, `node_modules` events are ignored.

@@ -26,16 +26,16 @@
 |---|---|---|---|
 | `kinds` | `list` | optional | Impl kinds tried in order: "manifest" \| "treesitter" \| "lsp". |
 | `lsp_server` | `string` | optional | Server command for the lsp adapter (per-language later). |
-| `exclude` | `list` | optional | Extra dir/file names skipped during walks, on top of the built-in set (`.git`, `target`, `node_modules`, `.kuda`, `dist`, `build`, `out`, `.cache`, `.next`, `vendor`, `.venv`, `__pycache__`, `coverage`, `generated`, …). Keeps generated/vendored content out of the index, provenance hashes, and agent prompts — direct agent-cost control. |
+| `exclude` | `list` | optional | Extra dir/file names skipped during walks — beyond the built-in noise set (`default_excludes`). Keeps generated, vendored, and build output out of index, hashes, and agent prompts (agent cost is per-file fed in). |
 
 ## `[summarize]`
 
 | field | type | required | notes |
 |---|---|---|---|
-| `kind` | `string` | optional | "template" (deterministic, default) \| "acp" (agent-spawned). |
-| `acp_cmd` | `string` | optional | ACP agent spawn command for kind="acp" — e.g. `env CLINE_PROVIDER=… CLINE_MODEL=… cline --acp`. |
-| `file_cards` | `bool` | optional | L1.5 per-file chunked summaries (`.kuda/files/`). ~10-50x module-card prompt count; per-file hash gate bounds steady state. |
-| `provider` | `string` | optional | Provider id for the llm adapter (parked); key resolves via secrets chain. |
+| `kind` | `string` | optional | "template" (deterministic, default) \| "acp" (agent-spawned). "llm" is a backlog adapter — ACP is the semantic path. |
+| `acp_cmd` | `string` | optional | ACP agent command for kind="acp" — spawns per summarize. |
+| `file_cards` | `bool` | optional | L1.5 per-file cards — chunked agent summaries per source file. Opt-in: ~10-50x the prompt count of module cards, bounded by per-file hash-skip. |
+| `provider` | `string` | optional | Provider id for the llm adapter; key resolves via secrets chain. |
 | `model` | `string` | optional | — |
 
 ## `[store]`
@@ -60,8 +60,8 @@
 
 ## Constraints
 
-- `queue = "all"` rejects `cancel_running = true` at load —
-  killing a run would silently drop a promised commit.
-- `runner.kind` and `trigger.kind`/`status.kind` resolve to impl
-  crates; unknown kinds fail at `kuda doctor`/startup.
 - `deny_unknown_fields`: typos in field names fail the load.
+- `extract.kinds` resolves to adapter crates (`manifest`,
+  `treesitter`, `lsp`); unknown kinds warn at `kuda sync`.
+- `summarize.kind` is `template` (default) or `acp`; `acp`
+  requires `acp_cmd` and falls back to template on failure.

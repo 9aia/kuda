@@ -57,11 +57,11 @@ for name in STRUCTS:
     out.append("")
 out += [
     "## Constraints", "",
-    "- `queue = \"all\"` rejects `cancel_running = true` at load —",
-    "  killing a run would silently drop a promised commit.",
-    "- `runner.kind` and `trigger.kind`/`status.kind` resolve to impl",
-    "  crates; unknown kinds fail at `kuda doctor`/startup.",
     "- `deny_unknown_fields`: typos in field names fail the load.",
+    "- `extract.kinds` resolves to adapter crates (`manifest`,",
+    "  `treesitter`, `lsp`); unknown kinds warn at `kuda sync`.",
+    "- `summarize.kind` is `template` (default) or `acp`; `acp`",
+    "  requires `acp_cmd` and falls back to template on failure.",
     ""]
 OUT.write_text("\n".join(out))
 print(f"wrote {OUT}")
