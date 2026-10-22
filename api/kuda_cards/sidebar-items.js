@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["parse_module_card","parse_repo_card","render_module_card","render_repo_card"]};
+window.SIDEBAR_ITEMS = {"fn":["parse_file_card","parse_module_card","parse_repo_card","render_file_card","render_module_card","render_repo_card"]};

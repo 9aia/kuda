@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["LspExtractor"]};
+window.SIDEBAR_ITEMS = {"fn":["references"],"struct":["LspExtractor"]};

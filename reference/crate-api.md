@@ -10,6 +10,7 @@ documented at source (doc comments).
 * [kuda-config](/kuda/api/kuda_config/index.html) — port
 * [kuda-secret](/kuda/api/kuda_secret/index.html) — port
 * [kuda-vcs](/kuda/api/kuda_vcs/index.html) — port
+* [kuda-acp](/kuda/api/kuda_acp/index.html) — impl
 * [kuda-cards](/kuda/api/kuda_cards/index.html) — impl
 * [kuda-config-toml](/kuda/api/kuda_config_toml/index.html) — impl
 * [kuda-dotenv](/kuda/api/kuda_dotenv/index.html) — impl

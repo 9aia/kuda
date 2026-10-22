@@ -22,5 +22,16 @@
 <a href=#22 id=22 data-nosnippet>22</a>    </span><span class="kw">fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
 <a href=#23 id=23 data-nosnippet>23</a>    <span class="doccomment">/// Extract under `root` for the given language descriptors.
 <a href=#24 id=24 data-nosnippet>24</a>    </span><span class="kw">fn </span>extract(<span class="kw-2">&amp;</span><span class="self">self</span>, root: <span class="kw-2">&amp;</span>Path, langs: <span class="kw-2">&amp;</span>[LangDef]) -&gt; <span class="prelude-ty">Result</span>&lt;Extraction, String&gt;;
-<a href=#25 id=25 data-nosnippet>25</a>}
+<a href=#25 id=25 data-nosnippet>25</a>    <span class="doccomment">/// Extract only the listed files (repo-relative). Default
+<a href=#26 id=26 data-nosnippet>26</a>    /// ignores the filter — adapters without per-file control are
+<a href=#27 id=27 data-nosnippet>27</a>    /// always cheap or server-backed anyway.
+<a href=#28 id=28 data-nosnippet>28</a>    </span><span class="kw">fn </span>extract_filtered(
+<a href=#29 id=29 data-nosnippet>29</a>        <span class="kw-2">&amp;</span><span class="self">self</span>,
+<a href=#30 id=30 data-nosnippet>30</a>        root: <span class="kw-2">&amp;</span>Path,
+<a href=#31 id=31 data-nosnippet>31</a>        langs: <span class="kw-2">&amp;</span>[LangDef],
+<a href=#32 id=32 data-nosnippet>32</a>        _files: <span class="kw-2">&amp;</span>std::collections::HashSet&lt;PathBuf&gt;,
+<a href=#33 id=33 data-nosnippet>33</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;Extraction, String&gt; {
+<a href=#34 id=34 data-nosnippet>34</a>        <span class="self">self</span>.extract(root, langs)
+<a href=#35 id=35 data-nosnippet>35</a>    }
+<a href=#36 id=36 data-nosnippet>36</a>}
 </code></pre></div></section></main></body></html>

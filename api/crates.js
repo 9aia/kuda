@@ -1,2 +1,2 @@
-window.ALL_CRATES = ["kuda","kuda_cards","kuda_config","kuda_config_toml","kuda_core","kuda_dotenv","kuda_extract","kuda_git","kuda_keyring","kuda_lsp","kuda_manifest","kuda_query","kuda_secret","kuda_store","kuda_store_sqlite","kuda_summarize","kuda_template","kuda_treesitter","kuda_vcs"];
-//{"start":21,"fragment_lengths":[6,13,14,19,12,14,15,11,15,11,16,13,14,13,20,17,16,18,11]}
+window.ALL_CRATES = ["kuda","kuda_acp","kuda_cards","kuda_config","kuda_config_toml","kuda_core","kuda_dotenv","kuda_extract","kuda_git","kuda_keyring","kuda_lsp","kuda_manifest","kuda_query","kuda_secret","kuda_store","kuda_store_sqlite","kuda_summarize","kuda_template","kuda_treesitter","kuda_vcs"];
+//{"start":21,"fragment_lengths":[6,11,13,14,19,12,14,15,11,15,11,16,13,14,13,20,17,16,18,11]}

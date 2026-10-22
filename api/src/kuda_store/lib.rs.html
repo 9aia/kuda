@@ -16,12 +16,23 @@
 <a href=#16 id=16 data-nosnippet>16</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), String&gt;;
 <a href=#17 id=17 data-nosnippet>17</a>    <span class="doccomment">/// Exact-name lookup — `kuda find`.
 <a href=#18 id=18 data-nosnippet>18</a>    </span><span class="kw">fn </span>find(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Symbol&gt;, String&gt;;
-<a href=#19 id=19 data-nosnippet>19</a>    <span class="doccomment">/// Reverse lookup — edges pointing at `name`. Impact analysis.
-<a href=#20 id=20 data-nosnippet>20</a>    </span><span class="kw">fn </span>dependents(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;DepEdge&gt;, String&gt;;
-<a href=#21 id=21 data-nosnippet>21</a>    <span class="doccomment">/// Module names currently indexed.
-<a href=#22 id=22 data-nosnippet>22</a>    </span><span class="kw">fn </span>modules(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;String&gt;, String&gt;;
-<a href=#23 id=23 data-nosnippet>23</a>    <span class="doccomment">/// Provenance bookkeeping ("commit_sha", "extractor_versions").
-<a href=#24 id=24 data-nosnippet>24</a>    </span><span class="kw">fn </span>set_meta(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>str, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), String&gt;;
-<a href=#25 id=25 data-nosnippet>25</a>    <span class="kw">fn </span>meta(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;String&gt;, String&gt;;
-<a href=#26 id=26 data-nosnippet>26</a>}
+<a href=#19 id=19 data-nosnippet>19</a>    <span class="doccomment">/// Substring lookup — the fuzzy tier under `find`.
+<a href=#20 id=20 data-nosnippet>20</a>    </span><span class="kw">fn </span>search(<span class="kw-2">&amp;</span><span class="self">self</span>, pattern: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Symbol&gt;, String&gt;;
+<a href=#21 id=21 data-nosnippet>21</a>    <span class="doccomment">/// Reverse lookup — edges pointing at `name`. Impact analysis.
+<a href=#22 id=22 data-nosnippet>22</a>    </span><span class="kw">fn </span>dependents(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;DepEdge&gt;, String&gt;;
+<a href=#23 id=23 data-nosnippet>23</a>    <span class="doccomment">/// Module names currently indexed.
+<a href=#24 id=24 data-nosnippet>24</a>    </span><span class="kw">fn </span>modules(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;String&gt;, String&gt;;
+<a href=#25 id=25 data-nosnippet>25</a>    <span class="doccomment">/// Total edge rows — lets callers distinguish "no dependents"
+<a href=#26 id=26 data-nosnippet>26</a>    /// from "no edge data indexed at all" (honest empty output).
+<a href=#27 id=27 data-nosnippet>27</a>    </span><span class="kw">fn </span>edge_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize, String&gt;;
+<a href=#28 id=28 data-nosnippet>28</a>    <span class="doccomment">/// Provenance bookkeeping ("commit_sha", "extractor_versions").
+<a href=#29 id=29 data-nosnippet>29</a>    </span><span class="kw">fn </span>set_meta(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>str, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), String&gt;;
+<a href=#30 id=30 data-nosnippet>30</a>    <span class="kw">fn </span>meta(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;String&gt;, String&gt;;
+<a href=#31 id=31 data-nosnippet>31</a>    <span class="doccomment">/// Per-file content hashes — the incremental-extraction diff
+<a href=#32 id=32 data-nosnippet>32</a>    /// surface. Returns path -&gt; (hash, module).
+<a href=#33 id=33 data-nosnippet>33</a>    </span><span class="kw">fn </span>file_hashes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;std::collections::HashMap&lt;String, (String, String)&gt;, String&gt;;
+<a href=#34 id=34 data-nosnippet>34</a>    <span class="doccomment">/// Replace a module's file-hash rows (called with the module's
+<a href=#35 id=35 data-nosnippet>35</a>    /// full current file set after replace_module).
+<a href=#36 id=36 data-nosnippet>36</a>    </span><span class="kw">fn </span>record_files(<span class="kw-2">&amp;mut </span><span class="self">self</span>, module: <span class="kw-2">&amp;</span>str, files: <span class="kw-2">&amp;</span>[(String, String)]) -&gt; <span class="prelude-ty">Result</span>&lt;(), String&gt;;
+<a href=#37 id=37 data-nosnippet>37</a>}
 </code></pre></div></section></main></body></html>

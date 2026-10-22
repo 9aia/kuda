@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["TreesitterExtractor"]};
+window.SIDEBAR_ITEMS = {"fn":["manifest_dir_of"],"struct":["TreesitterExtractor"]};

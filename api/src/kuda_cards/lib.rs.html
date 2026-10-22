@@ -2,7 +2,7 @@
 <a href=#2 id=2 data-nosnippet>2</a>//! artifacts. Machine fields and the human-owned `notes:` region
 <a href=#3 id=3 data-nosnippet>3</a>//! round-trip through these functions.
 <a href=#4 id=4 data-nosnippet>4</a>
-<a href=#5 id=5 data-nosnippet>5</a></span><span class="kw">use </span>kuda_core::{ModuleCard, RepoCard};
+<a href=#5 id=5 data-nosnippet>5</a></span><span class="kw">use </span>kuda_core::{FileCard, ModuleCard, RepoCard};
 <a href=#6 id=6 data-nosnippet>6</a>
 <a href=#7 id=7 data-nosnippet>7</a><span class="doccomment">/// `.kuda/index.yaml` — the L0 always-load artifact.
 <a href=#8 id=8 data-nosnippet>8</a></span><span class="kw">pub fn </span>render_repo_card(card: <span class="kw-2">&amp;</span>RepoCard) -&gt; <span class="prelude-ty">Result</span>&lt;String, String&gt; {
@@ -21,4 +21,13 @@
 <a href=#21 id=21 data-nosnippet>21</a><span class="kw">pub fn </span>parse_module_card(text: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;ModuleCard, String&gt; {
 <a href=#22 id=22 data-nosnippet>22</a>    serde_yaml::from_str(text).map_err(|e| e.to_string())
 <a href=#23 id=23 data-nosnippet>23</a>}
+<a href=#24 id=24 data-nosnippet>24</a>
+<a href=#25 id=25 data-nosnippet>25</a><span class="doccomment">/// `.kuda/files/&lt;module&gt;/&lt;file&gt;.yaml` — L1.5 per-file cards.
+<a href=#26 id=26 data-nosnippet>26</a></span><span class="kw">pub fn </span>render_file_card(card: <span class="kw-2">&amp;</span>FileCard) -&gt; <span class="prelude-ty">Result</span>&lt;String, String&gt; {
+<a href=#27 id=27 data-nosnippet>27</a>    serde_yaml::to_string(card).map_err(|e| e.to_string())
+<a href=#28 id=28 data-nosnippet>28</a>}
+<a href=#29 id=29 data-nosnippet>29</a>
+<a href=#30 id=30 data-nosnippet>30</a><span class="kw">pub fn </span>parse_file_card(text: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;FileCard, String&gt; {
+<a href=#31 id=31 data-nosnippet>31</a>    serde_yaml::from_str(text).map_err(|e| e.to_string())
+<a href=#32 id=32 data-nosnippet>32</a>}
 </code></pre></div></section></main></body></html>
