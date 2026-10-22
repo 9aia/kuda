@@ -19,6 +19,12 @@ repos ──► extract ──► summarize ──► index ──► store ─�
 - **Tiered memory**: L0 repo card (~1k tokens, always-loadable),
   L1 module cards (on-demand), L2 symbol/dep index — memory is an
   index *into* code, never a copy of it
+- **Cards are committed artifacts** — `.kuda/index.yaml` +
+  `modules/*.yaml` are checked in and meant to be diff-reviewed.
+  They stay bounded by design (`api` capped at 40 public symbols,
+  L0 provenance = manifests only + a `tree_digest`) so even
+  monorepo diffs stay reviewable; `.kuda/index.sqlite` is
+  gitignored and rebuildable
 - **Provenance on every card** — `{files, hashes, commit_sha}`;
   `kuda status` re-hashes and reports per-card drift; `mimus audit`
   verifies independently

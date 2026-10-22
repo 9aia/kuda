@@ -1,114 +1,110 @@
 name: kuda-store-sqlite
 path: crates/kuda-store-sqlite/Cargo.toml
-purpose: '`kuda-store-sqlite` is the SQLite adapter of kuda''s `IndexStore` port — a single, zero-server, rebuildable file (typically `.kuda/index.sqlite`) holding the L2 symbol/dep graph plus meta and per-file hash tables. `SqliteStore::open` creates parent dirs, opens the connection, and applies `SCHEMA` (tables `symbols`, `edges`, `meta`, `files`, with indexes on `symbols(name)`, `symbols(module)`, `edges(to_mod)`).'
+purpose: 'Store adapter: sqlite L2 symbol/dep graph'
 api:
-- name: kuda-store-sqlite
-  kind: module
-  file: crates/kuda-store-sqlite/Cargo.toml
-  line: 1
+- name: SCHEMA
+  kind: const
+  file: crates/kuda-store-sqlite/src/lib.rs
+  line: 16
   module: kuda-store-sqlite
 - name: SqliteStore
   kind: type
   file: crates/kuda-store-sqlite/src/lib.rs
   line: 12
   module: kuda-store-sqlite
-- name: SCHEMA
-  kind: const
-  file: crates/kuda-store-sqlite/src/lib.rs
-  line: 16
-  module: kuda-store-sqlite
-- name: sk_str
+- name: dependents
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 40
+  line: 211
   module: kuda-store-sqlite
-- name: sk_from
+- name: edge_count
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 52
-  module: kuda-store-sqlite
-- name: ek_str
-  kind: function
-  file: crates/kuda-store-sqlite/src/lib.rs
-  line: 64
+  line: 228
   module: kuda-store-sqlite
 - name: ek_from
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
   line: 73
   module: kuda-store-sqlite
-- name: open
+- name: ek_str
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 84
-  module: kuda-store-sqlite
-- name: lock
-  kind: function
-  file: crates/kuda-store-sqlite/src/lib.rs
-  line: 95
-  module: kuda-store-sqlite
-- name: replace_module
-  kind: function
-  file: crates/kuda-store-sqlite/src/lib.rs
-  line: 101
+  line: 64
   module: kuda-store-sqlite
 - name: file_hashes
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
   line: 135
   module: kuda-store-sqlite
+- name: find
+  kind: function
+  file: crates/kuda-store-sqlite/src/lib.rs
+  line: 168
+  module: kuda-store-sqlite
+- name: kuda-store-sqlite
+  kind: module
+  file: crates/kuda-store-sqlite/Cargo.toml
+  line: 1
+  module: kuda-store-sqlite
+- name: lock
+  kind: function
+  file: crates/kuda-store-sqlite/src/lib.rs
+  line: 95
+  module: kuda-store-sqlite
+- name: meta
+  kind: function
+  file: crates/kuda-store-sqlite/src/lib.rs
+  line: 253
+  module: kuda-store-sqlite
+- name: modules
+  kind: function
+  file: crates/kuda-store-sqlite/src/lib.rs
+  line: 234
+  module: kuda-store-sqlite
+- name: open
+  kind: function
+  file: crates/kuda-store-sqlite/src/lib.rs
+  line: 84
+  module: kuda-store-sqlite
 - name: record_files
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
   line: 153
   module: kuda-store-sqlite
-- name: find
+- name: replace_module
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 168
+  line: 101
   module: kuda-store-sqlite
 - name: search
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
   line: 187
   module: kuda-store-sqlite
-- name: dependents
-  kind: function
-  file: crates/kuda-store-sqlite/src/lib.rs
-  line: 211
-  module: kuda-store-sqlite
-- name: modules
-  kind: function
-  file: crates/kuda-store-sqlite/src/lib.rs
-  line: 228
-  module: kuda-store-sqlite
 - name: set_meta
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 237
+  line: 243
   module: kuda-store-sqlite
-- name: meta
+- name: sk_from
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 247
+  line: 52
+  module: kuda-store-sqlite
+- name: sk_str
+  kind: function
+  file: crates/kuda-store-sqlite/src/lib.rs
+  line: 40
   module: kuda-store-sqlite
 deps:
 - kuda-core
 - kuda-store
 - rusqlite
-- kuda_core
-- kuda_store
+- kuda-core
+- kuda-store
 - rusqlite
-notes: |
-  - `SqliteStore` wraps `rusqlite::Connection` in a `Mutex` because `Connection` is `!Sync` — this satisfies the port's `Send + Sync` bound; it's single-writer anyway. Every operation acquires the lock and maps errors to `String`.
-  - `replace_module` runs in one transaction: `DELETE` the module's symbols and its outgoing edges (`from_mod = module`), then insert all new rows; `record_files` likewise deletes the module's `files` rows then re-inserts the full set.
-  - Kind strings round-trip through `sk_str`/`sk_from` (lowercase, e.g. `function`, `trait`) and `ek_str`/`ek_from` (kebab-case: `imports`, `calls`, `package-dep`, `workspace-member`); unknown/missing strings decode to `SymbolKind::Other` / `EdgeKind::PackageDep`.
-  - `search` is a case-sensitive `LIKE '%pattern%'` with `\` as ESCAPE — `%`, `_`, and `\` in user input are escaped so they match literally; results ordered by name.
-  - `set_meta` upserts (`ON CONFLICT(k) DO UPDATE`); `meta` returns `Ok(None)` only for `QueryReturnedNoRows`, other errors propagate.
-
-  - Depends on `rusqlite 0.32` with the `bundled` feature (SQLite compiled in — no system libsqlite required), plus `kuda-core` and `kuda-store`.
-  - `file_hashes` returns a `HashMap<path, (hash, module)>` built from a full table scan; `files.path` is `PRIMARY KEY`, so a path can only belong to one row — a file appearing under two modules would collide.
-  - `open` is idempotent-safe (`CREATE ... IF NOT EXISTS`), so re-opening an existing store preserves data.
+notes: ''
 verify:
 - crates/kuda-store-sqlite/Cargo.toml
 - crates/kuda-store-sqlite/src/lib.rs
@@ -118,7 +114,7 @@ provenance:
   - crates/kuda-store-sqlite/src/lib.rs
   hashes:
   - 2d30a3d362d500ce8e4310218db2ea0f8da6ae99
-  - a5237e4182f8f90a5883968b265e4eb11a4cdeba
-  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
-  generated_at: '1792314296'
-  generator: kuda-template/0.1.0
+  - 86c23ef7cdb92c3b023b09a7f80e5a61490afb42
+  commit_sha: 4a5c4790b7be68aaf4c24482ce28cf136f9453d1
+  generated_at: '1792710437'
+  generator: kuda-template/0.1.2

@@ -225,6 +225,12 @@ impl IndexStore for SqliteStore {
         rows.collect::<Result<Vec<_>, _>>().map_err(|e| e.to_string())
     }
 
+    fn edge_count(&self) -> Result<usize, String> {
+        self.lock()?
+            .query_row("SELECT COUNT(*) FROM edges", [], |r| r.get(0))
+            .map_err(|e| e.to_string())
+    }
+
     fn modules(&self) -> Result<Vec<String>, String> {
         let conn = self.lock()?;
         let mut st = conn

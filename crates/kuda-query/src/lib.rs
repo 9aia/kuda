@@ -16,8 +16,25 @@ pub fn search(store: &dyn IndexStore, pattern: &str) -> Result<Vec<Symbol>, Stri
 }
 
 /// `kuda dependents <name>` — who points at it (impact analysis).
+/// Expands dash/underscore spellings so `use foo_bar` edges answer
+/// `dependents foo-bar` too.
 pub fn dependents(store: &dyn IndexStore, name: &str) -> Result<Vec<DepEdge>, String> {
-    store.dependents(name)
+    let mut out = Vec::new();
+    let mut seen = std::collections::HashSet::new();
+    for cand in kuda_core::module_variants(name) {
+        for e in store.dependents(&cand)? {
+            if seen.insert((e.from.clone(), e.to.clone(), e.kind)) {
+                out.push(e);
+            }
+        }
+    }
+    Ok(out)
+}
+
+/// Edge rows in the index — zero means "no dep data", not "no
+/// dependents". Callers report the difference honestly.
+pub fn edge_count(store: &dyn IndexStore) -> Result<usize, String> {
+    store.edge_count()
 }
 
 /// `kuda card <module>` — the symbols a module owns.

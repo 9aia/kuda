@@ -1,41 +1,15 @@
 name: kuda-keyring
 path: crates/kuda-keyring/Cargo.toml
-purpose: '`kuda-keyring` is a secret-store adapter implementing `kuda_secret::Secrets` as `KeyringSecrets`, backing secrets in the OS keyring by shelling out to `secret-tool` (libsecret). Its only dependency is `kuda-secret`.'
+purpose: 'Secret adapter: OS keyring via secret-tool (libsecret)'
 api:
 - name: kuda-keyring
   kind: module
   file: crates/kuda-keyring/Cargo.toml
   line: 1
   module: kuda-keyring
-- name: KeyringSecrets
-  kind: type
-  file: crates/kuda-keyring/src/lib.rs
-  line: 9
-  module: kuda-keyring
-- name: default
-  kind: function
-  file: crates/kuda-keyring/src/lib.rs
-  line: 15
-  module: kuda-keyring
-- name: get
-  kind: function
-  file: crates/kuda-keyring/src/lib.rs
-  line: 23
-  module: kuda-keyring
-- name: set
-  kind: function
-  file: crates/kuda-keyring/src/lib.rs
-  line: 33
-  module: kuda-keyring
 deps:
 - kuda-secret
-- kuda_secret
-notes: |
-  - Entries are grouped under a `service` attribute (default `"kuda"` via `Default`) — `get` runs `secret-tool lookup service <service> name <name>`, `set` runs `secret-tool store --label "<service>: <name>" ...` and writes the value to the child's stdin.
-  - `get` returns `None` when `secret-tool` can't spawn or exits non-zero, and filters out empty/whitespace-only stdout; `set` maps a non-zero exit to `io::Error::other("secret-tool store failed")`.
-
-  - Headless boxes without dbus simply miss every lookup, and the caller falls through to the file store (dotenv) — this adapter is designed to be skippable in the chain.
-  - Requires the `secret-tool` binary on PATH; values are passed raw on stdin with no trailing-newline trimming beyond `get`'s `trim()`.
+notes: ''
 verify:
 - crates/kuda-keyring/Cargo.toml
 - crates/kuda-keyring/src/lib.rs
@@ -46,6 +20,6 @@ provenance:
   hashes:
   - 91090b39dc802b32e546f0af5ad5f1aa9e994bb8
   - 5242918416df1b111afa3ac068a34dd434191191
-  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
-  generated_at: '1792314296'
-  generator: kuda-template/0.1.0
+  commit_sha: 4a5c4790b7be68aaf4c24482ce28cf136f9453d1
+  generated_at: '1792710437'
+  generator: kuda-template/0.1.2

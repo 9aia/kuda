@@ -22,6 +22,9 @@ pub trait IndexStore: Send + Sync {
     fn dependents(&self, name: &str) -> Result<Vec<DepEdge>, String>;
     /// Module names currently indexed.
     fn modules(&self) -> Result<Vec<String>, String>;
+    /// Total edge rows — lets callers distinguish "no dependents"
+    /// from "no edge data indexed at all" (honest empty output).
+    fn edge_count(&self) -> Result<usize, String>;
     /// Provenance bookkeeping ("commit_sha", "extractor_versions").
     fn set_meta(&mut self, key: &str, value: &str) -> Result<(), String>;
     fn meta(&self, key: &str) -> Result<Option<String>, String>;

@@ -1,88 +1,15 @@
 name: kuda-git
 path: crates/kuda-git/Cargo.toml
-purpose: '`kuda-git` is the Git adapter implementing the `Vcs` port from `kuda_vcs`, shelling out to the `git` binary to run repo operations. It exposes `GitVcs` with methods for head SHA lookup, origin sync, commit existence checks, detached worktree management (add/remove/prune), and tag creation/verification/pushing.'
+purpose: 'Vcs adapter: git via the git CLI'
 api:
 - name: kuda-git
   kind: module
   file: crates/kuda-git/Cargo.toml
   line: 1
   module: kuda-git
-- name: repo
-  kind: function
-  file: crates/kuda-git/tests/git.rs
-  line: 5
-  module: kuda-git
-- name: sync_has_commit_worktree_tag
-  kind: function
-  file: crates/kuda-git/tests/git.rs
-  line: 47
-  module: kuda-git
-- name: GitVcs
-  kind: type
-  file: crates/kuda-git/src/lib.rs
-  line: 7
-  module: kuda-git
-- name: git
-  kind: function
-  file: crates/kuda-git/src/lib.rs
-  line: 9
-  module: kuda-git
-- name: head_sha
-  kind: function
-  file: crates/kuda-git/src/lib.rs
-  line: 20
-  module: kuda-git
-- name: sync
-  kind: function
-  file: crates/kuda-git/src/lib.rs
-  line: 32
-  module: kuda-git
-- name: has_commit
-  kind: function
-  file: crates/kuda-git/src/lib.rs
-  line: 35
-  module: kuda-git
-- name: worktree_add
-  kind: function
-  file: crates/kuda-git/src/lib.rs
-  line: 38
-  module: kuda-git
-- name: worktree_remove
-  kind: function
-  file: crates/kuda-git/src/lib.rs
-  line: 50
-  module: kuda-git
-- name: worktree_prune
-  kind: function
-  file: crates/kuda-git/src/lib.rs
-  line: 61
-  module: kuda-git
-- name: tag_exists
-  kind: function
-  file: crates/kuda-git/src/lib.rs
-  line: 64
-  module: kuda-git
-- name: tag
-  kind: function
-  file: crates/kuda-git/src/lib.rs
-  line: 70
-  module: kuda-git
-- name: push_tag
-  kind: function
-  file: crates/kuda-git/src/lib.rs
-  line: 73
-  module: kuda-git
 deps:
 - kuda-vcs
-- kuda_git
-- kuda_vcs
-- kuda_vcs
-notes: |
-  - All operations run git with `-C <repo>` scoped to the given repo path, and failures (non-zero exit or spawn error) map to `false`/`None` rather than panics.
-
-  - `git()` helper and methods return plain booleans; callers must check return values, as errors are silently swallowed.
-  - `worktree_add` always uses `--detach`; `worktree_remove` uses `--force`; `sync` runs `fetch origin --prune`; `push_tag` pushes to `origin`.
-  - Path arguments use `to_str().unwrap_or_default()`, so non-UTF-8 paths degrade to an empty path rather than erroring.
+notes: ''
 verify:
 - crates/kuda-git/Cargo.toml
 - crates/kuda-git/src/lib.rs
@@ -96,6 +23,6 @@ provenance:
   - 04bbffa2faf364409f943e06689f50fb83b2e6c4
   - 5b88b309efeef08b79d6da453518e135f13217d3
   - 28459ad1496a8040109c9957bc1d88ef05b53911
-  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
-  generated_at: '1792314669'
-  generator: kuda-template/0.1.0
+  commit_sha: 4a5c4790b7be68aaf4c24482ce28cf136f9453d1
+  generated_at: '1792710437'
+  generator: kuda-template/0.1.2

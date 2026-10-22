@@ -62,7 +62,7 @@ pub struct DepEdge {
     pub kind: EdgeKind,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum EdgeKind {
     Imports,
@@ -80,8 +80,12 @@ pub struct ModuleCard {
     pub path: PathBuf,
     /// One line — template adapter takes the first doc line.
     pub purpose: String,
-    /// Public surface found by extraction.
+    /// Public surface found by extraction (capped — `api_omitted`
+    /// carries the dropped count so the card stays honest).
     pub api: Vec<Symbol>,
+    /// Symbols beyond the render cap — the "and N more" count.
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub api_omitted: usize,
     /// Outgoing module deps.
     pub deps: Vec<String>,
     /// Human-owned region — survives regeneration.
@@ -119,6 +123,14 @@ pub struct RepoCard {
     pub modules: Vec<String>,
     /// Build/test/verify commands (from manifests + known files).
     pub commands: Vec<String>,
+    /// sha1 over sorted "path:hash" lines — a content-addressed
+    /// snapshot of every walked file without embedding the list
+    /// (embedding it puts ~10k rows in the always-load card).
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub tree_digest: ContentHash,
+    /// Files walked at index time — count pairs with `tree_digest`.
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub files_total: usize,
     pub provenance: Provenance,
 }
 
@@ -328,6 +340,70 @@ pub struct WorkspaceCfg {
     pub resolve_git_deps: bool,
 }
 
+/// Canonical matching key for module names — package manifests use
+/// dist names (`neuralmind-shared`) while imports use crate/module
+/// names (`neuralmind_shared`). Both fold to one key.
+pub fn module_key(name: &str) -> String {
+    name.replace('-', "_").to_lowercase()
+}
+
+/// The name spellings an edge target might carry — dependents
+/// queries expand through these so dash/underscore misses can't
+/// produce false empty results.
+pub fn module_variants(name: &str) -> Vec<String> {
+    let mut out = vec![name.to_owned()];
+    for v in [name.replace('-', "_"), name.replace('_', "-")] {
+        if !out.contains(&v) {
+            out.push(v);
+        }
+    }
+    out
+}
+
+/// Reduce a raw import/dep string to the package specifier an edge
+/// should point at. Language-aware: python imports are dotted,
+/// go imports keep their full path (module match is prefix-based),
+/// npm keeps `@scope/pkg` and drops relative specifiers entirely.
+/// None = intra-module (relative) import — no edge.
+pub fn dep_root(lang: &str, raw: &str) -> Option<String> {
+    let r = raw.trim_matches(|c| c == '"' || c == '\'');
+    if r.is_empty() || r.starts_with('.') || r.starts_with("@/") {
+        return None;
+    }
+    match lang {
+        "python" => Some(r.split('.').next().unwrap_or(r).to_owned()),
+        "go" => Some(r.to_owned()),
+        _ if r.starts_with('@') => {
+            let mut it = r.split('/');
+            match (it.next(), it.next()) {
+                (Some(s), Some(p)) if !p.is_empty() => Some(format!("{s}/{p}")),
+                _ => None,
+            }
+        }
+        _ => Some(r.split('/').next().unwrap_or(r).to_owned()),
+    }
+}
+
+/// Resolve a dep specifier (from `dep_root` or a manifest dep) to a
+/// known module name — canonicalizing dash/underscore so the edge
+/// lands on the module's real card name.
+pub fn resolve_module(dep: &str, modules: &[String]) -> Option<String> {
+    let want = module_key(dep);
+    if let Some(m) = modules.iter().find(|m| module_key(m) == want) {
+        return Some(m.clone());
+    }
+    // subpath imports: "pkg/sub" or "host/org/repo/pkg" (go) belong
+    // to the module whose name is a '/'-separated prefix.
+    modules
+        .iter()
+        .find(|m| want.starts_with(&format!("{}/", module_key(m))))
+        .cloned()
+}
+
+fn is_zero(v: &usize) -> bool {
+    *v == 0
+}
+
 /// A revision-ish string is path-safe — rejects path-injection
 /// before values reach worktree paths. (Kept from the fork.)
 pub fn is_valid_sha(sha: &str) -> bool {
@@ -392,5 +468,40 @@ mod tests {
         let members = vec!["a".into(), "b".into()];
         let deps = vec![("a".into(), "b".into()), ("b".into(), "a".into())];
         assert!(publish_order(&members, &deps).is_err());
+    }
+
+    #[test]
+    fn module_key_folds_dist_and_import_spellings() {
+        assert_eq!(super::module_key("neuralmind-shared"), "neuralmind_shared");
+        assert_eq!(super::module_key("NeuralMind_Shared"), "neuralmind_shared");
+    }
+
+    #[test]
+    fn dep_root_per_language() {
+        use super::dep_root;
+        assert_eq!(dep_root("python", "a.b.c"), Some("a".into()));
+        assert_eq!(dep_root("python", "neuralmind_shared"), Some("neuralmind_shared".into()));
+        assert_eq!(dep_root("typescript", "@org/pkg/sub"), Some("@org/pkg".into()));
+        assert_eq!(dep_root("typescript", "pkg/sub"), Some("pkg".into()));
+        assert_eq!(dep_root("typescript", "./sibling"), None);
+        assert_eq!(dep_root("typescript", "../up"), None);
+        assert_eq!(dep_root("typescript", "@/alias"), None);
+        assert_eq!(dep_root("go", "github.com/org/repo/sub"), Some("github.com/org/repo/sub".into()));
+        assert_eq!(dep_root("rust", "my_crate"), Some("my_crate".into()));
+        assert_eq!(dep_root("typescript", "\"quoted\""), Some("quoted".into()));
+    }
+
+    #[test]
+    fn resolve_module_normalizes_and_matches_subpaths() {
+        let modules = vec![
+            "neuralmind-shared".to_owned(),
+            "@org/api".to_owned(),
+            "github.com/org/repo".to_owned(),
+        ];
+        let r = |d| super::resolve_module(d, &modules);
+        assert_eq!(r("neuralmind_shared"), Some("neuralmind-shared".into()));
+        assert_eq!(r("@org/api"), Some("@org/api".into()));
+        assert_eq!(r("github.com/org/repo/sub"), Some("github.com/org/repo".into()));
+        assert_eq!(r("serde"), None);
     }
 }

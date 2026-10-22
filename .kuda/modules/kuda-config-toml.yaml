@@ -1,56 +1,17 @@
 name: kuda-config-toml
 path: crates/kuda-config-toml/Cargo.toml
-purpose: '`kuda-config-toml` is the TOML config adapter implementing `kuda_config::ConfigSource` for `TomlSource`, loading `kuda.toml` from an explicit `--config` path, `$KUDA_CONFIG`, `./kuda.toml`, or `~/.config/kuda/kuda.toml`. It parses the found file into `kuda_core::Config` using `toml = "0.8"`.'
+purpose: 'Config adapter: kuda.toml file (explicit path, env, ./, ~/.config)'
 api:
 - name: kuda-config-toml
   kind: module
   file: crates/kuda-config-toml/Cargo.toml
   line: 1
   module: kuda-config-toml
-- name: tmp
-  kind: function
-  file: crates/kuda-config-toml/tests/load.rs
-  line: 4
-  module: kuda-config-toml
-- name: CFG
-  kind: const
-  file: crates/kuda-config-toml/tests/load.rs
-  line: 8
-  module: kuda-config-toml
-- name: loads_via_env_var
-  kind: function
-  file: crates/kuda-config-toml/tests/load.rs
-  line: 18
-  module: kuda-config-toml
-- name: explicit_path_and_missing_error
-  kind: function
-  file: crates/kuda-config-toml/tests/load.rs
-  line: 34
-  module: kuda-config-toml
-- name: TomlSource
-  kind: type
-  file: crates/kuda-config-toml/src/lib.rs
-  line: 7
-  module: kuda-config-toml
-- name: load
-  kind: function
-  file: crates/kuda-config-toml/src/lib.rs
-  line: 13
-  module: kuda-config-toml
 deps:
 - kuda-config
 - kuda-core
 - toml
-- kuda_config
-- kuda_config_toml
-- kuda_config
-notes: |
-  - Candidate search order: explicit `path` → `$KUDA_CONFIG` env var → `./kuda.toml` → `$HOME/.config/kuda/kuda.toml`; only the first candidate that exists is read.
-  - A missing config yields `Err("no kuda.toml found (search: $KUDA_CONFIG, ., ~/.config/kuda/)")`; read and parse errors are surfaced with the offending path prefixed (`read <path>: ...` / `parse <path>: ...`).
-  - When an explicit path or `$KUDA_CONFIG` is set, no fallback search happens — that single path either loads or errors (asserted by `explicit_path_and_missing_error`, which expects an error for `/nonexistent/x`).
-
-  - Tests mutate `KUDA_CONFIG` via `unsafe { std::env::set_var }` (Rust 2024 edition requirement) and clean up afterwards; they use per-PID temp file names to avoid collisions.
-  - Depends only on `kuda-config`, `kuda-core`, and `toml = "0.8"` — it does not apply defaults itself; callers (e.g. kuda-cli's `load_config`) decide whether an error falls back to `Config::default()`.
+notes: ''
 verify:
 - crates/kuda-config-toml/Cargo.toml
 - crates/kuda-config-toml/src/lib.rs
@@ -64,6 +25,6 @@ provenance:
   - 69539d90b1b9cce1264bb96925db8212817849fa
   - b12116b476081aedcaf4ea623af3ff70bc65999c
   - 6f5371079a853f0282a1e9ce5afa661fcd1d1bcf
-  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
-  generated_at: '1792314296'
-  generator: kuda-template/0.1.0
+  commit_sha: 4a5c4790b7be68aaf4c24482ce28cf136f9453d1
+  generated_at: '1792710437'
+  generator: kuda-template/0.1.2

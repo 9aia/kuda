@@ -2,3 +2,14 @@ name = "go"
 extensions = [".go"]
 manifests = ["go.mod"]
 grammar = "go"
+symbol_query = '''
+(function_declaration name: (identifier) @name.function)
+(method_declaration name: (field_identifier) @name.function)
+(type_declaration (type_spec name: (type_identifier) @name.type))
+(const_declaration (const_spec name: (identifier) @name.const))
+(var_declaration (var_spec name: (identifier) @name.const))
+'''
+
+dep_query = '''
+(import_spec path: (interpreted_string_literal) @dep)
+'''

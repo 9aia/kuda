@@ -1,31 +1,21 @@
 name: kuda-core
 path: crates/kuda-core/Cargo.toml
-purpose: '`kuda-core` is the dependency-light domain core of kuda — cards, symbols, edges, provenance, and the `kuda.toml` config model — with "no ports, no integrations" (only serde, serde_json, toml). It defines the memory tiers from ADR-0001: L0 `RepoCard` (always-load), L1 `ModuleCard` (on-demand), L2 `Symbol`/`DepEdge` graph (queried), plus `FileCard` (L1.5), `LangDef`, and the `Config` hierarchy.'
+purpose: 'kuda domain core: cards, symbols, edges, provenance — no ports, no integrations'
 api:
-- name: kuda-core
-  kind: module
-  file: crates/kuda-core/Cargo.toml
-  line: 1
+- name: CardsCfg
+  kind: type
+  file: crates/kuda-core/src/lib.rs
+  line: 314
+  module: kuda-core
+- name: Config
+  kind: type
+  file: crates/kuda-core/src/lib.rs
+  line: 162
   module: kuda-core
 - name: ContentHash
   kind: type
   file: crates/kuda-core/src/lib.rs
   line: 14
-  module: kuda-core
-- name: Provenance
-  kind: type
-  file: crates/kuda-core/src/lib.rs
-  line: 20
-  module: kuda-core
-- name: Symbol
-  kind: type
-  file: crates/kuda-core/src/lib.rs
-  line: 35
-  module: kuda-core
-- name: SymbolKind
-  kind: type
-  file: crates/kuda-core/src/lib.rs
-  line: 47
   module: kuda-core
 - name: DepEdge
   kind: type
@@ -37,157 +27,188 @@ api:
   file: crates/kuda-core/src/lib.rs
   line: 67
   module: kuda-core
+- name: ExtractCfg
+  kind: type
+  file: crates/kuda-core/src/lib.rs
+  line: 189
+  module: kuda-core
+- name: FileCard
+  kind: type
+  file: crates/kuda-core/src/lib.rs
+  line: 102
+  module: kuda-core
+- name: LangDef
+  kind: type
+  file: crates/kuda-core/src/lib.rs
+  line: 140
+  module: kuda-core
 - name: ModuleCard
   kind: type
   file: crates/kuda-core/src/lib.rs
   line: 77
   module: kuda-core
-- name: FileCard
+- name: Provenance
   kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 98
+  line: 20
   module: kuda-core
 - name: RepoCard
   kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 113
-  module: kuda-core
-- name: LangDef
-  kind: type
-  file: crates/kuda-core/src/lib.rs
-  line: 128
-  module: kuda-core
-- name: Config
-  kind: type
-  file: crates/kuda-core/src/lib.rs
-  line: 150
+  line: 117
   module: kuda-core
 - name: RepoCfg
   kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 167
-  module: kuda-core
-- name: ExtractCfg
-  kind: type
-  file: crates/kuda-core/src/lib.rs
-  line: 177
-  module: kuda-core
-- name: default_excludes
-  kind: function
-  file: crates/kuda-core/src/lib.rs
-  line: 194
-  module: kuda-core
-- name: dir_excluded
-  kind: function
-  file: crates/kuda-core/src/lib.rs
-  line: 218
-  module: kuda-core
-- name: default
-  kind: function
-  file: crates/kuda-core/src/lib.rs
-  line: 223
-  module: kuda-core
-- name: default_extract_kinds
-  kind: function
-  file: crates/kuda-core/src/lib.rs
-  line: 232
-  module: kuda-core
-- name: SummarizeCfg
-  kind: type
-  file: crates/kuda-core/src/lib.rs
-  line: 238
-  module: kuda-core
-- name: default
-  kind: function
-  file: crates/kuda-core/src/lib.rs
-  line: 259
-  module: kuda-core
-- name: default_summarize_kind
-  kind: function
-  file: crates/kuda-core/src/lib.rs
-  line: 270
+  line: 179
   module: kuda-core
 - name: StoreCfg
   kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 276
+  line: 288
   module: kuda-core
-- name: default
-  kind: function
-  file: crates/kuda-core/src/lib.rs
-  line: 285
-  module: kuda-core
-- name: default_store_kind
-  kind: function
-  file: crates/kuda-core/src/lib.rs
-  line: 293
-  module: kuda-core
-- name: default_store_path
-  kind: function
-  file: crates/kuda-core/src/lib.rs
-  line: 296
-  module: kuda-core
-- name: CardsCfg
+- name: SummarizeCfg
   kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 302
+  line: 250
   module: kuda-core
-- name: default
-  kind: function
+- name: Symbol
+  kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 309
+  line: 35
   module: kuda-core
-- name: default_cards_dir
-  kind: function
+- name: SymbolKind
+  kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 316
+  line: 47
   module: kuda-core
 - name: WorkspaceCfg
   kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 322
-  module: kuda-core
-- name: is_valid_sha
-  kind: function
-  file: crates/kuda-core/src/lib.rs
-  line: 333
-  module: kuda-core
-- name: publish_order
-  kind: function
-  file: crates/kuda-core/src/lib.rs
-  line: 345
-  module: kuda-core
-- name: tests
-  kind: module
-  file: crates/kuda-core/src/lib.rs
-  line: 373
-  module: kuda-core
-- name: order_respects_path_deps
-  kind: function
-  file: crates/kuda-core/src/lib.rs
-  line: 377
+  line: 334
   module: kuda-core
 - name: cycle_errors
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 391
+  line: 467
   module: kuda-core
+- name: default
+  kind: function
+  file: crates/kuda-core/src/lib.rs
+  line: 235
+  module: kuda-core
+- name: default
+  kind: function
+  file: crates/kuda-core/src/lib.rs
+  line: 271
+  module: kuda-core
+- name: default
+  kind: function
+  file: crates/kuda-core/src/lib.rs
+  line: 297
+  module: kuda-core
+- name: default
+  kind: function
+  file: crates/kuda-core/src/lib.rs
+  line: 321
+  module: kuda-core
+- name: default_cards_dir
+  kind: function
+  file: crates/kuda-core/src/lib.rs
+  line: 328
+  module: kuda-core
+- name: default_excludes
+  kind: function
+  file: crates/kuda-core/src/lib.rs
+  line: 206
+  module: kuda-core
+- name: default_extract_kinds
+  kind: function
+  file: crates/kuda-core/src/lib.rs
+  line: 244
+  module: kuda-core
+- name: default_store_kind
+  kind: function
+  file: crates/kuda-core/src/lib.rs
+  line: 305
+  module: kuda-core
+- name: default_store_path
+  kind: function
+  file: crates/kuda-core/src/lib.rs
+  line: 308
+  module: kuda-core
+- name: default_summarize_kind
+  kind: function
+  file: crates/kuda-core/src/lib.rs
+  line: 282
+  module: kuda-core
+- name: dep_root
+  kind: function
+  file: crates/kuda-core/src/lib.rs
+  line: 368
+  module: kuda-core
+- name: dep_root_per_language
+  kind: function
+  file: crates/kuda-core/src/lib.rs
+  line: 480
+  module: kuda-core
+- name: dir_excluded
+  kind: function
+  file: crates/kuda-core/src/lib.rs
+  line: 230
+  module: kuda-core
+- name: is_valid_sha
+  kind: function
+  file: crates/kuda-core/src/lib.rs
+  line: 409
+  module: kuda-core
+- name: is_zero
+  kind: function
+  file: crates/kuda-core/src/lib.rs
+  line: 403
+  module: kuda-core
+- name: kuda-core
+  kind: module
+  file: crates/kuda-core/Cargo.toml
+  line: 1
+  module: kuda-core
+- name: module_key
+  kind: function
+  file: crates/kuda-core/src/lib.rs
+  line: 346
+  module: kuda-core
+- name: module_key_folds_dist_and_import_spellings
+  kind: function
+  file: crates/kuda-core/src/lib.rs
+  line: 474
+  module: kuda-core
+- name: module_variants
+  kind: function
+  file: crates/kuda-core/src/lib.rs
+  line: 353
+  module: kuda-core
+- name: order_respects_path_deps
+  kind: function
+  file: crates/kuda-core/src/lib.rs
+  line: 453
+  module: kuda-core
+- name: publish_order
+  kind: function
+  file: crates/kuda-core/src/lib.rs
+  line: 421
+  module: kuda-core
+- name: resolve_module
+  kind: function
+  file: crates/kuda-core/src/lib.rs
+  line: 390
+  module: kuda-core
+api_omitted: 2
 deps:
 - serde
 - serde_json
 - toml
 - serde
-notes: |
-  - Every memory artifact carries `Provenance` (`files`, parallel `hashes`, `commit_sha`, RFC3339 `generated_at`, generator stamp) so staleness is computed — `status` diffs `commit_sha` vs HEAD and re-hashes `files` — never assumed.
-  - `ModuleCard.api`/`deps`/`verify` are machine-owned while `notes` is human-owned (`#[serde(default)]`) and survives regeneration; `FileCard.symbols` also defaults when absent.
-  - `ContentHash = String` — the hex digest algorithm is pinned by the extractor, not the domain.
-  - `is_valid_sha` rejects path injection: length 7..=64, no `..`, no `/`, only ASCII alphanumeric plus `-`, `_`, `.`.
-  - Config sub-structs use `#[serde(deny_unknown_fields)]`, so unknown keys in `kuda.toml` fail to parse.
-  - `publish_order` topologically sorts workspace members so path-deps publish first and errors with "dependency cycle in workspace" on cycles.
-
-  - Defaults: extract kinds `default_extract_kinds()`, summarize kind `default_summarize_kind()`, store kind `sqlite` at `.kuda/index.sqlite`, cards dir `.kuda`.
-  - `Symbol.line` is 1-based; `SymbolKind` serializes lowercase, `EdgeKind` kebab-case (matters for YAML/JSON round-trips).
-  - `WorkspaceCfg.resolve_git_deps` resolves `git = ".../org/repo"` manifest deps to sibling roots — declared here but behavior lives elsewhere.
+notes: ''
 verify:
 - crates/kuda-core/Cargo.toml
 - crates/kuda-core/src/lib.rs
@@ -197,7 +218,7 @@ provenance:
   - crates/kuda-core/src/lib.rs
   hashes:
   - 858a2d26892b5f1150a8b4663f27d32c408f6e1d
-  - 3c1da11570226da4b7aeb344907ac062fc0f7169
-  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
-  generated_at: '1792314296'
-  generator: kuda-template/0.1.0
+  - e218eed648b11e03a0d12157aa5b2b87742ade90
+  commit_sha: 4a5c4790b7be68aaf4c24482ce28cf136f9453d1
+  generated_at: '1792710437'
+  generator: kuda-template/0.1.2

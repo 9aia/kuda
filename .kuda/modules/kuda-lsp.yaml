@@ -1,104 +1,18 @@
 name: kuda-lsp
 path: crates/kuda-lsp/Cargo.toml
-purpose: '`kuda-lsp` is the LSP-backed extraction adapter for kuda — it implements the `Extractor` trait (`kind() == "lsp"`) by spawning a language server (command from `extract.lsp_server`, e.g. `rust-analyzer`) per root and pulling symbols via `textDocument/documentSymbol`, plus a `references` helper for `textDocument/references`. It''s the quality tier above treesitter: real symbols wherever a language server exists.'
+purpose: 'Extract adapter: LSP server-backed symbol extraction (documentSymbol)'
 api:
 - name: kuda-lsp
   kind: module
   file: crates/kuda-lsp/Cargo.toml
   line: 1
   module: kuda-lsp
-- name: LspExtractor
-  kind: type
-  file: crates/kuda-lsp/src/lib.rs
-  line: 14
-  module: kuda-lsp
-- name: LspClient
-  kind: type
-  file: crates/kuda-lsp/src/lib.rs
-  line: 19
-  module: kuda-lsp
-- name: spawn
-  kind: function
-  file: crates/kuda-lsp/src/lib.rs
-  line: 27
-  module: kuda-lsp
-- name: send
-  kind: function
-  file: crates/kuda-lsp/src/lib.rs
-  line: 56
-  module: kuda-lsp
-- name: recv
-  kind: function
-  file: crates/kuda-lsp/src/lib.rs
-  line: 63
-  module: kuda-lsp
-- name: request
-  kind: function
-  file: crates/kuda-lsp/src/lib.rs
-  line: 83
-  module: kuda-lsp
-- name: notify
-  kind: function
-  file: crates/kuda-lsp/src/lib.rs
-  line: 98
-  module: kuda-lsp
-- name: shutdown
-  kind: function
-  file: crates/kuda-lsp/src/lib.rs
-  line: 102
-  module: kuda-lsp
-- name: lsp_kind
-  kind: function
-  file: crates/kuda-lsp/src/lib.rs
-  line: 110
-  module: kuda-lsp
-- name: flatten_syms
-  kind: function
-  file: crates/kuda-lsp/src/lib.rs
-  line: 122
-  module: kuda-lsp
-- name: module_of
-  kind: function
-  file: crates/kuda-lsp/src/lib.rs
-  line: 157
-  module: kuda-lsp
-- name: walk_files
-  kind: function
-  file: crates/kuda-lsp/src/lib.rs
-  line: 174
-  module: kuda-lsp
-- name: references
-  kind: function
-  file: crates/kuda-lsp/src/lib.rs
-  line: 207
-  module: kuda-lsp
-- name: kind
-  kind: function
-  file: crates/kuda-lsp/src/lib.rs
-  line: 253
-  module: kuda-lsp
-- name: extract
-  kind: function
-  file: crates/kuda-lsp/src/lib.rs
-  line: 257
-  module: kuda-lsp
 deps:
 - kuda-core
 - kuda-extract
 - serde
 - serde_json
-- kuda_core
-- kuda_extract
-- serde_json
-notes: |
-  - Missing configuration or a missing server binary are non-fatal: `server_cmd: None` or a failed `spawn` yields an empty `Extraction` so other extractor tiers still run.
-  - LSP framing is `Content-Length: N\r\n\r\n<body>`; `request` increments `next_id`, loops `recv` until the matching id (dropping notifications), and surfaces JSON-RPC `error` as `Err`.
-  - The client sends `initialize` (with `rootUri` + one workspace folder) then `initialized` on spawn, `didOpen`/`documentSymbol`/`didClose` per file, and `shutdown()` after extraction/references.
-  - Symbol lines are 1-based (LSP 0-based line + 1); both flat `SymbolInformation` (with `location`) and nested `DocumentSymbol` responses are handled, the latter via `flatten_syms`; `references` results are sorted and deduped.
-
-  - Server stderr is discarded (`Stdio::null()`), which can hide startup diagnostics; unreadable files are skipped silently.
-  - `walk_files` and `module_of` reuse the manifest-based module grouping (per-lang `manifests` + extensions), so `out.files` records every file opened — feeding `Provenance.files`.
-  - Dependencies: `kuda-core`, `kuda-extract`, `serde`, `serde_json`; no LSP client library — the protocol is hand-rolled over stdio pipes.
+notes: ''
 verify:
 - crates/kuda-lsp/Cargo.toml
 - crates/kuda-lsp/src/lib.rs
@@ -109,6 +23,6 @@ provenance:
   hashes:
   - f67a4e0af5e5702eea94a963c1b91e8349a246ab
   - 93513838ec089aab964d987283f0d1ff3dcc18fc
-  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
-  generated_at: '1792314296'
-  generator: kuda-template/0.1.0
+  commit_sha: 4a5c4790b7be68aaf4c24482ce28cf136f9453d1
+  generated_at: '1792710437'
+  generator: kuda-template/0.1.2

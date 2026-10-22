@@ -1,52 +1,17 @@
 name: kuda-cards
 path: crates/kuda-cards/Cargo.toml
-purpose: '`kuda-cards` serializes and parses the repo memory index''s committed YAML artifacts, mapping `kuda_core` domain types (`RepoCard`, `ModuleCard`, `FileCard`) to and from text via serde_yaml. It renders the L0 always-load `.kuda/index.yaml`, L1 `.kuda/modules/<name>.yaml`, and L1.5 `.kuda/files/<module>/<file>.yaml` artifacts, with matching parse functions for round-tripping machine fields and the human-owned `notes:` region.'
+purpose: Card render — .kuda/index.yaml + modules/*.yaml
 api:
 - name: kuda-cards
   kind: module
   file: crates/kuda-cards/Cargo.toml
   line: 1
   module: kuda-cards
-- name: render_repo_card
-  kind: function
-  file: crates/kuda-cards/src/lib.rs
-  line: 8
-  module: kuda-cards
-- name: parse_repo_card
-  kind: function
-  file: crates/kuda-cards/src/lib.rs
-  line: 12
-  module: kuda-cards
-- name: render_module_card
-  kind: function
-  file: crates/kuda-cards/src/lib.rs
-  line: 17
-  module: kuda-cards
-- name: parse_module_card
-  kind: function
-  file: crates/kuda-cards/src/lib.rs
-  line: 21
-  module: kuda-cards
-- name: render_file_card
-  kind: function
-  file: crates/kuda-cards/src/lib.rs
-  line: 26
-  module: kuda-cards
-- name: parse_file_card
-  kind: function
-  file: crates/kuda-cards/src/lib.rs
-  line: 30
-  module: kuda-cards
 deps:
 - kuda-core
 - serde
 - serde_yaml
-- kuda_core
-notes: |
-  - Every render/parse function pair is a pure serde_yaml `to_string`/`from_str` round-trip, mapping serde errors to `String`.
-
-  - Depends only on `kuda-core`, `serde = "1"`, and `serde_yaml = "0.9"` (note: serde_yaml is deprecated upstream, but 0.9 is pinned here).
-  - File layout conventions (`.kuda/index.yaml`, `.kuda/modules/<name>.yaml`, `.kuda/files/<module>/<file>.yaml`) are documented only in doc comments, not enforced by the code.
+notes: ''
 verify:
 - crates/kuda-cards/Cargo.toml
 - crates/kuda-cards/src/lib.rs
@@ -57,6 +22,6 @@ provenance:
   hashes:
   - c2232432f5c2b51750ed9406059add07640caa15
   - a0818022d3de6360d0fca779bf0f16ea13661d21
-  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
-  generated_at: '1792314296'
-  generator: kuda-template/0.1.0
+  commit_sha: 4a5c4790b7be68aaf4c24482ce28cf136f9453d1
+  generated_at: '1792710437'
+  generator: kuda-template/0.1.2

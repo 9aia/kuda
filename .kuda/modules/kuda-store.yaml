@@ -1,28 +1,21 @@
 name: kuda-store
 path: crates/kuda-store/Cargo.toml
-purpose: '`kuda-store` defines the store port for kuda''s L2 index persistence — the `IndexStore` trait (`Send + Sync`) covering symbol/edge writes keyed by module, query reads (`find`, `search`, `dependents`, `modules`), provenance metadata (`set_meta`/`meta`), and per-file content hashes (`file_hashes`/`record_files`) for the incremental-extraction diff. The only implementation is `kuda-store-sqlite`; redb/remote/embedding backends would be new adapter crates.'
+purpose: Store port — L2 index persistence (rebuildable)
 api:
-- name: kuda-store
-  kind: module
-  file: crates/kuda-store/Cargo.toml
-  line: 1
-  module: kuda-store
 - name: IndexStore
   kind: trait
   file: crates/kuda-store/src/lib.rs
   line: 9
   module: kuda-store
+- name: kuda-store
+  kind: module
+  file: crates/kuda-store/Cargo.toml
+  line: 1
+  module: kuda-store
 deps:
 - kuda-core
-- kuda_core
-notes: |
-  - The store is rebuildable — never the source of truth.
-  - `replace_module` replaces a module's symbols and its outgoing edges atomically per module, enabling incremental sync to update one module at a time.
-  - `record_files` replaces a module's file-hash rows and is called with the module's *full* current file set after `replace_module`; `file_hashes` returns path → (hash, module).
-  - All methods return `Result<_, String>`; `meta` returns `Option<String>` for missing keys.
-
-  - `IndexStore` requires `&mut self` for writes (`replace_module`, `set_meta`, `record_files`) but `&self` for reads — the query layer takes `&dyn IndexStore`.
-  - Depends only on `kuda-core` (for `Symbol`/`DepEdge`); storage choice (path, engine) is the adapter's concern, not the port's.
+- kuda-core
+notes: ''
 verify:
 - crates/kuda-store/Cargo.toml
 - crates/kuda-store/src/lib.rs
@@ -32,7 +25,7 @@ provenance:
   - crates/kuda-store/src/lib.rs
   hashes:
   - fcd81b2ab4c0c8bd258d2a0d32162f1ff7ae9bd9
-  - ef1292fa02fee7a59914fde24485a4beeb33b25f
-  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
-  generated_at: '1792314296'
-  generator: kuda-template/0.1.0
+  - 3aadff00b7766196f8dcc0eccd98ec86b1fa5a9f
+  commit_sha: 4a5c4790b7be68aaf4c24482ce28cf136f9453d1
+  generated_at: '1792710437'
+  generator: kuda-template/0.1.2

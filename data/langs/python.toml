@@ -7,3 +7,8 @@ symbol_query = """
 (function_definition name: (identifier) @name.function)
 (class_definition name: (identifier) @name.type)
 """
+
+dep_query = '''
+(import_statement name: (dotted_name) @dep)
+(import_from_statement module_name: (dotted_name) @dep)
+'''

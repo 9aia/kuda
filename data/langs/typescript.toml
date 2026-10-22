@@ -11,3 +11,9 @@ symbol_query = """
 (enum_declaration name: (identifier) @name.type)
 (method_definition name: (property_identifier) @name.function)
 """
+
+dep_query = '''
+(import_statement source: (string (string_fragment) @dep))
+(export_statement source: (string (string_fragment) @dep))
+(call_expression function: (identifier) @req arguments: (arguments (string (string_fragment) @dep)) (#eq? @req "require"))
+'''

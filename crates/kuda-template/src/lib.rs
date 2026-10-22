@@ -32,6 +32,7 @@ impl Summarizer for TemplateSummarizer {
                 .filter(|s| s.module == module)
                 .cloned()
                 .collect(),
+            api_omitted: 0,
             deps: ext
                 .edges
                 .iter()

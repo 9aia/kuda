@@ -199,7 +199,7 @@ impl Summarizer for AcpSummarizer {
             }
             if l.starts_with("invariants:") || l.starts_with("notes:") || l.starts_with("Notes:") {
                 in_notes = true;
-                let rest = l.splitn(2, ':').nth(1).unwrap_or("").trim();
+                let rest = l.split_once(':').map(|x| x.1).unwrap_or("").trim();
                 if !rest.is_empty() {
                     notes.push_str(rest);
                     notes.push('\n');
@@ -223,6 +223,7 @@ impl Summarizer for AcpSummarizer {
             path: path.to_path_buf(),
             purpose: purpose.unwrap_or_else(|| module.into()),
             api: ext.symbols.clone(),
+            api_omitted: 0,
             deps: ext.edges.iter().map(|e| e.to.clone()).collect(),
             notes,
             verify: ext.files.clone(),

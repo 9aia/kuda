@@ -17,7 +17,7 @@ symbol_query = '''
 '''
 
 dep_query = """
-(use_declaration argument: (identifier) @use.root)
-(use_declaration argument: (scoped_identifier path: (identifier) @use.root))
-(use_declaration argument: (scoped_use_list path: (identifier) @use.root))
+(use_declaration argument: (identifier) @dep)
+(use_declaration argument: (scoped_identifier path: (identifier) @dep))
+(use_declaration argument: (scoped_use_list path: (identifier) @dep))
 """

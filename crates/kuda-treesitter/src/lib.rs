@@ -25,6 +25,7 @@ fn language(id: &str) -> Option<Language> {
         "rust" => Some(tree_sitter_rust::LANGUAGE.into()),
         "typescript" | "tsx" => Some(tree_sitter_typescript::LANGUAGE_TYPESCRIPT.into()),
         "python" => Some(tree_sitter_python::LANGUAGE.into()),
+        "go" => Some(tree_sitter_go::LANGUAGE.into()),
         _ => None,
     }
 }
@@ -202,15 +203,22 @@ impl TreesitterExtractor {
                     .map(|q| dep_cursor.matches(q, tree.root_node(), text.as_bytes()));
                 while let Some(m) = dep_m.as_mut().and_then(|m| m.next()) {
                     for cap in m.captures {
-                        let dep = &text[cap.node.byte_range()];
-                        if matches!(dep, "self" | "crate" | "std" | "core" | "alloc" | "super")
-                            || dep_caps[cap.index as usize].is_empty()
-                        {
+                        // only `dep` captures carry the import target —
+                        // queries may capture auxiliary nodes for #eq?
+                        // predicates (e.g. require()'s callee ident).
+                        if dep_caps[cap.index as usize] != "dep" {
                             continue;
                         }
+                        let raw = &text[cap.node.byte_range()];
+                        if matches!(raw, "self" | "crate" | "std" | "core" | "alloc" | "super") {
+                            continue;
+                        }
+                        let Some(dep) = kuda_core::dep_root(&lang.name, raw) else {
+                            continue; // relative import — intra-module
+                        };
                         out.edges.push(DepEdge {
                             from: module.clone(),
-                            to: dep.to_owned(),
+                            to: dep,
                             kind: EdgeKind::Imports,
                         });
                     }

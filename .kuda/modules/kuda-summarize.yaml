@@ -1,28 +1,16 @@
 name: kuda-summarize
 path: crates/kuda-summarize/Cargo.toml
-purpose: '`kuda-summarize` is the summarize port for kuda — the `Summarizer` trait that turns one module''s `Extraction` plus a caller-composed `Provenance` into a `ModuleCard`, with adapters like `kuda-template` (deterministic default) and the ACP/LLM prose paths.'
+purpose: Summarize port — Extraction -> ModuleCard
 api:
 - name: kuda-summarize
   kind: module
   file: crates/kuda-summarize/Cargo.toml
   line: 1
   module: kuda-summarize
-- name: Summarizer
-  kind: trait
-  file: crates/kuda-summarize/src/lib.rs
-  line: 10
-  module: kuda-summarize
 deps:
 - kuda-core
 - kuda-extract
-- kuda_core
-- kuda_extract
-notes: |
-  - `Summarizer: Send + Sync` with `fn kind(&self) -> &'static str` (matched against `summarize.kind` in kuda.toml) and `fn summarize(&self, module: &str, path: &Path, ext: &Extraction, prov: Provenance) -> Result<ModuleCard, String>`.
-  - `prov` is composed by the caller (it owns sha/hash bookkeeping), not the summarizer.
-  - Cards must end in `verify:` file lists — memory is a hypothesis, not truth.
-  - Only dependencies are `kuda-core` and `kuda-extract` (both `.workspace = true`).
-  - The module doc mentions `kuda-llm` as a prose/provider-pluggable impl, but `SummarizeCfg` in kuda-core marks `llm` as a backlog adapter — in-repo the actual prose path ships as `kuda-acp`, with `kuda-template` the default.
+notes: ''
 verify:
 - crates/kuda-summarize/Cargo.toml
 - crates/kuda-summarize/src/lib.rs
@@ -33,6 +21,6 @@ provenance:
   hashes:
   - 11910998e03f533e3852432fcb107e980fbe99f5
   - c39be362ce68f67043930e8b2a69ca1ada4ab670
-  commit_sha: 22e02326ab392598ba7fc01ada29f149dbfdde58
-  generated_at: '1792295084'
-  generator: kuda-template/0.1.0
+  commit_sha: 4a5c4790b7be68aaf4c24482ce28cf136f9453d1
+  generated_at: '1792710437'
+  generator: kuda-template/0.1.2

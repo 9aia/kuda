@@ -1,56 +1,56 @@
 name: kuda-acp
 path: crates/kuda-acp/Cargo.toml
-purpose: '`kuda-acp` is a summarizer adapter that spawns an external ACP agent binary (e.g. `cline --acp`, `zed agent`, `gemini --experimental-acp`) to write grounded module-card prose for the repo memory index — no API keys or provider lock, since auth lives in the user''s agent. It implements the `Summarizer` trait from `kuda-summarize`, using `kuda-core`''s `ModuleCard`/`Provenance` and `kuda-extract`''s `Extraction`.'
+purpose: 'Summarizer adapter: spawns an ACP agent to write grounded module cards'
 api:
-- name: kuda-acp
-  kind: module
-  file: crates/kuda-acp/Cargo.toml
-  line: 1
+- name: AcpClient
+  kind: type
+  file: crates/kuda-acp/src/lib.rs
+  line: 63
   module: kuda-acp
 - name: AcpSummarizer
   kind: type
   file: crates/kuda-acp/src/lib.rs
   line: 15
   module: kuda-acp
-- name: new
-  kind: function
-  file: crates/kuda-acp/src/lib.rs
-  line: 26
-  module: kuda-acp
 - name: complete
   kind: function
   file: crates/kuda-acp/src/lib.rs
   line: 36
   module: kuda-acp
-- name: AcpClient
-  kind: type
-  file: crates/kuda-acp/src/lib.rs
-  line: 63
-  module: kuda-acp
-- name: spawn
+- name: kind
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 71
+  line: 170
   module: kuda-acp
-- name: send
+- name: kuda-acp
+  kind: module
+  file: crates/kuda-acp/Cargo.toml
+  line: 1
+  module: kuda-acp
+- name: new
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 89
-  module: kuda-acp
-- name: request
-  kind: function
-  file: crates/kuda-acp/src/lib.rs
-  line: 97
+  line: 26
   module: kuda-acp
 - name: prompt_for
   kind: function
   file: crates/kuda-acp/src/lib.rs
   line: 149
   module: kuda-acp
-- name: kind
+- name: request
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 170
+  line: 97
+  module: kuda-acp
+- name: send
+  kind: function
+  file: crates/kuda-acp/src/lib.rs
+  line: 89
+  module: kuda-acp
+- name: spawn
+  kind: function
+  file: crates/kuda-acp/src/lib.rs
+  line: 71
   module: kuda-acp
 - name: summarize
   kind: function
@@ -63,19 +63,11 @@ deps:
 - kuda-summarize
 - serde
 - serde_json
-- kuda_core
-- kuda_extract
-- kuda_summarize
+- kuda-core
+- kuda-extract
+- kuda-summarize
 - serde_json
-notes: |
-  - One agent session (client + sessionId) is lazily created on first `complete()` call and reused across all modules, guarded by a `Mutex`; `AcpClient::spawn` runs the command via `sh -c` with piped stdin/stdout and null stderr.
-  - `request()` reads JSON lines until a reply matching its incrementing id, concatenating streamed `agent_message_chunk` text; JSON-RPC errors surface as `Err`.
-  - `summarize()` parses only marked sections from the agent's reply: text before the `purpose:` line is ignored, `invariants:`/`notes:` sections feed the card's `notes`, and with no marked sections the first non-empty line becomes the purpose (falling back to the module name if prose is empty).
-  - The constructed card's `api`, `deps`, and `verify` fields come from the `Extraction` (symbols, edge targets, files), not from agent prose.
-
-  - `prompt_for()` truncates to 30 symbols and 15 source files in the prompt.
-  - Module docs state construction only fails when there's nothing to say; fallback handling is the caller's responsibility.
-  - `AcpClient` is private (only `AcpSummarizer` is public despite the spawn/send/request symbols); its `stderr` is discarded, which can hide agent startup errors.
+notes: ''
 verify:
 - crates/kuda-acp/Cargo.toml
 - crates/kuda-acp/src/lib.rs
@@ -85,7 +77,7 @@ provenance:
   - crates/kuda-acp/src/lib.rs
   hashes:
   - 235538739af3a723c914cd6ede000fee3811ee2d
-  - c72ac7576cadd3536300e47fe2934c968f9713bb
-  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
-  generated_at: '1792314296'
-  generator: kuda-template/0.1.0
+  - ff9fa5ac737cb10b83d5d1f3896bd4919d33769e
+  commit_sha: 4a5c4790b7be68aaf4c24482ce28cf136f9453d1
+  generated_at: '1792710437'
+  generator: kuda-template/0.1.2

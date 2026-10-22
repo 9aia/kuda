@@ -13,6 +13,24 @@ use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
 
+/// stdout that survives `| head` — BrokenPipe exits 0 like a
+/// well-behaved unix filter instead of panicking.
+fn emit(args: std::fmt::Arguments) {
+    use std::io::Write;
+    let mut o = std::io::stdout().lock();
+    if let Err(e) = o.write_fmt(args).and_then(|_| o.flush()) {
+        if e.kind() == std::io::ErrorKind::BrokenPipe {
+            std::process::exit(0);
+        }
+    }
+}
+macro_rules! out {
+    ($($arg:tt)*) => { emit(format_args!($($arg)*)) };
+}
+macro_rules! outln {
+    ($($arg:tt)*) => { emit(format_args!("{}\n", format_args!($($arg)*))) };
+}
+
 const EXAMPLE_TOML: &str = include_str!("../../../examples/kuda.toml.example");
 const LANG_TOMLS: &[&str] = &[
     include_str!("../../../data/langs/rust.toml"),
@@ -99,7 +117,7 @@ fn main() {
         Cmd::Mcp => mcp(&cli),
         Cmd::Acp => acp(&cli),
         Cmd::GenCliDocs => {
-            println!("{}", clap_markdown::help_markdown::<Cli>());
+            outln!("{}", clap_markdown::help_markdown::<Cli>());
             0
         }
     };
@@ -180,7 +198,7 @@ fn init(cli: &Cli) -> i32 {
             return 1;
         }
     }
-    println!("wrote {} + .kuda/ — run `kuda sync`", toml_path.display());
+    outln!("wrote {} + .kuda/ — run `kuda sync`", toml_path.display());
     0
 }
 
@@ -219,7 +237,7 @@ fn sync(cli: &Cli, _full: bool) -> i32 {
     };
     let mut code = 0;
     for r in if roots.is_empty() { vec![dir.clone()] } else { roots } {
-        println!("sync {}", r.display());
+        outln!("sync {}", r.display());
         code |= sync_one(&r, &cfg, cli);
     }
     code
@@ -427,9 +445,9 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
         // symbols + edges complete; treesitter honors the filter.
         let filtered = x.kind() == "treesitter" && !parse_set.is_empty();
         let res = if filtered {
-            x.extract_filtered(&dir, &langs, &parse_set)
+            x.extract_filtered(dir, &langs, &parse_set)
         } else {
-            x.extract(&dir, &langs)
+            x.extract(dir, &langs)
         };
         match res {
             Ok(e) => {
@@ -439,6 +457,20 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
             }
             Err(e) => eprintln!("extract {}: {e}", x.kind()),
         }
+    }
+    // resolve raw dep/import specifiers to indexed module names —
+    // `import neuralmind_shared` lands an edge on `neuralmind-shared`;
+    // unmatched names (serde, os) stay external and queryable.
+    let module_set: Vec<String> = mod_files.keys().cloned().collect();
+    {
+        let mut seen = std::collections::HashSet::new();
+        for e in &mut ext.edges {
+            if let Some(m) = kuda_core::resolve_module(&e.to, &module_set) {
+                e.to = m;
+            }
+        }
+        ext.edges
+            .retain(|e| seen.insert((e.from.clone(), e.to.clone(), e.kind)));
     }
     let sha = kuda_git::GitVcs
         .head_sha(dir)
@@ -477,7 +509,7 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
         // mechanism-version invalidation: a card written by an
         // older generator is re-summarized even on byte-identical
         // inputs — the memory format/procedure evolved.
-        const GENERATOR: &str = "kuda-template/0.1.1";
+        const GENERATOR: &str = "kuda-template/0.1.2";
         let card_path = cards_dir.join("modules").join(format!("{}.yaml", safe(module)));
         if !changed.contains(module) {
             let stale_generator = std::fs::read_to_string(&card_path)
@@ -518,7 +550,7 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
                     dir,
                     module,
                     syms,
-                    &mfiles,
+                    mfiles,
                     &prov.hashes,
                     &manifest_names,
                     acp,
@@ -596,6 +628,7 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
                 continue;
             }
         };
+        sanitize_card(&mut card, &manifest_names);
         // purpose: manifest description -> crate docs -> README
         if card.purpose == card.name {
             if let Some(d) = module_purpose(dir, &dir.join(&path)) {
@@ -633,9 +666,32 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
         .clone()
         .or_else(|| dir.file_name().map(|f| f.to_string_lossy().into_owned()))
         .unwrap_or_else(|| "repo".into());
+    // L0 provenance covers only the card's real inputs — manifests
+    // (module identity) and the README (purpose). The full walked set
+    // is content-addressed by `tree_digest`; embedding ~10k path:hash
+    // pairs made index.yaml an always-AVOID blob on real repos.
+    let prov_files: Vec<PathBuf> = {
+        let mut v: Vec<PathBuf> = ext
+            .files
+            .iter()
+            .filter(|f| {
+                f.file_name()
+                    .and_then(|n| n.to_str())
+                    .map(|n| manifest_names.contains(n))
+                    .unwrap_or(false)
+            })
+            .cloned()
+            .collect();
+        let readme = PathBuf::from("README.md");
+        if dir.join(&readme).exists() && !v.contains(&readme) {
+            v.push(readme);
+        }
+        v.sort();
+        v
+    };
     let prov = Provenance {
-        files: ext.files.clone(),
-        hashes: hash_files(&dir, &ext.files),
+        files: prov_files.clone(),
+        hashes: hash_files(dir, &prov_files),
         commit_sha: sha.clone(),
         generated_at: now.clone(),
         generator: "kuda/0.1.0".into(),
@@ -645,7 +701,9 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
         root: dir.to_path_buf(),
         purpose: readme_purpose(&dir.join("README.md")).unwrap_or_default(),
         modules: module_names.clone(),
-        commands: detect_commands(&dir),
+        commands: detect_commands(dir, &manifest_ext.files),
+        tree_digest: tree_digest(&filehash),
+        files_total: filehash.len(),
         provenance: prov,
     };
     match kuda_cards::render_repo_card(&repo_card) {
@@ -662,7 +720,7 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
         cards_dir.join("meta.json"),
         format!("{{\"commit_sha\":\"{sha}\",\"generated_at\":{now}}}\n"),
     );
-    println!("indexed {} module(s) at {sha:.7}", module_names.len());
+    outln!("indexed {} module(s) at {sha:.7}", module_names.len());
     0
 }
 
@@ -727,6 +785,9 @@ fn sync_file_cards(
                     .unwrap_or_else(|_| vec![text.clone()])
             }
             Some("py") => CodeSplitter::new(tree_sitter_python::LANGUAGE, cfg)
+                .map(|s| s.chunk_indices(&text).map(|(_, c)| c.to_string()).collect())
+                .unwrap_or_else(|_| vec![text.clone()]),
+            Some("go") => CodeSplitter::new(tree_sitter_go::LANGUAGE, cfg)
                 .map(|s| s.chunk_indices(&text).map(|(_, c)| c.to_string()).collect())
                 .unwrap_or_else(|_| vec![text.clone()]),
             Some("md") | Some("mdx") => MarkdownSplitter::new(cfg)
@@ -874,18 +935,173 @@ fn safe(name: &str) -> String {
         .collect()
 }
 
-fn detect_commands(dir: &Path) -> Vec<String> {
-    let mut cmds = Vec::new();
-    if dir.join("Cargo.toml").exists() {
+/// sha1 over sorted "path:hash" lines — content-addresses the
+/// walked file set without embedding the list in the L0 card.
+fn tree_digest(filehash: &std::collections::HashMap<PathBuf, String>) -> String {
+    use sha1::Digest;
+    let mut lines: Vec<String> = filehash
+        .iter()
+        .map(|(p, h)| format!("{}:{h}", p.display()))
+        .collect();
+    lines.sort();
+    let mut h = sha1::Sha1::new();
+    for l in &lines {
+        h.update(l.as_bytes());
+        h.update(b"\n");
+    }
+    h.finalize().iter().map(|b| format!("{b:02x}")).collect()
+}
+
+/// Bounded cards, whatever the summarizer produced: drop
+/// private-by-convention symbols, dedupe, cap `api` (remainder
+/// counted in `api_omitted`) and `verify` to entry points.
+fn sanitize_card(
+    card: &mut kuda_core::ModuleCard,
+    manifest_names: &std::collections::HashSet<String>,
+) {
+    const API_CAP: usize = 40;
+    const VERIFY_CAP: usize = 10;
+    card.api.retain(|s| !s.name.starts_with('_'));
+    card.api
+        .sort_by(|a, b| a.name.cmp(&b.name).then(a.file.cmp(&b.file)).then(a.line.cmp(&b.line)));
+    card.api
+        .dedup_by(|a, b| a.name == b.name && a.file == b.file && a.line == b.line);
+    if card.api.len() > API_CAP {
+        card.api_omitted = card.api.len() - API_CAP;
+        card.api.truncate(API_CAP);
+    }
+    if card.verify.len() > VERIFY_CAP {
+        let entry = |f: &PathBuf| {
+            f.file_name()
+                .and_then(|n| n.to_str())
+                .map(|n| {
+                    manifest_names.contains(n)
+                        || matches!(
+                            n,
+                            "lib.rs" | "main.rs" | "mod.rs" | "__init__.py" | "__main__.py"
+                                | "index.ts" | "index.tsx" | "index.js" | "main.go" | "go.mod"
+                        )
+                })
+                .unwrap_or(false)
+        };
+        card.verify.sort_by_key(|f| !entry(f));
+        card.verify.truncate(VERIFY_CAP);
+    }
+}
+
+/// Build/test entry points for the L0 card — advisory hints, not a
+/// contract. Sources: Makefile targets (root + package dirs),
+/// justfile/Taskfile, package.json scripts, ecosystem manifests.
+fn detect_commands(dir: &Path, manifests: &[PathBuf]) -> Vec<String> {
+    fn fname(m: &Path) -> &str {
+        m.file_name().and_then(|n| n.to_str()).unwrap_or("")
+    }
+    let has = |name: &str| manifests.iter().any(|m| fname(m) == name);
+    let mut cmds: Vec<String> = Vec::new();
+
+    // Makefile targets — root first, then package dirs (make -C).
+    let mut dirs: Vec<PathBuf> = vec![PathBuf::new()];
+    dirs.extend(manifests.iter().filter_map(|m| m.parent().map(|p| p.to_path_buf())));
+    let mut seen_dirs = std::collections::HashSet::new();
+    for rel in dirs {
+        if !seen_dirs.insert(rel.clone()) {
+            continue;
+        }
+        let Ok(text) = std::fs::read_to_string(dir.join(&rel).join("Makefile")) else {
+            continue;
+        };
+        for t in makefile_targets(&text).into_iter().take(3) {
+            cmds.push(if rel.as_os_str().is_empty() {
+                format!("make {t}")
+            } else {
+                format!("make -C {} {t}", rel.display())
+            });
+        }
+    }
+    if dir.join("justfile").exists() || dir.join("Justfile").exists() {
+        cmds.push("just --list".into());
+    }
+    if dir.join("Taskfile.yml").exists() || dir.join("Taskfile.yaml").exists() {
+        cmds.push("task --list".into());
+    }
+    if has("Cargo.toml") {
         cmds.extend(["cargo check", "cargo test --workspace"].map(str::to_owned));
     }
-    if dir.join("package.json").exists() {
-        cmds.push("npm test".into());
-    }
-    if dir.join("go.mod").exists() {
+    if has("go.mod") {
         cmds.push("go test ./...".into());
     }
+    for m in manifests.iter().filter(|m| fname(m) == "package.json").take(2) {
+        let Ok(text) = std::fs::read_to_string(dir.join(m)) else {
+            continue;
+        };
+        let Ok(v) = serde_json::from_str::<serde_json::Value>(&text) else {
+            continue;
+        };
+        let Some(scripts) = v.get("scripts").and_then(|s| s.as_object()) else {
+            continue;
+        };
+        // prefer the verbs agents actually need, then fill to 3
+        let mut keys: Vec<&str> = ["test", "build", "dev", "lint", "start", "typecheck", "check"]
+            .into_iter()
+            .filter(|k| scripts.contains_key(*k))
+            .collect();
+        for k in scripts.keys().map(|k| k.as_str()) {
+            if !keys.contains(&k) {
+                keys.push(k);
+            }
+        }
+        let rel = m.parent().map(|p| p.to_path_buf()).unwrap_or_default();
+        for k in keys.into_iter().take(3) {
+            cmds.push(if rel.as_os_str().is_empty() {
+                format!("npm run {k}")
+            } else {
+                format!("(cd {} && npm run {k})", rel.display())
+            });
+        }
+    }
+    if has("pyproject.toml")
+        && manifests.iter().filter(|m| fname(m) == "pyproject.toml").any(|m| {
+            dir.join("tests").is_dir()
+                || m.parent()
+                    .map(|p| dir.join(p).join("tests").is_dir())
+                    .unwrap_or(false)
+        })
+    {
+        cmds.push("pytest".into());
+    }
+    let mut seen = std::collections::HashSet::new();
+    cmds.retain(|c| seen.insert(c.clone()));
+    cmds.truncate(8);
     cmds
+}
+
+/// `^[A-Za-z0-9_.-]+:` recipe names — skips assignments (`:=`),
+/// dot-directives (.PHONY), pattern rules (%) and comments.
+fn makefile_targets(text: &str) -> Vec<String> {
+    let mut out: Vec<String> = Vec::new();
+    for line in text.lines() {
+        if line.starts_with(['\t', ' ', '#']) {
+            continue;
+        }
+        let Some(colon) = line.find(':') else {
+            continue;
+        };
+        let name = line[..colon].trim();
+        if name.is_empty()
+            || name.starts_with('.')
+            || name.contains('%')
+            || !name
+                .chars()
+                .all(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '-' | '.'))
+            || line[colon..].starts_with(":=")
+        {
+            continue;
+        }
+        if !out.iter().any(|t| t == name) {
+            out.push(name.to_owned());
+        }
+    }
+    out
 }
 
 /// Drift report: per-card hashes vs current content + sha vs HEAD.
@@ -916,13 +1132,13 @@ fn status(cli: &Cli) -> i32 {
                 || card.provenance.files.len() != hashes.len();
             if stale {
                 drifted += 1;
-                println!("drifted  {}", card.name);
+                outln!("drifted  {}", card.name);
             } else {
                 fresh += 1;
             }
         }
     }
-    println!("{fresh} fresh, {drifted} drifted (HEAD {})", &head[..head.len().min(7)]);
+    outln!("{fresh} fresh, {drifted} drifted (HEAD {})", &head[..head.len().min(7)]);
     0
 }
 
@@ -937,7 +1153,7 @@ fn card(cli: &Cli, module: &str) -> i32 {
 fn cat_file(p: &Path) -> i32 {
     match std::fs::read_to_string(p) {
         Ok(t) => {
-            print!("{t}");
+            out!("{t}");
             0
         }
         Err(e) => {
@@ -979,11 +1195,11 @@ fn find(cli: &Cli, symbol: &str) -> i32 {
         }
     }
     if hits.is_empty() {
-        println!("no symbol `{symbol}` — run `kuda sync`?");
+        outln!("no symbol `{symbol}` — run `kuda sync`?");
         return 1;
     }
     for s in hits {
-        println!("{}:{} {:?} {}", s.file.display(), s.line, s.kind, s.module);
+        outln!("{}:{} {:?} {}", s.file.display(), s.line, s.kind, s.module);
     }
     0
 }
@@ -1004,29 +1220,29 @@ fn dependents(cli: &Cli, name: &str) -> i32 {
         vec![dir.clone()]
     };
     let mut edges = Vec::new();
+    let mut edge_total = 0usize;
     for r in &roots {
         if let Ok(store) = kuda_store_sqlite::SqliteStore::open(&r.join(&cfg.store.path)) {
+            edge_total += kuda_query::edge_count(&store).unwrap_or(0);
             if let Ok(mut e) = kuda_query::dependents(&store, name) {
                 edges.append(&mut e);
             }
         }
     }
-    match Ok::<Vec<kuda_core::DepEdge>, String>(edges) {
-        Ok(edges) if edges.is_empty() => {
-            println!("nothing depends on `{name}`");
-            0
+    if edges.is_empty() {
+        // an empty edges table means the index has no dep data —
+        // "nothing depends on X" would be a lie, say so.
+        if edge_total == 0 {
+            outln!("no dep edges indexed — language dep queries or manifest deps missing; run `kuda sync`");
+        } else {
+            outln!("nothing depends on `{name}`");
         }
-        Ok(edges) => {
-            for e in edges {
-                println!("{} --{:?}--> {}", e.from, e.kind, e.to);
-            }
-            0
-        }
-        Err(e) => {
-            eprintln!("dependents: {e}");
-            1
-        }
+        return 0;
     }
+    for e in edges {
+        outln!("{} --{:?}--> {}", e.from, e.kind, e.to);
+    }
+    0
 }
 
 /// Textual mention sweep — the doc-update use case. With
@@ -1051,7 +1267,7 @@ fn refs(cli: &Cli, name: &str, docs_only: bool) -> i32 {
                         any = true;
                         for (f, l) in locs {
                             let rel = f.strip_prefix(r).unwrap_or(&f);
-                            println!("{}:{}{}", rel.display(), l,
+                            outln!("{}:{}{}", rel.display(), l,
                                 if roots.len() > 1 { format!("  [{}]", repo_tag(r)) } else { String::new() });
                         }
                     }
@@ -1069,7 +1285,7 @@ fn refs(cli: &Cli, name: &str, docs_only: bool) -> i32 {
         total += refs_in(dir, name, docs_only, roots.len() > 1);
     }
     if total == 0 {
-        println!("no mentions of `{name}`");
+        outln!("no mentions of `{name}`");
     }
     0
 }
@@ -1120,7 +1336,7 @@ fn refs_in(dir: &Path, name: &str, docs_only: bool, tag: bool) -> usize {
                         } else {
                             String::new()
                         };
-                        println!("{}:{}: {}{t}", rel.display(), i + 1, line.trim());
+                        outln!("{}:{}: {}{t}", rel.display(), i + 1, line.trim());
                     }
                 }
             }
@@ -1149,7 +1365,7 @@ fn mcp(cli: &Cli) -> i32 {
         let method = req["method"].as_str().unwrap_or("");
         let id = req.get("id").cloned().unwrap_or(Value::Null);
         let reply = |result: Value| {
-            println!("{}", json!({"jsonrpc":"2.0","id":id,"result":result}));
+            outln!("{}", json!({"jsonrpc":"2.0","id":id,"result":result}));
         };
         let tool_text = |text: String| {
             json!({"content":[{"type":"text","text":text}]})
@@ -1250,14 +1466,14 @@ fn acp(cli: &Cli) -> i32 {
         let method = req["method"].as_str().unwrap_or("");
         let id = req.get("id").cloned().unwrap_or(Value::Null);
         match method {
-            "initialize" => println!("{}", json!({
+            "initialize" => outln!("{}", json!({
                 "jsonrpc":"2.0","id":id,
                 "result":{"protocolVersion":1,
                     "agentCapabilities":{"loadSession":false,
                         "promptCapabilities":{"image":false,"audio":false,"embeddedContext":true}},
                     "agentInfo":{"name":"kuda","version":"0.1.0","title":"kuda — repo memory"}}
             })),
-            "session/new" => println!("{}", json!({
+            "session/new" => outln!("{}", json!({
                 "jsonrpc":"2.0","id":id,
                 "result":{"sessionId":"kuda-default"}
             })),
@@ -1273,14 +1489,14 @@ fn acp(cli: &Cli) -> i32 {
                     })
                     .unwrap_or_default();
                 let text = acp_answer(&dir, &cfg, &prompt);
-                println!("{}", json!({"jsonrpc":"2.0","method":"session/update",
+                outln!("{}", json!({"jsonrpc":"2.0","method":"session/update",
                     "params":{"sessionId":sid,"update":{"sessionUpdate":"agent_message_chunk",
                         "content":{"type":"text","text":text}}}}));
-                println!("{}", json!({"jsonrpc":"2.0","id":id,
+                outln!("{}", json!({"jsonrpc":"2.0","id":id,
                     "result":{"stopReason":"end_turn"}}));
             }
             "session/cancel" | "authenticated" => {}
-            _ => println!("{}", json!({"jsonrpc":"2.0","id":id,
+            _ => outln!("{}", json!({"jsonrpc":"2.0","id":id,
                 "error":{"code":-32601,"message":"method not found"}})),
         }
         let _ = std::io::Write::flush(&mut std::io::stdout());
@@ -1313,25 +1529,25 @@ fn acp_answer(dir: &Path, cfg: &Config, prompt: &str) -> String {
             .unwrap_or_else(|e| format!("error: {e}")),
         "card" => std::fs::read_to_string(dir.join(format!(".kuda/modules/{}.yaml", safe(arg))))
             .unwrap_or_else(|e| format!("error: {e}")),
-        "map" | "status" | _ => std::fs::read_to_string(dir.join(".kuda/index.yaml"))
+        _ => std::fs::read_to_string(dir.join(".kuda/index.yaml"))
             .unwrap_or_else(|e| format!("error: {e}")),
     }
 }
 
 fn doctor(cli: &Cli) -> i32 {
-    println!("kuda doctor");
+    outln!("kuda doctor");
     match (TomlSource {
         path: cli.config.clone(),
     })
     .load()
     {
-        Ok(c) => println!(
+        Ok(c) => outln!(
             "  config   ok  (extract: {:?}, summarize: {}, store: {})",
             c.extract.kinds, c.summarize.kind, c.store.kind
         ),
-        Err(e) => println!("  config   --  {e}"),
+        Err(e) => outln!("  config   --  {e}"),
     }
-    println!("  adapters    manifest, treesitter, lsp, template, sqlite (llm pending)");
+    outln!("  adapters    manifest, treesitter, lsp, template, sqlite (llm pending)");
     0
 }
 
@@ -1427,7 +1643,7 @@ fn watch(cli: &Cli) -> i32 {
         eprintln!("watch {e}");
         return 1;
     }
-    println!("watching — sync on change (ctrl-c to stop)");
+    outln!("watching — sync on change (ctrl-c to stop)");
     loop {
         match rx.recv() {
             Ok(Ok(evt)) => {

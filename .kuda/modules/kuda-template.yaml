@@ -1,12 +1,7 @@
 name: kuda-template
 path: crates/kuda-template/Cargo.toml
-purpose: '`kuda-template` is the deterministic, zero-model summarizer adapter — implements `kuda_summarize::Summarizer` (`kind() == "template"`) building `ModuleCard`s purely from what extraction found, at zero cost with no LLM. It''s the default/fallback tier; prose belongs to the `llm` (or ACP) adapter.'
+purpose: 'Summarize adapter: deterministic zero-model cards'
 api:
-- name: kuda-template
-  kind: module
-  file: crates/kuda-template/Cargo.toml
-  line: 1
-  module: kuda-template
 - name: TemplateSummarizer
   kind: type
   file: crates/kuda-template/src/lib.rs
@@ -17,6 +12,11 @@ api:
   file: crates/kuda-template/src/lib.rs
   line: 14
   module: kuda-template
+- name: kuda-template
+  kind: module
+  file: crates/kuda-template/Cargo.toml
+  line: 1
+  module: kuda-template
 - name: summarize
   kind: function
   file: crates/kuda-template/src/lib.rs
@@ -26,16 +26,10 @@ deps:
 - kuda-core
 - kuda-extract
 - kuda-summarize
-- kuda_core
-- kuda_extract
-- kuda_summarize
-notes: |
-  - `purpose` is set to the module name itself (the doc-comment mentions a first-doc-line fallback, but the code unconditionally uses `module.to_owned()`); `notes` is always empty (human-owned region starts blank), `verify` mirrors `ext.files`.
-  - `api` includes only symbols with `s.module == module`; `deps` includes only edge targets where `e.from == module`.
-  - Never fails — `summarize` returns `Ok` unconditionally, threading the caller's `Provenance` through untouched.
-
-  - Despite the doc claiming "first doc line when a module manifest/README supplies one," no manifest/README lookup exists in this file — purpose is always the module name.
-  - Depends only on `kuda-core`, `kuda-extract`, `kuda-summarize` — no I/O, no network, no model.
+- kuda-core
+- kuda-extract
+- kuda-summarize
+notes: ''
 verify:
 - crates/kuda-template/Cargo.toml
 - crates/kuda-template/src/lib.rs
@@ -45,7 +39,7 @@ provenance:
   - crates/kuda-template/src/lib.rs
   hashes:
   - 65d11baa59bc50d3fb5d1b6a488a87922b66c9a3
-  - 8503206292175e9f857af5d2f6c22b02ab86aaa4
-  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
-  generated_at: '1792314296'
-  generator: kuda-template/0.1.0
+  - 867d24ff10aaee1ded6a6415e689c6e19b1bacf3
+  commit_sha: 4a5c4790b7be68aaf4c24482ce28cf136f9453d1
+  generated_at: '1792710437'
+  generator: kuda-template/0.1.2
