@@ -1,19 +1,32 @@
 path: crates/kuda-manifest/src/lib.rs
 module: kuda-manifest
-purpose: 'Manifest adapter implementing the `kuda_extract::Extractor` port (`kind` = `"manifest"`) — walks the tree for manifest basenames declared by `LangDef` entries (Cargo.toml, package.json, go.mod, …) and turns each into a module-graph node: a `SymbolKind::Module` symbol plus `EdgeKind::PackageDep` edges to its declared dependencies. No parser or language knowledge beyond concrete-format adapters keyed by manifest filename.'
+purpose: crates/kuda-manifest/src/lib.rs
 symbols:
 - ManifestExtractor
 - kind
 - extract
 - parse_manifest
+- pep508_name
+- pyproject
+- setup_py
 - cargo
+- cargo_dep_name
 - package_json
 - go_mod
+- tests
+- pep508_strips_extras_markers_and_versions
+- pyproject_pep621
+- pyproject_poetry
+- setup_py_name_kwarg
+- cargo_git_dep_resolves_to_repo_basename
+- cargo_package_rename_uses_real_name
+- cargo_plain_and_workspace_deps_keep_key
+- cargo_git_dep_flag_off_keeps_key
 provenance:
   files:
   - crates/kuda-manifest/src/lib.rs
   hashes:
-  - 44f6cf18ea1722cc51ccb13532d3b5a6fff18eb8
-  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
-  generated_at: '1792313269'
+  - 33ad8e16633e164ace719456d0d3bb57c6090bcd
+  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
+  generated_at: '1792719500'
   generator: kuda-acp/0.1.0

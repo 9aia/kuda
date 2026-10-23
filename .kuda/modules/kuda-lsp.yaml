@@ -2,15 +2,93 @@ name: kuda-lsp
 path: crates/kuda-lsp/Cargo.toml
 purpose: 'Extract adapter: LSP server-backed symbol extraction (documentSymbol)'
 api:
+- name: LspClient
+  kind: type
+  file: crates/kuda-lsp/src/lib.rs
+  line: 19
+  module: kuda-lsp
+- name: LspExtractor
+  kind: type
+  file: crates/kuda-lsp/src/lib.rs
+  line: 14
+  module: kuda-lsp
+- name: extract
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 257
+  module: kuda-lsp
+- name: flatten_syms
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 122
+  module: kuda-lsp
+- name: kind
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 253
+  module: kuda-lsp
 - name: kuda-lsp
   kind: module
   file: crates/kuda-lsp/Cargo.toml
   line: 1
   module: kuda-lsp
+- name: lsp_kind
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 110
+  module: kuda-lsp
+- name: module_of
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 157
+  module: kuda-lsp
+- name: notify
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 98
+  module: kuda-lsp
+- name: recv
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 63
+  module: kuda-lsp
+- name: references
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 207
+  module: kuda-lsp
+- name: request
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 83
+  module: kuda-lsp
+- name: send
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 56
+  module: kuda-lsp
+- name: shutdown
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 102
+  module: kuda-lsp
+- name: spawn
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 27
+  module: kuda-lsp
+- name: walk_files
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 174
+  module: kuda-lsp
 deps:
 - kuda-core
 - kuda-extract
 - serde
+- serde_json
+- kuda-core
+- kuda-extract
 - serde_json
 notes: ''
 verify:
@@ -23,6 +101,6 @@ provenance:
   hashes:
   - f67a4e0af5e5702eea94a963c1b91e8349a246ab
   - 93513838ec089aab964d987283f0d1ff3dcc18fc
-  commit_sha: 4a5c4790b7be68aaf4c24482ce28cf136f9453d1
-  generated_at: '1792710437'
+  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
+  generated_at: '1792719500'
   generator: kuda-template/0.1.2

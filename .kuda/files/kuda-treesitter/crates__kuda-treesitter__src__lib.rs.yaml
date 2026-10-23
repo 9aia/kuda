@@ -1,6 +1,6 @@
 path: crates/kuda-treesitter/src/lib.rs
 module: kuda-treesitter
-purpose: Treesitter adapter implementing the `Extractor` port — compiles per-language grammar + queries (from `data/langs/*`, falling back to `DEFAULT_RUST_QUERY`) to produce symbols, import edges (`DepEdge`), and file lists from a repo walk. New language support requires only a data file plus a `language()` match arm; supports incremental extraction via `extract_filtered` which parses only a given set of repo-relative files.
+purpose: crates/kuda-treesitter/src/lib.rs
 symbols:
 - TreesitterExtractor
 - language
@@ -16,7 +16,7 @@ provenance:
   files:
   - crates/kuda-treesitter/src/lib.rs
   hashes:
-  - aa9f91b8b41e6b9846914e3a399bc40a60532260
-  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
-  generated_at: '1792314596'
+  - e90c37d8b2a23b471c30771464bb05691eadb579
+  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
+  generated_at: '1792719500'
   generator: kuda-acp/0.1.0

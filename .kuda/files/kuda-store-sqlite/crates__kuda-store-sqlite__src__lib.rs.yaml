@@ -1,6 +1,6 @@
 path: crates/kuda-store-sqlite/src/lib.rs
 module: kuda-store-sqlite
-purpose: '`kuda-store-sqlite` is the SQLite adapter of kuda''s `IndexStore` port — a single rebuildable file (`.kuda/index.sqlite`, gitignored) storing symbols, edges, meta keys, and per-file content hashes with zero server. `SqliteStore::open` creates parent dirs, opens the connection, and applies the `SCHEMA` (tables `symbols`, `edges`, `meta`, `files` with name/module/to_mod indexes).'
+purpose: crates/kuda-store-sqlite/src/lib.rs
 symbols:
 - SqliteStore
 - SCHEMA
@@ -16,6 +16,7 @@ symbols:
 - find
 - search
 - dependents
+- edge_count
 - modules
 - set_meta
 - meta
@@ -23,7 +24,7 @@ provenance:
   files:
   - crates/kuda-store-sqlite/src/lib.rs
   hashes:
-  - a5237e4182f8f90a5883968b265e4eb11a4cdeba
-  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
-  generated_at: '1792314296'
+  - 86c23ef7cdb92c3b023b09a7f80e5a61490afb42
+  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
+  generated_at: '1792719500'
   generator: kuda-acp/0.1.0

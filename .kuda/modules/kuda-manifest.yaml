@@ -5,27 +5,52 @@ api:
 - name: ManifestExtractor
   kind: type
   file: crates/kuda-manifest/src/lib.rs
-  line: 11
+  line: 14
   module: kuda-manifest
 - name: cargo
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 171
+  line: 180
+  module: kuda-manifest
+- name: cargo_dep_name
+  kind: function
+  file: crates/kuda-manifest/src/lib.rs
+  line: 206
+  module: kuda-manifest
+- name: cargo_git_dep_flag_off_keeps_key
+  kind: function
+  file: crates/kuda-manifest/src/lib.rs
+  line: 358
+  module: kuda-manifest
+- name: cargo_git_dep_resolves_to_repo_basename
+  kind: function
+  file: crates/kuda-manifest/src/lib.rs
+  line: 313
+  module: kuda-manifest
+- name: cargo_package_rename_uses_real_name
+  kind: function
+  file: crates/kuda-manifest/src/lib.rs
+  line: 329
+  module: kuda-manifest
+- name: cargo_plain_and_workspace_deps_keep_key
+  kind: function
+  file: crates/kuda-manifest/src/lib.rs
+  line: 344
   module: kuda-manifest
 - name: extract
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 20
+  line: 24
   module: kuda-manifest
 - name: go_mod
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 203
+  line: 243
   module: kuda-manifest
 - name: kind
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 16
+  line: 20
   module: kuda-manifest
 - name: kuda-manifest
   kind: module
@@ -35,52 +60,52 @@ api:
 - name: package_json
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 189
+  line: 229
   module: kuda-manifest
 - name: parse_manifest
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 80
+  line: 85
   module: kuda-manifest
 - name: pep508_name
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 93
+  line: 102
   module: kuda-manifest
 - name: pep508_strips_extras_markers_and_versions
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 220
+  line: 260
   module: kuda-manifest
 - name: pyproject
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 101
+  line: 110
   module: kuda-manifest
 - name: pyproject_pep621
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 227
+  line: 267
   module: kuda-manifest
 - name: pyproject_poetry
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 247
+  line: 287
   module: kuda-manifest
 - name: setup_py
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 160
+  line: 169
   module: kuda-manifest
 - name: setup_py_name_kwarg
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 267
+  line: 307
   module: kuda-manifest
 - name: tests
   kind: module
   file: crates/kuda-manifest/src/lib.rs
-  line: 216
+  line: 256
   module: kuda-manifest
 deps:
 - kuda-core
@@ -100,7 +125,7 @@ provenance:
   - crates/kuda-manifest/src/lib.rs
   hashes:
   - e2ef5f546ee4d7eae4708f90a7e099497a44f675
-  - 703ea47e8e65d278b22b5e2ac8ab9f5df4d572c3
-  commit_sha: 4a5c4790b7be68aaf4c24482ce28cf136f9453d1
-  generated_at: '1792710437'
+  - 33ad8e16633e164ace719456d0d3bb57c6090bcd
+  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
+  generated_at: '1792719500'
   generator: kuda-template/0.1.2

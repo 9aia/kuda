@@ -1,0 +1,27 @@
+path: modules/dagger/dagger/src/kuda/main.py
+module: kuda
+purpose: modules/dagger/dagger/src/kuda/main.py
+symbols:
+- Kuda
+- _base
+- _workspace
+- _link_repo
+- workspace
+- with_sibling
+- run_script
+- _exec
+- doctor
+- test_shard
+- doctests
+- test
+- coverage_report
+- coverage_gate
+- run
+provenance:
+  files:
+  - modules/dagger/dagger/src/kuda/main.py
+  hashes:
+  - d71646b878b3eae72aa42a5791588701197fdb2d
+  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
+  generated_at: '1792719500'
+  generator: kuda-acp/0.1.0

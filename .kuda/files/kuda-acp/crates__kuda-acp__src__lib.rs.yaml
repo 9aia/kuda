@@ -1,6 +1,6 @@
 path: crates/kuda-acp/src/lib.rs
 module: kuda-acp
-purpose: 'An ACP (Agent Client Protocol) summarizer adapter in the `kuda-acp` crate that spawns any client-capable agent binary (e.g. `cline --acp`, `zed agent`, `gemini --experimental-acp`) to write grounded module-card prose for the repo memory index — no API keys or provider lock-in, since auth lives in the user''s agent. The private `AcpClient` handles JSON-RPC over the agent''s stdin/stdout (auto-answering `session/request_permission`, collecting streamed `session/update` text chunks), while `AcpSummarizer` lazily maintains one shared session across all modules via a `Mutex`. It implements the `kuda_summarize::Summarizer` trait (`kind` = `"acp"`): `summarize` prompts with up to 30 symbols and 15 source files, then parses the returned prose into a `ModuleCard` by extracting `purpose:`/`invariants:`/`notes:` sections, falling back to the first non-empty line if unmarked.'
+purpose: crates/kuda-acp/src/lib.rs
 symbols:
 - AcpSummarizer
 - new
@@ -16,7 +16,7 @@ provenance:
   files:
   - crates/kuda-acp/src/lib.rs
   hashes:
-  - c72ac7576cadd3536300e47fe2934c968f9713bb
-  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
-  generated_at: '1792313269'
+  - fb69c86b1ed713a671fe3ea77157319eacba4642
+  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
+  generated_at: '1792719500'
   generator: kuda-acp/0.1.0

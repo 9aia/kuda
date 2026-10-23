@@ -2,12 +2,44 @@ name: kuda-dotenv
 path: crates/kuda-dotenv/Cargo.toml
 purpose: 'Secret adapter: KEY=VAL env file (chmod 600)'
 api:
+- name: DotenvSecrets
+  kind: type
+  file: crates/kuda-dotenv/src/lib.rs
+  line: 9
+  module: kuda-dotenv
+- name: get
+  kind: function
+  file: crates/kuda-dotenv/src/lib.rs
+  line: 14
+  module: kuda-dotenv
 - name: kuda-dotenv
   kind: module
   file: crates/kuda-dotenv/Cargo.toml
   line: 1
   module: kuda-dotenv
+- name: perms_600
+  kind: function
+  file: crates/kuda-dotenv/tests/store.rs
+  line: 25
+  module: kuda-dotenv
+- name: set
+  kind: function
+  file: crates/kuda-dotenv/src/lib.rs
+  line: 21
+  module: kuda-dotenv
+- name: set_get_update
+  kind: function
+  file: crates/kuda-dotenv/tests/store.rs
+  line: 9
+  module: kuda-dotenv
+- name: tmp
+  kind: function
+  file: crates/kuda-dotenv/tests/store.rs
+  line: 4
+  module: kuda-dotenv
 deps:
+- kuda-secret
+- kuda-dotenv
 - kuda-secret
 notes: ''
 verify:
@@ -23,6 +55,6 @@ provenance:
   - c00e5be2a18e90d8ecfd27f7e9f455e5343b7a86
   - cb40b55b263aafbb6428aabc0c2efdfc983be879
   - 4d3dbaa112d4637449c1defd1780cf73f5683533
-  commit_sha: 4a5c4790b7be68aaf4c24482ce28cf136f9453d1
-  generated_at: '1792710437'
+  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
+  generated_at: '1792719500'
   generator: kuda-template/0.1.2

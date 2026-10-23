@@ -227,7 +227,7 @@ fn workspace_roots(dir: &Path) -> Vec<PathBuf> {
 }
 
 /// The pipeline: extract -> per-module summarize -> cards + store.
-fn sync(cli: &Cli, _full: bool) -> i32 {
+fn sync(cli: &Cli, full: bool) -> i32 {
     let dir = root(cli);
     let cfg = load_config(cli);
     let roots = if cli.workspace {
@@ -238,20 +238,26 @@ fn sync(cli: &Cli, _full: bool) -> i32 {
     let mut code = 0;
     for r in if roots.is_empty() { vec![dir.clone()] } else { roots } {
         outln!("sync {}", r.display());
-        code |= sync_one(&r, &cfg, cli);
+        code |= sync_one(&r, &cfg, cli, full);
     }
     code
 }
 
-fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
-    let langs = langs();
+/// Walk inputs derived from the loaded langs: manifest basenames
+/// (ordered list + lookup set) and source extensions (dotless).
+fn walk_sets(
+    langs: &[LangDef],
+) -> (
+    Vec<String>,
+    std::collections::HashSet<String>,
+    std::collections::HashSet<String>,
+) {
     let manifest_list: Vec<String> = langs
         .iter()
         .flat_map(|l| l.manifests.iter().cloned())
         .collect();
-    let manifest_names: std::collections::HashSet<String> =
-        manifest_list.iter().cloned().collect();
-    let src_exts: std::collections::HashSet<String> = langs
+    let manifest_names = manifest_list.iter().cloned().collect();
+    let src_exts = langs
         .iter()
         .flat_map(|l| {
             l.extensions
@@ -259,12 +265,94 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
                 .map(|e| e.trim_start_matches('.').to_owned())
         })
         .collect();
+    (manifest_list, manifest_names, src_exts)
+}
+
+/// Shared repo walk for `sync` + `status`: collect manifests and
+/// source files (same `dir_excluded` + worktree `.git`-file skip),
+/// group them into modules by manifest dir -> package name, and
+/// blob-hash every file. `pkg_by_dir` only affects module naming —
+/// pass an empty map when just the file set + hashes matter (the
+/// tree digest).
+fn scan_repo(
+    dir: &Path,
+    cfg: &Config,
+    manifest_list: &[String],
+    manifest_names: &std::collections::HashSet<String>,
+    src_exts: &std::collections::HashSet<String>,
+    pkg_by_dir: &std::collections::HashMap<PathBuf, String>,
+) -> (
+    BTreeMap<String, Vec<PathBuf>>,
+    std::collections::HashMap<PathBuf, String>,
+) {
+    // Cheap (no parse): drives both the incremental diff and the
+    // per-module file lists in sync, and the tree digest in status.
+    let mut mod_files: BTreeMap<String, Vec<PathBuf>> = BTreeMap::new();
+    let mut stack = vec![dir.to_path_buf()];
+    while let Some(d) = stack.pop() {
+        let Ok(rd) = std::fs::read_dir(&d) else {
+            continue;
+        };
+        for e in rd.flatten() {
+            let p = e.path();
+            if p.is_dir() {
+                if !e
+                    .file_name()
+                    .to_str()
+                    .map(|n| kuda_core::dir_excluded(n, &cfg.extract.exclude))
+                    .unwrap_or(true)
+                    && !p.join(".git").is_file()
+                {
+                    stack.push(p);
+                }
+                continue;
+            }
+            let name = e.file_name().to_string_lossy().into_owned();
+            let is_manifest = manifest_names.contains(name.as_str());
+            let is_src = p
+                .extension()
+                .and_then(|x| x.to_str())
+                .map(|x| src_exts.contains(x))
+                .unwrap_or(false);
+            if !is_manifest && !is_src {
+                continue;
+            }
+            let rel = p.strip_prefix(dir).unwrap_or(&p).to_path_buf();
+            let module = kuda_treesitter::manifest_dir_of(dir, &p, manifest_list)
+                .map(|d| {
+                    let rel_dir = d.strip_prefix(dir).unwrap_or(&d).to_path_buf();
+                    pkg_by_dir.get(&rel_dir).cloned().unwrap_or_else(|| {
+                        d.file_name()
+                            .map(|f| f.to_string_lossy().into_owned())
+                            .unwrap_or_else(|| "_root".into())
+                    })
+                })
+                .unwrap_or_else(|| "_root".into());
+            mod_files.entry(module).or_default().push(rel);
+        }
+    }
+    for v in mod_files.values_mut() {
+        v.sort();
+    }
+    // in-process blob hashes for every walked file
+    let filehash = mod_files
+        .values()
+        .flatten()
+        .map(|f| (f.clone(), blob_hash(&dir.join(f))))
+        .collect();
+    (mod_files, filehash)
+}
+
+fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli, full: bool) -> i32 {
+    let langs = langs();
+    let (manifest_list, manifest_names, src_exts) = walk_sets(&langs);
 
     // --- manifest pass first (cheap): package names decide module
     // identity — walk groups by manifest dir -> pkg name, matching
     // the Module symbols the manifest extractor emits.
     let manifest_ext = kuda_manifest::ManifestExtractor {
         excludes: cfg.extract.exclude.clone(),
+        resolve_git_deps: cfg.workspace.resolve_git_deps,
     }
     .extract(dir, &langs)
     .unwrap_or_default();
@@ -278,63 +366,14 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
     }
 
     // --- walk once: group manifests + source files by module ---
-    // Cheap (no parse): drives both the incremental diff and the
-    // per-module file lists.
-    let mut mod_files: BTreeMap<String, Vec<PathBuf>> = BTreeMap::new();
-    {
-        let mut stack = vec![dir.to_path_buf()];
-        while let Some(d) = stack.pop() {
-            let Ok(rd) = std::fs::read_dir(&d) else {
-                continue;
-            };
-            for e in rd.flatten() {
-                let p = e.path();
-                if p.is_dir() {
-                    if !e
-                        .file_name()
-                        .to_str()
-                        .map(|n| kuda_core::dir_excluded(n, &cfg.extract.exclude))
-                        .unwrap_or(true)
-                        && !p.join(".git").is_file()
-                    {
-                        stack.push(p);
-                    }
-                    continue;
-                }
-                let name = e.file_name().to_string_lossy().into_owned();
-                let is_manifest = manifest_names.contains(name.as_str());
-                let is_src = p
-                    .extension()
-                    .and_then(|x| x.to_str())
-                    .map(|x| src_exts.contains(x))
-                    .unwrap_or(false);
-                if !is_manifest && !is_src {
-                    continue;
-                }
-                let rel = p.strip_prefix(dir).unwrap_or(&p).to_path_buf();
-                let module = kuda_treesitter::manifest_dir_of(dir, &p, &manifest_list)
-                    .map(|d| {
-                        let rel_dir = d.strip_prefix(dir).unwrap_or(&d).to_path_buf();
-                        pkg_by_dir.get(&rel_dir).cloned().unwrap_or_else(|| {
-                            d.file_name()
-                                .map(|f| f.to_string_lossy().into_owned())
-                                .unwrap_or_else(|| "_root".into())
-                        })
-                    })
-                    .unwrap_or_else(|| "_root".into());
-                mod_files.entry(module).or_default().push(rel);
-            }
-        }
-        for v in mod_files.values_mut() {
-            v.sort();
-        }
-    }
-    // in-process blob hashes for every walked file
-    let filehash: std::collections::HashMap<PathBuf, String> = mod_files
-        .values()
-        .flatten()
-        .map(|f| (f.clone(), blob_hash(&dir.join(f))))
-        .collect();
+    let (mod_files, filehash) = scan_repo(
+        dir,
+        cfg,
+        &manifest_list,
+        &manifest_names,
+        &src_exts,
+        &pkg_by_dir,
+    );
 
     let cards_dir = dir.join(&cfg.cards.dir);
     if let Err(e) = std::fs::create_dir_all(cards_dir.join("modules")) {
@@ -351,8 +390,14 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
     // upgrade path: no file-hash rows yet -> seed them from the
     // committed cards' provenance so nothing re-parses (or
     // re-prompts an agent) on the first post-upgrade sync.
-    let mut old_hashes = store.file_hashes().unwrap_or_default();
-    if old_hashes.is_empty() {
+    // `sync --full` skips all of it: an empty diff baseline marks
+    // every module changed.
+    let mut old_hashes = if full {
+        std::collections::HashMap::new()
+    } else {
+        store.file_hashes().unwrap_or_default()
+    };
+    if old_hashes.is_empty() && !full {
         if let Ok(rd) = std::fs::read_dir(cards_dir.join("modules")) {
             for e in rd.flatten() {
                 let Ok(text) = std::fs::read_to_string(e.path()) else {
@@ -428,6 +473,7 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
         match k.as_str() {
             "manifest" => extractors.push(Box::new(kuda_manifest::ManifestExtractor {
                 excludes: cfg.extract.exclude.clone(),
+                resolve_git_deps: cfg.workspace.resolve_git_deps,
             })),
             "treesitter" => extractors.push(Box::new(kuda_treesitter::TreesitterExtractor {
                 excludes: cfg.extract.exclude.clone(),
@@ -505,6 +551,48 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
             }
         }
     }
+    // L1.5 stale-card sweep — housekeeping, not summarization, so
+    // it runs whenever .kuda/files exists even with file_cards/acp
+    // off (stale cards are leftovers from a previous config).
+    // Mirrors the module sweep above: drop dirs of vanished
+    // modules, then per live module drop yamls whose slug no
+    // longer maps to a walked file (deleted/renamed sources).
+    let files_dir = cards_dir.join("files");
+    if files_dir.is_dir() {
+        let live: std::collections::HashSet<String> = mod_files.keys().map(|m| safe(m)).collect();
+        if let Ok(rd) = std::fs::read_dir(&files_dir) {
+            for e in rd.flatten() {
+                let p = e.path();
+                if p.is_dir() && !live.contains(e.file_name().to_string_lossy().as_ref()) {
+                    let _ = std::fs::remove_dir_all(&p);
+                }
+            }
+        }
+        for (module, mfiles) in &mod_files {
+            let mdir = files_dir.join(safe(module));
+            let Ok(rd) = std::fs::read_dir(&mdir) else {
+                continue;
+            };
+            // expected card names — same slug scheme as
+            // sync_file_cards; manifests never get file cards.
+            let expected: std::collections::HashSet<String> = mfiles
+                .iter()
+                .filter(|f| {
+                    !f.file_name()
+                        .and_then(|n| n.to_str())
+                        .map(|n| manifest_names.contains(n))
+                        .unwrap_or(false)
+                })
+                .map(|f| format!("{}.yaml", f.display().to_string().replace('/', "__")))
+                .collect();
+            for e in rd.flatten() {
+                let name = e.file_name().to_string_lossy().into_owned();
+                if name.ends_with(".yaml") && !expected.contains(&name) {
+                    let _ = std::fs::remove_file(e.path());
+                }
+            }
+        }
+    }
     for (module, mfiles) in &mod_files {
         // mechanism-version invalidation: a card written by an
         // older generator is re-summarized even on byte-identical
@@ -557,6 +645,7 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli) -> i32 {
                     &cards_dir.join("files"),
                     &sha,
                     &now,
+                    full,
                 );
             }
         }
@@ -739,11 +828,18 @@ fn sync_file_cards(
     files_dir: &Path,
     sha: &str,
     now: &str,
+    full: bool,
 ) {
     use text_splitter::{ChunkConfig, CodeSplitter, MarkdownSplitter, TextSplitter};
     const CHUNK: usize = 1_500; // chars per chunk
     const BUDGET: usize = 14_000; // total source chars per prompt
     const SKIP_BYTES: u64 = 200_000; // files bigger than this: not prose-material
+
+    // Slug namespace is lossy: `a/b.py` and `a__b.py` map to the
+    // same card name. mfiles is sorted, so the first file wins
+    // deterministically; the loser is skipped loudly instead of
+    // silently overwriting the other's card.
+    let mut emitted: std::collections::HashSet<String> = std::collections::HashSet::new();
     for (rel, hash) in mfiles.iter().zip(hashes) {
         if rel
             .file_name()
@@ -754,10 +850,17 @@ fn sync_file_cards(
             continue; // manifests are card inputs, not file cards
         }
         let slug = rel.display().to_string().replace('/', "__");
+        if !emitted.insert(slug.clone()) {
+            eprintln!(
+                "file card: slug collision {slug} — skipping {}",
+                rel.display()
+            );
+            continue;
+        }
         let out = files_dir
             .join(safe(module))
             .join(format!("{slug}.yaml"));
-        if out.exists() {
+        if out.exists() && !full {
             if let Ok(old) = std::fs::read_to_string(&out)
                 .map_err(|e| e.to_string())
                 .and_then(|t| kuda_cards::parse_file_card(&t))
@@ -1104,9 +1207,11 @@ fn makefile_targets(text: &str) -> Vec<String> {
     out
 }
 
-/// Drift report: per-card hashes vs current content + sha vs HEAD.
+/// Drift report: per-card hashes vs current content + sha vs HEAD,
+/// plus a repo-level check of the L0 card's `tree_digest`.
 fn status(cli: &Cli) -> i32 {
     let dir = root(cli);
+    let cfg = load_config(cli);
     let moddir = dir.join(".kuda/modules");
     let Ok(entries) = std::fs::read_dir(&moddir) else {
         eprintln!("no .kuda/modules — run `kuda sync` first");
@@ -1135,6 +1240,33 @@ fn status(cli: &Cli) -> i32 {
                 outln!("drifted  {}", card.name);
             } else {
                 fresh += 1;
+            }
+        }
+    }
+    // repo-level drift: re-walk the tree and compare against the
+    // digest the last sync wrote into index.yaml. Cards from older
+    // versions lack the field — skip silently.
+    if let Ok(text) = std::fs::read_to_string(dir.join(".kuda/index.yaml")) {
+        if let Ok(l0) = kuda_cards::parse_repo_card(&text) {
+            if !l0.tree_digest.is_empty() {
+                let (manifest_list, manifest_names, src_exts) = walk_sets(&langs());
+                // module naming is irrelevant to the file set, so an
+                // empty pkg map skips the manifest pass entirely.
+                let (_, filehash) = scan_repo(
+                    &dir,
+                    &cfg,
+                    &manifest_list,
+                    &manifest_names,
+                    &src_exts,
+                    &std::collections::HashMap::new(),
+                );
+                if tree_digest(&filehash) != l0.tree_digest {
+                    outln!(
+                        "tree drifted (tree_digest mismatch — {} files walked, {} at sync)",
+                        filehash.len(),
+                        l0.files_total
+                    );
+                }
             }
         }
     }
@@ -1657,7 +1789,7 @@ fn watch(cli: &Cli) -> i32 {
                 // debounce: drain the burst, then one sync
                 std::thread::sleep(std::time::Duration::from_millis(300));
                 while rx.try_recv().is_ok() {}
-                let _ = sync_one(&dir, &cfg, cli);
+                let _ = sync_one(&dir, &cfg, cli, false);
             }
             Ok(Err(e)) => eprintln!("watch: {e}"),
             Err(_) => return 0,

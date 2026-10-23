@@ -2,12 +2,28 @@ name: kuda-extract
 path: crates/kuda-extract/Cargo.toml
 purpose: Extract port — pull symbols/deps/structure from source trees
 api:
+- name: Extraction
+  kind: type
+  file: crates/kuda-extract/src/lib.rs
+  line: 11
+  module: kuda-extract
+- name: Extractor
+  kind: trait
+  file: crates/kuda-extract/src/lib.rs
+  line: 20
+  module: kuda-extract
+- name: extract_filtered
+  kind: function
+  file: crates/kuda-extract/src/lib.rs
+  line: 28
+  module: kuda-extract
 - name: kuda-extract
   kind: module
   file: crates/kuda-extract/Cargo.toml
   line: 1
   module: kuda-extract
 deps:
+- kuda-core
 - kuda-core
 notes: ''
 verify:
@@ -20,6 +36,6 @@ provenance:
   hashes:
   - 8474c16bc613412aaa22031cbce10ad3a1f9beea
   - 911ab22276a47a1ee477ccc956cf1fe4ad4147b8
-  commit_sha: 4a5c4790b7be68aaf4c24482ce28cf136f9453d1
-  generated_at: '1792710437'
+  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
+  generated_at: '1792719500'
   generator: kuda-template/0.1.2

@@ -1,6 +1,6 @@
 path: crates/kuda-dotenv/src/lib.rs
 module: kuda-dotenv
-purpose: 'Dotenv adapter implementing the `kuda_secret::Secrets` port — stores secrets as `KEY=VAL` lines in a plain file, written with `0600` permissions on Unix. Serves as the last store in the secrets chain: headless boxes without a desktop keyring land here.'
+purpose: crates/kuda-dotenv/src/lib.rs
 symbols:
 - DotenvSecrets
 - get
@@ -10,6 +10,6 @@ provenance:
   - crates/kuda-dotenv/src/lib.rs
   hashes:
   - cb40b55b263aafbb6428aabc0c2efdfc983be879
-  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
-  generated_at: '1792313269'
+  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
+  generated_at: '1792719500'
   generator: kuda-acp/0.1.0

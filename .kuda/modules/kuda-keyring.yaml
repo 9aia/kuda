@@ -2,12 +2,33 @@ name: kuda-keyring
 path: crates/kuda-keyring/Cargo.toml
 purpose: 'Secret adapter: OS keyring via secret-tool (libsecret)'
 api:
+- name: KeyringSecrets
+  kind: type
+  file: crates/kuda-keyring/src/lib.rs
+  line: 9
+  module: kuda-keyring
+- name: default
+  kind: function
+  file: crates/kuda-keyring/src/lib.rs
+  line: 15
+  module: kuda-keyring
+- name: get
+  kind: function
+  file: crates/kuda-keyring/src/lib.rs
+  line: 23
+  module: kuda-keyring
 - name: kuda-keyring
   kind: module
   file: crates/kuda-keyring/Cargo.toml
   line: 1
   module: kuda-keyring
+- name: set
+  kind: function
+  file: crates/kuda-keyring/src/lib.rs
+  line: 33
+  module: kuda-keyring
 deps:
+- kuda-secret
 - kuda-secret
 notes: ''
 verify:
@@ -20,6 +41,6 @@ provenance:
   hashes:
   - 91090b39dc802b32e546f0af5ad5f1aa9e994bb8
   - 5242918416df1b111afa3ac068a34dd434191191
-  commit_sha: 4a5c4790b7be68aaf4c24482ce28cf136f9453d1
-  generated_at: '1792710437'
+  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
+  generated_at: '1792719500'
   generator: kuda-template/0.1.2

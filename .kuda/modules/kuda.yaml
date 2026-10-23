@@ -5,17 +5,17 @@ api:
 - name: API_CAP
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 962
+  line: 1065
   module: kuda
 - name: BUDGET
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 745
+  line: 835
   module: kuda
 - name: CHUNK
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 744
+  line: 834
   module: kuda
 - name: Cli
   kind: type
@@ -35,7 +35,7 @@ api:
 - name: GENERATOR
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 512
+  line: 600
   module: kuda
 - name: Kuda
   kind: type
@@ -50,22 +50,22 @@ api:
 - name: SKIP_BYTES
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 746
+  line: 836
   module: kuda
 - name: VERIFY_CAP
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 963
+  line: 1066
   module: kuda
 - name: acp
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1452
+  line: 1584
   module: kuda
 - name: acp_answer
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1508
+  line: 1640
   module: kuda
 - name: blob_hash
   kind: function
@@ -75,12 +75,12 @@ api:
 - name: card
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1149
+  line: 1281
   module: kuda
 - name: cat_file
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1153
+  line: 1285
   module: kuda
 - name: coverage_gate
   kind: function
@@ -95,17 +95,17 @@ api:
 - name: crate_doc_purpose
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 884
+  line: 987
   module: kuda
 - name: dependents
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1213
+  line: 1345
   module: kuda
 - name: detect_commands
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 995
+  line: 1098
   module: kuda
 - name: doctests
   kind: function
@@ -115,7 +115,7 @@ api:
 - name: doctor
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1537
+  line: 1669
   module: kuda
 - name: doctor
   kind: function
@@ -130,12 +130,12 @@ api:
 - name: find
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1166
+  line: 1298
   module: kuda
 - name: fname
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 996
+  line: 1099
   module: kuda
 - name: hash_files
   kind: function
@@ -195,14 +195,14 @@ api:
 - name: makefile_targets
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1080
+  line: 1183
   module: kuda
 - name: manifest_purpose
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 910
+  line: 1013
   module: kuda
-api_omitted: 29
+api_omitted: 33
 deps:
 - dagger-io
 - clap
@@ -271,12 +271,12 @@ provenance:
   hashes:
   - d020a3ae451500af2b8dde8ab51911eba62992e2
   - 926a9b27518c9c3e709cf9683df72fb0e133aa58
-  - e9da3eb7887c4d13bddaca0959f7e87aac5a1d29
-  - a4587bd032f7d588d1a3e59924361effb68ed068
+  - f89d1e5a3d7622acbb6c3565cc102d88fc1167da
+  - a2e1795433acc1be190294cf60fe13719ffb4802
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
   - 5b331a1baf30b49f5bf03dd9693297d498117deb
   - d71646b878b3eae72aa42a5791588701197fdb2d
   - 203086b883ed1477efd6f9befccd76e2614cc9ea
-  commit_sha: 4a5c4790b7be68aaf4c24482ce28cf136f9453d1
-  generated_at: '1792710437'
+  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
+  generated_at: '1792719500'
   generator: kuda-template/0.1.2

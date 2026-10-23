@@ -2,15 +2,47 @@ name: kuda-config-toml
 path: crates/kuda-config-toml/Cargo.toml
 purpose: 'Config adapter: kuda.toml file (explicit path, env, ./, ~/.config)'
 api:
+- name: CFG
+  kind: const
+  file: crates/kuda-config-toml/tests/load.rs
+  line: 8
+  module: kuda-config-toml
+- name: TomlSource
+  kind: type
+  file: crates/kuda-config-toml/src/lib.rs
+  line: 7
+  module: kuda-config-toml
+- name: explicit_path_and_missing_error
+  kind: function
+  file: crates/kuda-config-toml/tests/load.rs
+  line: 34
+  module: kuda-config-toml
 - name: kuda-config-toml
   kind: module
   file: crates/kuda-config-toml/Cargo.toml
   line: 1
   module: kuda-config-toml
+- name: load
+  kind: function
+  file: crates/kuda-config-toml/src/lib.rs
+  line: 13
+  module: kuda-config-toml
+- name: loads_via_env_var
+  kind: function
+  file: crates/kuda-config-toml/tests/load.rs
+  line: 18
+  module: kuda-config-toml
+- name: tmp
+  kind: function
+  file: crates/kuda-config-toml/tests/load.rs
+  line: 4
+  module: kuda-config-toml
 deps:
 - kuda-config
 - kuda-core
 - toml
+- kuda-config
+- kuda-config-toml
 notes: ''
 verify:
 - crates/kuda-config-toml/Cargo.toml
@@ -25,6 +57,6 @@ provenance:
   - 69539d90b1b9cce1264bb96925db8212817849fa
   - b12116b476081aedcaf4ea623af3ff70bc65999c
   - 6f5371079a853f0282a1e9ce5afa661fcd1d1bcf
-  commit_sha: 4a5c4790b7be68aaf4c24482ce28cf136f9453d1
-  generated_at: '1792710437'
+  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
+  generated_at: '1792719500'
   generator: kuda-template/0.1.2

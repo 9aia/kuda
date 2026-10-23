@@ -1,6 +1,6 @@
 path: crates/kuda-config/src/lib.rs
 module: kuda-config
-purpose: Defines the `ConfigSource` port trait — the abstraction for where the `Config` value comes from in the kuda architecture. The concrete implementation lives in the `kuda-config-toml` adapter crate (file-based), with env/remote sources intended as future adapters.
+purpose: crates/kuda-config/src/lib.rs
 symbols:
 - ConfigSource
 provenance:
@@ -8,6 +8,6 @@ provenance:
   - crates/kuda-config/src/lib.rs
   hashes:
   - 67df5f89ce57962d01a71781e96d8378f9c284c4
-  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
-  generated_at: '1792313269'
+  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
+  generated_at: '1792719500'
   generator: kuda-acp/0.1.0

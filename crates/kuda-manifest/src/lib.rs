@@ -8,8 +8,12 @@ use std::collections::HashSet;
 use std::path::Path;
 
 /// `excludes`: extra dir names from `[extract] exclude`.
+/// `resolve_git_deps`: from `[workspace] resolve_git_deps` — emit
+/// a Cargo `git = "<url>"` dep's target as the URL's repo basename
+/// so the edge lands on a sibling repo module.
 pub struct ManifestExtractor {
     pub excludes: Vec<String>,
+    pub resolve_git_deps: bool,
 }
 
 impl Extractor for ManifestExtractor {
@@ -47,7 +51,8 @@ impl Extractor for ManifestExtractor {
                 }
                 let rel = path.strip_prefix(root).unwrap_or(&path).to_path_buf();
                 let text = std::fs::read_to_string(&path).unwrap_or_default();
-                let (pkg, deps) = parse_manifest(name.as_ref(), &text);
+                let (pkg, deps) =
+                    parse_manifest(name.as_ref(), &text, self.resolve_git_deps);
                 let module = pkg.unwrap_or_else(|| {
                     path.parent()
                         .and_then(|p| p.file_name())
@@ -77,9 +82,13 @@ impl Extractor for ManifestExtractor {
 
 /// Manifest basename -> (package name, declared deps). Format
 /// detection by filename — adapters are allowed to know concrete tech.
-fn parse_manifest(basename: &str, text: &str) -> (Option<String>, Vec<String>) {
+fn parse_manifest(
+    basename: &str,
+    text: &str,
+    resolve_git_deps: bool,
+) -> (Option<String>, Vec<String>) {
     match basename {
-        "Cargo.toml" => cargo(text),
+        "Cargo.toml" => cargo(text, resolve_git_deps),
         "package.json" => package_json(text),
         "pyproject.toml" => pyproject(text),
         "setup.py" => setup_py(text),
@@ -168,7 +177,7 @@ fn setup_py(text: &str) -> (Option<String>, Vec<String>) {
     (name, Vec::new())
 }
 
-fn cargo(text: &str) -> (Option<String>, Vec<String>) {
+fn cargo(text: &str, resolve_git_deps: bool) -> (Option<String>, Vec<String>) {
     let Ok(t) = text.parse::<toml::Table>() else {
         return (None, Vec::new());
     };
@@ -180,10 +189,41 @@ fn cargo(text: &str) -> (Option<String>, Vec<String>) {
     let mut deps = Vec::new();
     for key in ["dependencies", "dev-dependencies", "build-dependencies"] {
         if let Some(tbl) = t.get(key).and_then(|d| d.as_table()) {
-            deps.extend(tbl.keys().cloned());
+            deps.extend(
+                tbl.iter()
+                    .map(|(k, v)| cargo_dep_name(k, v, resolve_git_deps)),
+            );
         }
     }
     (name, deps)
+}
+
+/// Cargo dep-table entry -> edge target. `package = "real"` renames
+/// win (with or without `git`); then, when `resolve_git_deps` is on,
+/// a `git = "<url>"` source yields the URL's repo basename (last
+/// path segment minus `.git`). `workspace = true` and everything
+/// else keep the table key.
+fn cargo_dep_name(key: &str, v: &toml::Value, resolve_git_deps: bool) -> String {
+    let Some(tbl) = v.as_table() else {
+        return key.to_owned();
+    };
+    if let Some(pkg) = tbl.get("package").and_then(|p| p.as_str()) {
+        return pkg.to_owned();
+    }
+    if resolve_git_deps && !tbl.contains_key("workspace") {
+        if let Some(url) = tbl.get("git").and_then(|g| g.as_str()) {
+            let base = url
+                .trim_end_matches('/')
+                .rsplit('/')
+                .next()
+                .unwrap_or_default();
+            let base = base.strip_suffix(".git").unwrap_or(base);
+            if !base.is_empty() {
+                return base.to_owned();
+            }
+        }
+    }
+    key.to_owned()
 }
 
 fn package_json(text: &str) -> (Option<String>, Vec<String>) {
@@ -236,7 +276,7 @@ dev = ["pytest>=8"]
 [dependency-groups]
 lint = ["ruff"]
 "#;
-        let (name, deps) = parse_manifest("pyproject.toml", text);
+        let (name, deps) = parse_manifest("pyproject.toml", text, false);
         assert_eq!(name.as_deref(), Some("neuralmind-shared"));
         for d in ["httpx", "pydantic", "pytest", "ruff"] {
             assert!(deps.iter().any(|x| x == d), "missing dep {d}");
@@ -256,7 +296,7 @@ requests = "^2"
 [tool.poetry.group.dev.dependencies]
 pytest = "^8"
 "#;
-        let (name, deps) = parse_manifest("pyproject.toml", text);
+        let (name, deps) = parse_manifest("pyproject.toml", text, false);
         assert_eq!(name.as_deref(), Some("poet-pkg"));
         assert!(deps.iter().any(|d| d == "requests"));
         assert!(deps.iter().any(|d| d == "pytest"));
@@ -265,7 +305,63 @@ pytest = "^8"
 
     #[test]
     fn setup_py_name_kwarg() {
-        let (name, _) = parse_manifest("setup.py", "setup(\n    name='legacypkg',\n    version='1.0',\n)");
+        let (name, _) = parse_manifest("setup.py", "setup(\n    name='legacypkg',\n    version='1.0',\n)", false);
         assert_eq!(name.as_deref(), Some("legacypkg"));
+    }
+
+    #[test]
+    fn cargo_git_dep_resolves_to_repo_basename() {
+        let text = r#"
+[package]
+name = "app"
+
+[dependencies]
+helper = { git = "https://github.com/org/sibling-repo.git" }
+other = { git = "git@github.com:org/trailing-slash/" }
+"#;
+        let (_, deps) = parse_manifest("Cargo.toml", text, true);
+        assert!(deps.iter().any(|d| d == "sibling-repo"), "deps: {deps:?}");
+        assert!(deps.iter().any(|d| d == "trailing-slash"), "deps: {deps:?}");
+        assert!(!deps.iter().any(|d| d == "helper"), "deps: {deps:?}");
+    }
+
+    #[test]
+    fn cargo_package_rename_uses_real_name() {
+        let text = r#"
+[dependencies]
+serde2 = { package = "serde", version = "1" }
+renamed = { git = "https://github.com/org/whatever", package = "real-crate" }
+"#;
+        // `package` wins whether or not git is present — and the flag
+        // doesn't gate it (a rename is a rename).
+        let (_, deps) = parse_manifest("Cargo.toml", text, false);
+        assert!(deps.iter().any(|d| d == "serde"), "deps: {deps:?}");
+        assert!(deps.iter().any(|d| d == "real-crate"), "deps: {deps:?}");
+        assert!(!deps.iter().any(|d| d == "serde2" || d == "renamed"), "deps: {deps:?}");
+    }
+
+    #[test]
+    fn cargo_plain_and_workspace_deps_keep_key() {
+        let text = r#"
+[dependencies]
+serde = "1"
+shared = { workspace = true }
+local = { path = "../local" }
+"#;
+        let (_, deps) = parse_manifest("Cargo.toml", text, true);
+        for d in ["serde", "shared", "local"] {
+            assert!(deps.iter().any(|x| x == d), "missing dep {d}");
+        }
+    }
+
+    #[test]
+    fn cargo_git_dep_flag_off_keeps_key() {
+        let text = r#"
+[dependencies]
+helper = { git = "https://github.com/org/sibling-repo.git" }
+"#;
+        let (_, deps) = parse_manifest("Cargo.toml", text, false);
+        assert!(deps.iter().any(|d| d == "helper"), "deps: {deps:?}");
+        assert!(!deps.iter().any(|d| d == "sibling-repo"), "deps: {deps:?}");
     }
 }

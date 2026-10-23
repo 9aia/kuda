@@ -1,6 +1,6 @@
 path: crates/kuda-git/src/lib.rs
 module: kuda-git
-purpose: Implements the `Vcs` port for Git by shelling out to the `git` binary via a `GitVcs` struct. It provides methods for retrieving the HEAD SHA, syncing with origin, checking commit existence, managing detached worktrees (add/remove/prune), and creating, checking, and pushing tags. All operations return simple success booleans or optional strings, with failures mapped to `false` or `None`.
+purpose: crates/kuda-git/src/lib.rs
 symbols:
 - GitVcs
 - git
@@ -18,6 +18,6 @@ provenance:
   - crates/kuda-git/src/lib.rs
   hashes:
   - 5b88b309efeef08b79d6da453518e135f13217d3
-  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
-  generated_at: '1792314669'
+  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
+  generated_at: '1792719500'
   generator: kuda-acp/0.1.0

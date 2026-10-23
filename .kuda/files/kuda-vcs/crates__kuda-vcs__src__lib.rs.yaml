@@ -1,6 +1,6 @@
 path: crates/kuda-vcs/src/lib.rs
 module: kuda-vcs
-purpose: Defines the `Vcs` port trait — the VCS operations the watcher and release flow need (fetch/sync, HEAD sha, commit existence, detached worktree add/remove/prune, tag exists/create/push). The concrete git implementation lives in `kuda-git`; jj/hg are future adapter crates.
+purpose: crates/kuda-vcs/src/lib.rs
 symbols:
 - Vcs
 provenance:
@@ -8,6 +8,6 @@ provenance:
   - crates/kuda-vcs/src/lib.rs
   hashes:
   - 42b4222d6e9b5d602a1923ed77281ca389f4261a
-  commit_sha: fe0c9ccc208ff372282c1696f393e6c74f8bb06d
-  generated_at: '1792313269'
+  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
+  generated_at: '1792719500'
   generator: kuda-acp/0.1.0

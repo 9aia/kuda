@@ -1,6 +1,6 @@
 path: crates/kuda-extract/src/lib.rs
 module: kuda-extract
-purpose: '`kuda-extract` defines the extraction port of kuda — the `Extractor` trait and `Extraction` result type for pulling symbols, dependency edges, and read-file lists out of source trees. Implementations live in adapter crates: `kuda-manifest` (manifest-based package graph, no parser), `kuda-treesitter` (grammar+query data), and `kuda-lsp` (server-backed); a new extractor is a new adapter crate, and a new language is just a data file.'
+purpose: crates/kuda-extract/src/lib.rs
 symbols:
 - Extraction
 - Extractor
@@ -10,6 +10,6 @@ provenance:
   - crates/kuda-extract/src/lib.rs
   hashes:
   - 911ab22276a47a1ee477ccc956cf1fe4ad4147b8
-  commit_sha: a16f1e1e91d3cdb7549a78d7ab24a6442d2d60aa
-  generated_at: '1792314296'
+  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
+  generated_at: '1792719500'
   generator: kuda-acp/0.1.0

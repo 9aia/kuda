@@ -2,6 +2,11 @@ name: kuda-vcs
 path: crates/kuda-vcs/Cargo.toml
 purpose: 'Vcs port: VCS operations for repos and worktrees'
 api:
+- name: Vcs
+  kind: trait
+  file: crates/kuda-vcs/src/lib.rs
+  line: 9
+  module: kuda-vcs
 - name: kuda-vcs
   kind: module
   file: crates/kuda-vcs/Cargo.toml
@@ -19,6 +24,6 @@ provenance:
   hashes:
   - a3f3978c21457dd7be4e34dc16f31231d0a68777
   - 42b4222d6e9b5d602a1923ed77281ca389f4261a
-  commit_sha: 4a5c4790b7be68aaf4c24482ce28cf136f9453d1
-  generated_at: '1792710437'
+  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
+  generated_at: '1792719500'
   generator: kuda-template/0.1.2

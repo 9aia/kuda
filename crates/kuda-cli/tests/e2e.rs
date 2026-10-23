@@ -117,3 +117,77 @@ fn map_survives_broken_pipe() {
     assert!(child.wait().unwrap().success());
     std::fs::remove_dir_all(&tmp).ok();
 }
+
+/// L1.5 housekeeping: `kuda sync` must remove file cards for
+/// deleted/renamed sources and dirs of vanished modules, and keep
+/// cards whose file still exists. Runs under the default config
+/// (no acp, `file_cards` off) on purpose — cleanup is
+/// housekeeping, not summarization, so it must not be gated on
+/// the summarize settings that produced the cards.
+#[test]
+fn sync_sweeps_stale_file_cards() {
+    let tmp = std::env::temp_dir().join(format!("kuda-sweep-{}", std::process::id()));
+    let mk = |p: &str, text: &str| {
+        let f = tmp.join(p);
+        std::fs::create_dir_all(f.parent().unwrap()).unwrap();
+        std::fs::write(&f, text).unwrap();
+    };
+    mk("pkg/pyproject.toml", "[project]\nname = \"mymod\"\n");
+    mk("pkg/a.py", "def a():\n    pass\n");
+    mk("pkg/b.py", "def b():\n    pass\n");
+    // hand-crafted L1.5 cards: one live (pkg/a.py -> pkg__a.py),
+    // one for a deleted file, one under a module that vanished.
+    let card = |path: &str, module: &str| {
+        format!(
+            "path: {path}\nmodule: {module}\npurpose: stub card\nsymbols: []\n\
+             provenance:\n  files: [{path}]\n  hashes: [deadbeef]\n  \
+             commit_sha: deadbeef\n  generated_at: \"0\"\n  generator: test\n"
+        )
+    };
+    mk(".kuda/files/mymod/pkg__a.py.yaml", &card("pkg/a.py", "mymod"));
+    mk(".kuda/files/mymod/pkg__gone.py.yaml", &card("pkg/gone.py", "mymod"));
+    mk(".kuda/files/ghostmod/pkg__x.py.yaml", &card("pkg/x.py", "ghostmod"));
+
+    let out = kuda(&["sync"], &tmp);
+    assert!(out.status.success(), "{:?}", String::from_utf8_lossy(&out.stderr));
+
+    assert!(tmp.join(".kuda/files/mymod/pkg__a.py.yaml").exists(), "live card swept");
+    assert!(!tmp.join(".kuda/files/mymod/pkg__gone.py.yaml").exists(), "stale card kept");
+    assert!(!tmp.join(".kuda/files/ghostmod").exists(), "ghost module dir kept");
+    std::fs::remove_dir_all(&tmp).ok();
+}
+
+/// `kuda status` cross-checks the L0 card's `tree_digest`: a source
+/// file added after sync must report tree drift, not just per-card
+/// drift.
+#[test]
+fn status_detects_tree_drift() {
+    let tmp = std::env::temp_dir().join(format!("kuda-drift-{}", std::process::id()));
+    let mk = |p: &str, text: &str| {
+        let f = tmp.join(p);
+        std::fs::create_dir_all(f.parent().unwrap()).unwrap();
+        std::fs::write(&f, text).unwrap();
+    };
+    mk("pyproject.toml", "[project]\nname = \"app\"\n");
+    mk("main.py", "def serve():\n    pass\n");
+
+    let out = kuda(&["sync"], &tmp);
+    assert!(out.status.success(), "{:?}", String::from_utf8_lossy(&out.stderr));
+    assert!(std::fs::read_to_string(tmp.join(".kuda/index.yaml"))
+        .unwrap()
+        .contains("tree_digest"));
+
+    // clean tree -> no drift lines (summary still says "0 drifted")
+    let out = kuda(&["status"], &tmp);
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    assert!(out.status.success());
+    assert!(!stdout.contains("tree drifted"), "{stdout}");
+    assert!(!stdout.contains("drifted  "), "{stdout}");
+
+    // un-indexed source file -> digest must change
+    mk("extra.py", "def extra():\n    pass\n");
+    let out = kuda(&["status"], &tmp);
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    assert!(stdout.contains("tree drifted"), "{stdout}");
+    std::fs::remove_dir_all(&tmp).ok();
+}

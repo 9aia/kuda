@@ -77,7 +77,7 @@ provenance:
   - crates/kuda-acp/src/lib.rs
   hashes:
   - 235538739af3a723c914cd6ede000fee3811ee2d
-  - ff9fa5ac737cb10b83d5d1f3896bd4919d33769e
-  commit_sha: 4a5c4790b7be68aaf4c24482ce28cf136f9453d1
-  generated_at: '1792710437'
+  - fb69c86b1ed713a671fe3ea77157319eacba4642
+  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
+  generated_at: '1792719500'
   generator: kuda-template/0.1.2

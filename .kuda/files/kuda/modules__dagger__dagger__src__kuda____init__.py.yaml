@@ -1,0 +1,12 @@
+path: modules/dagger/dagger/src/kuda/__init__.py
+module: kuda
+purpose: modules/dagger/dagger/src/kuda/__init__.py
+symbols: []
+provenance:
+  files:
+  - modules/dagger/dagger/src/kuda/__init__.py
+  hashes:
+  - 5b331a1baf30b49f5bf03dd9693297d498117deb
+  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
+  generated_at: '1792719500'
+  generator: kuda-acp/0.1.0
