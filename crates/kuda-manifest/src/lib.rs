@@ -51,8 +51,7 @@ impl Extractor for ManifestExtractor {
                 }
                 let rel = path.strip_prefix(root).unwrap_or(&path).to_path_buf();
                 let text = std::fs::read_to_string(&path).unwrap_or_default();
-                let (pkg, deps) =
-                    parse_manifest(name.as_ref(), &text, self.resolve_git_deps);
+                let (pkg, deps) = parse_manifest(name.as_ref(), &text, self.resolve_git_deps);
                 let module = pkg.unwrap_or_else(|| {
                     path.parent()
                         .and_then(|p| p.file_name())
@@ -144,7 +143,10 @@ fn pyproject(text: &str) -> (Option<String>, Vec<String>) {
     for key in ["dependencies", "dev-dependencies"] {
         poetry_tables.extend(poetry.and_then(|p| p.get(key)).and_then(|d| d.as_table()));
     }
-    if let Some(groups) = poetry.and_then(|p| p.get("group")).and_then(|g| g.as_table()) {
+    if let Some(groups) = poetry
+        .and_then(|p| p.get("group"))
+        .and_then(|g| g.as_table())
+    {
         for g in groups.values() {
             poetry_tables.extend(g.get("dependencies").and_then(|d| d.as_table()));
         }
@@ -258,7 +260,10 @@ mod tests {
 
     #[test]
     fn pep508_strips_extras_markers_and_versions() {
-        assert_eq!(pep508_name("neuralmind-shared[extra]>=1.0; python_version>=\"3.9\""), "neuralmind-shared");
+        assert_eq!(
+            pep508_name("neuralmind-shared[extra]>=1.0; python_version>=\"3.9\""),
+            "neuralmind-shared"
+        );
         assert_eq!(pep508_name("pytest (>=8,<9)"), "pytest");
         assert_eq!(pep508_name("requests"), "requests");
     }
@@ -305,7 +310,11 @@ pytest = "^8"
 
     #[test]
     fn setup_py_name_kwarg() {
-        let (name, _) = parse_manifest("setup.py", "setup(\n    name='legacypkg',\n    version='1.0',\n)", false);
+        let (name, _) = parse_manifest(
+            "setup.py",
+            "setup(\n    name='legacypkg',\n    version='1.0',\n)",
+            false,
+        );
         assert_eq!(name.as_deref(), Some("legacypkg"));
     }
 
@@ -337,7 +346,10 @@ renamed = { git = "https://github.com/org/whatever", package = "real-crate" }
         let (_, deps) = parse_manifest("Cargo.toml", text, false);
         assert!(deps.iter().any(|d| d == "serde"), "deps: {deps:?}");
         assert!(deps.iter().any(|d| d == "real-crate"), "deps: {deps:?}");
-        assert!(!deps.iter().any(|d| d == "serde2" || d == "renamed"), "deps: {deps:?}");
+        assert!(
+            !deps.iter().any(|d| d == "serde2" || d == "renamed"),
+            "deps: {deps:?}"
+        );
     }
 
     #[test]

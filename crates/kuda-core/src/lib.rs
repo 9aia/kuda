@@ -480,13 +480,22 @@ mod tests {
     fn dep_root_per_language() {
         use super::dep_root;
         assert_eq!(dep_root("python", "a.b.c"), Some("a".into()));
-        assert_eq!(dep_root("python", "neuralmind_shared"), Some("neuralmind_shared".into()));
-        assert_eq!(dep_root("typescript", "@org/pkg/sub"), Some("@org/pkg".into()));
+        assert_eq!(
+            dep_root("python", "neuralmind_shared"),
+            Some("neuralmind_shared".into())
+        );
+        assert_eq!(
+            dep_root("typescript", "@org/pkg/sub"),
+            Some("@org/pkg".into())
+        );
         assert_eq!(dep_root("typescript", "pkg/sub"), Some("pkg".into()));
         assert_eq!(dep_root("typescript", "./sibling"), None);
         assert_eq!(dep_root("typescript", "../up"), None);
         assert_eq!(dep_root("typescript", "@/alias"), None);
-        assert_eq!(dep_root("go", "github.com/org/repo/sub"), Some("github.com/org/repo/sub".into()));
+        assert_eq!(
+            dep_root("go", "github.com/org/repo/sub"),
+            Some("github.com/org/repo/sub".into())
+        );
         assert_eq!(dep_root("rust", "my_crate"), Some("my_crate".into()));
         assert_eq!(dep_root("typescript", "\"quoted\""), Some("quoted".into()));
     }
@@ -501,7 +510,10 @@ mod tests {
         let r = |d| super::resolve_module(d, &modules);
         assert_eq!(r("neuralmind_shared"), Some("neuralmind-shared".into()));
         assert_eq!(r("@org/api"), Some("@org/api".into()));
-        assert_eq!(r("github.com/org/repo/sub"), Some("github.com/org/repo".into()));
+        assert_eq!(
+            r("github.com/org/repo/sub"),
+            Some("github.com/org/repo".into())
+        );
         assert_eq!(r("serde"), None);
     }
 }

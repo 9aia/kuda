@@ -45,7 +45,6 @@ const DEFAULT_RUST_QUERY: &str = r#"
 (type_item name: (type_identifier) @name.type)
 "#;
 
-
 fn kind_of(cap: &str) -> SymbolKind {
     match cap.rsplit('.').next() {
         Some("function") => SymbolKind::Function,

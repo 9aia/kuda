@@ -41,16 +41,15 @@ impl AcpSummarizer {
                 "initialize",
                 json!({"protocolVersion":1,"clientCapabilities":{},"clientInfo":{"name":"kuda","version":"0.1.0"}}),
             )?;
-            let (session, _) = client.request(
-                "session/new",
-                json!({"cwd": self.root, "mcpServers": []}),
-            )?;
-            let sid = session["sessionId"].as_str().unwrap_or("kuda-default").to_owned();
+            let (session, _) =
+                client.request("session/new", json!({"cwd": self.root, "mcpServers": []}))?;
+            let sid = session["sessionId"]
+                .as_str()
+                .unwrap_or("kuda-default")
+                .to_owned();
             *guard = Some((client, sid));
         }
-        let (client, session_id) = guard
-            .as_mut()
-            .ok_or("agent session lost")?;
+        let (client, session_id) = guard.as_mut().ok_or("agent session lost")?;
         let (_res, prose) = client.request(
             "session/prompt",
             json!({"sessionId": session_id.as_str(),
@@ -102,7 +101,12 @@ impl AcpClient {
         let mut line = String::new();
         loop {
             line.clear();
-            if self.reader.read_line(&mut line).map_err(|e| e.to_string())? == 0 {
+            if self
+                .reader
+                .read_line(&mut line)
+                .map_err(|e| e.to_string())?
+                == 0
+            {
                 return Err("agent closed stdout".into());
             }
             let Ok(msg) = serde_json::from_str::<Value>(line.trim()) else {
@@ -112,7 +116,9 @@ impl AcpClient {
             // must answer or the prompt deadlocks. Grant the first
             // option; unknown requests get method-not-found.
             if let (Some(rid), Some(m)) = (
-                msg["id"].as_u64().or_else(|| msg["id"].as_i64().map(|i| i as u64)),
+                msg["id"]
+                    .as_u64()
+                    .or_else(|| msg["id"].as_i64().map(|i| i as u64)),
                 msg["method"].as_str(),
             ) {
                 let resp = if m == "session/request_permission" {
@@ -147,7 +153,12 @@ impl AcpClient {
 }
 
 fn prompt_for(module: &str, ext: &Extraction) -> String {
-    let syms: Vec<String> = ext.symbols.iter().map(|s| s.name.clone()).take(30).collect();
+    let syms: Vec<String> = ext
+        .symbols
+        .iter()
+        .map(|s| s.name.clone())
+        .take(30)
+        .collect();
     let files: Vec<String> = ext
         .files
         .iter()
@@ -214,7 +225,10 @@ impl Summarizer for AcpSummarizer {
         let purpose = if purpose.is_empty() {
             // no marked sections — take the first non-empty line as
             // the purpose (better than nothing, still agent prose)
-            prose.lines().find(|l| !l.trim().is_empty()).map(|l| l.trim().to_owned())
+            prose
+                .lines()
+                .find(|l| !l.trim().is_empty())
+                .map(|l| l.trim().to_owned())
         } else {
             Some(purpose)
         };

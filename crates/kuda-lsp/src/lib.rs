@@ -76,7 +76,9 @@ impl LspClient {
             }
         }
         let mut buf = vec![0u8; len];
-        self.reader.read_exact(&mut buf).map_err(|e| e.to_string())?;
+        self.reader
+            .read_exact(&mut buf)
+            .map_err(|e| e.to_string())?;
         serde_json::from_slice(&buf).map_err(|e| e.to_string())
     }
 
@@ -119,13 +121,7 @@ fn lsp_kind(n: u64) -> SymbolKind {
     }
 }
 
-fn flatten_syms(
-    node: &Value,
-    file: &Path,
-    module: &str,
-    out: &mut Vec<Symbol>,
-    container: &str,
-) {
+fn flatten_syms(node: &Value, file: &Path, module: &str, out: &mut Vec<Symbol>, container: &str) {
     let name = node["name"].as_str().unwrap_or("");
     if !name.is_empty() {
         let full = if container.is_empty() {
@@ -204,12 +200,13 @@ fn walk_files(root: &Path, exts: &[String]) -> Vec<PathBuf> {
 /// Semantic references — `workspace/symbol` to locate, then
 /// `textDocument/references` per hit. Real cross-file usage, the
 /// tier above text search. Returns (file, line) pairs.
-pub fn references(server_cmd: &str, root: &Path, name: &str) -> Result<Vec<(PathBuf, u32)>, String> {
+pub fn references(
+    server_cmd: &str,
+    root: &Path,
+    name: &str,
+) -> Result<Vec<(PathBuf, u32)>, String> {
     let mut client = LspClient::spawn(server_cmd, root)?;
-    let res = client.request(
-        "workspace/symbol",
-        json!({"query": name}),
-    );
+    let res = client.request("workspace/symbol", json!({"query": name}));
     let syms = match res {
         Ok(Value::Array(a)) => a,
         Ok(Value::Null) | Err(_) => {
@@ -278,10 +275,7 @@ impl Extractor for LspExtractor {
                     "textDocument/documentSymbol",
                     json!({"textDocument":{"uri":uri}}),
                 );
-                let _ = client.notify(
-                    "textDocument/didClose",
-                    json!({"textDocument":{"uri":uri}}),
-                );
+                let _ = client.notify("textDocument/didClose", json!({"textDocument":{"uri":uri}}));
                 let Ok(syms) = res else { continue };
                 let module = module_of(root, &file, &lang.manifests);
                 if let Some(arr) = syms.as_array() {

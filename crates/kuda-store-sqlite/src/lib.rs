@@ -139,7 +139,11 @@ impl IndexStore for SqliteStore {
             .map_err(|e| e.to_string())?;
         let rows = st
             .query_map([], |r| {
-                Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?, r.get::<_, String>(2)?))
+                Ok((
+                    r.get::<_, String>(0)?,
+                    r.get::<_, String>(1)?,
+                    r.get::<_, String>(2)?,
+                ))
             })
             .map_err(|e| e.to_string())?;
         let mut out = std::collections::HashMap::new();
@@ -181,7 +185,8 @@ impl IndexStore for SqliteStore {
                 })
             })
             .map_err(|e| e.to_string())?;
-        rows.collect::<Result<Vec<_>, _>>().map_err(|e| e.to_string())
+        rows.collect::<Result<Vec<_>, _>>()
+            .map_err(|e| e.to_string())
     }
 
     fn search(&self, pattern: &str) -> Result<Vec<Symbol>, String> {
@@ -205,7 +210,8 @@ impl IndexStore for SqliteStore {
                 })
             })
             .map_err(|e| e.to_string())?;
-        rows.collect::<Result<Vec<_>, _>>().map_err(|e| e.to_string())
+        rows.collect::<Result<Vec<_>, _>>()
+            .map_err(|e| e.to_string())
     }
 
     fn dependents(&self, name: &str) -> Result<Vec<DepEdge>, String> {
@@ -222,7 +228,8 @@ impl IndexStore for SqliteStore {
                 })
             })
             .map_err(|e| e.to_string())?;
-        rows.collect::<Result<Vec<_>, _>>().map_err(|e| e.to_string())
+        rows.collect::<Result<Vec<_>, _>>()
+            .map_err(|e| e.to_string())
     }
 
     fn edge_count(&self) -> Result<usize, String> {
@@ -237,7 +244,8 @@ impl IndexStore for SqliteStore {
             .prepare("SELECT DISTINCT module FROM symbols ORDER BY module")
             .map_err(|e| e.to_string())?;
         let rows = st.query_map([], |r| r.get(0)).map_err(|e| e.to_string())?;
-        rows.collect::<Result<Vec<_>, _>>().map_err(|e| e.to_string())
+        rows.collect::<Result<Vec<_>, _>>()
+            .map_err(|e| e.to_string())
     }
 
     fn set_meta(&mut self, key: &str, value: &str) -> Result<(), String> {
@@ -252,7 +260,9 @@ impl IndexStore for SqliteStore {
 
     fn meta(&self, key: &str) -> Result<Option<String>, String> {
         self.lock()?
-            .query_row("SELECT v FROM meta WHERE k = ?1", params![key], |r| r.get(0))
+            .query_row("SELECT v FROM meta WHERE k = ?1", params![key], |r| {
+                r.get(0)
+            })
             .map(Some)
             .or_else(|e| match e {
                 rusqlite::Error::QueryReturnedNoRows => Ok(None),

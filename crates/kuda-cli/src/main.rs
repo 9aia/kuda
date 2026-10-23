@@ -5,13 +5,12 @@ use clap::{Parser, Subcommand};
 use kuda_config::ConfigSource;
 use kuda_config_toml::TomlSource;
 use kuda_core::{Config, LangDef, Provenance, RepoCard, Symbol};
-use kuda_vcs::Vcs;
 use kuda_extract::Extractor;
 use kuda_store::IndexStore;
 use kuda_summarize::Summarizer;
+use kuda_vcs::Vcs;
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
-
 
 /// stdout that survives `| head` — BrokenPipe exits 0 like a
 /// well-behaved unix filter instead of panicking.
@@ -168,10 +167,7 @@ fn blob_hash(path: &Path) -> String {
     let mut h = sha1::Sha1::new();
     h.update(format!("blob {}\0", bytes.len()).as_bytes());
     h.update(&bytes);
-    h.finalize()
-        .iter()
-        .map(|b| format!("{b:02x}"))
-        .collect()
+    h.finalize().iter().map(|b| format!("{b:02x}")).collect()
 }
 
 fn unix_now() -> String {
@@ -236,7 +232,11 @@ fn sync(cli: &Cli, full: bool) -> i32 {
         vec![dir.clone()]
     };
     let mut code = 0;
-    for r in if roots.is_empty() { vec![dir.clone()] } else { roots } {
+    for r in if roots.is_empty() {
+        vec![dir.clone()]
+    } else {
+        roots
+    } {
         outln!("sync {}", r.display());
         code |= sync_one(&r, &cfg, cli, full);
     }
@@ -450,7 +450,10 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli, full: bool) -> i32 {
     // modules changed even when content happened to match.
     let wal_touched = sturn_wal_changes(dir, &mut store);
     if !wal_touched.is_empty() {
-        eprintln!("sturn wal: {}", wal_touched.iter().cloned().collect::<Vec<_>>().join(", "));
+        eprintln!(
+            "sturn wal: {}",
+            wal_touched.iter().cloned().collect::<Vec<_>>().join(", ")
+        );
     }
     for t in wal_touched {
         for (module, mfiles) in &mod_files {
@@ -598,7 +601,9 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli, full: bool) -> i32 {
         // older generator is re-summarized even on byte-identical
         // inputs — the memory format/procedure evolved.
         const GENERATOR: &str = "kuda-template/0.1.2";
-        let card_path = cards_dir.join("modules").join(format!("{}.yaml", safe(module)));
+        let card_path = cards_dir
+            .join("modules")
+            .join(format!("{}.yaml", safe(module)));
         if !changed.contains(module) {
             let stale_generator = std::fs::read_to_string(&card_path)
                 .ok()
@@ -621,8 +626,7 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli, full: bool) -> i32 {
             generator: GENERATOR.into(),
         };
         let empty: Vec<kuda_core::Symbol> = Vec::new();
-        let syms: &[kuda_core::Symbol] =
-            by_mod.get(module).map(|v| v.as_slice()).unwrap_or(&empty);
+        let syms: &[kuda_core::Symbol] = by_mod.get(module).map(|v| v.as_slice()).unwrap_or(&empty);
         let mod_edges: Vec<_> = ext
             .edges
             .iter()
@@ -724,7 +728,9 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli, full: bool) -> i32 {
                 card.purpose = d;
             }
         }
-        let out = cards_dir.join("modules").join(format!("{}.yaml", safe(&card.name)));
+        let out = cards_dir
+            .join("modules")
+            .join(format!("{}.yaml", safe(&card.name)));
         match kuda_cards::render_module_card(&card) {
             Ok(y) => {
                 if let Err(e) = std::fs::write(&out, y) {
@@ -857,9 +863,7 @@ fn sync_file_cards(
             );
             continue;
         }
-        let out = files_dir
-            .join(safe(module))
-            .join(format!("{slug}.yaml"));
+        let out = files_dir.join(safe(module)).join(format!("{slug}.yaml"));
         if out.exists() && !full {
             if let Ok(old) = std::fs::read_to_string(&out)
                 .map_err(|e| e.to_string())
@@ -928,7 +932,11 @@ fn sync_file_cards(
             rel.display(),
             sym_names.join(", "),
             chunks.len(),
-            if used < chunks.len() { ", truncated" } else { "" },
+            if used < chunks.len() {
+                ", truncated"
+            } else {
+                ""
+            },
         );
         let prose = match acp.complete(&prompt) {
             Ok(p) => p,
@@ -1005,7 +1013,9 @@ fn readme_purpose(readme: &Path) -> Option<String> {
     let text = std::fs::read_to_string(readme).ok()?;
     text.lines()
         .map(str::trim)
-        .find(|l| !l.is_empty() && !l.starts_with('#') && !l.starts_with('!') && !l.starts_with('['))
+        .find(|l| {
+            !l.is_empty() && !l.starts_with('#') && !l.starts_with('!') && !l.starts_with('[')
+        })
         .map(str::to_owned)
 }
 
@@ -1065,8 +1075,12 @@ fn sanitize_card(
     const API_CAP: usize = 40;
     const VERIFY_CAP: usize = 10;
     card.api.retain(|s| !s.name.starts_with('_'));
-    card.api
-        .sort_by(|a, b| a.name.cmp(&b.name).then(a.file.cmp(&b.file)).then(a.line.cmp(&b.line)));
+    card.api.sort_by(|a, b| {
+        a.name
+            .cmp(&b.name)
+            .then(a.file.cmp(&b.file))
+            .then(a.line.cmp(&b.line))
+    });
     card.api
         .dedup_by(|a, b| a.name == b.name && a.file == b.file && a.line == b.line);
     if card.api.len() > API_CAP {
@@ -1081,8 +1095,16 @@ fn sanitize_card(
                     manifest_names.contains(n)
                         || matches!(
                             n,
-                            "lib.rs" | "main.rs" | "mod.rs" | "__init__.py" | "__main__.py"
-                                | "index.ts" | "index.tsx" | "index.js" | "main.go" | "go.mod"
+                            "lib.rs"
+                                | "main.rs"
+                                | "mod.rs"
+                                | "__init__.py"
+                                | "__main__.py"
+                                | "index.ts"
+                                | "index.tsx"
+                                | "index.js"
+                                | "main.go"
+                                | "go.mod"
                         )
                 })
                 .unwrap_or(false)
@@ -1104,7 +1126,11 @@ fn detect_commands(dir: &Path, manifests: &[PathBuf]) -> Vec<String> {
 
     // Makefile targets — root first, then package dirs (make -C).
     let mut dirs: Vec<PathBuf> = vec![PathBuf::new()];
-    dirs.extend(manifests.iter().filter_map(|m| m.parent().map(|p| p.to_path_buf())));
+    dirs.extend(
+        manifests
+            .iter()
+            .filter_map(|m| m.parent().map(|p| p.to_path_buf())),
+    );
     let mut seen_dirs = std::collections::HashSet::new();
     for rel in dirs {
         if !seen_dirs.insert(rel.clone()) {
@@ -1133,7 +1159,11 @@ fn detect_commands(dir: &Path, manifests: &[PathBuf]) -> Vec<String> {
     if has("go.mod") {
         cmds.push("go test ./...".into());
     }
-    for m in manifests.iter().filter(|m| fname(m) == "package.json").take(2) {
+    for m in manifests
+        .iter()
+        .filter(|m| fname(m) == "package.json")
+        .take(2)
+    {
         let Ok(text) = std::fs::read_to_string(dir.join(m)) else {
             continue;
         };
@@ -1144,10 +1174,18 @@ fn detect_commands(dir: &Path, manifests: &[PathBuf]) -> Vec<String> {
             continue;
         };
         // prefer the verbs agents actually need, then fill to 3
-        let mut keys: Vec<&str> = ["test", "build", "dev", "lint", "start", "typecheck", "check"]
-            .into_iter()
-            .filter(|k| scripts.contains_key(*k))
-            .collect();
+        let mut keys: Vec<&str> = [
+            "test",
+            "build",
+            "dev",
+            "lint",
+            "start",
+            "typecheck",
+            "check",
+        ]
+        .into_iter()
+        .filter(|k| scripts.contains_key(*k))
+        .collect();
         for k in scripts.keys().map(|k| k.as_str()) {
             if !keys.contains(&k) {
                 keys.push(k);
@@ -1163,12 +1201,15 @@ fn detect_commands(dir: &Path, manifests: &[PathBuf]) -> Vec<String> {
         }
     }
     if has("pyproject.toml")
-        && manifests.iter().filter(|m| fname(m) == "pyproject.toml").any(|m| {
-            dir.join("tests").is_dir()
-                || m.parent()
-                    .map(|p| dir.join(p).join("tests").is_dir())
-                    .unwrap_or(false)
-        })
+        && manifests
+            .iter()
+            .filter(|m| fname(m) == "pyproject.toml")
+            .any(|m| {
+                dir.join("tests").is_dir()
+                    || m.parent()
+                        .map(|p| dir.join(p).join("tests").is_dir())
+                        .unwrap_or(false)
+            })
     {
         cmds.push("pytest".into());
     }
@@ -1270,7 +1311,10 @@ fn status(cli: &Cli) -> i32 {
             }
         }
     }
-    outln!("{fresh} fresh, {drifted} drifted (HEAD {})", &head[..head.len().min(7)]);
+    outln!(
+        "{fresh} fresh, {drifted} drifted (HEAD {})",
+        &head[..head.len().min(7)]
+    );
     0
 }
 
@@ -1300,7 +1344,11 @@ fn find(cli: &Cli, symbol: &str) -> i32 {
     let cfg = load_config(cli);
     let roots = if cli.workspace {
         let r = workspace_roots(&dir);
-        if r.is_empty() { vec![dir.clone()] } else { r }
+        if r.is_empty() {
+            vec![dir.clone()]
+        } else {
+            r
+        }
     } else {
         vec![dir.clone()]
     };
@@ -1347,7 +1395,11 @@ fn dependents(cli: &Cli, name: &str) -> i32 {
     let cfg = load_config(cli);
     let roots = if cli.workspace {
         let r = workspace_roots(&dir);
-        if r.is_empty() { vec![dir.clone()] } else { r }
+        if r.is_empty() {
+            vec![dir.clone()]
+        } else {
+            r
+        }
     } else {
         vec![dir.clone()]
     };
@@ -1385,7 +1437,11 @@ fn refs(cli: &Cli, name: &str, docs_only: bool) -> i32 {
     let cfg = load_config(cli);
     let roots = if cli.workspace {
         let r = workspace_roots(&dir);
-        if r.is_empty() { vec![dir.clone()] } else { r }
+        if r.is_empty() {
+            vec![dir.clone()]
+        } else {
+            r
+        }
     } else {
         vec![dir.clone()]
     };
@@ -1399,8 +1455,16 @@ fn refs(cli: &Cli, name: &str, docs_only: bool) -> i32 {
                         any = true;
                         for (f, l) in locs {
                             let rel = f.strip_prefix(r).unwrap_or(&f);
-                            outln!("{}:{}{}", rel.display(), l,
-                                if roots.len() > 1 { format!("  [{}]", repo_tag(r)) } else { String::new() });
+                            outln!(
+                                "{}:{}{}",
+                                rel.display(),
+                                l,
+                                if roots.len() > 1 {
+                                    format!("  [{}]", repo_tag(r))
+                                } else {
+                                    String::new()
+                                }
+                            );
                         }
                     }
                     Ok(_) => {}
@@ -1426,7 +1490,9 @@ fn refs_in(dir: &Path, name: &str, docs_only: bool, tag: bool) -> usize {
     let exts: &[&str] = if docs_only {
         &["md", "mdx", "rst", "txt"]
     } else {
-        &["md", "mdx", "rs", "py", "ts", "tsx", "go", "toml", "yaml", "yml", "sh", "txt"]
+        &[
+            "md", "mdx", "rs", "py", "ts", "tsx", "go", "toml", "yaml", "yml", "sh", "txt",
+        ]
     };
     let mut hits = 0;
     let mut stack = vec![dir.to_path_buf()];
@@ -1499,9 +1565,7 @@ fn mcp(cli: &Cli) -> i32 {
         let reply = |result: Value| {
             outln!("{}", json!({"jsonrpc":"2.0","id":id,"result":result}));
         };
-        let tool_text = |text: String| {
-            json!({"content":[{"type":"text","text":text}]})
-        };
+        let tool_text = |text: String| json!({"content":[{"type":"text","text":text}]});
         match method {
             "initialize" => reply(json!({
                 "protocolVersion": "2024-11-05",
@@ -1553,10 +1617,7 @@ fn mcp(cli: &Cli) -> i32 {
                                         .map(|v| {
                                             v.iter()
                                                 .map(|e| {
-                                                    format!(
-                                                        "{} --{:?}--> {}",
-                                                        e.from, e.kind, e.to
-                                                    )
+                                                    format!("{} --{:?}--> {}", e.from, e.kind, e.to)
                                                 })
                                                 .collect::<Vec<_>>()
                                                 .join("\n")
@@ -1598,19 +1659,27 @@ fn acp(cli: &Cli) -> i32 {
         let method = req["method"].as_str().unwrap_or("");
         let id = req.get("id").cloned().unwrap_or(Value::Null);
         match method {
-            "initialize" => outln!("{}", json!({
-                "jsonrpc":"2.0","id":id,
-                "result":{"protocolVersion":1,
-                    "agentCapabilities":{"loadSession":false,
-                        "promptCapabilities":{"image":false,"audio":false,"embeddedContext":true}},
-                    "agentInfo":{"name":"kuda","version":"0.1.0","title":"kuda — repo memory"}}
-            })),
-            "session/new" => outln!("{}", json!({
-                "jsonrpc":"2.0","id":id,
-                "result":{"sessionId":"kuda-default"}
-            })),
+            "initialize" => outln!(
+                "{}",
+                json!({
+                    "jsonrpc":"2.0","id":id,
+                    "result":{"protocolVersion":1,
+                        "agentCapabilities":{"loadSession":false,
+                            "promptCapabilities":{"image":false,"audio":false,"embeddedContext":true}},
+                        "agentInfo":{"name":"kuda","version":"0.1.0","title":"kuda — repo memory"}}
+                })
+            ),
+            "session/new" => outln!(
+                "{}",
+                json!({
+                    "jsonrpc":"2.0","id":id,
+                    "result":{"sessionId":"kuda-default"}
+                })
+            ),
             "session/prompt" => {
-                let sid = req["params"]["sessionId"].as_str().unwrap_or("kuda-default");
+                let sid = req["params"]["sessionId"]
+                    .as_str()
+                    .unwrap_or("kuda-default");
                 let prompt: String = req["params"]["prompt"]
                     .as_array()
                     .map(|a| {
@@ -1621,15 +1690,24 @@ fn acp(cli: &Cli) -> i32 {
                     })
                     .unwrap_or_default();
                 let text = acp_answer(&dir, &cfg, &prompt);
-                outln!("{}", json!({"jsonrpc":"2.0","method":"session/update",
+                outln!(
+                    "{}",
+                    json!({"jsonrpc":"2.0","method":"session/update",
                     "params":{"sessionId":sid,"update":{"sessionUpdate":"agent_message_chunk",
-                        "content":{"type":"text","text":text}}}}));
-                outln!("{}", json!({"jsonrpc":"2.0","id":id,
-                    "result":{"stopReason":"end_turn"}}));
+                        "content":{"type":"text","text":text}}}})
+                );
+                outln!(
+                    "{}",
+                    json!({"jsonrpc":"2.0","id":id,
+                    "result":{"stopReason":"end_turn"}})
+                );
             }
             "session/cancel" | "authenticated" => {}
-            _ => outln!("{}", json!({"jsonrpc":"2.0","id":id,
-                "error":{"code":-32601,"message":"method not found"}})),
+            _ => outln!(
+                "{}",
+                json!({"jsonrpc":"2.0","id":id,
+                "error":{"code":-32601,"message":"method not found"}})
+            ),
         }
         let _ = std::io::Write::flush(&mut std::io::stdout());
     }
@@ -1639,7 +1717,10 @@ fn acp(cli: &Cli) -> i32 {
 /// Turn a natural-ish prompt into an index query.
 fn acp_answer(dir: &Path, cfg: &Config, prompt: &str) -> String {
     let p = prompt.trim();
-    let (verb, arg) = p.split_once(' ').map(|(v, a)| (v, a.trim())).unwrap_or((p, ""));
+    let (verb, arg) = p
+        .split_once(' ')
+        .map(|(v, a)| (v, a.trim()))
+        .unwrap_or((p, ""));
     match verb.to_ascii_lowercase().as_str() {
         "find" => kuda_store_sqlite::SqliteStore::open(&dir.join(&cfg.store.path))
             .and_then(|s| kuda_query::find(&s, arg))
@@ -1675,7 +1756,9 @@ fn doctor(cli: &Cli) -> i32 {
     {
         Ok(c) => outln!(
             "  config   ok  (extract: {:?}, summarize: {}, store: {})",
-            c.extract.kinds, c.summarize.kind, c.store.kind
+            c.extract.kinds,
+            c.summarize.kind,
+            c.store.kind
         ),
         Err(e) => outln!("  config   --  {e}"),
     }
@@ -1688,10 +1771,7 @@ fn doctor(cli: &Cli) -> i32 {
 /// head (`meta` key `sturn_wal:<ref>`), pulling `path`/`from`/`to`
 /// and static glob prefixes out of `event.json` ops. No sturn refs
 /// = no work — the hash diff still covers everything else.
-fn sturn_wal_changes(
-    dir: &Path,
-    store: &mut dyn IndexStore,
-) -> std::collections::HashSet<String> {
+fn sturn_wal_changes(dir: &Path, store: &mut dyn IndexStore) -> std::collections::HashSet<String> {
     use std::process::Command;
     let mut touched = std::collections::HashSet::new();
     let Ok(out) = Command::new("git")
@@ -1767,9 +1847,14 @@ fn watch(cli: &Cli) -> i32 {
     let dir = std::path::PathBuf::from(".");
     let cfg = load_config(cli);
     let (tx, rx) = std::sync::mpsc::channel();
-    let mut w = match recommended_watcher(move |r| { let _ = tx.send(r); }) {
+    let mut w = match recommended_watcher(move |r| {
+        let _ = tx.send(r);
+    }) {
         Ok(w) => w,
-        Err(e) => { eprintln!("watch: {e}"); return 1; }
+        Err(e) => {
+            eprintln!("watch: {e}");
+            return 1;
+        }
     };
     if let Err(e) = w.watch(&dir, RecursiveMode::Recursive) {
         eprintln!("watch {e}");
@@ -1781,11 +1866,15 @@ fn watch(cli: &Cli) -> i32 {
             Ok(Ok(evt)) => {
                 let relevant = evt.paths.iter().any(|p| {
                     !p.components().any(|c| {
-                        matches!(c.as_os_str().to_str(),
-                            Some(".git" | ".kuda" | "target" | "node_modules"))
+                        matches!(
+                            c.as_os_str().to_str(),
+                            Some(".git" | ".kuda" | "target" | "node_modules")
+                        )
                     })
                 });
-                if !relevant { continue; }
+                if !relevant {
+                    continue;
+                }
                 // debounce: drain the burst, then one sync
                 std::thread::sleep(std::time::Duration::from_millis(300));
                 while rx.try_recv().is_ok() {}

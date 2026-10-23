@@ -17,7 +17,19 @@ fn help_and_stub() {
     let out = kuda(&["--help"], &tmp);
     assert!(out.status.success());
     let stdout = String::from_utf8_lossy(&out.stdout);
-    for sub in ["init", "sync", "status", "map", "card", "find", "dependents", "refs", "mcp", "acp", "doctor"] {
+    for sub in [
+        "init",
+        "sync",
+        "status",
+        "map",
+        "card",
+        "find",
+        "dependents",
+        "refs",
+        "mcp",
+        "acp",
+        "doctor",
+    ] {
         assert!(stdout.contains(sub), "missing subcommand {sub}");
     }
     // `sync` is real now — running it in $TMPDIR would walk the
@@ -29,7 +41,11 @@ fn init_scaffolds() {
     let tmp = std::env::temp_dir().join(format!("kuda-init-{}", std::process::id()));
     std::fs::create_dir_all(&tmp).unwrap();
     let out = kuda(&["init"], &tmp);
-    assert!(out.status.success(), "{:?}", String::from_utf8_lossy(&out.stderr));
+    assert!(
+        out.status.success(),
+        "{:?}",
+        String::from_utf8_lossy(&out.stderr)
+    );
     assert!(tmp.join("kuda.toml").exists());
     assert!(tmp.join(".kuda/modules").is_dir());
     // second run refuses to clobber
@@ -51,28 +67,51 @@ fn sync_monorepo_edges_and_bounded_cards() {
         std::fs::write(&f, text).unwrap();
     };
     mk("README.md", "# mono\nfixture repo for e2e\n");
-    mk("packages/neuralmind-shared/pyproject.toml",
-       "[project]\nname = \"neuralmind-shared\"\ndependencies = [\"httpx>=0.27\"]\n");
-    mk("packages/neuralmind-shared/neuralmind_shared/__init__.py",
-       "def helper():\n    pass\n\nclass Registry:\n    pass\n");
-    mk("packages/neuralmind-shared/neuralmind_shared/_internal.py",
-       "def _secret():\n    pass\n");
-    mk("packages/api/pyproject.toml",
-       "[project]\nname = \"api\"\ndependencies = [\"neuralmind-shared\"]\n");
+    mk(
+        "packages/neuralmind-shared/pyproject.toml",
+        "[project]\nname = \"neuralmind-shared\"\ndependencies = [\"httpx>=0.27\"]\n",
+    );
+    mk(
+        "packages/neuralmind-shared/neuralmind_shared/__init__.py",
+        "def helper():\n    pass\n\nclass Registry:\n    pass\n",
+    );
+    mk(
+        "packages/neuralmind-shared/neuralmind_shared/_internal.py",
+        "def _secret():\n    pass\n",
+    );
+    mk(
+        "packages/api/pyproject.toml",
+        "[project]\nname = \"api\"\ndependencies = [\"neuralmind-shared\"]\n",
+    );
     mk("packages/api/main.py",
        "import neuralmind_shared\nfrom neuralmind_shared._internal import _secret\n\ndef serve():\n    pass\n");
-    mk("packages/api/tests/test_api.py", "def test_serve():\n    pass\n");
+    mk(
+        "packages/api/tests/test_api.py",
+        "def test_serve():\n    pass\n",
+    );
     // >40 symbols incl. privates in one module -> api cap must bite
     let mut big = String::new();
     for i in 0..50 {
-        big.push_str(&format!("def public_{i}():\n    pass\ndef _priv_{i}():\n    pass\n"));
+        big.push_str(&format!(
+            "def public_{i}():\n    pass\ndef _priv_{i}():\n    pass\n"
+        ));
     }
     mk("packages/api/surface.py", &big);
-    mk("Makefile", ".PHONY: test\nVAR := 1\ntest:\n\tpytest\nlint: check\n\truff\n");
-    mk("package.json", "{\"name\":\"mono\",\"scripts\":{\"test\":\"vitest\",\"build\":\"tsc\"}}");
+    mk(
+        "Makefile",
+        ".PHONY: test\nVAR := 1\ntest:\n\tpytest\nlint: check\n\truff\n",
+    );
+    mk(
+        "package.json",
+        "{\"name\":\"mono\",\"scripts\":{\"test\":\"vitest\",\"build\":\"tsc\"}}",
+    );
 
     let out = kuda(&["sync"], &tmp);
-    assert!(out.status.success(), "{:?}", String::from_utf8_lossy(&out.stderr));
+    assert!(
+        out.status.success(),
+        "{:?}",
+        String::from_utf8_lossy(&out.stderr)
+    );
 
     // dependents: both the manifest dep and the import land on the
     // canonical dash-named module.
@@ -84,11 +123,17 @@ fn sync_monorepo_edges_and_bounded_cards() {
 
     // L0 card stays an always-load blob, not a file dump.
     let index = std::fs::read_to_string(tmp.join(".kuda/index.yaml")).unwrap();
-    assert!(index.lines().count() < 200, "index.yaml {} lines", index.lines().count());
+    assert!(
+        index.lines().count() < 200,
+        "index.yaml {} lines",
+        index.lines().count()
+    );
     assert!(index.contains("tree_digest"), "{index}");
     assert!(index.contains("files_total"), "{index}");
-    assert!(index.contains("make test") || index.contains("make lint"),
-        "commands: {index}");
+    assert!(
+        index.contains("make test") || index.contains("make lint"),
+        "commands: {index}"
+    );
     assert!(index.contains("npm run"), "commands: {index}");
     assert!(index.contains("pytest"), "commands: {index}");
 
@@ -144,16 +189,38 @@ fn sync_sweeps_stale_file_cards() {
              commit_sha: deadbeef\n  generated_at: \"0\"\n  generator: test\n"
         )
     };
-    mk(".kuda/files/mymod/pkg__a.py.yaml", &card("pkg/a.py", "mymod"));
-    mk(".kuda/files/mymod/pkg__gone.py.yaml", &card("pkg/gone.py", "mymod"));
-    mk(".kuda/files/ghostmod/pkg__x.py.yaml", &card("pkg/x.py", "ghostmod"));
+    mk(
+        ".kuda/files/mymod/pkg__a.py.yaml",
+        &card("pkg/a.py", "mymod"),
+    );
+    mk(
+        ".kuda/files/mymod/pkg__gone.py.yaml",
+        &card("pkg/gone.py", "mymod"),
+    );
+    mk(
+        ".kuda/files/ghostmod/pkg__x.py.yaml",
+        &card("pkg/x.py", "ghostmod"),
+    );
 
     let out = kuda(&["sync"], &tmp);
-    assert!(out.status.success(), "{:?}", String::from_utf8_lossy(&out.stderr));
+    assert!(
+        out.status.success(),
+        "{:?}",
+        String::from_utf8_lossy(&out.stderr)
+    );
 
-    assert!(tmp.join(".kuda/files/mymod/pkg__a.py.yaml").exists(), "live card swept");
-    assert!(!tmp.join(".kuda/files/mymod/pkg__gone.py.yaml").exists(), "stale card kept");
-    assert!(!tmp.join(".kuda/files/ghostmod").exists(), "ghost module dir kept");
+    assert!(
+        tmp.join(".kuda/files/mymod/pkg__a.py.yaml").exists(),
+        "live card swept"
+    );
+    assert!(
+        !tmp.join(".kuda/files/mymod/pkg__gone.py.yaml").exists(),
+        "stale card kept"
+    );
+    assert!(
+        !tmp.join(".kuda/files/ghostmod").exists(),
+        "ghost module dir kept"
+    );
     std::fs::remove_dir_all(&tmp).ok();
 }
 
@@ -172,7 +239,11 @@ fn status_detects_tree_drift() {
     mk("main.py", "def serve():\n    pass\n");
 
     let out = kuda(&["sync"], &tmp);
-    assert!(out.status.success(), "{:?}", String::from_utf8_lossy(&out.stderr));
+    assert!(
+        out.status.success(),
+        "{:?}",
+        String::from_utf8_lossy(&out.stderr)
+    );
     assert!(std::fs::read_to_string(tmp.join(".kuda/index.yaml"))
         .unwrap()
         .contains("tree_digest"));
