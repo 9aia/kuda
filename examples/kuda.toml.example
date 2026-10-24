@@ -11,6 +11,11 @@ kinds = ["manifest", "treesitter"] # adapter crates, tried in order
 
 [summarize]
 kind = "template"                  # deterministic cards, zero-model
+# kind = "acp"                     # adapter: kuda-acp — any ACP agent
+# acp_cmd = "cline --acp"          # prefer lightweight/no-tool agents:
+                                  # heavyweight clients (e.g. `devin acp`
+                                  # boots a full MCP stack per spawn) work
+                                  # but are overkill for batch card prose
 # kind = "llm"                     # adapter: kuda-llm
 # provider = "anthropic"           # key via KUDA_LLM_KEY env/keyring
 # model = "..."

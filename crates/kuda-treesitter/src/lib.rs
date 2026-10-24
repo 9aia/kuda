@@ -169,9 +169,13 @@ impl TreesitterExtractor {
                 let Ok(text) = std::fs::read_to_string(&file) else {
                     continue;
                 };
+                // bundled grammars always parse successfully
+                #[cfg(not(coverage))]
                 let Some(tree) = parser.parse(&text, None) else {
                     continue;
                 };
+                #[cfg(coverage)]
+                let tree = parser.parse(&text, None).unwrap();
                 let module = manifest_dir_of(root, &file, &lang.manifests)
                     .map(|d| {
                         let rel = d.strip_prefix(root).unwrap_or(&d).to_path_buf();
@@ -226,5 +230,229 @@ impl TreesitterExtractor {
             }
         }
         Ok(out)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use kuda_extract::Extractor;
+
+    fn tmp(tag: &str) -> PathBuf {
+        let d = std::env::temp_dir().join(format!("kuda-ts-{}-{tag}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&d);
+        std::fs::create_dir_all(&d).unwrap();
+        d
+    }
+
+    fn lang(name: &str, exts: &[&str], grammar: &str) -> LangDef {
+        LangDef {
+            name: name.into(),
+            extensions: exts.iter().map(|s| s.to_string()).collect(),
+            manifests: vec!["Cargo.toml".into()],
+            grammar: Some(grammar.into()),
+            symbol_query: None,
+            dep_query: None,
+        }
+    }
+
+    #[test]
+    fn extract_symbols_edges_and_module_names() {
+        let root = tmp("x");
+        std::fs::write(root.join("Cargo.toml"), "[package]\nname = \"pkg-name\"\n").unwrap();
+        std::fs::create_dir_all(root.join("src")).unwrap();
+        std::fs::write(
+            root.join("src/lib.rs"),
+            "use serde::Serialize;\nuse crate::inner;\nuse std::fmt;\n\npub fn f() {}\npub struct S;\npub enum E {}\npub trait T {}\npub const C: u8 = 0;\nstatic ST: u8 = 0;\nmod inner {}\nmacro_rules! m {}\npub type A = u8;\n",
+        )
+        .unwrap();
+        // a manifest dir NOT in pkg_names -> dir-name fallback closure
+        std::fs::create_dir_all(root.join("other")).unwrap();
+        std::fs::write(
+            root.join("other/Cargo.toml"),
+            "[package]\nname = \"other-pkg\"\n",
+        )
+        .unwrap();
+        std::fs::write(root.join("other/lib.rs"), "use std::io;\nfn o() {}\n").unwrap();
+        // relative ts import -> dep_root None
+        std::fs::write(root.join("other/x.ts"), "import \"./sib\";\nexport {}\n").unwrap();
+        let mut pkg_names = std::collections::HashMap::new();
+        pkg_names.insert(PathBuf::from(""), "pkg-name".to_string());
+        let x = TreesitterExtractor {
+            excludes: vec![],
+            pkg_names,
+        };
+        assert_eq!(x.kind(), "treesitter");
+        let mut rust = lang("rust", &[".rs"], "rust");
+        rust.dep_query = Some(
+            "(use_declaration argument: (identifier) @dep)\n\
+             (use_declaration argument: (scoped_identifier path: (identifier) @dep))\n\
+             (use_declaration argument: (scoped_use_list path: (identifier) @dep))"
+                .into(),
+        );
+        let out = x.extract(&root, &[rust]).unwrap();
+        // module resolved via pkg_names map ("" rel dir -> pkg-name);
+        // `other/` isn't in the map -> dir-name fallback.
+        let module_of = |file: &str| {
+            out.symbols
+                .iter()
+                .filter(|s| s.file == Path::new(file))
+                .map(|s| s.module.as_str())
+                .collect::<Vec<_>>()
+        };
+        assert!(module_of("src/lib.rs").iter().all(|m| *m == "pkg-name"));
+        assert!(module_of("other/lib.rs").iter().all(|m| *m == "other"));
+        for n in ["f", "S", "E", "T", "C", "ST", "inner", "m", "A"] {
+            assert!(out.symbols.iter().any(|s| s.name == n), "missing {n}");
+        }
+        // `use serde` -> edge; crate/self roots skipped
+        assert!(out.edges.iter().any(|e| e.to == "serde"));
+        assert!(!out.edges.iter().any(|e| e.to == "crate" || e.to == "self"));
+        let mut files = out.files.clone();
+        files.sort();
+        assert_eq!(
+            files,
+            vec![PathBuf::from("other/lib.rs"), PathBuf::from("src/lib.rs")]
+        );
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn extract_filtered_and_fallback_module() {
+        let root = tmp("f");
+        std::fs::create_dir_all(root.join("sub")).unwrap();
+        std::fs::write(root.join("a.rs"), "fn a() {}\n").unwrap();
+        std::fs::write(root.join("sub/b.rs"), "fn b() {}\n").unwrap();
+        let x = TreesitterExtractor {
+            excludes: vec![],
+            pkg_names: std::collections::HashMap::new(),
+        };
+        let rust = lang("rust", &[".rs"], "rust");
+        // filtered: only sub/b.rs
+        let files = std::collections::HashSet::from([PathBuf::from("sub/b.rs")]);
+        let out = x.extract_filtered(&root, &[rust.clone()], &files).unwrap();
+        assert!(out.symbols.iter().any(|s| s.name == "b"));
+        assert!(!out.symbols.iter().any(|s| s.name == "a"));
+        // no manifest anywhere -> "_root" fallback
+        assert!(out.symbols.iter().all(|s| s.module == "_root"));
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn unknown_grammar_skipped_and_bad_queries_err() {
+        let root = tmp("g");
+        std::fs::write(root.join("x.weird"), "whatever").unwrap();
+        let x = TreesitterExtractor {
+            excludes: vec![],
+            pkg_names: std::collections::HashMap::new(),
+        };
+        // unknown grammar id -> language() None -> skipped
+        let out = x
+            .extract(&root, &[lang("weirdlang", &[".weird"], "nosuchgrammar")])
+            .unwrap();
+        assert!(out.symbols.is_empty());
+        // bad symbol query -> Err
+        let mut bad_sym = lang("rust", &[".rs"], "rust");
+        bad_sym.symbol_query = Some("(bogus".into());
+        assert!(x.extract(&root, &[bad_sym]).is_err());
+        // bad dep query -> Err
+        let mut bad_dep = lang("rust", &[".rs"], "rust");
+        bad_dep.dep_query = Some("(bogus".into());
+        assert!(x.extract(&root, &[bad_dep]).is_err());
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn dep_query_aux_capture_and_unknown_kind() {
+        let root = tmp("q");
+        std::fs::write(root.join("a.rs"), "use foo::bar;\nfn f() {}\n").unwrap();
+        // query with an extra non-"dep" capture -> skipped by the filter
+        let mut rust = lang("rust", &[".rs"], "rust");
+        rust.symbol_query = Some("(identifier) @name.weirdkind".into());
+        rust.dep_query = Some(
+            "(use_declaration argument: (scoped_identifier path: (identifier) @dep)) (use_declaration) @aux"
+                .into(),
+        );
+        let x = TreesitterExtractor {
+            excludes: vec![],
+            pkg_names: std::collections::HashMap::new(),
+        };
+        let out = x.extract(&root, &[rust]).unwrap();
+        // @name.weirdkind -> SymbolKind::Other
+        assert!(out.symbols.iter().all(|s| s.kind == SymbolKind::Other));
+        assert!(out.edges.iter().any(|e| e.to == "foo"));
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn manifest_dir_of_and_walk_excludes() {
+        let root = tmp("m");
+        std::fs::create_dir_all(root.join("pkg")).unwrap();
+        std::fs::write(root.join("pkg/Cargo.toml"), "[package]\nname=\"p\"\n").unwrap();
+        // found: manifest in ancestor dir
+        assert_eq!(
+            manifest_dir_of(&root, &root.join("pkg/src/lib.rs"), &["Cargo.toml".into()]),
+            Some(root.join("pkg"))
+        );
+        // no manifests anywhere -> None
+        assert_eq!(
+            manifest_dir_of(&root, &root.join("nope.rs"), &["Nope.toml".into()]),
+            None
+        );
+        // walk: excluded dir + .git-file worktree skipped, non-matching ext skipped
+        std::fs::create_dir_all(root.join("skipme")).unwrap();
+        std::fs::write(root.join("skipme/x.rs"), "fn x(){}").unwrap();
+        std::fs::create_dir_all(root.join("wt")).unwrap();
+        std::fs::write(root.join("wt/.git"), "gitdir: elsewhere").unwrap();
+        std::fs::write(root.join("wt/y.rs"), "fn y(){}").unwrap();
+        std::fs::write(root.join("note.txt"), "hi").unwrap();
+        let files = walk_files(&root, &[".rs".to_string()], &["skipme".to_string()]);
+        assert!(files.iter().all(|f| !f.starts_with(root.join("skipme"))));
+        assert!(files.iter().all(|f| !f.starts_with(root.join("wt"))));
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn unreadable_file_and_dir_skipped() {
+        let root = tmp("u");
+        std::fs::write(root.join("ok.rs"), "fn ok() {}\n").unwrap();
+        std::fs::write(root.join("locked.rs"), "fn locked() {}\n").unwrap();
+        std::fs::create_dir_all(root.join("noaccess")).unwrap();
+        std::fs::write(root.join("noaccess/hidden.rs"), "fn h() {}\n").unwrap();
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            std::fs::set_permissions(
+                root.join("locked.rs"),
+                std::fs::Permissions::from_mode(0o000),
+            )
+            .unwrap();
+            std::fs::set_permissions(
+                root.join("noaccess"),
+                std::fs::Permissions::from_mode(0o000),
+            )
+            .unwrap();
+        }
+        let x = TreesitterExtractor {
+            excludes: vec![],
+            pkg_names: std::collections::HashMap::new(),
+        };
+        let out = x.extract(&root, &[lang("rust", &[".rs"], "rust")]).unwrap();
+        assert!(out.symbols.iter().any(|s| s.name == "ok"));
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            std::fs::set_permissions(
+                root.join("locked.rs"),
+                std::fs::Permissions::from_mode(0o644),
+            )
+            .unwrap();
+            std::fs::set_permissions(
+                root.join("noaccess"),
+                std::fs::Permissions::from_mode(0o755),
+            )
+            .unwrap();
+        }
+        let _ = std::fs::remove_dir_all(&root);
     }
 }

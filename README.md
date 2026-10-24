@@ -33,7 +33,11 @@ repos ──► extract ──► summarize ──► index ──► store ─�
   `documentSymbol`). Best available wins; absent server = silent skip
 - **Semantic summarization via ACP** — `kind = "acp"` spawns your
   agent (`zed agent`, `claude`, `gemini`…) to write grounded card
-  prose; no API keys, template fallback always
+  prose; no API keys, template fallback always. Any ACP-capable
+  agent works — heavyweight ones too (`devin acp` boots the full
+  client + MCP stack per spawn) — but lightweight, no-tool agents
+  are recommended for batch summarization: the card prompt needs
+  no tools, so a fast text model is enough
 - **Multi-repo workspaces** — `kuda sync --workspace` indexes
   sibling repos; `dependents`/`find`/`refs` merge across roots
 - **Agent surfaces**: MCP tool server *and* ACP session surface —
