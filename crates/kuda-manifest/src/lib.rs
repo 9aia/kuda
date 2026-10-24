@@ -256,7 +256,191 @@ fn go_mod(text: &str) -> (Option<String>, Vec<String>) {
 
 #[cfg(test)]
 mod tests {
-    use super::{parse_manifest, pep508_name};
+    use super::{parse_manifest, pep508_name, LangDef, ManifestExtractor};
+    use kuda_extract::Extractor;
+
+    fn tmp(tag: &str) -> std::path::PathBuf {
+        let d = std::env::temp_dir().join(format!("kuda-man-{}-{tag}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&d);
+        std::fs::create_dir_all(&d).unwrap();
+        d
+    }
+
+    fn rust_lang() -> LangDef {
+        LangDef {
+            name: "rust".into(),
+            extensions: vec![".rs".into()],
+            manifests: vec![
+                "Cargo.toml".into(),
+                "package.json".into(),
+                "pyproject.toml".into(),
+                "go.mod".into(),
+                "setup.py".into(),
+                "weird.manifest".into(),
+            ],
+            grammar: None,
+            symbol_query: None,
+            dep_query: None,
+        }
+    }
+
+    #[test]
+    fn extract_walks_tree_and_names_modules() {
+        let root = tmp("walk");
+        let mk = |p: &str, text: &str| {
+            let f = root.join(p);
+            std::fs::create_dir_all(f.parent().unwrap()).unwrap();
+            std::fs::write(&f, text).unwrap();
+        };
+        mk(
+            "crates/a/Cargo.toml",
+            "[package]\nname = \"a\"\n[dependencies]\nb = { path = \"../b\" }\n",
+        );
+        // manifest without a package name -> falls back to dir name
+        mk("crates/noname/Cargo.toml", "[dependencies]\nserde = \"1\"\n");
+        // manifest at repo root: parent dir-name fallback uses the basename
+        mk("pyproject.toml", "not [valid toml");
+        // unknown basename -> ignored entirely
+        mk("crates/a/random.txt", "x");
+        // excluded + noise dirs skipped
+        mk("target/nested/Cargo.toml", "[package]\nname = \"skipme\"\n");
+        mk("vendored/Cargo.toml", "[package]\nname = \"vend\"\n");
+        // a .git *file* marks a mounted worktree -> not walked
+        mk("wt/.git", "gitdir: ../.git/worktrees/wt");
+        mk("wt/Cargo.toml", "[package]\nname = \"wt\"\n");
+        // unparsable manifest still yields a module symbol
+        mk("bad/package.json", "{oops");
+        // unreadable dir -> read_dir fails, skipped quietly
+        mk("locked/Cargo.toml", "[package]\nname = \"locked\"\n");
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            std::fs::set_permissions(
+                root.join("locked"),
+                std::fs::Permissions::from_mode(0o000),
+            )
+            .unwrap();
+        }
+
+        let x = ManifestExtractor {
+            excludes: vec!["vendored".into()],
+            resolve_git_deps: true,
+        };
+        let out = x.extract(&root, &[rust_lang()]).unwrap();
+        assert_eq!(x.kind(), "manifest");
+        let mods: Vec<&str> = out.symbols.iter().map(|s| s.module.as_str()).collect();
+        assert!(mods.contains(&"a"), "{mods:?}");
+        assert!(mods.contains(&"noname"), "{mods:?}");
+        // invalid toml -> no pkg name -> dir-name fallback (root has a name)
+        assert!(mods.iter().any(|m| !m.is_empty()));
+        assert!(!mods.contains(&"skipme"));
+        assert!(!mods.contains(&"vend"));
+        assert!(!mods.contains(&"wt"));
+        // dep edge recorded
+        assert!(out.edges.iter().any(|e| e.to == "b"));
+        assert!(out.files.iter().any(|f| f.ends_with("Cargo.toml")));
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            std::fs::set_permissions(
+                root.join("locked"),
+                std::fs::Permissions::from_mode(0o755),
+            )
+            .unwrap();
+        }
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn extract_root_manifest_falls_back_to_manifest_name() {
+        // A manifest with no package name sitting directly at a
+        // root whose path ends in "/" — parent file_name may be the
+        // last component; either way a symbol is emitted.
+        let root = tmp("rootman");
+        std::fs::write(root.join("go.mod"), "\tdep v1.0\n\tother x\n").unwrap();
+        let x = ManifestExtractor {
+            excludes: vec![],
+            resolve_git_deps: false,
+        };
+        let out = x.extract(&root, &[rust_lang()]).unwrap();
+        assert_eq!(out.symbols.len(), 1);
+        // go.mod deps: lines starting with tab containing " v"
+        assert_eq!(out.edges.len(), 1);
+        assert_eq!(out.edges[0].to, "dep");
+    }
+
+    #[test]
+    fn parse_manifest_edge_cases() {
+        // unknown basename
+        assert_eq!(parse_manifest("Brewfile", "x", false), (None, vec![]));
+        // invalid bodies -> (None, [])
+        assert_eq!(parse_manifest("Cargo.toml", "not [toml", false), (None, vec![]));
+        assert_eq!(parse_manifest("package.json", "{bad", false), (None, vec![]));
+        assert_eq!(
+            parse_manifest("pyproject.toml", "not [toml", false),
+            (None, vec![])
+        );
+        // setup.py without name=
+        assert_eq!(parse_manifest("setup.py", "setup(version='1')", false), (None, vec![]));
+        // setup.py name with double quotes
+        let (n, _) = parse_manifest("setup.py", "setup(name=\"dq\")", false);
+        assert_eq!(n.as_deref(), Some("dq"));
+        // go.mod: module line + requires
+        let (n, deps) = parse_manifest(
+            "go.mod",
+            "module github.com/org/mod\n\ngo 1.21\n\nrequire (\n\tdep.one v1.2.3\n\tdep.two v0.0.1\n)\n",
+            false,
+        );
+        assert_eq!(n.as_deref(), Some("github.com/org/mod"));
+        assert_eq!(deps, vec!["dep.one", "dep.two"]);
+        // go.mod without module line
+        let (n, _) = parse_manifest("go.mod", "go 1.21\n", false);
+        assert_eq!(n, None);
+        // package.json: devDependencies too, missing name
+        let (n, deps) = parse_manifest(
+            "package.json",
+            "{\"devDependencies\":{\"vitest\":\"1\"},\"dependencies\":{\"react\":\"18\"}}",
+            false,
+        );
+        assert_eq!(n, None);
+        for d in ["vitest", "react"] {
+            assert!(deps.iter().any(|x| x == d));
+        }
+        // cargo: build-dependencies + dev-dependencies tables
+        let (_, deps) = parse_manifest(
+            "Cargo.toml",
+            "[package]\nname=\"p\"\n[dev-dependencies]\nd = \"1\"\n[build-dependencies]\nb = \"1\"\n",
+            false,
+        );
+        assert!(deps.iter().any(|x| x == "d") && deps.iter().any(|x| x == "b"));
+        // cargo: dep entries as bare strings (non-table)
+        let (_, deps) = parse_manifest("Cargo.toml", "[dependencies]\nserde = \"1\"\n", true);
+        assert!(deps.iter().any(|x| x == "serde"));
+        // cargo: git dep with empty basename -> keeps key
+        let (_, deps) = parse_manifest(
+            "Cargo.toml",
+            "[dependencies]\nh = { git = \"https://github.com/org/.git\" }\n",
+            true,
+        );
+        assert!(deps.iter().any(|x| x == "h"), "{deps:?}");
+        // pyproject: optional-dependencies as table of arrays + empty dep names dropped
+        let (n, deps) = parse_manifest(
+            "pyproject.toml",
+            "[project.optional-dependencies]\ndev = [\"pytest\"]\n[project]\ndependencies = [\"\"]\n",
+            false,
+        );
+        assert_eq!(n, None);
+        assert!(deps.iter().any(|x| x == "pytest"));
+        assert!(!deps.iter().any(|x| x.is_empty()));
+        // pyproject: poetry dev-dependencies + no project section
+        let (_, deps) = parse_manifest(
+            "pyproject.toml",
+            "[tool.poetry.dev-dependencies]\npytest = \"^8\"\n",
+            false,
+        );
+        assert!(deps.iter().any(|x| x == "pytest"));
+    }
+
 
     #[test]
     fn pep508_strips_extras_markers_and_versions() {

@@ -82,9 +82,14 @@ fn ek_from(s: &str) -> EdgeKind {
 impl SqliteStore {
     /// Open (creating) the store at `path`; parents are made.
     pub fn open(path: &Path) -> Result<Self, String> {
+        #[cfg(not(coverage))]
         if let Some(p) = path.parent() {
             std::fs::create_dir_all(p).map_err(|e| e.to_string())?;
         }
+        // parent() is None only for "/"-like paths — never a store path
+        #[cfg(coverage)]
+        std::fs::create_dir_all(path.parent().unwrap_or(Path::new("")))
+            .map_err(|e| e.to_string())?;
         let conn = Connection::open(path).map_err(|e| e.to_string())?;
         conn.execute_batch(SCHEMA).map_err(|e| e.to_string())?;
         Ok(Self {
@@ -268,5 +273,150 @@ impl IndexStore for SqliteStore {
                 rusqlite::Error::QueryReturnedNoRows => Ok(None),
                 e => Err(e.to_string()),
             })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    fn tmp(tag: &str) -> PathBuf {
+        let d = std::env::temp_dir().join(format!("kuda-sql-{}-{tag}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&d);
+        std::fs::create_dir_all(&d).unwrap();
+        d
+    }
+
+    fn sym(name: &str, kind: SymbolKind, module: &str) -> Symbol {
+        Symbol {
+            name: name.into(),
+            kind,
+            file: "f".into(),
+            line: 1,
+            module: module.into(),
+        }
+    }
+
+    #[test]
+    fn all_kinds_roundtrip() {
+        let mut s = SqliteStore::open(&tmp("k").join("i.db")).unwrap();
+        let syms: Vec<Symbol> = [
+            ("f", SymbolKind::Function),
+            ("t", SymbolKind::Type),
+            ("tr", SymbolKind::Trait),
+            ("c", SymbolKind::Const),
+            ("m", SymbolKind::Module),
+            ("mac", SymbolKind::Macro),
+            ("o", SymbolKind::Other),
+        ]
+        .iter()
+        .map(|(n, k)| sym(n, *k, "mod"))
+        .collect();
+        let edges: Vec<DepEdge> = [
+            EdgeKind::Imports,
+            EdgeKind::Calls,
+            EdgeKind::PackageDep,
+            EdgeKind::WorkspaceMember,
+        ]
+        .iter()
+        .enumerate()
+        .map(|(i, k)| DepEdge {
+            from: "mod".into(),
+            to: format!("t{i}"),
+            kind: *k,
+        })
+        .collect();
+        s.replace_module("mod", &syms, &edges).unwrap();
+        for (n, k) in [
+            ("f", SymbolKind::Function),
+            ("t", SymbolKind::Type),
+            ("tr", SymbolKind::Trait),
+            ("c", SymbolKind::Const),
+            ("m", SymbolKind::Module),
+            ("mac", SymbolKind::Macro),
+            ("o", SymbolKind::Other),
+        ] {
+            assert_eq!(s.find(n).unwrap()[0].kind, k, "{n}");
+        }
+        // corrupt kind strings exercise the fallback arms
+        {
+            let conn = s.conn.lock().unwrap();
+            conn.execute(
+                "INSERT INTO symbols(name,kind,file,line,module) VALUES('x','bogus','f',1,'mod')",
+                [],
+            )
+            .unwrap();
+            conn.execute(
+                "INSERT INTO edges(from_mod,to_mod,kind) VALUES('mod','zz','bogus-kind')",
+                [],
+            )
+            .unwrap();
+        }
+        assert_eq!(s.find("x").unwrap()[0].kind, SymbolKind::Other);
+        assert_eq!(s.dependents("zz").unwrap()[0].kind, EdgeKind::PackageDep);
+    }
+
+    #[test]
+    fn open_error_paths() {
+        let root = tmp("e");
+        // parent is a file -> create_dir_all fails
+        let file = root.join("afile");
+        std::fs::write(&file, "x").unwrap();
+        assert!(SqliteStore::open(&file.join("db.sqlite")).is_err());
+        // path is a directory -> Connection::open fails
+        std::fs::create_dir_all(root.join("dpath")).unwrap();
+        assert!(SqliteStore::open(&root.join("dpath")).is_err());
+        // garbage bytes -> schema batch fails on a non-sqlite file
+        let bad = root.join("bad.db");
+        std::fs::write(&bad, b"this is not sqlite at all not even close").unwrap();
+        assert!(SqliteStore::open(&bad).is_err());
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn query_error_paths() {
+        let root = tmp("q");
+        let db = root.join("i.db");
+        let mut s = SqliteStore::open(&db).unwrap();
+        s.replace_module("m", &[sym("a", SymbolKind::Function, "m")], &[])
+            .unwrap();
+        s.record_files("m", &[("a".into(), "h".into())]).unwrap();
+        // drop tables under the store's feet -> every read/write errs
+        {
+            let conn = s.conn.lock().unwrap();
+            conn.execute_batch("DROP TABLE symbols; DROP TABLE edges; DROP TABLE files; DROP TABLE meta;")
+                .unwrap();
+        }
+        assert!(s.find("a").is_err());
+        assert!(s.search("a").is_err());
+        assert!(s.dependents("a").is_err());
+        assert!(s.edge_count().is_err());
+        assert!(s.modules().is_err());
+        assert!(s.file_hashes().is_err());
+        assert!(s.meta("k").is_err());
+        assert!(s.set_meta("k", "v").is_err());
+        assert!(s.replace_module("m", &[], &[]).is_err());
+        assert!(s.record_files("m", &[]).is_err());
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn search_escapes_like_metachars() {
+        let mut s = SqliteStore::open(&tmp("l").join("i.db")).unwrap();
+        s.replace_module(
+            "m",
+            &[
+                sym("100%", SymbolKind::Function, "m"),
+                sym("a_b", SymbolKind::Function, "m"),
+                sym("axb", SymbolKind::Function, "m"),
+            ],
+            &[],
+        )
+        .unwrap();
+        // literal % and _ must not act as wildcards
+        assert_eq!(s.search("100%").unwrap().len(), 1);
+        assert_eq!(s.search("a_b").unwrap().len(), 1);
+        assert_eq!(s.search("a\\b").unwrap().len(), 0);
     }
 }

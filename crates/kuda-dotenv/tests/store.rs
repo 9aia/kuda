@@ -21,6 +21,39 @@ fn set_get_update() {
 }
 
 #[test]
+fn get_skips_malformed_and_empty() {
+    let f = tmp("c");
+    // no `=` line, empty value, then the hit
+    std::fs::write(&f, "NOSEP\nEMPTY=\nGOOD=val\n").unwrap();
+    let s = DotenvSecrets { path: f.clone() };
+    assert_eq!(s.get("EMPTY"), None);
+    assert_eq!(s.get("GOOD").as_deref(), Some("val"));
+    let _ = std::fs::remove_file(&f);
+}
+
+/// A parentless path skips the mkdir entirely — the bare write
+/// then fails on its own.
+#[test]
+fn set_no_parent_path() {
+    let s = DotenvSecrets {
+        path: std::path::PathBuf::from("/"),
+    };
+    assert!(s.set("K", "v").is_err());
+}
+
+#[test]
+fn set_error_when_parent_is_file() {
+    let dir = std::env::temp_dir().join(format!("kuda-env-{}-err", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).unwrap();
+    let f = dir.join("afile");
+    std::fs::write(&f, "x").unwrap();
+    let s = DotenvSecrets { path: f.join("secrets") };
+    assert!(s.set("K", "v").is_err());
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
 #[cfg(unix)]
 fn perms_600() {
     use std::os::unix::fs::PermissionsExt;

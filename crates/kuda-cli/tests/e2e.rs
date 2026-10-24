@@ -431,6 +431,10 @@ fn dependents_all_messages() {
     // edges exist but not for this name
     let out = kuda(&["dependents", "nothing-uses-me"], &dir);
     assert!(String::from_utf8_lossy(&out.stdout).contains("nothing depends"));
+    // --workspace with no workspace.yaml -> falls back to this dir
+    let out = kuda(&["--workspace", "dependents", "requests"], &dir);
+    assert!(out.status.success());
+    assert!(String::from_utf8_lossy(&out.stdout).contains("requests"));
     std::fs::remove_dir_all(&dir).ok();
 }
 
@@ -460,16 +464,27 @@ fn refs_text_and_docs_tiers() {
     assert!(String::from_utf8_lossy(&out.stdout).contains("no mentions"));
     // unreadable dir -> read_dir error skipped quietly
     mk_at(&dir, "locked/inner.md", "zzz_secret\n");
+    // unreadable *file* -> read_to_string error skipped quietly
+    mk_at(&dir, "gone.md", "zzz_gone\n");
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
         std::fs::set_permissions(dir.join("locked"), std::fs::Permissions::from_mode(0o000))
             .unwrap();
+        std::fs::set_permissions(dir.join("gone.md"), std::fs::Permissions::from_mode(0o000))
+            .unwrap();
         let out = kuda(&["refs", "zzz_secret"], &dir);
+        assert!(String::from_utf8_lossy(&out.stdout).contains("no mentions"));
+        let out = kuda(&["refs", "zzz_gone"], &dir);
         assert!(String::from_utf8_lossy(&out.stdout).contains("no mentions"));
         std::fs::set_permissions(dir.join("locked"), std::fs::Permissions::from_mode(0o755))
             .unwrap();
+        std::fs::set_permissions(dir.join("gone.md"), std::fs::Permissions::from_mode(0o644))
+            .unwrap();
     }
+    // --workspace with no workspace.yaml -> falls back to this dir
+    let out = kuda(&["--workspace", "refs", "serve"], &dir);
+    assert!(out.status.success());
     std::fs::remove_dir_all(&dir).ok();
 }
 
@@ -587,6 +602,11 @@ fn refs_lsp_error_falls_through() {
     let out = kuda(&["refs", "serve"], &dir);
     assert!(out.status.success());
     assert!(String::from_utf8_lossy(&out.stderr).contains("lsp refs"));
+    assert!(String::from_utf8_lossy(&out.stdout).contains("main.py"));
+    // lsp kind on but no lsp_server configured -> straight to text tier
+    mk_at(&dir, "kuda.toml", "[extract]\nkinds = [\"lsp\"]\n");
+    let out = kuda(&["refs", "serve"], &dir);
+    assert!(out.status.success());
     assert!(String::from_utf8_lossy(&out.stdout).contains("main.py"));
     std::fs::remove_dir_all(&dir).ok();
 }
@@ -1009,6 +1029,9 @@ fn sync_acp_module_and_file_cards() {
         "main.py",
         "def serve():\n    pass\n\ndef more():\n    pass\n",
     );
+    // modify a file whose card is intact -> hash mismatch falls
+    // through the skip check and re-prompts
+    mk_at(&dir, "lib.rs", "pub fn rust_fn() {}\npub fn rust_fn2() {}\n");
     let out = kuda(&["sync"], &dir);
     assert!(out.status.success());
     #[cfg(unix)]
@@ -1328,12 +1351,13 @@ fn sync_detect_commands_all_sources() {
 #[test]
 fn sync_purpose_fallback_chain() {
     let dir = tmp("purpose");
-    // lib.rs //! doc (no manifest description)
+    // lib.rs //! doc (no manifest description) — a bare `//!`
+    // line first: empty doc text is skipped, not a purpose.
     mk_at(&dir, "a/Cargo.toml", "[package]\nname = \"withdoc\"\n");
     mk_at(
         &dir,
         "a/src/lib.rs",
-        "//! from crate docs\n\npub fn f() {}\n",
+        "//!\n//! from crate docs\n\npub fn f() {}\n",
     );
     // main.rs //! doc
     mk_at(&dir, "b/Cargo.toml", "[package]\nname = \"withmain\"\n");
@@ -1404,6 +1428,10 @@ fn sync_verify_cap_prefers_entry_points() {
 }
 
 /// watch: fs change triggers an incremental sync.
+/// Coverage builds stub `Cmd::Watch` (signals discard coverage
+/// data, so the unbounded loop can't run) — `watch_arm_dispatches`
+/// below covers the arm instead.
+#[cfg(not(coverage))]
 #[test]
 fn watch_syncs_on_change() {
     let dir = tmp("watch");

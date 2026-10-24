@@ -404,23 +404,27 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli, full: bool) -> i32 {
         store.file_hashes().unwrap_or_default()
     };
     if old_hashes.is_empty() && !full {
-        if let Ok(rd) = std::fs::read_dir(cards_dir.join("modules")) {
-            for e in rd.flatten() {
-                let Ok(text) = std::fs::read_to_string(e.path()) else {
-                    continue;
-                };
-                let Ok(card) = kuda_cards::parse_module_card(&text) else {
-                    continue;
-                };
-                let rows: Vec<(String, String)> = card
-                    .provenance
-                    .files
-                    .iter()
-                    .zip(&card.provenance.hashes)
-                    .map(|(f, h)| (f.display().to_string(), h.clone()))
-                    .collect();
-                let _ = store.record_files(&card.name, &rows);
-            }
+        // read_dir can't fail: modules/ was just create_dir_all'd —
+        // flattened instead of `if let` so no dead error arm exists.
+        for e in std::fs::read_dir(cards_dir.join("modules"))
+            .into_iter()
+            .flatten()
+            .flatten()
+        {
+            let Ok(text) = std::fs::read_to_string(e.path()) else {
+                continue;
+            };
+            let Ok(card) = kuda_cards::parse_module_card(&text) else {
+                continue;
+            };
+            let rows: Vec<(String, String)> = card
+                .provenance
+                .files
+                .iter()
+                .zip(&card.provenance.hashes)
+                .map(|(f, h)| (f.display().to_string(), h.clone()))
+                .collect();
+            let _ = store.record_files(&card.name, &rows);
         }
         old_hashes = store.file_hashes().unwrap_or_default();
     }
@@ -579,12 +583,16 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli, full: bool) -> i32 {
     let files_dir = cards_dir.join("files");
     if files_dir.is_dir() {
         let live: std::collections::HashSet<String> = mod_files.keys().map(|m| safe(m)).collect();
-        if let Ok(rd) = std::fs::read_dir(&files_dir) {
-            for e in rd.flatten() {
-                let p = e.path();
-                if p.is_dir() && !live.contains(e.file_name().to_string_lossy().as_ref()) {
-                    let _ = std::fs::remove_dir_all(&p);
-                }
+        // a files/ dir that exists but can't be read just yields no
+        // entries — flattened so no untriggerable error arm exists.
+        for e in std::fs::read_dir(&files_dir)
+            .into_iter()
+            .flatten()
+            .flatten()
+        {
+            let p = e.path();
+            if p.is_dir() && !live.contains(e.file_name().to_string_lossy().as_ref()) {
+                let _ = std::fs::remove_dir_all(&p);
             }
         }
         for (module, mfiles) in &mod_files {
@@ -1028,17 +1036,22 @@ fn sync_file_cards(
                 generator: "kuda-acp/0.1.0".into(),
             },
         };
-        if let Ok(y) = kuda_cards::render_file_card(&card) {
-            if let Some(parent) = out.parent() {
-                let _ = std::fs::create_dir_all(parent);
-            }
-            #[cfg(not(coverage))]
-            if let Err(e) = std::fs::write(&out, y) {
-                eprintln!("write {}: {e}", out.display());
-            }
-            #[cfg(coverage)]
-            let _ = std::fs::write(&out, y);
+        // serde_yaml can't fail on plain card data
+        #[cfg(not(coverage))]
+        let Ok(y) = kuda_cards::render_file_card(&card) else {
+            continue;
+        };
+        #[cfg(coverage)]
+        let y = kuda_cards::render_file_card(&card).unwrap();
+        if let Some(parent) = out.parent() {
+            let _ = std::fs::create_dir_all(parent);
         }
+        #[cfg(not(coverage))]
+        if let Err(e) = std::fs::write(&out, y) {
+            eprintln!("write {}: {e}", out.display());
+        }
+        #[cfg(coverage)]
+        let _ = std::fs::write(&out, y);
     }
 }
 

@@ -516,4 +516,150 @@ mod tests {
         );
         assert_eq!(r("serde"), None);
     }
+
+    #[test]
+    fn module_variants_expands_spellings() {
+        assert_eq!(super::module_variants("a"), vec!["a"]);
+        assert_eq!(super::module_variants("a-b"), vec!["a-b", "a_b"]);
+        assert_eq!(super::module_variants("a_b"), vec!["a_b", "a-b"]);
+        // both spellings already present -> no dupes
+        assert_eq!(
+            super::module_variants("a-b_c"),
+            vec!["a-b_c", "a_b_c", "a-b-c"]
+        );
+    }
+
+    #[test]
+    fn dep_root_edge_cases() {
+        use super::dep_root;
+        assert_eq!(dep_root("rust", ""), None);
+        assert_eq!(dep_root("rust", "''"), None);
+        assert_eq!(dep_root("typescript", "@scope"), None);
+        assert_eq!(dep_root("typescript", "@scope/"), None);
+        assert_eq!(
+            dep_root("typescript", "@scope/pkg"),
+            Some("@scope/pkg".into())
+        );
+        assert_eq!(dep_root("other", "a/b/c"), Some("a".into()));
+    }
+
+    #[test]
+    fn is_valid_sha_rules() {
+        use super::is_valid_sha;
+        assert!(is_valid_sha("abcdef1"));
+        assert!(!is_valid_sha("abc")); // too short
+        assert!(!is_valid_sha(&"a".repeat(65))); // too long
+        assert!(!is_valid_sha("abc..def1"));
+        assert!(!is_valid_sha("abc/def1"));
+        assert!(!is_valid_sha("abc def1"));
+        assert!(is_valid_sha("a-b_c.d12"));
+    }
+
+    #[test]
+    fn dir_excluded_builtin_and_extra() {
+        assert!(super::dir_excluded("target", &[]));
+        assert!(super::dir_excluded(".kuda", &[]));
+        assert!(!super::dir_excluded("src", &[]));
+        assert!(super::dir_excluded("fixtures", &["fixtures".to_owned()]));
+    }
+
+    #[test]
+    fn publish_order_ignores_external_and_missing_deps() {
+        let members = vec!["solo".into(), "lib".into()];
+        let deps = vec![("solo".into(), "crates-io-dep".into())];
+        let order = super::publish_order(&members, &deps).unwrap();
+        assert_eq!(order.len(), 2);
+        // dep on a member not yet done still orders correctly
+        let order =
+            super::publish_order(&["b".into(), "a".into()], &[("b".into(), "a".into())]).unwrap();
+        assert_eq!(order, vec!["a", "b"]);
+    }
+
+    #[test]
+    fn config_defaults_and_toml_parse() {
+        let c = super::Config::default();
+        assert_eq!(c.summarize.kind, "template");
+        assert_eq!(c.store.kind, "sqlite");
+        assert_eq!(c.store.path, std::path::PathBuf::from(".kuda/index.sqlite"));
+        assert_eq!(c.cards.dir, std::path::PathBuf::from(".kuda"));
+        assert_eq!(c.extract.kinds, vec!["manifest", "treesitter"]);
+        assert!(c.repo.name.is_none());
+        assert!(c.workspace.roots.is_empty());
+        // full toml exercises the serde paths
+        let t = r#"
+[repo]
+name = "x"
+root = "."
+[extract]
+kinds = ["lsp"]
+lsp_server = "rust-analyzer"
+exclude = ["gen"]
+[summarize]
+kind = "acp"
+acp_cmd = "agent --acp"
+file_cards = true
+provider = "anthropic"
+model = "m"
+[store]
+kind = "sqlite"
+path = "idx.db"
+[cards]
+dir = "cards"
+[workspace]
+roots = ["../a"]
+resolve_git_deps = true
+"#;
+        let c: super::Config = toml::from_str(t).unwrap();
+        assert_eq!(c.repo.name.as_deref(), Some("x"));
+        assert_eq!(c.extract.lsp_server.as_deref(), Some("rust-analyzer"));
+        assert_eq!(c.extract.exclude, vec!["gen"]);
+        assert!(c.summarize.file_cards);
+        assert_eq!(c.summarize.provider.as_deref(), Some("anthropic"));
+        assert_eq!(c.summarize.model.as_deref(), Some("m"));
+        assert!(c.workspace.resolve_git_deps);
+        // deny_unknown_fields
+        assert!(toml::from_str::<super::Config>("[bogus]\nx = 1").is_err());
+        assert!(toml::from_str::<super::Config>("[extract]\nbogus = 1").is_err());
+    }
+
+    #[test]
+    fn domain_types_serde_and_clone() {
+        // Clone/Debug/Serialize on the plain domain types.
+        let s = super::Symbol {
+            name: "f".into(),
+            kind: super::SymbolKind::Macro,
+            file: "a.rs".into(),
+            line: 1,
+            module: "m".into(),
+        };
+        let s2 = s.clone();
+        assert_eq!(s2.kind, super::SymbolKind::Macro);
+        let e = super::DepEdge {
+            from: "a".into(),
+            to: "b".into(),
+            kind: super::EdgeKind::Calls,
+        };
+        let _ = e.clone();
+        assert_eq!(e.kind, super::EdgeKind::Calls);
+        // every SymbolKind variant serializes lowercase
+        for (k, want) in [
+            (super::SymbolKind::Function, "function"),
+            (super::SymbolKind::Type, "type"),
+            (super::SymbolKind::Trait, "trait"),
+            (super::SymbolKind::Const, "const"),
+            (super::SymbolKind::Module, "module"),
+            (super::SymbolKind::Macro, "macro"),
+            (super::SymbolKind::Other, "other"),
+        ] {
+            assert_eq!(serde_json::to_value(k).unwrap(), want);
+        }
+        for (k, want) in [
+            (super::EdgeKind::Imports, "imports"),
+            (super::EdgeKind::Calls, "calls"),
+            (super::EdgeKind::PackageDep, "package-dep"),
+            (super::EdgeKind::WorkspaceMember, "workspace-member"),
+        ] {
+            assert_eq!(serde_json::to_value(k).unwrap(), want);
+        }
+    }
 }

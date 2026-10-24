@@ -34,3 +34,37 @@ pub trait Extractor: Send + Sync {
         self.extract(root, langs)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    struct Stub;
+    impl Extractor for Stub {
+        fn kind(&self) -> &'static str {
+            "stub"
+        }
+        fn extract(&self, _root: &Path, _langs: &[LangDef]) -> Result<Extraction, String> {
+            let mut e = Extraction::default();
+            e.symbols.push(Symbol {
+                name: "s".into(),
+                kind: kuda_core::SymbolKind::Function,
+                file: "f".into(),
+                line: 1,
+                module: "m".into(),
+            });
+            Ok(e)
+        }
+    }
+
+    #[test]
+    fn default_filtered_delegates_to_extract() {
+        let x = Stub;
+        assert_eq!(x.kind(), "stub");
+        let files = std::collections::HashSet::from([PathBuf::from("f")]);
+        let e = x
+            .extract_filtered(Path::new("."), &[], &files)
+            .unwrap();
+        assert_eq!(e.symbols.len(), 1);
+    }
+}

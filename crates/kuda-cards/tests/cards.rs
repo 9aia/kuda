@@ -71,4 +71,6 @@ fn file_card_roundtrip_and_bad_yaml() {
     let back = parse_file_card(&render_file_card(&c).unwrap()).unwrap();
     assert_eq!(back.symbols, vec!["f"]);
     assert!(parse_repo_card(":::").is_err());
+    assert!(parse_module_card("::: bad").is_err());
+    assert!(parse_file_card("- just\n- a\n- list\n").is_err());
 }

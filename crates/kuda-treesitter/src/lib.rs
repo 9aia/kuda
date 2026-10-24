@@ -362,6 +362,32 @@ mod tests {
         let _ = std::fs::remove_dir_all(&root);
     }
 
+    /// A dep capture whose specifier reduces to no edge target —
+    /// relative imports are intra-module, so `dep_root` returns
+    /// None and the candidate is skipped.
+    #[test]
+    fn relative_import_makes_no_edge() {
+        let root = tmp("rel");
+        std::fs::write(
+            root.join("a.ts"),
+            "import \"./sib\";\nimport \"lodash\";\nexport {}\n",
+        )
+        .unwrap();
+        let mut ts = lang("typescript", &[".ts"], "typescript");
+        // DEFAULT_RUST_QUERY is rust-node-shaped — give ts its own
+        ts.symbol_query = Some("(identifier) @name.other".into());
+        ts.dep_query = Some("(import_statement source: (string (string_fragment) @dep))".into());
+        let x = TreesitterExtractor {
+            excludes: vec![],
+            pkg_names: std::collections::HashMap::new(),
+        };
+        let out = x.extract(&root, &[ts]).unwrap();
+        // "./sib" dropped as relative, "lodash" lands as an edge
+        assert!(out.edges.iter().any(|e| e.to == "lodash"));
+        assert!(!out.edges.iter().any(|e| e.to.contains("sib")));
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
     #[test]
     fn dep_query_aux_capture_and_unknown_kind() {
         let root = tmp("q");
