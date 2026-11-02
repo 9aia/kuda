@@ -753,7 +753,7 @@ fn sync_incremental_and_deletions() {
         String::from_utf8_lossy(&out.stderr)
     );
     assert!(!dir.join(".kuda/modules/other.yaml").exists());
-    let out = kuda(&["find", "o"], &dir);
+    kuda(&["find", "o"], &dir);
     // stale generator stamp -> re-summarize even when bytes match
     mk_at(&dir, "x.py", "def x():\n    pass\n");
     assert!(kuda(&["sync"], &dir).status.success());

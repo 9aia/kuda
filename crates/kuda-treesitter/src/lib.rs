@@ -330,7 +330,9 @@ mod tests {
         let rust = lang("rust", &[".rs"], "rust");
         // filtered: only sub/b.rs
         let files = std::collections::HashSet::from([PathBuf::from("sub/b.rs")]);
-        let out = x.extract_filtered(&root, &[rust.clone()], &files).unwrap();
+        let out = x
+            .extract_filtered(&root, std::slice::from_ref(&rust), &files)
+            .unwrap();
         assert!(out.symbols.iter().any(|s| s.name == "b"));
         assert!(!out.symbols.iter().any(|s| s.name == "a"));
         // no manifest anywhere -> "_root" fallback

@@ -678,19 +678,19 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli, full: bool) -> i32 {
         // changed files spend an agent prompt.
         if use_acp && cfg.summarize.file_cards {
             if let Some(acp) = acp.as_ref() {
-                sync_file_cards(
+                sync_file_cards(FileCardJob {
                     dir,
                     module,
                     syms,
                     mfiles,
-                    &prov.hashes,
-                    &manifest_names,
+                    hashes: &prov.hashes,
+                    manifest_names: &manifest_names,
                     acp,
-                    &cards_dir.join("files"),
-                    &sha,
-                    &now,
+                    files_dir: &cards_dir.join("files"),
+                    sha: &sha,
+                    now: &now,
                     full,
-                );
+                });
             }
         }
         // module `path` for the card: its manifest if present,
@@ -876,23 +876,39 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli, full: bool) -> i32 {
     0
 }
 
+/// The inputs to one module's file-card sync.
+struct FileCardJob<'a> {
+    dir: &'a Path,
+    module: &'a str,
+    syms: &'a [Symbol],
+    mfiles: &'a [PathBuf],
+    hashes: &'a [String],
+    manifest_names: &'a std::collections::HashSet<String>,
+    acp: &'a kuda_acp::AcpSummarizer,
+    files_dir: &'a Path,
+    sha: &'a str,
+    now: &'a str,
+    full: bool,
+}
+
 /// L1.5 sync — one card per source file. Chunk with text-splitter
 /// (code-aware via tree-sitter where a grammar exists), prompt the
 /// shared ACP session, write `.kuda/files/<module>/<slug>.yaml`.
 /// Per-file provenance hash gates: unchanged files cost nothing.
-fn sync_file_cards(
-    dir: &Path,
-    module: &str,
-    syms: &[Symbol],
-    mfiles: &[PathBuf],
-    hashes: &[String],
-    manifest_names: &std::collections::HashSet<String>,
-    acp: &kuda_acp::AcpSummarizer,
-    files_dir: &Path,
-    sha: &str,
-    now: &str,
-    full: bool,
-) {
+fn sync_file_cards(job: FileCardJob<'_>) {
+    let FileCardJob {
+        dir,
+        module,
+        syms,
+        mfiles,
+        hashes,
+        manifest_names,
+        acp,
+        files_dir,
+        sha,
+        now,
+        full,
+    } = job;
     use text_splitter::{ChunkConfig, CodeSplitter, MarkdownSplitter, TextSplitter};
     const CHUNK: usize = 1_500; // chars per chunk
     const BUDGET: usize = 14_000; // total source chars per prompt

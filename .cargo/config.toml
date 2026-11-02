@@ -1,0 +1,6 @@
+[build]
+# `#[cfg(coverage)]` is the cargo-llvm-cov exclusion attribute —
+# it passes `--cfg coverage` under coverage runs (making the cfg
+# implicitly well-known there); declaring it here silences
+# `unexpected_cfgs` on normal builds.
+rustflags = ["--check-cfg", "cfg(coverage)"]
