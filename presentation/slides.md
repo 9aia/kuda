@@ -26,8 +26,8 @@ layout: default
 1. **A 20-crate codebase compresses into 81 lines** — measured here
 2. **Staleness is data, not a promise** — provenance, per card
 3. **The index is a cache; the cards are the artifact** — what git keeps
-4. **Every card is reviewable like source** — regen is a diff
-5. **One binary speaks cli, mcp and acp** — the verbs
+4. **One binary speaks cli, mcp and acp** — the verbs
+5. **Then try it** — four commands, and what you should see
 
 ---
 layout: statement
@@ -94,27 +94,6 @@ $ git check-ignore .kuda/index.sqlite
 layout: statement
 ---
 
-# Every card is reviewable like source.
-
----
-layout: default
----
-
-# Regeneration shows up as a diff
-
-| artifact | count | in git | verification |
-| --- | --- | --- | --- |
-| repo card (L0) | 1 | committed | `kuda status` re-hash |
-| module cards (L1) | 20 | committed | `kuda status`, `mimus audit` |
-| file cards (L1.5) | 27 | committed | `kuda status`, `mimus audit` |
-| symbol index (L2) | sqlite | gitignored | rebuilt by `kuda sync` |
-
-- `mimus audit` trust-scores each card — fresh, drifted, or contradicted
-
----
-layout: statement
----
-
 # One binary speaks cli, mcp and acp.
 
 ---
@@ -166,6 +145,49 @@ layout: default
 - languages: rust, typescript, python, go — more = a `data/langs/` file
 - parked: `dist` releases (`cargo install --git` suffices); `kuda-llm` summarizer
 - agent-maintained — issues and PRs disabled; CI dogfooded
+
+---
+layout: default
+---
+
+# Try it — four commands
+
+```sh
+cargo install --git https://github.com/9aia/kuda kuda
+kuda init      # kuda.toml + .kuda/ skeleton
+kuda sync      # extract -> cards -> index
+kuda map       # the L0 card, ~1k tokens
+```
+
+---
+layout: default
+---
+
+# What you should see
+
+```text
+kuda.toml
+.kuda/
+  index.yaml      L0  — the whole repo, 81 lines
+  modules/        L1  — one card per crate (20)
+  files/          L1.5 — per-file cards (27)
+  index.sqlite    L2  — gitignored, rebuilt by `kuda sync`
+```
+
+Then `kuda status` tells you which cards drifted.
+
+---
+layout: default
+---
+
+# References
+
+- **Repository** — [github.com/9aia/kuda](https://github.com/9aia/kuda)
+- **Docs** — [9aia.com/kuda](https://9aia.com/kuda)
+- **The argument in code** — `crates/kuda-core/src/lib.rs`
+- **The committed cards** — `.kuda/index.yaml` and `.kuda/modules/`
+- **The auditor** — [mimus](https://github.com/9aia/mimus) trust-scores these cards
+- **Install** — `cargo install --git https://github.com/9aia/kuda kuda`
 
 ---
 layout: end
