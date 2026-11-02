@@ -22,7 +22,7 @@ pub fn parse_module_card(text: &str) -> Result<ModuleCard, String> {
     serde_yaml::from_str(text).map_err(|e| e.to_string())
 }
 
-/// `.kuda/files/<module>/<file>.yaml` — L1.5 per-file cards.
+/// `.kuda/files/<module>/<file>.yaml` — L1 per-file cards.
 pub fn render_file_card(card: &FileCard) -> Result<String, String> {
     serde_yaml::to_string(card).map_err(|e| e.to_string())
 }

@@ -96,7 +96,7 @@ pub struct ModuleCard {
     pub provenance: Provenance,
 }
 
-/// L1.5 card — one per source file. Chunk-fed agent prose, the
+/// L1 card at file granularity — one per source file. Chunk-fed agent prose, the
 /// query tier between module cards and raw source.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FileCard {
@@ -255,7 +255,7 @@ pub struct SummarizeCfg {
     /// ACP agent command for kind="acp" — spawns per summarize.
     #[serde(default)]
     pub acp_cmd: Option<String>,
-    /// L1.5 per-file cards — chunked agent summaries per source
+    /// L1 per-file cards — chunked agent summaries per source
     /// file. Opt-in: ~10-50x the prompt count of module cards,
     /// bounded by per-file hash-skip.
     #[serde(default)]

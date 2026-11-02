@@ -163,7 +163,7 @@ fn map_survives_broken_pipe() {
     std::fs::remove_dir_all(&tmp).ok();
 }
 
-/// L1.5 housekeeping: `kuda sync` must remove file cards for
+/// L1 file-card housekeeping: `kuda sync` must remove file cards for
 /// deleted/renamed sources and dirs of vanished modules, and keep
 /// cards whose file still exists. Runs under the default config
 /// (no acp, `file_cards` off) on purpose — cleanup is
@@ -183,7 +183,7 @@ fn sync_sweeps_stale_file_cards() {
     // second module with no .kuda/files dir at all -> readdir skip
     mk("pkg2/pyproject.toml", "[project]\nname = \"mod2\"\n");
     mk("pkg2/c.py", "def c():\n    pass\n");
-    // hand-crafted L1.5 cards: one live (pkg/a.py -> pkg__a.py),
+    // hand-crafted L1 file cards: one live (pkg/a.py -> pkg__a.py),
     // one for a deleted file, one under a module that vanished.
     let card = |path: &str, module: &str| {
         format!(
@@ -995,7 +995,7 @@ fn sync_acp_module_and_file_cards() {
     let card = std::fs::read_to_string(dir.join(".kuda/modules/app.yaml")).unwrap();
     assert!(card.contains("agent module prose"), "{card}");
     assert!(card.contains("from agent"), "{card}");
-    // L1.5 file cards exist for source files
+    // L1 file cards exist for source files
     assert!(dir.join(".kuda/files/app/main.py.yaml").exists());
     assert!(dir.join(".kuda/files/app/lib.rs.yaml").exists());
     // the >200KB file got no card

@@ -574,7 +574,7 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli, full: bool) -> i32 {
             let _ = std::fs::remove_file(stale);
         }
     }
-    // L1.5 stale-card sweep — housekeeping, not summarization, so
+    // L1 file-card stale sweep — housekeeping, not summarization, so
     // it runs whenever .kuda/files exists even with file_cards/acp
     // off (stale cards are leftovers from a previous config).
     // Mirrors the module sweep above: drop dirs of vanished
@@ -673,7 +673,7 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli, full: bool) -> i32 {
             .filter(|e| e.from == *module)
             .cloned()
             .collect();
-        // L1.5 file cards — per-source-file chunked summaries.
+        // L1 file cards — per-source-file chunked summaries.
         // Per-file hash-skip makes the steady state free; only
         // changed files spend an agent prompt.
         if use_acp && cfg.summarize.file_cards {
@@ -891,7 +891,7 @@ struct FileCardJob<'a> {
     full: bool,
 }
 
-/// L1.5 sync — one card per source file. Chunk with text-splitter
+/// L1 file-card sync — one card per source file. Chunk with text-splitter
 /// (code-aware via tree-sitter where a grammar exists), prompt the
 /// shared ACP session, write `.kuda/files/<module>/<slug>.yaml`.
 /// Per-file provenance hash gates: unchanged files cost nothing.
