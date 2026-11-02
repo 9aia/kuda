@@ -1,8 +1,12 @@
 # kuda — presentation deck
 
 Slidev deck for **kuda** — *a hippocampus for your codebase* — aimed at
-engineers evaluating repo-memory tooling. Fourteen slides: the problem,
-the pipeline, the mechanism, and honest status.
+engineers evaluating repo-memory tooling.
+
+Sixteen slides in a claim-then-proof spine: four claims about what the tool
+does, each followed by the receipt that proves it (a measured number, a real
+card excerpt, a git command, a table of surfaces), then where it sits in the
+9aia stack, honest status, a four-command tutorial, and references.
 
 ## Run
 

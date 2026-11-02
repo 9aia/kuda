@@ -26,7 +26,7 @@ layout: default
 1. **A 20-crate codebase compresses into 81 lines** — measured here
 2. **Staleness is data, not a promise** — provenance, per card
 3. **The index is a cache; the cards are the artifact** — what git keeps
-4. **One binary speaks cli, mcp and acp** — the verbs
+4. **One binary speaks cli, mcp and acp** — three surfaces
 5. **Then try it** — four commands, and what you should see
 
 ---
@@ -100,20 +100,15 @@ layout: statement
 layout: default
 ---
 
-# Every verb, one binary
+# Three surfaces, one binary
 
-```sh
-kuda sync            # hash → extract → summarize → store
-kuda status          # provenance drift vs HEAD
-kuda map             # L0 repo card — always-load
-kuda card <mod>      # L1 module card
-kuda find <sym>      # exact; miss → fuzzy
-kuda dependents <x>  # reverse dep edges
-kuda refs <x>        # code + doc mentions
-kuda watch           # fs events → incremental sync
-kuda mcp             # tools: repo_card module_card find dependents status refs
-kuda acp             # ACP session surface
-```
+| surface | entry point | what it exposes |
+| --- | --- | --- |
+| cli | `kuda <verb>` | sync, status, map, card, find, dependents, refs, watch |
+| mcp | `kuda mcp` | tools: `repo_card` `module_card` `find` `dependents` `status` `refs` |
+| acp | `kuda acp` | the session surface an agent driver talks to |
+
+All three read the same `.kuda/` and the same `kuda.toml`.
 
 ---
 layout: default
@@ -143,7 +138,7 @@ layout: default
 - works: the full CLI surface, plus `--workspace` multi-repo merges
 - agent surfaces: `kuda mcp` (six tools) and `kuda acp`
 - languages: rust, typescript, python, go — more = a `data/langs/` file
-- parked: `dist` releases (`cargo install --git` suffices); `kuda-llm` summarizer
+- parked: `dist` releases — `cargo install --git` + the `v0.1.0` tag suffice (TODO.md)
 - agent-maintained — issues and PRs disabled; CI dogfooded
 
 ---
