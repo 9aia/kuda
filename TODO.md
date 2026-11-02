@@ -4,7 +4,6 @@
 
 - [ ] T-001 kuda-core — RepoCard / ModuleCard / Symbol / DepEdge / Provenance{files,hash,sha}; Lang descriptors loaded from data/langs/\*.toml — a new language is a data change.
 - [ ] T-026 presentation deck — verify + open PR: slides v2 (claim/proof, 3 chapters) pushed on presentation/initial (e1844e5); deck session reported it still fails verification — run a repair/verify pass, then open PR manually (agent token can't create PRs) · created:2026-11-02
-- [ ] T-027 slidev-theme-9aia layout bugs blocking deck quality (found via kuda deck QA, unfixed, repo has no myco ledger): type scale too large (body ~30px/h1 ~44px at 1600x900), statement layout breaks with bullets, fact caption runs edge-to-edge, cover shows hard gradient band, content top-pinned with ~35% dead space. Fix in /home/luis/GitHub/9aia/slidev-theme-9aia before remaining decks ship · created:2026-11-02
 
 ## Ports + first adapters
 
