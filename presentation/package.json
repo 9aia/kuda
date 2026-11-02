@@ -1,0 +1,14 @@
+{
+  "name": "kuda-presentation",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "slidev slides.md",
+    "build": "slidev build slides.md --base ./",
+    "export": "slidev export slides.md"
+  },
+  "devDependencies": {
+    "@slidev/cli": "^53.0.0",
+    "slidev-theme-9aia": "github:9aia/slidev-theme-9aia"
+  }
+}
