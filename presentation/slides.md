@@ -1,9 +1,9 @@
 ---
 theme: 9aia
-title: kuda — A hippocampus for your codebase
+title: kuda — a hippocampus for your codebase
 info: |
-  Repo memory for agent-driven workflows: a compressed, freshness-tracked
-  index into code, for engineers evaluating repo-memory tooling.
+  Repo memory that knows when it's wrong: a compressed,
+  provenance-tracked index into code, for agents and their humans.
 transition: fade
 mdc: true
 layout: cover
@@ -13,212 +13,160 @@ layout: cover
 
 *A hippocampus for your codebase.*
 
-Repo memory for agent-driven workflows — bounded, provenanced, reviewable.
+Repo memory for agent-driven workflows.
 
 9aia · 2026
 
 ---
-layout: default
+layout: statement
 ---
 
-# Contents
+# Session 47.
 
-**I. The claims** — four things kuda says it does
+The agent remembers nothing from session 46.
 
-**II. The evidence** — the receipt for each claim, in order
-
-**III. Try it** — four commands, five minutes
-
-*Then: where it sits in the 9aia stack, status, references.*
-
----
-layout: section
----
-
-# I. The claims
-
-Four statements, each provable inside this repo.
+So it greps, reads forty files, burns the context window —
+and still guesses.
 
 ---
 layout: default
 ---
 
-<Badge type="info">Claim 1 of 4</Badge>
+# Every fix rots a different way
 
-# A 20-crate codebase compresses into 81 lines.
+- **hand-written context** — `AGENTS.md` drifts; nothing tells you
+- **embeddings / RAG** — can't be diffed, can't be bounded
+- **LSP** — real answers, but dies with the session, no prose
+- **grep** — fast at *where*, silent on *what does this look like*
 
-- the L0 card is what an agent loads first, every session
-- purposes, module names and entry points — never source
-- bounded by design, so it stays loadable as the repo grows
+*All answer "where is it." None answer "is this still true."*
+
+---
+layout: statement
+---
+
+# A hippocampus doesn't store memories.
+
+It indexes them.
+
+Memory for a repo = an index *into* code — never a copy of it.
+
+---
+layout: statement
+---
+
+# A wrong answer is worse than none.
+
+Memory is a hypothesis that narrows the search.
+The code remains the only truth.
 
 ---
 layout: default
 ---
 
-<Badge type="info">Claim 2 of 4</Badge>
+# The ladder
 
-# Staleness is data, not a promise.
+| tier | artifact | when it loads |
+| --- | --- | --- |
+| L0 | `.kuda/index.yaml` — repo card | ~1k tokens, every session |
+| L1 | `.kuda/modules/` + `.kuda/files/` — cards, module → file | on demand |
+| L2 | `index.sqlite` — symbol/dep graph | per query |
+| L3 | **the source itself** | the only truth |
 
-- every card names the files it describes, with content hashes
-- drift is computed by re-hashing those files, not asserted
-- a stale card is a fact about bytes, not a vibe
-
----
-layout: default
----
-
-<Badge type="info">Claim 3 of 4</Badge>
-
-# The index is a cache; the cards are the artifact.
-
-- 48 `.yaml` cards are committed and reviewed like source
-- `index.sqlite` is gitignored — delete it, `kuda sync` rebuilds
-- a bad summary is a diff someone can reject
-
----
-layout: default
----
-
-<Badge type="info">Claim 4 of 4</Badge>
-
-# One binary speaks cli, mcp and acp.
-
-- same `kuda.toml`, same `.kuda/`, three entry points
-- mcp for tool-calling agents, acp for session drivers
-- no daemon, no server, no API key
-
----
-layout: section
----
-
-# II. The evidence
-
-One receipt per claim, in the same order.
+The index never replaces the code. It ends in it.
 
 ---
 layout: fact
 ---
 
-<Badge type="tip">Evidence 1</Badge>
+# 81 lines
 
-# 81
-
-lines of `.kuda/index.yaml` — the always-load card for
-20 crates and 8 194 lines of Rust
-
----
-layout: default
----
-
-<Badge type="tip">Evidence 2</Badge>
-
-# Each card names its files, and their hashes
+`.kuda/index.yaml` — the entire always-on memory of a
+20-crate, 8 194-line Rust workspace:
 
 ```yaml
-# .kuda/modules/kuda-core.yaml
+name: kuda
+purpose: '*A hippocampus for your codebase.*'
+modules: [kuda-core, kuda-extract, kuda-store, …]
+commands: [cargo check, cargo test --workspace]
+tree_digest: cd809e9c…
+```
+
+---
+layout: default
+---
+
+# Committed, not cached
+
+- cards are YAML in git — reviewed like source, in the diff they describe
+- a bad summary is a diff you reject
+- bounded by design: `api` capped at 40 symbols, L0 provenance =
+  manifests + `tree_digest` — even monorepo diffs stay reviewable
+- `index.sqlite` is gitignored; `kuda sync` rebuilds it
+
+---
+layout: default
+---
+
+# Staleness is measured, not promised
+
+```yaml
 provenance:
-  files:
-  - crates/kuda-core/Cargo.toml
-  - crates/kuda-core/src/lib.rs
-  hashes:
-  - 858a2d26…
-  - e218eed6…
+  files:      [crates/kuda-core/Cargo.toml, crates/kuda-core/src/lib.rs]
+  hashes:     [858a2d26…, e218eed6…]
   commit_sha: e360ec66…
+verify:       [crates/kuda-core/src/lib.rs]
 ```
 
-`kuda status` re-hashes those files; the argument is in `crates/kuda-core/src/lib.rs`.
+`kuda status` re-hashes the bytes — a stale card is a fact, not a vibe.
+Every card ends in `verify:`: what to open before acting on it.
 
 ---
 layout: default
 ---
 
-<Badge type="tip">Evidence 3</Badge>
+# Only drift costs
 
-# 48 files git carries; the cache is ignored
+- every file hashed, compared to the store — unchanged modules never re-parse
+- warm sync is sub-second; a changed file re-parses its own module only
+- the summarizer runs per-drift, never per-sync
+- deleted files and vanished modules are removed by the same diff
 
-```sh
-$ git ls-files .kuda | wc -l
-48
-$ git check-ignore .kuda/index.sqlite
-.kuda/index.sqlite
-```
+---
+layout: statement
+---
+
+# Memory built to be falsified.
+
+Provenance + `verify:` exist so anyone can re-check a card.
+`mimus audit` does it independently — no trust required.
 
 ---
 layout: default
 ---
 
-<Badge type="tip">Evidence 4</Badge>
+# One binary, no infra
 
-# Three surfaces, one binary
-
-| surface | entry point | what it exposes |
-| --- | --- | --- |
-| cli | `kuda <verb>` | sync, status, map, card, find, dependents, refs, watch |
-| mcp | `kuda mcp` | tools: `repo_card` `module_card` `find` `dependents` `status` `refs` |
-| acp | `kuda acp` | the session surface an agent driver talks to |
-
-All three read the same `.kuda/` and the same `kuda.toml`.
-
----
-layout: section
----
-
-# III. Try it
-
-Four commands, five minutes, one visible result.
+- `kuda <verb>` — sync, status, map, card, find, dependents, refs
+- `kuda mcp` — tool server · `kuda acp` — session surface, same `.kuda/`
+- card prose written by *your* agent over ACP — no API keys;
+  `template` fallback is deterministic
+- rust · typescript · python · go — a new language is a data file
 
 ---
 layout: default
 ---
 
-<Badge type="tip">Tutorial</Badge>
-
-# Four commands
+# Try it
 
 ```sh
 cargo install --git https://github.com/9aia/kuda kuda
-kuda init      # kuda.toml + .kuda/ skeleton
-kuda sync      # extract -> cards -> index
-kuda map       # the L0 card, ~1k tokens
+kuda init     # kuda.toml + .kuda/ skeleton
+kuda sync     # extract -> cards -> index
+kuda map      # the L0 card, ~1k tokens
 ```
 
----
-layout: default
----
-
-<Badge type="tip">Tutorial</Badge>
-
-# What you should see
-
-```text
-kuda.toml
-.kuda/
-  index.yaml      L0  — the whole repo, 81 lines
-  modules/        L1  — one card per crate (20)
-  files/          L1.5 — per-file cards (27)
-  index.sqlite    L2  — gitignored, rebuilt by `kuda sync`
-```
-
-Then `kuda status` tells you which cards drifted.
-
----
-layout: default
----
-
-# Where this sits
-
-| Layer | Repo | Role |
-| --- | --- | --- |
-| orchestration | peregrin | policy, campaigns, nodes |
-| sessions | sepia | one session IR, every agent |
-| execution | bupha | headless CI, latest-wins |
-| coordination | sturn | claims, WAL, topics |
-| verification | mimus | claims vs code |
-| intent | myco | tasks, handoffs |
-| memory | **kuda** | repo index, cards |
-| time | cicada | calendars as code |
-
-Above: `myco` (intent) · below: `cicada` (time) · `mimus` audits these cards.
+Then `kuda status` — and watch which cards drifted.
 
 ---
 layout: default
@@ -226,24 +174,10 @@ layout: default
 
 # Status — v0.1.0
 
-- works: the full CLI surface, plus `--workspace` multi-repo merges
-- agent surfaces: `kuda mcp` (six tools) and `kuda acp`
-- languages: rust, typescript, python, go — more = a `data/langs/` file
-- parked: `dist` releases — `cargo install --git` + the `v0.1.0` tag suffice (TODO.md)
-- agent-maintained — issues and PRs disabled; CI dogfooded
-
----
-layout: default
----
-
-# References
-
-- **Repository** — [github.com/9aia/kuda](https://github.com/9aia/kuda)
-- **Docs** — [9aia.com/kuda](https://9aia.com/kuda)
-- **The argument in code** — `crates/kuda-core/src/lib.rs`
-- **The committed cards** — `.kuda/index.yaml` and `.kuda/modules/`
-- **The auditor** — [mimus](https://github.com/9aia/mimus) trust-scores these cards
-- **Install** — `cargo install --git https://github.com/9aia/kuda kuda`
+- works: full CLI, mcp + acp surfaces, `--workspace` multi-repo merges
+- built the way it's meant to be used: agent-maintained, review on
+  branches, CI dogfooded — no PR queue by design
+- releases: `cargo install --git` + tags; `dist` parked deliberately
 
 ---
 layout: end
@@ -253,4 +187,4 @@ layout: end
 
 github.com/9aia/kuda · 9aia.com/kuda
 
-Index your repo, read the cards, diff the next sync.
+Read the cards. Diff the next sync.
