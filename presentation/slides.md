@@ -18,10 +18,10 @@ Repo memory for agent-driven workflows — bounded, provenanced, reviewable.
 9aia · 2026
 
 ---
-layout: statement
+layout: default
 ---
 
-Your agent re-explores the same codebase from zero, every session.
+# Every session starts from zero.
 
 - file walks and grep guesses burn the first tokens of every task
 - context windows fill with orientation, not the work itself
@@ -185,8 +185,7 @@ layout: default
 | memory | **kuda** | repo index, cards |
 | time | cicada | calendars as code |
 
-Above: `myco` (intent) — tasks and handoffs. Below: `cicada` (time).
-And `mimus` audits these cards — "kuda remembers; mimus doubts" (README).
+Above: `myco` · below: `cicada` · `mimus` audits these cards.
 
 ---
 layout: default
