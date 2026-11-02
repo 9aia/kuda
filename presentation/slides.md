@@ -21,6 +21,19 @@ Repo memory for agent-driven workflows — bounded, provenanced, reviewable.
 layout: default
 ---
 
+# Contents
+
+1. **The problem** — every session starts from zero
+2. **How it works** — crawl, compress, commit, serve
+3. **The mechanism** — tiers, provenance, ports
+4. **In practice** — the CLI, dogfooded on itself
+5. **Where it sits** — the 9aia stack
+6. **Status** — what ships today
+
+---
+layout: default
+---
+
 # Every session starts from zero.
 
 - file walks and grep guesses burn the first tokens of every task
