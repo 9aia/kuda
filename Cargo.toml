@@ -28,7 +28,7 @@ version = "0.1.0"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/9aia/kuda"
-description = "A hippocampus for your codebase — repo memory: index, query, verify"
+description = "Code-map engine — verified per-module cards agents read before code"
 
 # The profile that 'dist' will build with
 [profile.dist]

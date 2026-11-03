@@ -1,6 +1,6 @@
 [package]
 name = "kuda"
-description = "kuda — a hippocampus for your codebase: repo memory CLI"
+description = "kuda — code-map engine: verified per-module cards agents read before code"
 version.workspace = true
 edition.workspace = true
 license.workspace = true

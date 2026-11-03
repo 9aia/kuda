@@ -1,6 +1,6 @@
 # kuda
 
-*A hippocampus for your codebase.*
+*Code-map engine — verified per-module cards agents read before code.*
 
 Repo memory for agent-driven workflows. A single binary that crawls
 your repos and builds a compressed, freshness-tracked index — repo
