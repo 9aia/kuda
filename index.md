@@ -4,7 +4,7 @@ layout: home
 hero:
   name: kuda
   text: a hippocampus for your codebase
-  tagline: repo memory — compressed, freshness-tracked, queryable
+  tagline: Code-map engine — verified per-module cards agents read before code
   actions:
     - theme: brand
       text: Getting Started
