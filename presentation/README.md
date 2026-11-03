@@ -3,10 +3,10 @@
 Slidev deck for **kuda** — *a hippocampus for your codebase* — aimed at
 engineers evaluating repo-memory tooling.
 
-Sixteen slides in a claim-then-proof spine: four claims about what the tool
-does, each followed by the receipt that proves it (a measured number, a real
-card excerpt, a git command, a table of surfaces), then where it sits in the
-9aia stack, honest status, a four-command tutorial, and references.
+Fifteen slides, problem-first: agent amnesia and why every current fix
+rots differently → the indexing insight → the mechanism (tiers, committed
+cards, measured staleness, diff-driven sync) → falsifiability → a recorded
+terminal demo → honest status.
 
 ## Run
 
@@ -18,9 +18,17 @@ pnpm export           # PDF export
 
 ## Theme
 
-The deck uses `slidev-theme-9aia` (installed from
-`github:9aia/slidev-theme-9aia` in `package.json`) and sets `theme: 9aia`
-in the `slides.md` frontmatter. Layouts come from the theme (`cover`,
-`section`, `statement`, `fact`, `quote`, `end`) plus built-ins (`default`).
-To change the theme, update the dependency and the `theme:` key together;
-no local CSS is used — the theme owns the visual system.
+`slidev-theme-9aia` (from `github:9aia/slidev-theme-9aia` in
+`package.json`), set via `theme: 9aia` in the frontmatter. Local overrides
+live only in `style.css` (asciinema mount sizing + player theme skin).
+
+## Terminal demo
+
+Slide 13 plays `public/casts/terminal-demo.cast` through
+`slidev-addon-asciinema`. The player is pinned to `asciinema-player@3.4.0`
+in `pnpm-workspace.yaml` — 3.17's canvas renderer does not paint in this
+setup; 3.4's DOM renderer does.
+
+To re-record: script the session with `asciinema rec --cols 80 --rows 18`,
+emit ANSI colors on prompt lines (`\033[38;5;147m` is the deck's indigo),
+and overwrite the cast file.

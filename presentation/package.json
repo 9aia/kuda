@@ -9,6 +9,12 @@
   },
   "devDependencies": {
     "@slidev/cli": "^53.0.0",
+    "slidev-addon-asciinema": "^0.1.11",
     "slidev-theme-9aia": "github:9aia/slidev-theme-9aia"
+  },
+  "slidev": {
+    "addons": [
+      "slidev-addon-asciinema"
+    ]
   }
 }

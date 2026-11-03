@@ -66,12 +66,12 @@ layout: default
 
 # The ladder
 
-| tier | artifact | when it loads |
-| --- | --- | --- |
-| L0 | `.kuda/index.yaml` — repo card | ~1k tokens, every session |
-| L1 | `.kuda/modules/` + `.kuda/files/` — cards, module → file | on demand |
-| L2 | `index.sqlite` — symbol/dep graph | per query |
-| L3 | **the source itself** | the only truth |
+```mermaid
+flowchart LR
+  L0["<b>L0</b> · repo card<br/>~1k tokens, every session"] --> L1["<b>L1</b> · cards<br/>module → file, on demand"]
+  L1 --> L2["<b>L2</b> · symbol/dep graph<br/>per query, rebuildable"]
+  L2 --> L3["<b>L3</b> · the source<br/>the only truth"]
+```
 
 The index never replaces the code. It ends in it.
 
@@ -81,16 +81,37 @@ layout: fact
 
 # 81 lines
 
-`.kuda/index.yaml` — the entire always-on memory of a
-20-crate, 8 194-line Rust workspace:
+The entire always-on memory of a 20-crate, 8 194-line workspace:
+
+<div class="grid grid-cols-2 gap-5 text-left">
+<div>
 
 ```yaml
 name: kuda
-purpose: '*A hippocampus for your codebase.*'
-modules: [kuda-core, kuda-extract, kuda-store, …]
-commands: [cargo check, cargo test --workspace]
+purpose: 'a hippocampus for your codebase'
+modules: [kuda-core, kuda-extract, …]
+commands: [cargo check, cargo test]
 tree_digest: cd809e9c…
 ```
+
+`.kuda/index.yaml` — the L0 card
+
+</div>
+<div>
+
+```text
+.kuda/
+├── index.yaml     L0 — this card
+├── modules/       L1 — per crate (20)
+├── files/         L1 — per source file
+├── index.sqlite   L2 — gitignored
+└── meta.json
+```
+
+the whole memory, on disk
+
+</div>
+</div>
 
 ---
 layout: default
@@ -110,16 +131,37 @@ layout: default
 
 # Staleness is measured, not promised
 
+<div class="grid grid-cols-2 gap-6">
+<div>
+
 ```yaml
 provenance:
-  files:      [crates/kuda-core/Cargo.toml, crates/kuda-core/src/lib.rs]
+  files:      [crates/kuda-core/Cargo.toml, …]
   hashes:     [858a2d26…, e218eed6…]
   commit_sha: e360ec66…
 verify:       [crates/kuda-core/src/lib.rs]
 ```
 
-`kuda status` re-hashes the bytes — a stale card is a fact, not a vibe.
-Every card ends in `verify:`: what to open before acting on it.
+Every card ends in `verify:` — what to open before acting on it.
+
+</div>
+<div>
+
+```console
+$ kuda status
+drifted  kuda-core
+drifted  kuda-cards
+drifted  kuda-manifest
+…
+tree drifted (tree_digest mismatch)
+7 fresh, 13 drifted (HEAD 0c540dd)
+```
+
+`kuda status` re-hashes the bytes. A stale card
+is a fact, not a vibe.
+
+</div>
+</div>
 
 ---
 layout: default
@@ -157,16 +199,12 @@ layout: default
 layout: default
 ---
 
-# Try it
+# Try it — five minutes, one repo
 
-```sh
-cargo install --git https://github.com/9aia/kuda kuda
-kuda init     # kuda.toml + .kuda/ skeleton
-kuda sync     # extract -> cards -> index
-kuda map      # the L0 card, ~1k tokens
-```
+<Asciinema src="casts/terminal-demo.cast" :playerProps="{autoPlay: true, loop: true, fit: 'both', terminalFontSize: '17px', theme: '9aia'}" />
 
-Then `kuda status` — and watch which cards drifted.
+`cargo install --git https://github.com/9aia/kuda kuda` —
+edit a file, watch it drift, sync it fresh.
 
 ---
 layout: default

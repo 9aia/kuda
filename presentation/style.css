@@ -1,0 +1,22 @@
+/* asciinema mount node: the player's fit mode measures this element
+   and collapses without a definite box */
+[id="casts/terminal-demo.cast"] {
+  width: 820px;
+  height: 430px;
+  margin: 0 auto;
+  display: block;
+}
+
+/* asciinema-player 3.4 themes are rules on .asciinema-theme-<name>
+   .ap-terminal — border-color draws the terminal frame */
+.asciinema-theme-9aia .ap-terminal {
+  color: #deded6;
+  background-color: #161618;
+  border-color: #161618;
+}
+
+[id="casts/terminal-demo.cast"] .ap-wrapper,
+[id="casts/terminal-demo.cast"] .ap-player,
+[id="casts/terminal-demo.cast"] .ap-term {
+  background-color: #161618;
+}
