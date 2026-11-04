@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "slidev slides.md",
+    "dev": "slidev slides.md --port 13102",
     "build": "slidev build slides.md --base ./",
     "export": "slidev export slides.md"
   },
