@@ -36,7 +36,7 @@ per-node provenance.
   always-load blob: purpose, module map, commands, provenance.
 * **L1 module cards** (`.kuda/modules/*.yaml`) — fetched on
   demand when planning touches a module.
-* **L1.5 file cards** (`.kuda/files/<module>/*.yaml`) — per-source-file
+* **L1 file cards** (`.kuda/files/<module>/*.yaml`) — per-source-file
   `purpose` written by the semantic tier (opt-in,
   `[summarize] file_cards = true`). Files are chunked with a
   code-aware splitter (tree-sitter boundaries via text-splitter),
@@ -47,7 +47,7 @@ per-node provenance.
 * **L3** — the source itself. Memory is an index *into* code,
   never a replacement.
 
-Committed L0/L1/L1.5 + ignored L2 is deliberate: cards are reviewed
+Committed L0/L1 + ignored L2 is deliberate: cards are reviewed
 prose, the graph is derived state.
 
 ## Incremental sync

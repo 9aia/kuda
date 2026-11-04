@@ -501,7 +501,15 @@ Protocol notes:
 * session/request_permission from the agent is auto-answered
   with the first option — required, or the prompt deadlocks
 * Any ACP-capable agent works: `cline --acp`, `zed agent`,
-  `gemini --experimental-acp`, …
+  `gemini --experimental-acp`, `devin acp`, …
+* Prefer lightweight, no-tool agents for batch summarization:
+  heavyweight clients work but pay for a full agent stack per
+  spawn (`devin acp` boots the entire client + MCP servers), and
+  the card prompt needs no tools — a fast text model is enough
+* Reasoning-first agents may stream chain-of-thought ahead of the
+  reply — kuda drops `agent_thought_chunk` updates and reads only
+  the reply's final `purpose:`/`invariants:`/`notes:` block, so
+  monologue never reaches the card
 * Auth lives in the agent — kuda holds no keys
 * Agent failure → silent `template` fallback per module
 
@@ -534,7 +542,7 @@ per-drift, not per-sync.
 
 ## File-tier cards
 
-`file_cards = true` under `[summarize]` adds an L1.5 level: every
+`file_cards = true` under `[summarize]` adds a finer L1 granularity: every
 source file gets a `.kuda/files/<module>/<file>.yaml` card. Files
 are split into ~1.5k-char semantic chunks (tree-sitter aware via
 text-splitter), budgeted to ~14k chars per prompt, and each card
@@ -729,7 +737,7 @@ url: /kuda/reference/config.md
 |---|---|---|---|
 | `kind` | `string` | optional | "template" (deterministic, default) | "acp" (agent-spawned). "llm" is a backlog adapter — ACP is the semantic path. |
 | `acp_cmd` | `string` | optional | ACP agent command for kind="acp" — spawns per summarize. |
-| `file_cards` | `bool` | optional | L1.5 per-file cards — chunked agent summaries per source file. Opt-in: ~10-50x the prompt count of module cards, bounded by per-file hash-skip. |
+| `file_cards` | `bool` | optional | L1 per-file cards — chunked agent summaries per source file. Opt-in: ~10-50x the prompt count of module cards, bounded by per-file hash-skip. |
 | `provider` | `string` | optional | Provider id for the llm adapter; key resolves via secrets chain. |
 | `model` | `string` | optional | — |
 
@@ -914,7 +922,7 @@ per-node provenance.
   always-load blob: purpose, module map, commands, provenance.
 * **L1 module cards** (`.kuda/modules/*.yaml`) — fetched on
   demand when planning touches a module.
-* **L1.5 file cards** (`.kuda/files/<module>/*.yaml`) — per-source-file
+* **L1 file cards** (`.kuda/files/<module>/*.yaml`) — per-source-file
   `purpose` written by the semantic tier (opt-in,
   `[summarize] file_cards = true`). Files are chunked with a
   code-aware splitter (tree-sitter boundaries via text-splitter),
@@ -925,7 +933,7 @@ per-node provenance.
 * **L3** — the source itself. Memory is an index *into* code,
   never a replacement.
 
-Committed L0/L1/L1.5 + ignored L2 is deliberate: cards are reviewed
+Committed L0/L1 + ignored L2 is deliberate: cards are reviewed
 prose, the graph is derived state.
 
 ## Incremental sync

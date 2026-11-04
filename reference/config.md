@@ -35,7 +35,7 @@ url: /kuda/reference/config.md
 |---|---|---|---|
 | `kind` | `string` | optional | "template" (deterministic, default) | "acp" (agent-spawned). "llm" is a backlog adapter — ACP is the semantic path. |
 | `acp_cmd` | `string` | optional | ACP agent command for kind="acp" — spawns per summarize. |
-| `file_cards` | `bool` | optional | L1.5 per-file cards — chunked agent summaries per source file. Opt-in: ~10-50x the prompt count of module cards, bounded by per-file hash-skip. |
+| `file_cards` | `bool` | optional | L1 per-file cards — chunked agent summaries per source file. Opt-in: ~10-50x the prompt count of module cards, bounded by per-file hash-skip. |
 | `provider` | `string` | optional | Provider id for the llm adapter; key resolves via secrets chain. |
 | `model` | `string` | optional | — |
 

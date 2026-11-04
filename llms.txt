@@ -2,7 +2,7 @@
 
 > a hippocampus for your codebase
 
-repo memory — compressed, freshness-tracked, queryable
+Code-map engine — verified per-module cards agents read before code
 
 ## Table of Contents
 

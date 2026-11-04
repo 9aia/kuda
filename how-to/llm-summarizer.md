@@ -28,7 +28,15 @@ Protocol notes:
 * session/request_permission from the agent is auto-answered
   with the first option — required, or the prompt deadlocks
 * Any ACP-capable agent works: `cline --acp`, `zed agent`,
-  `gemini --experimental-acp`, …
+  `gemini --experimental-acp`, `devin acp`, …
+* Prefer lightweight, no-tool agents for batch summarization:
+  heavyweight clients work but pay for a full agent stack per
+  spawn (`devin acp` boots the entire client + MCP servers), and
+  the card prompt needs no tools — a fast text model is enough
+* Reasoning-first agents may stream chain-of-thought ahead of the
+  reply — kuda drops `agent_thought_chunk` updates and reads only
+  the reply's final `purpose:`/`invariants:`/`notes:` block, so
+  monologue never reaches the card
 * Auth lives in the agent — kuda holds no keys
 * Agent failure → silent `template` fallback per module
 
@@ -61,7 +69,7 @@ per-drift, not per-sync.
 
 ## File-tier cards
 
-`file_cards = true` under `[summarize]` adds an L1.5 level: every
+`file_cards = true` under `[summarize]` adds a finer L1 granularity: every
 source file gets a `.kuda/files/<module>/<file>.yaml` card. Files
 are split into ~1.5k-char semantic chunks (tree-sitter aware via
 text-splitter), budgeted to ~14k chars per prompt, and each card
