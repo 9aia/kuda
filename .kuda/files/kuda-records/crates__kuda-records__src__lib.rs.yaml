@@ -1,6 +1,6 @@
 path: crates/kuda-records/src/lib.rs
 module: kuda-records
-purpose: 'I’ll verify the schema-validation tests and remaining implementation details, then return the concise purpose statement.purpose: Implements the `records` extractor for descriptor-driven non-code corpora, turning regex capture-group matches into record symbols and reference edges. Walks declared roots, supports frontmatter and checklist records with scoped references, and validates TOML/YAML frontmatter against optional JSON Schemas while reporting non-fatal warnings. Also provides descriptor health checks and validation-only scans, with tests covering extraction, malformed patterns, absent roots, and schema failures.'
+purpose: '`RecordsExtractor` is the `records`-kind `Extractor` adapter that turns non-code record corpora (task ledgers, ADRs, handoffs) declared by `DomainDef` descriptors into `SymbolKind::Record` symbols plus `EdgeKind::References` dep-edges — frontmatter (`id = "T-001"`) and checklist (`- [ ] T-001`) records share one per-line capture-group-1 scan, with single-record files taking ref edges from the whole text and multi-record ledgers scoping each record''s refs to its own line. Also exposes `check` (compile-only descriptor health for `doctor`) and `validate` (warnings-only re-scan for `status`/`doctor`), parses `+++` toml / `---` yaml frontmatter into JSON for optional `schema_json` validation (invalid records stay indexed but emit `ExtractWarning`s; files without frontmatter skip silently), and walks declared roots past `.git`-file worktree markers while skipping fenced code blocks for record detection (refs inside fences still edge).'
 symbols:
 - RecordsExtractor
 - kind
@@ -27,7 +27,7 @@ provenance:
   files:
   - crates/kuda-records/src/lib.rs
   hashes:
-  - 25e857cdc7d6afdc2c02e06810452ea0560591a7
-  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
-  generated_at: '1793907315'
+  - 49e5c9bcad97a2c0926771f3b324e547830527ea
+  commit_sha: 31359c590116f2690b25b7e76f0fc5814ec3365b
+  generated_at: '1793909940'
   generator: kuda-acp/0.1.0

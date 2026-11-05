@@ -23,6 +23,8 @@ ref_pattern = "\\b[A-Z]+-[0-9]+\\b|\\b(?:kuda|myco|mimus|sturn|arca|bupha|peregr
 # JSON Schema (draft 2020-12) — frontmatter-bearing records must
 # carry `id` or `item`; status/priority are enum'd when present.
 # Invalid records stay indexed but land as card warnings.
+# priority accepts both `med` and `medium` — myco's CLI says med
+# but its emitter writes medium (I-001 filed upstream).
 schema_json = '''
 {
   "anyOf": [{"required": ["id"]}, {"required": ["item"]}],
@@ -32,7 +34,7 @@ schema_json = '''
     "title":    {"type": "string"},
     "status":   {"enum": ["open", "proposed", "claimed", "in-progress",
                           "blocked", "deferred", "done", "resolved", "closed"]},
-    "priority": {"enum": ["low", "med", "high", "crit"]},
+    "priority": {"enum": ["low", "med", "medium", "high", "crit"]},
     "owner":    {"type": "string"},
     "epic":     {"type": "string"},
     "milestone": {"type": "string"}

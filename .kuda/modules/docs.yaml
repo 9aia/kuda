@@ -1,6 +1,6 @@
 name: docs
 path: docs/package.json
-purpose: 'I’ll inspect the documentation’s navigation, generation scripts, and cross-cutting guidance to produce a grounded module card with only evident invariants and practical gotchas.purpose: User-facing documentation for kuda’s code-map engine, covering installation and indexing, architecture and releases, comparisons, and task guides for languages, record corpora, workspaces, summarizers, and agent integrations. Includes generators for configuration, crate API, and rustdoc-index documentation. invariants: - Cards are committed, provenance-checked artifacts whose `verify:` files must be consulted before acting; the source code remains the source of truth. - The SQLite L2 graph is gitignored, rebuildable derived state, while L0/L1 cards are committed. - Extraction is mechanical and rerunnable; incremental sync hashes inputs and reprocesses only drifted modules or files. - Language-specific extraction knowledge belongs in `data/langs/*.toml`; adding a compiled grammar requires a tree-sitter adapter registry entry. notes: - `docs/reference/config.md` is generated from config-struct doc comments by `gen-config-docs.py`; edit those comments rather than the generated page. - `gen-crate-map.py` regenerates both the architecture crate table and `reference/crate-api.md` from workspace Cargo manifests; run it from `docs/` or account for its relative output paths. - `gen-api-index.py` generates only the styled rustdoc landing page, not `reference/crate-api.md`. - Language descriptors are embedded at build time, so adding one requires rebuilding the CLI. - MCP and ACP are stdio JSON-RPC surfaces over the same `.kuda/` artifacts; MCP exposes tools, while ACP exposes a promptable agent. - ACP summarization falls back silently to deterministic templates per module on agent failure; provider and model settings are environment variables, not ACP CLI flags. - Multi-repo `dependents` merges workspace stores, but `find` and `refs` remain per-root and there is no aggregate workspace card. - The sturn WAL supplements rather than replaces filesystem hash diffing; writes bypassing sturn are still indexed. - The initial `kuda deploy release` publication is explicitly manual; subsequent releases are push-driven, latest-wins jobs.'
+purpose: 'notes: - `gen-config-docs.py` and `gen-crate-map.py` resolve the repo root via `KUDA_ROOT` env or `__file__/../..`; `gen-crate-map.py` writes `explanation/architecture.md` and `reference/crate-api.md` relative to CWD, so run it from `docs/`. - `gen-crate-map.py` hardcodes a `LAYER` map for port crates (`kuda-runner`, `kuda-tunnel`, `kuda-trigger`, `kuda-status`, `kuda-vcs`, `kuda-queue`, `kuda-service`, `kuda-secret`, `kuda-config`, `kuda-cache`); new port crates need an entry there or they sort as `impl`. - `gen-config-docs.py` only reads `crates/kuda-core/src/lib.rs` — adapter-crate config structs are not yet sourced (the `SRCS` map is the extension point). - `how-to/languages.md` and `how-to/domains.md` both end with "ship the descriptor + register it in code": languages register in the `kuda-treesitter::language()` match arm, domains register in `DOMAIN_TOMLS` in `crates/kuda-cli/src/main.rs` — both are build-time embedded, not runtime-discovered. - `how-to/llm-summarizer.md` documents the `acp` summarizer''s env-var contract (`CLINE_PROVIDER`/`CLINE_MODEL`, not `-P`/`-m`) and the auto-answer of `session/request_permission` — changing either breaks batch card generation. - `how-to/multi-repo.md` is explicit that there is no aggregate workspace card yet; readers compose one from `kuda map` per root. - `comparison.md` positions kuda against grep/RAG/LSP — keep it in sync when a new adapter (e.g. embeddings store) lands, since it currently lists fuzzy semantic lookup as "(optional store adapter later)". - `explanation/release-model.md` documents the two-phase release (manual `kuda deploy release` seed, then push-driven `scripts/release.sh`); the 5-minute sleep is the debounce window paired with `queue = "latest"` + `cancel_running` — don''t "fix" it as a hack.'
 api:
 - name: Command-Line Help for `kuda`
   kind: record
@@ -270,6 +270,8 @@ deps:
 - sister-lib
 - myco
 - docs
+- schema_json
+- module_card
 - DOMAIN_TOMLS
 - repo_card
 - module_card
@@ -285,19 +287,19 @@ deps:
 - refs
 - dependents
 notes: |
-  - Cards are committed, provenance-checked artifacts whose `verify:` files must be consulted before acting; the source code remains the source of truth.
-  - The SQLite L2 graph is gitignored, rebuildable derived state, while L0/L1 cards are committed.
-  - Extraction is mechanical and rerunnable; incremental sync hashes inputs and reprocesses only drifted modules or files.
-  - Language-specific extraction knowledge belongs in `data/langs/*.toml`; adding a compiled grammar requires a tree-sitter adapter registry entry.
-  - `docs/reference/config.md` is generated from config-struct doc comments by `gen-config-docs.py`; edit those comments rather than the generated page.
-  - `gen-crate-map.py` regenerates both the architecture crate table and `reference/crate-api.md` from workspace Cargo manifests; run it from `docs/` or account for its relative output paths.
-  - `gen-api-index.py` generates only the styled rustdoc landing page, not `reference/crate-api.md`.
-  - Language descriptors are embedded at build time, so adding one requires rebuilding the CLI.
-  - MCP and ACP are stdio JSON-RPC surfaces over the same `.kuda/` artifacts; MCP exposes tools, while ACP exposes a promptable agent.
-  - ACP summarization falls back silently to deterministic templates per module on agent failure; provider and model settings are environment variables, not ACP CLI flags.
-  - Multi-repo `dependents` merges workspace stores, but `find` and `refs` remain per-root and there is no aggregate workspace card.
-  - The sturn WAL supplements rather than replaces filesystem hash diffing; writes bypassing sturn are still indexed.
-  - The initial `kuda deploy release` publication is explicitly manual; subsequent releases are push-driven, latest-wins jobs.
+  - `reference/config.md`, `reference/crate-api.md`, and the crate-map table inside `explanation/architecture.md` are generated — never hand-edit; edit the source struct doc comments / Cargo.toml descriptions and re-run `docs/gen-config-docs.py` / `docs/gen-crate-map.py`.
+  - `docs/gen-api-index.py` writes `public/api/index.html` only; `reference/crate-api.md` is owned by `gen-crate-map.py` (the two generators must not both write it).
+  - Documentation claims must stay grounded in the shipped crates — `kuda-llm` is "planned/parked", `resolve_git_deps` records intent but the extractor tier hasn't landed, `find`/`refs` are per-root (only `dependents` merges across `--workspace`).
+  - Cards are hypotheses: every doc that shows a card or `module_card` response points the reader at the `verify:` file list and `kuda status` drift check.
+
+  - `gen-config-docs.py` and `gen-crate-map.py` resolve the repo root via `KUDA_ROOT` env or `__file__/../..`; `gen-crate-map.py` writes `explanation/architecture.md` and `reference/crate-api.md` relative to CWD, so run it from `docs/`.
+  - `gen-crate-map.py` hardcodes a `LAYER` map for port crates (`kuda-runner`, `kuda-tunnel`, `kuda-trigger`, `kuda-status`, `kuda-vcs`, `kuda-queue`, `kuda-service`, `kuda-secret`, `kuda-config`, `kuda-cache`); new port crates need an entry there or they sort as `impl`.
+  - `gen-config-docs.py` only reads `crates/kuda-core/src/lib.rs` — adapter-crate config structs are not yet sourced (the `SRCS` map is the extension point).
+  - `how-to/languages.md` and `how-to/domains.md` both end with "ship the descriptor + register it in code": languages register in the `kuda-treesitter::language()` match arm, domains register in `DOMAIN_TOMLS` in `crates/kuda-cli/src/main.rs` — both are build-time embedded, not runtime-discovered.
+  - `how-to/llm-summarizer.md` documents the `acp` summarizer's env-var contract (`CLINE_PROVIDER`/`CLINE_MODEL`, not `-P`/`-m`) and the auto-answer of `session/request_permission` — changing either breaks batch card generation.
+  - `how-to/multi-repo.md` is explicit that there is no aggregate workspace card yet; readers compose one from `kuda map` per root.
+  - `comparison.md` positions kuda against grep/RAG/LSP — keep it in sync when a new adapter (e.g. embeddings store) lands, since it currently lists fuzzy semantic lookup as "(optional store adapter later)".
+  - `explanation/release-model.md` documents the two-phase release (manual `kuda deploy release` seed, then push-driven `scripts/release.sh`); the 5-minute sleep is the debounce window paired with `queue = "latest"` + `cancel_running` — don't "fix" it as a hack.
 verify:
 - docs/package.json
 - docs/comparison.md
@@ -342,7 +344,7 @@ provenance:
   - 222808ea202bc00a67257777d283192f4becd81d
   - 05aeffc5c5c763616831677dc4a76b882025ee43
   - 48de4da88a8bb9cd7878747498464a1f67834ada
-  - af8312eb027182805467f1bd711d99122826d414
+  - dd56394ec53d7e5d691e1679ed09ea5c4b9557e3
   - 7ed659c545f6940b636aa926ccfb157b78f8ce96
   - feff0b0a855207cb53131fcb68e4f55261956737
   - d57d33f2fce46ac76d1e7bdb7161f4dbcca418db
@@ -356,6 +358,6 @@ provenance:
   - 86f4771e3274b5299e7c9bcadf3c8db3e75885b6
   - 2f6e3dd3ee0d114def08a696c982ae7708f55e47
   - 28d2ef76304e27db4eba1f66c93465d248f39bdd
-  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
-  generated_at: '1793907315'
+  commit_sha: 31359c590116f2690b25b7e76f0fc5814ec3365b
+  generated_at: '1793909940'
   generator: kuda-acp/0.1.2

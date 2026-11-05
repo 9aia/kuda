@@ -1,6 +1,6 @@
 name: project
 path: project/BACKLOG.md
-purpose: 'I’ll read the ledger, backlog, ADRs, index, and archived handoffs to distinguish current work from historical records and capture the project corpus’s operational conventions.purpose: Myco work ledger for kuda’s planning and design history, covering 0.1.0 tasks, longer-term backlog, architecture decisions, and archived handoffs. Tracks the tiered memory and ports/adapters design plus descriptor-driven indexing of record corpora. invariants: - Memory is an index into source, not a second source of truth; cards carry provenance and `verify:` file lists for source checking. - L0/L1 YAML cards are committed artifacts, while the rebuildable SQLite L2 graph is gitignored. - Extraction and summarization compose through ports and adapters, with deterministic template summarization as the default. - Language and domain knowledge lives in descriptors rather than engine-specific code. - Workspace record/code edges resolve across a logical union of modules while stores remain federated per repository root. notes: - `TODO.md` is the 0.1.0 checklist and `BACKLOG.md` contains unscheduled 0.2+ ideas; unchecked historical items should not be treated as proof that corresponding code is absent. - Both ADRs are marked proposed/open even though ADR-0003 says its domain-records design was implemented on `feat/domain-records`. - ADR-0003 was numbered 0003 rather than 0002 because of the metadata counter, as recorded in archived handoff T-029. - T-029 leaves repo-local `[domains]` overrides, non-tree corpus sources, and record-to-module edges open; its addendum nevertheless documents org-name references converging with code dependencies. - Archived T-027 records upstream slide-theme fixes, while current T-026 still requires presentation verification and integration through the sturn flow. - The project index links ADR-0001 but not ADR-0003 or the archived handoffs.'
+purpose: 'notes: - No PRs in this repo: the pushed branch/commit is the deliverable (sturn flow); T-026''s deck on `presentation/initial` (e1844e5) still fails verification and needs a repair/verify pass before merge. - T-028''s agent-awareness block text is already deployed to the 6 `.kuda`-wired repos, but `kuda init` writing the `<!-- kuda:agent-awareness -->` block and freshness validation in `status`/`check` are still open. - Issue I-001: myco emits `priority=medium` but the CLI enum is `low|med|high|crit` — normalize the emitter to `med`; the kuda schema accepts both for now (visible in this corpus''s own frontmatter). - T-025 is a recovered stale-claim task: `.kuda/modules/Cargo.toml.yaml` cites a missing `Cargo.toml`; recovered from dead sessions. - Record scan skips fenced code blocks so H1-looking `#` comments in samples don''t become records; `ref_pattern` capture group 1 is the edge target (ADR-0003 addendum). - Workspace sync resolves edge targets against the union of all roots'' modules; stores are federated per-root, merged at read time — the union graph is logical, not physical. - T-011 (.hnl descriptor) is blocked on a tree-sitter-handl grammar existing or being written; the descriptor itself is just data.'
 api:
 - name: ADR-0001
   kind: record
@@ -10,6 +10,11 @@ api:
 - name: ADR-0003
   kind: record
   file: project/adrs/0003-domain-descriptors-record-corpora-as-indexable-data.md
+  line: 2
+  module: project
+- name: I-001
+  kind: record
+  file: project/issues/issue-0001-myco-emits-priority-medium-in-frontmatter-but-cli-enum-is-low-med-high-crit-normalize-emitter-to-med-kuda-schema-accepts-both-for-now.md
   line: 2
   module: project
 - name: T-001
@@ -202,23 +207,24 @@ deps:
 - kuda
 - malurus
 - T-027
+- myco
+- kuda
 - ADR-0003
 - sturn
-warnings:
-- 'project/adrs/0001-adr-0001-tiered-memory-artifacts-ports-adapters-topology.md: schema: "medium" is not one of "low", "med" or 2 other candidates'
-- 'project/adrs/0003-domain-descriptors-record-corpora-as-indexable-data.md: schema: "medium" is not one of "low", "med" or 2 other candidates'
 notes: |
-  - Memory is an index into source, not a second source of truth; cards carry provenance and `verify:` file lists for source checking.
-  - L0/L1 YAML cards are committed artifacts, while the rebuildable SQLite L2 graph is gitignored.
-  - Extraction and summarization compose through ports and adapters, with deterministic template summarization as the default.
-  - Language and domain knowledge lives in descriptors rather than engine-specific code.
-  - Workspace record/code edges resolve across a logical union of modules while stores remain federated per repository root.
-  - `TODO.md` is the 0.1.0 checklist and `BACKLOG.md` contains unscheduled 0.2+ ideas; unchecked historical items should not be treated as proof that corresponding code is absent.
-  - Both ADRs are marked proposed/open even though ADR-0003 says its domain-records design was implemented on `feat/domain-records`.
-  - ADR-0003 was numbered 0003 rather than 0002 because of the metadata counter, as recorded in archived handoff T-029.
-  - T-029 leaves repo-local `[domains]` overrides, non-tree corpus sources, and record-to-module edges open; its addendum nevertheless documents org-name references converging with code dependencies.
-  - Archived T-027 records upstream slide-theme fixes, while current T-026 still requires presentation verification and integration through the sturn flow.
-  - The project index links ADR-0001 but not ADR-0003 or the archived handoffs.
+  - Cards are committed artifacts (`.kuda/index.yaml`, `.kuda/modules/*.yaml`); `.kuda/index.sqlite` is gitignored and rebuildable — `kuda init`/`sync` must auto-append it to `.gitignore` (T-009).
+  - Every card ends with a `verify:` file list and carries provenance `{files, content_hash, commit_sha}`; `kuda status` reports drift as a sha diff vs HEAD.
+  - Per-language and per-domain knowledge is data (`data/langs/*`, `data/domains/*`), never extractor code — a new language/corpus is a descriptor change, not a release (ADR-0001, ADR-0003).
+  - The `template` summarizer (zero-model, deterministic) is the default; LLM prose is an adapter behind the summarize port.
+  - Engines compose through artifacts only — kuda has no code dependency on myco/sturn; the descriptor carries the format knowledge (ADR-0003).
+
+  - No PRs in this repo: the pushed branch/commit is the deliverable (sturn flow); T-026's deck on `presentation/initial` (e1844e5) still fails verification and needs a repair/verify pass before merge.
+  - T-028's agent-awareness block text is already deployed to the 6 `.kuda`-wired repos, but `kuda init` writing the `<!-- kuda:agent-awareness -->` block and freshness validation in `status`/`check` are still open.
+  - Issue I-001: myco emits `priority=medium` but the CLI enum is `low|med|high|crit` — normalize the emitter to `med`; the kuda schema accepts both for now (visible in this corpus's own frontmatter).
+  - T-025 is a recovered stale-claim task: `.kuda/modules/Cargo.toml.yaml` cites a missing `Cargo.toml`; recovered from dead sessions.
+  - Record scan skips fenced code blocks so H1-looking `#` comments in samples don't become records; `ref_pattern` capture group 1 is the edge target (ADR-0003 addendum).
+  - Workspace sync resolves edge targets against the union of all roots' modules; stores are federated per-root, merged at read time — the union graph is logical, not physical.
+  - T-011 (.hnl descriptor) is blocked on a tree-sitter-handl grammar existing or being written; the descriptor itself is just data.
 verify:
 - project/BACKLOG.md
 - project/TODO.md
@@ -227,6 +233,7 @@ verify:
 - project/handoffs/archive/T-027.md
 - project/handoffs/archive/T-029.md
 - project/index.md
+- project/issues/issue-0001-myco-emits-priority-medium-in-frontmatter-but-cli-enum-is-low-med-high-crit-normalize-emitter-to-med-kuda-schema-accepts-both-for-now.md
 provenance:
   files:
   - project/BACKLOG.md
@@ -236,6 +243,7 @@ provenance:
   - project/handoffs/archive/T-027.md
   - project/handoffs/archive/T-029.md
   - project/index.md
+  - project/issues/issue-0001-myco-emits-priority-medium-in-frontmatter-but-cli-enum-is-low-med-high-crit-normalize-emitter-to-med-kuda-schema-accepts-both-for-now.md
   hashes:
   - 6b4609cf8d307865615fd108300b69ef5d514c0a
   - 18465d7714fe7592b65a12da57e8069a22aa870f
@@ -244,6 +252,7 @@ provenance:
   - 9f3779ae765d34171c9fb02b6644265a8cca8f91
   - 34f59afdfb337b361448d92a7290451f3ac36b6a
   - a9cbb363e46c66216b83994b2dba52c063dd59db
-  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
-  generated_at: '1793907315'
+  - 5b1a2edf5787fb263cdc54796ce6a5395bdf01fd
+  commit_sha: 31359c590116f2690b25b7e76f0fc5814ec3365b
+  generated_at: '1793910109'
   generator: kuda-acp/0.1.2
