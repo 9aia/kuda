@@ -52,3 +52,18 @@ marker (myco's `project/` is one).
 - Deferred: repo-local descriptor overrides (`[domains]` config),
   non-tree corpus sources (git refs / sqlite — sturn's WAL),
   record -> code-module edges.
+
+## Addendum — the union graph (same change set, round 2)
+
+- `docs` domain added (H1 titles = records, backticked idents =
+  edges); `myco` ref_pattern also captures org engine names, so
+  `dependents kuda-lsp` converges PackageDep + task + doc edges.
+- Workspace sync resolves edge targets against the **union of all
+  roots' modules** (manifest pre-pass per root — cheap). Cross-repo
+  edges now land on canonical spellings.
+- Store decision: **federated per-root stores, not a shared
+  store.** Queries already merge roots at read time, so the union
+  graph is logical, not physical — no new consistency surface.
+- Record scan skips fenced code blocks (H1-looking `#` comments
+  in samples must not become records); ref_pattern honors capture
+  group 1 for edge targets.
