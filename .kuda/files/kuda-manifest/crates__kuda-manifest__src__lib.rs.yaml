@@ -1,6 +1,6 @@
 path: crates/kuda-manifest/src/lib.rs
 module: kuda-manifest
-purpose: crates/kuda-manifest/src/lib.rs
+purpose: Manifest extractor adapter (kind `"manifest"`) — walks the repo for manifest basenames declared by `LangDef` entries and emits one `SymbolKind::Module` symbol per manifest (package name, or dir/manifest-name fallback) plus `EdgeKind::PackageDep` edges, with no parser or language knowledge beyond per-format readers. Supports Cargo.toml (package renames win; optional `git =` dep resolution to repo basename for sibling workspaces), package.json, pyproject.toml (PEP 621, Poetry incl. groups, PEP 735 dependency-groups), setup.py (`name=` scan only), and go.mod; skips excluded dirs and `.git`-file worktrees, and still emits a module symbol for unparsable manifests.
 symbols:
 - ManifestExtractor
 - kind
@@ -14,6 +14,11 @@ symbols:
 - package_json
 - go_mod
 - tests
+- tmp
+- rust_lang
+- extract_walks_tree_and_names_modules
+- extract_root_manifest_falls_back_to_manifest_name
+- parse_manifest_edge_cases
 - pep508_strips_extras_markers_and_versions
 - pyproject_pep621
 - pyproject_poetry
@@ -26,7 +31,7 @@ provenance:
   files:
   - crates/kuda-manifest/src/lib.rs
   hashes:
-  - 33ad8e16633e164ace719456d0d3bb57c6090bcd
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
+  - 324f54fc02d7ba653ee0b7167ced3063c6da3dee
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
   generator: kuda-acp/0.1.0

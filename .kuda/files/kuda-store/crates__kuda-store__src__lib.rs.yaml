@@ -1,6 +1,6 @@
 path: crates/kuda-store/src/lib.rs
 module: kuda-store
-purpose: crates/kuda-store/src/lib.rs
+purpose: 'Store port for kuda''s L2 index persistence: the `IndexStore` trait (`Send + Sync`) covering module-keyed incremental writes (`replace_module` for symbols + outgoing edges, `record_files` for per-file content hashes), query reads (`find` exact, `search` substring, `dependents` reverse-edge lookup, `modules`, `edge_count` to distinguish "no dependents" from "no edge data"), and provenance metadata (`set_meta`/`meta`, `file_hashes` as the incremental-extraction diff surface). The store is rebuildable — never the source of truth; the implementation is `kuda-store-sqlite`, with redb/remote/embedding stores as future adapter crates.'
 symbols:
 - IndexStore
 provenance:
@@ -8,6 +8,6 @@ provenance:
   - crates/kuda-store/src/lib.rs
   hashes:
   - 3aadff00b7766196f8dcc0eccd98ec86b1fa5a9f
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
   generator: kuda-acp/0.1.0

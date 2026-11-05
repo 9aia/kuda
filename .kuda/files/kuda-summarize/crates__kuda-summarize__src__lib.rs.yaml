@@ -1,6 +1,6 @@
 path: crates/kuda-summarize/src/lib.rs
 module: kuda-summarize
-purpose: crates/kuda-summarize/src/lib.rs
+purpose: 'Summarize port for kuda: the `Summarizer` trait (`Send + Sync`) turning an `Extraction` into a `ModuleCard`, with `kind()` matched against `summarize.kind` in kuda.toml and provenance composed by the caller (which owns sha/hash bookkeeping). Cards must end in `verify:` file lists — memory is a hypothesis, not truth; implementations are `kuda-template` (deterministic default) and `kuda-llm` (prose, provider-pluggable).'
 symbols:
 - Summarizer
 provenance:
@@ -8,6 +8,6 @@ provenance:
   - crates/kuda-summarize/src/lib.rs
   hashes:
   - c39be362ce68f67043930e8b2a69ca1ada4ab670
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
   generator: kuda-acp/0.1.0

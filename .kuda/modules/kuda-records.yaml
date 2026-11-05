@@ -1,0 +1,96 @@
+name: kuda-records
+path: crates/kuda-records/Cargo.toml
+purpose: Records extractor adapter (kind `"records"`) — turns non-code record corpora (tasks, ADRs, issues) into `SymbolKind::Record` symbols and `EdgeKind::References` edges, with all format knowledge living in `DomainDef` regex data rather than code. One per-line capture-group-1 scan covers both frontmatter (`id = "T-001"`) and checklist (`- [ ] T-001`) records.
+api:
+- name: Compiled
+  kind: type
+  file: crates/kuda-records/src/lib.rs
+  line: 37
+  module: kuda-records
+- name: RecordsExtractor
+  kind: type
+  file: crates/kuda-records/src/lib.rs
+  line: 15
+  module: kuda-records
+- name: absent_root_and_bad_regex
+  kind: function
+  file: crates/kuda-records/src/lib.rs
+  line: 257
+  module: kuda-records
+- name: compile
+  kind: function
+  file: crates/kuda-records/src/lib.rs
+  line: 42
+  module: kuda-records
+- name: extract
+  kind: function
+  file: crates/kuda-records/src/lib.rs
+  line: 25
+  module: kuda-records
+- name: extracts_frontmatter_and_checklist_records
+  kind: function
+  file: crates/kuda-records/src/lib.rs
+  line: 197
+  module: kuda-records
+- name: kind
+  kind: function
+  file: crates/kuda-records/src/lib.rs
+  line: 21
+  module: kuda-records
+- name: kuda-records
+  kind: module
+  file: crates/kuda-records/Cargo.toml
+  line: 1
+  module: kuda-records
+- name: myco
+  kind: function
+  file: crates/kuda-records/src/lib.rs
+  line: 181
+  module: kuda-records
+- name: scan_file
+  kind: function
+  file: crates/kuda-records/src/lib.rs
+  line: 113
+  module: kuda-records
+- name: tests
+  kind: module
+  file: crates/kuda-records/src/lib.rs
+  line: 170
+  module: kuda-records
+- name: tmp
+  kind: function
+  file: crates/kuda-records/src/lib.rs
+  line: 174
+  module: kuda-records
+- name: walk_corpus
+  kind: function
+  file: crates/kuda-records/src/lib.rs
+  line: 66
+  module: kuda-records
+deps:
+- kuda-core
+- kuda-extract
+- regex
+- kuda-core
+- kuda-extract
+notes: |
+  - Reference-edge scope depends on record count: single-record files take edges from the whole text; multi-record files (checklists) scope each record's refs to its own line — otherwise every task would edge to every mentioned id.
+  - Declared corpus roots are walked even when they carry a `.git`-file worktree marker (declaring the root is the intent — myco's `project/` is exactly such a worktree), unlike the shared repo walk.
+  - A corpus root absent on disk is a silent skip, not an error; a bad regex in a descriptor is a hard compile error naming the domain and pattern.
+  - First match wins per record id per file, and the symbol's line pins where the id first appears (1-based); one pattern match per line is enough (loop breaks).
+  - Self-referencing edges ARE emitted here (e.g. ADR-0001 → ADR-0001) — sync's retain drops them downstream, so don't "fix" them at this layer.
+  - Files with no record matches contribute nothing (not even to `Extraction.files`); only files matching the descriptor's extensions under declared roots are scanned, with `dir_excluded` (built-ins + `[extract] exclude`) applied to subdirectories.
+  - `RecordsExtractor { excludes, domains }` ignores `LangDef`s entirely — adding a corpus is a new `data/domains/*` descriptor, not a code change.
+verify:
+- crates/kuda-records/Cargo.toml
+- crates/kuda-records/src/lib.rs
+provenance:
+  files:
+  - crates/kuda-records/Cargo.toml
+  - crates/kuda-records/src/lib.rs
+  hashes:
+  - 9acbd7c6d35d0ce10af2fa065bd9fc17748373c5
+  - 2e42eaf516a0921bed837f88016b2f4b643aeddb
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
+  generator: kuda-acp/0.1.2

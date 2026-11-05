@@ -1,11 +1,16 @@
 name: kuda-config-toml
 path: crates/kuda-config-toml/Cargo.toml
-purpose: 'Config adapter: kuda.toml file (explicit path, env, ./, ~/.config)'
+purpose: 'TOML adapter implementing the `ConfigSource` port: `TomlSource { path: Option<String> }` resolves and deserializes `kuda.toml` into `kuda_core::Config`. Integration tests cover every resolution arm and error class (env var, explicit path, cwd fallback, parse/read/missing errors).'
 api:
 - name: CFG
   kind: const
   file: crates/kuda-config-toml/tests/load.rs
-  line: 8
+  line: 12
+  module: kuda-config-toml
+- name: LOCK
+  kind: const
+  file: crates/kuda-config-toml/tests/load.rs
+  line: 10
   module: kuda-config-toml
 - name: TomlSource
   kind: type
@@ -15,7 +20,12 @@ api:
 - name: explicit_path_and_missing_error
   kind: function
   file: crates/kuda-config-toml/tests/load.rs
-  line: 34
+  line: 39
+  module: kuda-config-toml
+- name: home_fallback_when_unset
+  kind: function
+  file: crates/kuda-config-toml/tests/load.rs
+  line: 110
   module: kuda-config-toml
 - name: kuda-config-toml
   kind: module
@@ -30,20 +40,34 @@ api:
 - name: loads_via_env_var
   kind: function
   file: crates/kuda-config-toml/tests/load.rs
-  line: 18
+  line: 22
+  module: kuda-config-toml
+- name: parse_error_and_dotfile_fallback
+  kind: function
+  file: crates/kuda-config-toml/tests/load.rs
+  line: 57
   module: kuda-config-toml
 - name: tmp
   kind: function
   file: crates/kuda-config-toml/tests/load.rs
   line: 4
   module: kuda-config-toml
+- name: unreadable_config_is_a_read_error
+  kind: function
+  file: crates/kuda-config-toml/tests/load.rs
+  line: 94
+  module: kuda-config-toml
 deps:
 - kuda-config
 - kuda-core
 - toml
 - kuda-config
-- kuda-config-toml
-notes: ''
+notes: |
+  - Resolution order is fixed: explicit `--config` path → `$KUDA_CONFIG` → `./kuda.toml` → `~/.config/kuda/kuda.toml`; an explicit path or env var short-circuits the default search (single candidate).
+  - The first EXISTING candidate is loaded — a malformed or unreadable file yields an error prefixed with its path (`parse <path>:` / `read <path>:`), never a silent skip to the next candidate.
+  - No config anywhere returns `Err("no kuda.toml found …")`; falling back to defaults is the caller's decision, not the adapter's.
+  - `$HOME` unset falls back to `.` when building the `~/.config/kuda/kuda.toml` candidate, so the search still completes rather than panicking.
+  - Tests mutate process-global env (`KUDA_CONFIG`, `HOME`) and cwd, so they serialize through a shared `LOCK` mutex (poison-tolerant via `into_inner`) and restore prior values; the unreadable-file test is unix-only (chmod 0o000).
 verify:
 - crates/kuda-config-toml/Cargo.toml
 - crates/kuda-config-toml/src/lib.rs
@@ -56,7 +80,7 @@ provenance:
   hashes:
   - 69539d90b1b9cce1264bb96925db8212817849fa
   - b12116b476081aedcaf4ea623af3ff70bc65999c
-  - 6f5371079a853f0282a1e9ce5afa661fcd1d1bcf
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
-  generator: kuda-template/0.1.2
+  - e61f26303098c6a88c012a302d72e995dfb20f48
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
+  generator: kuda-acp/0.1.2

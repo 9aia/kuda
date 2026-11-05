@@ -1,6 +1,6 @@
 name: kuda-git
 path: crates/kuda-git/Cargo.toml
-purpose: 'Vcs adapter: git via the git CLI'
+purpose: Git adapter of the `Vcs` port — a zero-state `GitVcs` struct that shells out to the `git` binary (`git -C <repo> …`) for head-sha lookup, fetch, commit existence, worktree management, and tag create/push. The integration test exercises all operations plus failure paths against a real temp-dir repo.
 api:
 - name: GitVcs
   kind: type
@@ -74,9 +74,13 @@ api:
   module: kuda-git
 deps:
 - kuda-vcs
-- kuda-git
 - kuda-vcs
-notes: ''
+notes: |
+  - Every operation is total: failures (non-repo, bogus sha, no remote, git missing from PATH) return `false`/`None` — never panic or propagate errors (regression-tested).
+  - Worktrees are added `--detach`ed at the given sha and removed with `--force`.
+  - Child stdout/stderr are inherited rather than captured (except `head_sha`, which trims captured stdout), so git's own messages leak to the caller's terminal; `git()` collapses spawn errors and non-zero exits into one bool.
+  - `sync` is just `fetch origin --prune` and `push_tag` pushes to `origin` — both fail (false) on repos without that remote; tags are checked via `rev-parse -q --verify refs/tags/<tag>`.
+  - The test deliberately mutates `PATH` to simulate a missing git binary, which is why the whole suite is one test function (avoids env races with parallel test threads).
 verify:
 - crates/kuda-git/Cargo.toml
 - crates/kuda-git/src/lib.rs
@@ -89,7 +93,7 @@ provenance:
   hashes:
   - 04bbffa2faf364409f943e06689f50fb83b2e6c4
   - 5b88b309efeef08b79d6da453518e135f13217d3
-  - 28459ad1496a8040109c9957bc1d88ef05b53911
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
-  generator: kuda-template/0.1.2
+  - 932b6caad8da944b94e44c92de745af188fed6f5
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
+  generator: kuda-acp/0.1.2

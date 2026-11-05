@@ -1,6 +1,6 @@
 path: crates/kuda-cards/src/lib.rs
 module: kuda-cards
-purpose: crates/kuda-cards/src/lib.rs
+purpose: 'Card serialization layer between kuda-core domain types and the committed `.kuda/*.yaml` artifacts: `RepoCard` ↔ `.kuda/index.yaml` (L0 always-load), `ModuleCard` ↔ `.kuda/modules/<name>.yaml`, and `FileCard` ↔ `.kuda/files/<module>/<file>.yaml` (L1). Thin serde_yaml render/parse wrappers (errors stringified) through which machine fields and the human-owned `notes:` region round-trip.'
 symbols:
 - render_repo_card
 - parse_repo_card
@@ -12,7 +12,7 @@ provenance:
   files:
   - crates/kuda-cards/src/lib.rs
   hashes:
-  - a0818022d3de6360d0fca779bf0f16ea13661d21
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
+  - ac8ed078ee86cd1b6b087cf3ed964eb76366546a
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
   generator: kuda-acp/0.1.0

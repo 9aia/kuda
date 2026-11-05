@@ -1,7 +1,8 @@
 //! Extract port — pull symbols/edges/structure out of source trees.
 //! Impls: `kuda-manifest` (manifests -> package graph, no parser),
-//! `kuda-treesitter` (grammar+query data), `kuda-lsp` (server-backed).
-//! New extractor = new adapter crate; new language = data file.
+//! `kuda-treesitter` (grammar+query data), `kuda-lsp` (server-backed),
+//! `kuda-records` (domain-corpus descriptors -> record ids + refs).
+//! New extractor = new adapter crate; new language/domain = data file.
 
 use kuda_core::{DepEdge, LangDef, Symbol};
 use std::path::{Path, PathBuf};
@@ -62,9 +63,7 @@ mod tests {
         let x = Stub;
         assert_eq!(x.kind(), "stub");
         let files = std::collections::HashSet::from([PathBuf::from("f")]);
-        let e = x
-            .extract_filtered(Path::new("."), &[], &files)
-            .unwrap();
+        let e = x.extract_filtered(Path::new("."), &[], &files).unwrap();
         assert_eq!(e.symbols.len(), 1);
     }
 }

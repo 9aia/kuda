@@ -1,48 +1,143 @@
 name: kuda-query
 path: crates/kuda-query/Cargo.toml
-purpose: Query engine — find/dependents/card/refs over the index
+purpose: Thin agent-facing query engine over the `IndexStore` port — `find` (exact symbol lookup), `search` (substring fuzzy tier), `dependents` (impact analysis), `edge_count`, `module_symbols`, and `modules`. Filtering/formatting lives here; storage stays behind the port, and unit tests drive an in-memory `MockStore` through every function.
 api:
+- name: MockStore
+  kind: type
+  file: crates/kuda-query/src/lib.rs
+  line: 70
+  module: kuda-query
 - name: dependents
   kind: function
   file: crates/kuda-query/src/lib.rs
   line: 21
   module: kuda-query
+- name: dependents
+  kind: function
+  file: crates/kuda-query/src/lib.rs
+  line: 108
+  module: kuda-query
+- name: dependents_drops_self_edges
+  kind: function
+  file: crates/kuda-query/src/lib.rs
+  line: 199
+  module: kuda-query
+- name: dependents_expands_variants_and_dedupes
+  kind: function
+  file: crates/kuda-query/src/lib.rs
+  line: 181
+  module: kuda-query
 - name: edge_count
   kind: function
   file: crates/kuda-query/src/lib.rs
-  line: 36
+  line: 43
+  module: kuda-query
+- name: edge_count
+  kind: function
+  file: crates/kuda-query/src/lib.rs
+  line: 130
+  module: kuda-query
+- name: file_hashes
+  kind: function
+  file: crates/kuda-query/src/lib.rs
+  line: 139
   module: kuda-query
 - name: find
   kind: function
   file: crates/kuda-query/src/lib.rs
   line: 9
   module: kuda-query
+- name: find
+  kind: function
+  file: crates/kuda-query/src/lib.rs
+  line: 88
+  module: kuda-query
+- name: find_search_modules_edge_count
+  kind: function
+  file: crates/kuda-query/src/lib.rs
+  line: 162
+  module: kuda-query
 - name: kuda-query
   kind: module
   file: crates/kuda-query/Cargo.toml
   line: 1
   module: kuda-query
+- name: meta
+  kind: function
+  file: crates/kuda-query/src/lib.rs
+  line: 136
+  module: kuda-query
 - name: module_symbols
   kind: function
   file: crates/kuda-query/src/lib.rs
-  line: 41
+  line: 48
+  module: kuda-query
+- name: module_symbols_filters_by_module
+  kind: function
+  file: crates/kuda-query/src/lib.rs
+  line: 221
   module: kuda-query
 - name: modules
   kind: function
   file: crates/kuda-query/src/lib.rs
-  line: 51
+  line: 58
+  module: kuda-query
+- name: modules
+  kind: function
+  file: crates/kuda-query/src/lib.rs
+  line: 118
+  module: kuda-query
+- name: record_files
+  kind: function
+  file: crates/kuda-query/src/lib.rs
+  line: 142
+  module: kuda-query
+- name: remaining_port_methods_called
+  kind: function
+  file: crates/kuda-query/src/lib.rs
+  line: 241
+  module: kuda-query
+- name: replace_module
+  kind: function
+  file: crates/kuda-query/src/lib.rs
+  line: 76
   module: kuda-query
 - name: search
   kind: function
   file: crates/kuda-query/src/lib.rs
   line: 14
   module: kuda-query
+- name: search
+  kind: function
+  file: crates/kuda-query/src/lib.rs
+  line: 98
+  module: kuda-query
+- name: set_meta
+  kind: function
+  file: crates/kuda-query/src/lib.rs
+  line: 133
+  module: kuda-query
+- name: sym
+  kind: function
+  file: crates/kuda-query/src/lib.rs
+  line: 151
+  module: kuda-query
+- name: tests
+  kind: module
+  file: crates/kuda-query/src/lib.rs
+  line: 63
+  module: kuda-query
 deps:
 - kuda-core
 - kuda-store
 - kuda-core
 - kuda-store
-notes: ''
+notes: |
+  - `dependents` expands dash/underscore spellings via `module_variants` so `use foo_bar` edges answer `dependents foo-bar`, deduping identical (from, to, kind) rows reached through multiple spellings.
+  - Self-edges never surface in `dependents` — dropped at read time by comparing `module_key(from) == module_key(to)`, defense-in-depth for indexes written before the write-time filter.
+  - `edge_count == 0` means "no dep data", NOT "no dependents" — callers must report the difference honestly.
+  - `module_symbols` is implemented as `store.find(module)` filtered by `s.module == module` — it finds symbols NAMED after the module (e.g. its module symbol), not a general per-module symbol listing.
+  - All functions take `&dyn IndexStore` and propagate store errors as `String`; no caching or ranking is added at this layer.
 verify:
 - crates/kuda-query/Cargo.toml
 - crates/kuda-query/src/lib.rs
@@ -52,7 +147,7 @@ provenance:
   - crates/kuda-query/src/lib.rs
   hashes:
   - c09df8b9f1045151d00b8825259c76bf2e5a1fa7
-  - 3bf9b0d3b92d747ec6b10b4550b58a050f223b3b
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
-  generator: kuda-template/0.1.2
+  - 9e9627d7ab306ccfe261efd520351d9fedf34c52
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
+  generator: kuda-acp/0.1.2

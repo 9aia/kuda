@@ -30,7 +30,10 @@ repos ──► extract ──► summarize ──► index ──► store ─�
   verifies independently
 - **Extraction tiers**: `manifest` (free) → `treesitter`
   (data-driven symbol queries) → `lsp` (rust-analyzer
-  `documentSymbol`). Best available wins; absent server = silent skip
+  `documentSymbol`) → `records` (domain-corpora descriptors —
+  task/ADR/ledger ids become `find`-able symbols + reference edges;
+  a corpus is data, like a language). Best available wins; absent
+  corpus = silent skip
 - **Semantic summarization via ACP** — `kind = "acp"` spawns your
   agent (`zed agent`, `claude`, `gemini`…) to write grounded card
   prose; no API keys, template fallback always. Any ACP-capable

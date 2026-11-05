@@ -1,6 +1,6 @@
 name: kuda-store
 path: crates/kuda-store/Cargo.toml
-purpose: Store port — L2 index persistence (rebuildable)
+purpose: Store port for kuda's L2 index persistence — the `IndexStore` trait covering symbol/edge storage, query reads, per-file hash bookkeeping, and provenance metadata for the query layer.
 api:
 - name: IndexStore
   kind: trait
@@ -15,7 +15,13 @@ api:
 deps:
 - kuda-core
 - kuda-core
-notes: ''
+notes: |
+  - The store is rebuildable, never the source of truth (committed `.kuda` cards are).
+  - Writes are keyed by module so incremental sync replaces one module at a time: `replace_module` swaps a module's symbols + its outgoing edges, and `record_files` is called with the module's FULL current file set afterwards.
+  - `edge_count` exists so callers can distinguish "no dependents" from "no edge data indexed at all" — honest empty output.
+  - Read surface maps directly to CLI commands: `find` = exact-name lookup, `search` = substring fuzzy tier, `dependents` = reverse-edge impact analysis; `file_hashes` (path → (hash, module)) is the incremental-extraction diff surface.
+  - `set_meta`/`meta` hold provenance bookkeeping keys like `commit_sha` and `extractor_versions`.
+  - The implementation is `kuda-store-sqlite`; redb, remote, or embedding stores would be new adapter crates behind this same trait (`Send + Sync`, errors as `String`).
 verify:
 - crates/kuda-store/Cargo.toml
 - crates/kuda-store/src/lib.rs
@@ -26,6 +32,6 @@ provenance:
   hashes:
   - fcd81b2ab4c0c8bd258d2a0d32162f1ff7ae9bd9
   - 3aadff00b7766196f8dcc0eccd98ec86b1fa5a9f
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
-  generator: kuda-template/0.1.2
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
+  generator: kuda-acp/0.1.2

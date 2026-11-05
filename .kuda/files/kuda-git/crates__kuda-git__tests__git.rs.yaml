@@ -1,6 +1,6 @@
 path: crates/kuda-git/tests/git.rs
 module: kuda-git
-purpose: crates/kuda-git/tests/git.rs
+purpose: 'Integration test for `GitVcs` against a real temp-dir git repo: exercises `head_sha`, `has_commit` (including bogus sha), tag create/exists, worktree add/remove/prune, and failure paths — no remote (`sync`/`push_tag` false), non-repo dirs, and git missing from `PATH` (spawn failure yields `None`/false). Uses a single test function to avoid `PATH`-mutation races.'
 symbols:
 - repo
 - sync_has_commit_worktree_tag
@@ -8,7 +8,7 @@ provenance:
   files:
   - crates/kuda-git/tests/git.rs
   hashes:
-  - 28459ad1496a8040109c9957bc1d88ef05b53911
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
+  - 932b6caad8da944b94e44c92de745af188fed6f5
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
   generator: kuda-acp/0.1.0

@@ -1,6 +1,6 @@
 path: crates/kuda-cli/tests/e2e.rs
 module: kuda
-purpose: crates/kuda-cli/tests/e2e.rs
+purpose: End-to-end CLI test suite that drives the compiled `kuda` binary against temp-dir fixture repos (seeded python monorepos, git repos, hand-crafted `.kuda` cards) and asserts on stdout, exit codes, and generated files. Covers `init` scaffolding and error paths, `sync` (monorepo dependency edges, bounded module cards, stale file-card sweeping, incremental/deletion/full/upgrade paths, store failures, workspace mode, sturn WAL marks), `status` tree-digest drift detection, `map`/`card` hits and misses, SIGPIPE-safe output, `find` exact/fuzzy/miss, `dependents`, `refs` text/docs/LSP tiers with fallback, `doctor`, docs generation, bad config, and ACP stub behavior.
 symbols:
 - kuda
 - help_and_stub
@@ -9,11 +9,34 @@ symbols:
 - map_survives_broken_pipe
 - sync_sweeps_stale_file_cards
 - status_detects_tree_drift
+- tmp
+- kuda_stdin
+- mk_at
+- git
+- git_init
+- seed_py_repo
+- map_and_card_hit_and_miss
+- find_exact_fuzzy_miss
+- find_workspace_tags_roots
+- dependents_all_messages
+- refs_text_and_docs_tiers
+- refs_lsp_tier
+- refs_lsp_error_falls_through
+- doctor_and_docs_and_bad_config
+- config_flag_changes_root
+- init_error_paths
+- status_edge_cases
+- sync_incremental_and_deletions
+- sync_full_and_upgrade_seed
+- sync_store_and_cards_failures
+- sync_workspace_mode
+- sync_sturn_wal_marks_modules
+- ACP_STUB
 provenance:
   files:
   - crates/kuda-cli/tests/e2e.rs
   hashes:
-  - a2e1795433acc1be190294cf60fe13719ffb4802
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
+  - c648c90b2fb66d7ea1dd9bdd22412ae5679b6f02
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
   generator: kuda-acp/0.1.0

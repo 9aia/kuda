@@ -1,7 +1,12 @@
 name: kuda-lsp
 path: crates/kuda-lsp/Cargo.toml
-purpose: 'Extract adapter: LSP server-backed symbol extraction (documentSymbol)'
+purpose: LSP extractor adapter (kind `"lsp"`) — spawns one language server per root (command from `extract.lsp_server`) and speaks Content-Length-framed JSON-RPC to extract real symbols via `textDocument/documentSymbol`, the quality tier above treesitter. Also exposes `references()` for semantic cross-file usage lookup (`workspace/symbol` + `textDocument/references`).
 api:
+- name: ENV_LOCK
+  kind: const
+  file: crates/kuda-lsp/src/lib.rs
+  line: 444
+  module: kuda-lsp
 - name: LspClient
   kind: type
   file: crates/kuda-lsp/src/lib.rs
@@ -12,20 +17,40 @@ api:
   file: crates/kuda-lsp/src/lib.rs
   line: 14
   module: kuda-lsp
+- name: STUB
+  kind: const
+  file: crates/kuda-lsp/src/lib.rs
+  line: 323
+  module: kuda-lsp
 - name: extract
   kind: function
   file: crates/kuda-lsp/src/lib.rs
-  line: 257
+  line: 261
+  module: kuda-lsp
+- name: extract_disabled_and_absent_server
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 447
+  module: kuda-lsp
+- name: extract_document_symbol_error_and_nonarray
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 532
+  module: kuda-lsp
+- name: extract_symbols_both_forms
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 463
   module: kuda-lsp
 - name: flatten_syms
   kind: function
   file: crates/kuda-lsp/src/lib.rs
-  line: 122
+  line: 131
   module: kuda-lsp
 - name: kind
   kind: function
   file: crates/kuda-lsp/src/lib.rs
-  line: 253
+  line: 257
   module: kuda-lsp
 - name: kuda-lsp
   kind: module
@@ -35,52 +60,82 @@ api:
 - name: lsp_kind
   kind: function
   file: crates/kuda-lsp/src/lib.rs
-  line: 110
+  line: 119
   module: kuda-lsp
 - name: module_of
   kind: function
   file: crates/kuda-lsp/src/lib.rs
-  line: 157
+  line: 160
+  module: kuda-lsp
+- name: module_of_walks_ancestors
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 581
   module: kuda-lsp
 - name: notify
   kind: function
   file: crates/kuda-lsp/src/lib.rs
-  line: 98
+  line: 107
   module: kuda-lsp
 - name: recv
   kind: function
   file: crates/kuda-lsp/src/lib.rs
-  line: 63
+  line: 70
   module: kuda-lsp
 - name: references
   kind: function
   file: crates/kuda-lsp/src/lib.rs
-  line: 207
+  line: 210
+  module: kuda-lsp
+- name: references_all_outcomes
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 554
   module: kuda-lsp
 - name: request
   kind: function
   file: crates/kuda-lsp/src/lib.rs
-  line: 83
+  line: 92
+  module: kuda-lsp
+- name: rust
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 433
   module: kuda-lsp
 - name: send
   kind: function
   file: crates/kuda-lsp/src/lib.rs
-  line: 56
+  line: 63
   module: kuda-lsp
 - name: shutdown
   kind: function
   file: crates/kuda-lsp/src/lib.rs
-  line: 102
+  line: 111
   module: kuda-lsp
 - name: spawn
   kind: function
   file: crates/kuda-lsp/src/lib.rs
   line: 27
   module: kuda-lsp
+- name: stub
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 419
+  module: kuda-lsp
+- name: tests
+  kind: module
+  file: crates/kuda-lsp/src/lib.rs
+  line: 316
+  module: kuda-lsp
+- name: tmp
+  kind: function
+  file: crates/kuda-lsp/src/lib.rs
+  line: 412
+  module: kuda-lsp
 - name: walk_files
   kind: function
   file: crates/kuda-lsp/src/lib.rs
-  line: 174
+  line: 177
   module: kuda-lsp
 deps:
 - kuda-core
@@ -90,7 +145,14 @@ deps:
 - kuda-core
 - kuda-extract
 - serde_json
-notes: ''
+notes: |
+  - Degradation is silent, never fatal: no configured server, spawn failure, per-file request errors, or non-array results yield empty/partial `Extraction` so other extractor tiers still run; `references` returns `Ok(vec![])` on null/error `workspace/symbol` results.
+  - Reported lines are 1-based (LSP's 0-based + 1); hierarchical `DocumentSymbol` children flatten to `container::name` paths, and flat `SymbolInformation` (with `location`) is handled too.
+  - Servers are shut down politely (`shutdown` request + `exit` notification + wait) after each pass.
+  - Modules are assigned by walking ancestor dirs for any known manifest basename (`_root` fallback); the internal walk only skips `.git`/`target`/`node_modules`/`.kuda` and `.git`-file worktrees — NOT the full configurable exclude set the CLI walk applies.
+  - `request` ignores interleaved messages (notifications, unrelated ids) until its own id replies; a malformed `Content-Length` header is a hard error; one server process handles all languages/files via didOpen/didClose with full file text.
+  - `references` includes declarations, dedups and sorts `(file, line)` pairs, and strips only the `file://` URI prefix (no percent-decoding).
+  - Unit tests run a python fake LSP server (`KUDA_LSP_MODE`: ok/die/badlen/nullsyms/errsyms/objsyms/errsym/objres) with `ENV_LOCK` serializing env mutation; spawn-handle `unwrap` vs `ok_or` differs under `cfg(coverage)` since piped stdio guarantees the handles.
 verify:
 - crates/kuda-lsp/Cargo.toml
 - crates/kuda-lsp/src/lib.rs
@@ -100,7 +162,7 @@ provenance:
   - crates/kuda-lsp/src/lib.rs
   hashes:
   - f67a4e0af5e5702eea94a963c1b91e8349a246ab
-  - 93513838ec089aab964d987283f0d1ff3dcc18fc
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
-  generator: kuda-template/0.1.2
+  - c9bf77b7f5319744b5cedcb15065f440b337b17c
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
+  generator: kuda-acp/0.1.2

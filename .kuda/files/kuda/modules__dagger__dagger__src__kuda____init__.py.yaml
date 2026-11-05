@@ -1,12 +1,12 @@
 path: modules/dagger/dagger/src/kuda/__init__.py
 module: kuda
-purpose: modules/dagger/dagger/src/kuda/__init__.py
+purpose: Dagger-generated Python SDK package init for the Kuda module; re-exports the `Kuda` class from `.main` and carries the boilerplate docstring describing the scaffolded echo/grep example functions.
 symbols: []
 provenance:
   files:
   - modules/dagger/dagger/src/kuda/__init__.py
   hashes:
   - 5b331a1baf30b49f5bf03dd9693297d498117deb
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
   generator: kuda-acp/0.1.0

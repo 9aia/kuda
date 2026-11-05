@@ -1,6 +1,6 @@
 name: kuda
 root: /home/luis/GitHub/9aia/kuda
-purpose: '*A hippocampus for your codebase.*'
+purpose: '*Code-map engine — verified per-module cards agents read before code.*'
 modules:
 - kuda
 - kuda-acp
@@ -14,7 +14,9 @@ modules:
 - kuda-keyring
 - kuda-lsp
 - kuda-manifest
+- kuda-presentation
 - kuda-query
+- kuda-records
 - kuda-secret
 - kuda-store
 - kuda-store-sqlite
@@ -22,11 +24,15 @@ modules:
 - kuda-template
 - kuda-treesitter
 - kuda-vcs
+- project
 commands:
 - cargo check
 - cargo test --workspace
-tree_digest: cd809e9c0b06c35f6b41a87e533c4c480c08f6a0
-files_total: 49
+- (cd presentation && npm run build)
+- (cd presentation && npm run dev)
+- (cd presentation && npm run export)
+tree_digest: 04d7333223199ef9d180db7bf3ca40646ad56b94
+files_total: 61
 provenance:
   files:
   - Cargo.toml
@@ -44,6 +50,7 @@ provenance:
   - crates/kuda-lsp/Cargo.toml
   - crates/kuda-manifest/Cargo.toml
   - crates/kuda-query/Cargo.toml
+  - crates/kuda-records/Cargo.toml
   - crates/kuda-secret/Cargo.toml
   - crates/kuda-store/Cargo.toml
   - crates/kuda-store-sqlite/Cargo.toml
@@ -52,12 +59,13 @@ provenance:
   - crates/kuda-treesitter/Cargo.toml
   - crates/kuda-vcs/Cargo.toml
   - modules/dagger/dagger/pyproject.toml
+  - presentation/package.json
   hashes:
-  - d020a3ae451500af2b8dde8ab51911eba62992e2
-  - 3e4367690ee1736357d37b6b713cb91070a8d62d
+  - 46c41d99bbe6c6dd81853a3f5bfb12772463fefd
+  - 69ba1c12aad25eb8b1d5a41de0bf75f86fc098df
   - 235538739af3a723c914cd6ede000fee3811ee2d
   - c2232432f5c2b51750ed9406059add07640caa15
-  - 926a9b27518c9c3e709cf9683df72fb0e133aa58
+  - df73801e3fe8951fa21666324282a49c5ecab47a
   - ea8d721cf84a29a6242dfb89a1cfe55211215dbb
   - 69539d90b1b9cce1264bb96925db8212817849fa
   - 858a2d26892b5f1150a8b4663f27d32c408f6e1d
@@ -68,6 +76,7 @@ provenance:
   - f67a4e0af5e5702eea94a963c1b91e8349a246ab
   - e2ef5f546ee4d7eae4708f90a7e099497a44f675
   - c09df8b9f1045151d00b8825259c76bf2e5a1fa7
+  - 9acbd7c6d35d0ce10af2fa065bd9fc17748373c5
   - f826462ae7337233c57e6151c6a7b516a437abbc
   - fcd81b2ab4c0c8bd258d2a0d32162f1ff7ae9bd9
   - 2d30a3d362d500ce8e4310218db2ea0f8da6ae99
@@ -76,6 +85,7 @@ provenance:
   - 3780213d000ceedfe88ece2c1a31f111e73e4bf4
   - a3f3978c21457dd7be4e34dc16f31231d0a68777
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
+  - 0f3a434bcbd7f03da300bb0068407063d067a223
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
   generator: kuda/0.1.0

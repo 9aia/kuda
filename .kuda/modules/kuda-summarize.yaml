@@ -1,6 +1,6 @@
 name: kuda-summarize
 path: crates/kuda-summarize/Cargo.toml
-purpose: Summarize port — Extraction -> ModuleCard
+purpose: Summarize port for kuda — the `Summarizer` trait turning an `Extraction` into a `ModuleCard`, one module at a time.
 api:
 - name: Summarizer
   kind: trait
@@ -17,7 +17,11 @@ deps:
 - kuda-extract
 - kuda-core
 - kuda-extract
-notes: ''
+notes: |
+  - Cards must end in `verify:` file lists — memory is a hypothesis, not truth.
+  - Provenance is composed by the CALLER (it owns the sha/hash bookkeeping), passed in as `prov`; the summarizer never invents it.
+  - `kind()` returns the static string matched against `summarize.kind` in `kuda.toml`; implementors are `Send + Sync`, errors are `String`.
+  - Implementations: `kuda-template` (deterministic, the default) and `kuda-llm` (prose, provider-pluggable); `kuda-acp` is the agent-spawned adapter seen elsewhere in the workspace.
 verify:
 - crates/kuda-summarize/Cargo.toml
 - crates/kuda-summarize/src/lib.rs
@@ -28,6 +32,6 @@ provenance:
   hashes:
   - 11910998e03f533e3852432fcb107e980fbe99f5
   - c39be362ce68f67043930e8b2a69ca1ada4ab670
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
-  generator: kuda-template/0.1.2
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
+  generator: kuda-acp/0.1.2

@@ -1,6 +1,6 @@
 path: crates/kuda-lsp/src/lib.rs
 module: kuda-lsp
-purpose: crates/kuda-lsp/src/lib.rs
+purpose: LSP extractor adapter — spawns one language server per root (command from `extract.lsp_server`) and speaks Content-Length-framed JSON-RPC to pull real symbols via `textDocument/documentSymbol` (both hierarchical `DocumentSymbol` and flat `SymbolInformation` forms), mapping LSP kind ints to kuda `SymbolKind`s and grouping by nearest manifest dir. Degrades gracefully — no configured command, spawn failure, or per-file errors yield empty/partial extraction so other extractor tiers still run; also exposes a `references()` helper (`workspace/symbol` + `textDocument/references`) for semantic cross-file usage above text search. Unit tests drive a python fake LSP server through ok/die/badlen/null/error response modes with env mutation serialized by `ENV_LOCK`.
 symbols:
 - LspExtractor
 - LspClient
@@ -17,11 +17,22 @@ symbols:
 - references
 - kind
 - extract
+- tests
+- STUB
+- tmp
+- stub
+- rust
+- ENV_LOCK
+- extract_disabled_and_absent_server
+- extract_symbols_both_forms
+- extract_document_symbol_error_and_nonarray
+- references_all_outcomes
+- module_of_walks_ancestors
 provenance:
   files:
   - crates/kuda-lsp/src/lib.rs
   hashes:
-  - 93513838ec089aab964d987283f0d1ff3dcc18fc
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
+  - c9bf77b7f5319744b5cedcb15065f440b337b17c
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
   generator: kuda-acp/0.1.0

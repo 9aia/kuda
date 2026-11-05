@@ -1,6 +1,6 @@
 path: crates/kuda-core/src/lib.rs
 module: kuda-core
-purpose: crates/kuda-core/src/lib.rs
+purpose: 'kuda''s domain core — integration-free types for the memory tiers (L0 `RepoCard`, L1 `ModuleCard`/`FileCard`, L2 `Symbol`/`DepEdge` graph), `Provenance` for computed staleness, `LangDef`/`DomainDef` descriptors that make new languages and record corpora data changes, and the `kuda.toml` config model with serde defaults and `deny_unknown_fields`. Also provides shared helpers: walk exclusions (`default_excludes`/`dir_excluded`), module-name canonicalization (`module_key`/`module_variants`), and language-aware dep-specifier reduction (`dep_root`).'
 symbols:
 - ContentHash
 - Provenance
@@ -12,6 +12,7 @@ symbols:
 - FileCard
 - RepoCard
 - LangDef
+- DomainDef
 - Config
 - RepoCfg
 - ExtractCfg
@@ -31,12 +32,11 @@ symbols:
 - default_cards_dir
 - WorkspaceCfg
 - module_key
-- module_variants
 provenance:
   files:
   - crates/kuda-core/src/lib.rs
   hashes:
-  - e218eed648b11e03a0d12157aa5b2b87742ade90
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
+  - 5eac6845a070da7d5fb9df97c894deecb1786456
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
   generator: kuda-acp/0.1.0

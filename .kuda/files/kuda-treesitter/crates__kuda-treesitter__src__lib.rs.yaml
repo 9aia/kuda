@@ -1,6 +1,6 @@
 path: crates/kuda-treesitter/src/lib.rs
 module: kuda-treesitter
-purpose: crates/kuda-treesitter/src/lib.rs
+purpose: Tree-sitter extractor adapter (kind `"treesitter"`) — runs per-language symbol and import queries from `LangDef` data over compiled grammars (rust, typescript/tsx, python, go) to emit symbols (capture suffix `@name.<kind>` → `SymbolKind`, 1-based lines) and `EdgeKind::Imports` edges (only `@dep` captures, skipping `self`/`crate`/`std`/`core`/`alloc`/`super` and relative imports via `dep_root`). Module identity comes from the nearest manifest dir mapped through `pkg_names` to the manifest extractor's package name (dir-name/`_root` fallbacks); supports incremental `extract_filtered`, skips excluded dirs and `.git`-file worktrees, ignores unknown grammars, and errors on invalid queries.
 symbols:
 - TreesitterExtractor
 - language
@@ -12,11 +12,21 @@ symbols:
 - extract
 - extract_filtered
 - extract_inner
+- tests
+- tmp
+- lang
+- extract_symbols_edges_and_module_names
+- extract_filtered_and_fallback_module
+- unknown_grammar_skipped_and_bad_queries_err
+- relative_import_makes_no_edge
+- dep_query_aux_capture_and_unknown_kind
+- manifest_dir_of_and_walk_excludes
+- unreadable_file_and_dir_skipped
 provenance:
   files:
   - crates/kuda-treesitter/src/lib.rs
   hashes:
-  - e90c37d8b2a23b471c30771464bb05691eadb579
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
+  - 57daf6910a9575c10499e9ec0136546971c9d59e
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
   generator: kuda-acp/0.1.0

@@ -1,0 +1,186 @@
+name: project
+path: project/BACKLOG.md
+purpose: 'Kuda''s planning and design corpus: the 0.1.0 TODO checklist (T-001–T-029), the 0.2+ BACKLOG (T-013–T-024), ADR-0001 (tiered memory + ports/adapters topology), archived handoffs, and an index page tying them together.'
+api:
+- name: ADR-0001
+  kind: record
+  file: project/adrs/0001-adr-0001-tiered-memory-artifacts-ports-adapters-topology.md
+  line: 2
+  module: project
+- name: T-001
+  kind: record
+  file: project/TODO.md
+  line: 5
+  module: project
+- name: T-002
+  kind: record
+  file: project/TODO.md
+  line: 12
+  module: project
+- name: T-003
+  kind: record
+  file: project/TODO.md
+  line: 13
+  module: project
+- name: T-004
+  kind: record
+  file: project/TODO.md
+  line: 14
+  module: project
+- name: T-005
+  kind: record
+  file: project/TODO.md
+  line: 15
+  module: project
+- name: T-006
+  kind: record
+  file: project/TODO.md
+  line: 16
+  module: project
+- name: T-007
+  kind: record
+  file: project/TODO.md
+  line: 20
+  module: project
+- name: T-008
+  kind: record
+  file: project/TODO.md
+  line: 21
+  module: project
+- name: T-009
+  kind: record
+  file: project/TODO.md
+  line: 25
+  module: project
+- name: T-010
+  kind: record
+  file: project/TODO.md
+  line: 29
+  module: project
+- name: T-011
+  kind: record
+  file: project/TODO.md
+  line: 33
+  module: project
+- name: T-012
+  kind: record
+  file: project/TODO.md
+  line: 37
+  module: project
+- name: T-013
+  kind: record
+  file: project/BACKLOG.md
+  line: 5
+  module: project
+- name: T-014
+  kind: record
+  file: project/BACKLOG.md
+  line: 6
+  module: project
+- name: T-015
+  kind: record
+  file: project/BACKLOG.md
+  line: 7
+  module: project
+- name: T-016
+  kind: record
+  file: project/BACKLOG.md
+  line: 11
+  module: project
+- name: T-017
+  kind: record
+  file: project/BACKLOG.md
+  line: 12
+  module: project
+- name: T-018
+  kind: record
+  file: project/BACKLOG.md
+  line: 16
+  module: project
+- name: T-019
+  kind: record
+  file: project/BACKLOG.md
+  line: 20
+  module: project
+- name: T-020
+  kind: record
+  file: project/BACKLOG.md
+  line: 21
+  module: project
+- name: T-021
+  kind: record
+  file: project/BACKLOG.md
+  line: 25
+  module: project
+- name: T-022
+  kind: record
+  file: project/BACKLOG.md
+  line: 26
+  module: project
+- name: T-023
+  kind: record
+  file: project/BACKLOG.md
+  line: 30
+  module: project
+- name: T-024
+  kind: record
+  file: project/BACKLOG.md
+  line: 31
+  module: project
+- name: T-025
+  kind: record
+  file: project/TODO.md
+  line: 41
+  module: project
+- name: T-026
+  kind: record
+  file: project/TODO.md
+  line: 6
+  module: project
+- name: T-027
+  kind: record
+  file: project/handoffs/archive/T-027.md
+  line: 2
+  module: project
+- name: T-028
+  kind: record
+  file: project/TODO.md
+  line: 7
+  module: project
+- name: T-029
+  kind: record
+  file: project/TODO.md
+  line: 8
+  module: project
+deps:
+- ADR-0002
+- ADR-0001
+notes: |
+  - ADR-0001 fixes the architecture: tiered index (L0 repo card always-load, L1 module cards on-demand, L2 symbol/dep graph queried), every concern a port + adapter crates, per-language knowledge as data files, committed YAML cards vs gitignored rebuildable sqlite, and per-card provenance with `verify:` file lists — memory is an index into code, never a second source of truth.
+  - Records use two frontmatter forms: `id = "..."` for ADRs and `item = "..."` for handoffs; tasks carry `T-NNN` ids referenced across TODO/BACKLOG/handoffs.
+  - TODO items are unchecked checkboxes even where the code now exists (T-001–T-008 describe shipped crates) — the list reflects 0.1.0 planning, not live status; T-029 (domain descriptors + kuda-records) is marked claimed by devin, and T-025/T-026 are recovered-session/process items.
+  - Dogfooding lessons are captured as tasks: T-009 (auto-gitignore `.kuda/index.sqlite` — mimus+bupha committed the binary by hand), T-011 (.hnl descriptor blocked on a tree-sitter-handl grammar), T-022 (index the ~70-repo handl-lang org as proving ground).
+  - Deferred directions live in BACKLOG: embedding/RAG as a later `kuda-store` adapter (ADR-0001 option B), llm prose summarizer, watch daemon, episodic session memory, and the malurus critic that reuses kuda's query layer for claim verification.
+  - T-027's handoff records the deck bugs as resolved upstream in slidev-theme-9aia (2a63bb8, e9b3cce), while TODO T-026 still tracks a failing deck verification — related but distinct work items.
+verify:
+- project/BACKLOG.md
+- project/TODO.md
+- project/adrs/0001-adr-0001-tiered-memory-artifacts-ports-adapters-topology.md
+- project/handoffs/archive/T-027.md
+- project/index.md
+provenance:
+  files:
+  - project/BACKLOG.md
+  - project/TODO.md
+  - project/adrs/0001-adr-0001-tiered-memory-artifacts-ports-adapters-topology.md
+  - project/handoffs/archive/T-027.md
+  - project/index.md
+  hashes:
+  - 6b4609cf8d307865615fd108300b69ef5d514c0a
+  - 37a5e2ae10fc0bc16ed45ae4d8e08bc624f0fd2f
+  - def5e4b43853bd31a3e51c7730f08820962dfdb4
+  - 9f3779ae765d34171c9fb02b6644265a8cca8f91
+  - a9cbb363e46c66216b83994b2dba52c063dd59db
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
+  generator: kuda-acp/0.1.2

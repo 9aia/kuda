@@ -1,0 +1,19 @@
+# Domain descriptor — a corpus is data, not code (ADR-0003).
+# myco's `project/` worktree: tasks, ADRs, issues, plans, handoffs.
+name = "myco"
+roots = ["project"]
+extensions = [".md"]
+module = "project"
+purpose = "myco work ledger — tasks, ADRs, issues, plans, handoffs"
+
+# Record ids — capture group 1, first match per id per file.
+record_patterns = [
+  # frontmatter: id = "ADR-0001" / item = "T-027"
+  "(?:id|item)\\s*=\\s*\"([A-Z]+-[0-9]+)\"",
+  # ledger lines: "- [ ] T-001" (TODO) and "- T-013" (BACKLOG)
+  "-\\s*(?:\\[[ xX]\\]\\s*)?([A-Z]+-[0-9]+)",
+]
+
+# Reference edges — id mentions. Single-record files scan the whole
+# text; multi-record files (ledgers) scope to the record's own line.
+ref_pattern = "\\b[A-Z]+-[0-9]+\\b"

@@ -1,0 +1,16 @@
+path: crates/kuda-cards/tests/cards.rs
+module: kuda-cards
+purpose: Round-trip tests for the kuda-cards YAML render/parse layer covering all three committed artifact types — `RepoCard` (modules, files_total), `ModuleCard` (api symbols with kind, `api_omitted` count, human-owned `notes` surviving), and `FileCard` (symbols). Also asserts malformed YAML (`:::`, a bare list) is rejected by each parser.
+symbols:
+- prov
+- repo_card_roundtrip
+- module_card_roundtrip_with_omitted
+- file_card_roundtrip_and_bad_yaml
+provenance:
+  files:
+  - crates/kuda-cards/tests/cards.rs
+  hashes:
+  - 86aa21bc77d7ac79a6a4d5f0944f511f4d5a32fc
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
+  generator: kuda-acp/0.1.0

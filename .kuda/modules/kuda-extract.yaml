@@ -1,6 +1,6 @@
 name: kuda-extract
 path: crates/kuda-extract/Cargo.toml
-purpose: Extract port — pull symbols/deps/structure from source trees
+purpose: Extract port for kuda — the `Extractor` trait plus the `Extraction` result struct (symbols, dep edges, and the files read, which feed `Provenance.files`). Pulls symbols/edges/structure out of source trees; implementations live in separate adapter crates.
 api:
 - name: Extraction
   kind: type
@@ -12,20 +12,50 @@ api:
   file: crates/kuda-extract/src/lib.rs
   line: 20
   module: kuda-extract
+- name: Stub
+  kind: type
+  file: crates/kuda-extract/src/lib.rs
+  line: 42
+  module: kuda-extract
+- name: default_filtered_delegates_to_extract
+  kind: function
+  file: crates/kuda-extract/src/lib.rs
+  line: 61
+  module: kuda-extract
+- name: extract
+  kind: function
+  file: crates/kuda-extract/src/lib.rs
+  line: 47
+  module: kuda-extract
 - name: extract_filtered
   kind: function
   file: crates/kuda-extract/src/lib.rs
   line: 28
+  module: kuda-extract
+- name: kind
+  kind: function
+  file: crates/kuda-extract/src/lib.rs
+  line: 44
   module: kuda-extract
 - name: kuda-extract
   kind: module
   file: crates/kuda-extract/Cargo.toml
   line: 1
   module: kuda-extract
+- name: tests
+  kind: module
+  file: crates/kuda-extract/src/lib.rs
+  line: 39
+  module: kuda-extract
 deps:
 - kuda-core
 - kuda-core
-notes: ''
+notes: |
+  - Mechanical extraction only: adapters report what the grammar/manifest actually says, never inferred structure.
+  - `Extractor` is `Send + Sync`; `kind()` returns the static string matched against `extract.kinds` in `kuda.toml`.
+  - `extract_filtered` defaults to delegating to `extract` (ignoring the file filter) — adapters without per-file control are always cheap or server-backed anyway; regression-tested with a `Stub`.
+  - Adding an extractor means a new adapter crate (`kuda-manifest` for package graphs without a parser, `kuda-treesitter` for grammar+query data, `kuda-lsp` for server-backed extraction); adding a language is just a data file, not a change here.
+  - `Extraction.files` must list the files actually read — it is what makes per-card provenance hashes accurate.
 verify:
 - crates/kuda-extract/Cargo.toml
 - crates/kuda-extract/src/lib.rs
@@ -35,7 +65,7 @@ provenance:
   - crates/kuda-extract/src/lib.rs
   hashes:
   - 8474c16bc613412aaa22031cbce10ad3a1f9beea
-  - 911ab22276a47a1ee477ccc956cf1fe4ad4147b8
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
-  generator: kuda-template/0.1.2
+  - 22da58ce2ed7b500811a16defc43cde57d287fd4
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
+  generator: kuda-acp/0.1.2

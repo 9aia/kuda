@@ -1,15 +1,18 @@
 path: crates/kuda-dotenv/tests/store.rs
 module: kuda-dotenv
-purpose: crates/kuda-dotenv/tests/store.rs
+purpose: 'Tests for the `DotenvSecrets` store: set/get/update-in-place (no duplicate `A=` lines), missing-key `None`, skipping malformed lines and empty values, write-error paths (parentless path, parent-is-a-file), and unix-only enforcement of 0600 file permissions after `set`.'
 symbols:
 - tmp
 - set_get_update
+- get_skips_malformed_and_empty
+- set_no_parent_path
+- set_error_when_parent_is_file
 - perms_600
 provenance:
   files:
   - crates/kuda-dotenv/tests/store.rs
   hashes:
-  - 4d3dbaa112d4637449c1defd1780cf73f5683533
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
+  - 4c2a39815095537b2b15c46d60a717575172fdcb
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
   generator: kuda-acp/0.1.0

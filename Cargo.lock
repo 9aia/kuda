@@ -509,6 +509,7 @@ dependencies = [
  "kuda-lsp",
  "kuda-manifest",
  "kuda-query",
+ "kuda-records",
  "kuda-store",
  "kuda-store-sqlite",
  "kuda-summarize",
@@ -627,6 +628,15 @@ version = "0.1.0"
 dependencies = [
  "kuda-core",
  "kuda-store",
+]
+
+[[package]]
+name = "kuda-records"
+version = "0.1.0"
+dependencies = [
+ "kuda-core",
+ "kuda-extract",
+ "regex",
 ]
 
 [[package]]

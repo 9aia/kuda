@@ -1,6 +1,6 @@
 path: crates/kuda-store-sqlite/src/lib.rs
 module: kuda-store-sqlite
-purpose: crates/kuda-store-sqlite/src/lib.rs
+purpose: Sqlite adapter of `IndexStore` — a single-file, zero-server, rebuildable store at `.kuda/index.sqlite` (gitignored) with tables for symbols, edges, meta, and per-file hashes. `replace_module`/`record_files` run delete+insert in one transaction per module; `search` escapes LIKE metachars (`\`, `%`, `_`) so user patterns stay literal; kind enums persist as strings with tolerant fallbacks (unknown symbol kind → `Other`, unknown edge kind → `PackageDep`). A `Mutex<Connection>` satisfies the port's `Send + Sync` bound (rusqlite connections are `!Sync`, single-writer anyway); tests cover kind round-trips, corrupt-kind fallbacks, open/query error paths, and LIKE escaping.
 symbols:
 - SqliteStore
 - SCHEMA
@@ -20,11 +20,18 @@ symbols:
 - modules
 - set_meta
 - meta
+- tests
+- tmp
+- sym
+- all_kinds_roundtrip
+- open_error_paths
+- query_error_paths
+- search_escapes_like_metachars
 provenance:
   files:
   - crates/kuda-store-sqlite/src/lib.rs
   hashes:
-  - 86c23ef7cdb92c3b023b09a7f80e5a61490afb42
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
+  - 3ab272fb68b6afcdcb2273246028e8446196a6c8
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
   generator: kuda-acp/0.1.0

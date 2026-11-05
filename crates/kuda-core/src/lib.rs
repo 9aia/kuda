@@ -51,6 +51,9 @@ pub enum SymbolKind {
     Const,
     Module,
     Macro,
+    /// Non-code record from a domain corpus (`kuda-records`) —
+    /// task/ADR/issue ids found by descriptor regexes.
+    Record,
     Other,
 }
 
@@ -69,6 +72,8 @@ pub enum EdgeKind {
     Calls,
     PackageDep,
     WorkspaceMember,
+    /// Record-to-record mention in a domain corpus (`kuda-records`).
+    References,
 }
 
 /// L1 card — one per module/crate/package. Machine owns `api`/`deps`/
@@ -155,6 +160,38 @@ pub struct LangDef {
     pub dep_query: Option<String>,
 }
 
+/// Domain descriptor — a non-code record corpus as data, loaded
+/// from `data/domains/*` (same trick as [`LangDef`], one level up).
+/// The `records` extractor turns descriptor regexes into
+/// [`SymbolKind::Record`] symbols and [`EdgeKind::References`]
+/// edges; a new corpus is a data change, not an engine change.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DomainDef {
+    pub name: String,
+    /// Corpus dirs relative to the repo root ("project"). Declared
+    /// roots are walked even when they carry a `.git`-file worktree
+    /// marker — the declaration is the intent.
+    pub roots: Vec<PathBuf>,
+    /// Record file extensions including the dot (".md").
+    pub extensions: Vec<String>,
+    /// Module name the corpus groups under — its card + provenance.
+    pub module: String,
+    /// Card purpose — domain modules have no manifest/README to
+    /// fall back on, so the descriptor carries it.
+    #[serde(default)]
+    pub purpose: Option<String>,
+    /// Regexes matched per line; capture group 1 is the record id.
+    /// First match line pins the `Symbol` location. Covers both
+    /// frontmatter (`id = "T-001"`) and checklist (`- [ ] T-001`)
+    /// records — the pattern is the format knowledge.
+    pub record_patterns: Vec<String>,
+    /// Regex over file text — every match is a dep-edge target for
+    /// the file's records (same-line scope when a file holds
+    /// multiple records, whole-file when it holds one).
+    #[serde(default)]
+    pub ref_pattern: Option<String>,
+}
+
 // ---- kuda.toml config model ----
 
 #[derive(Debug, Deserialize, Clone, Default)]
@@ -187,7 +224,8 @@ pub struct RepoCfg {
 #[derive(Debug, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct ExtractCfg {
-    /// Impl kinds tried in order: "manifest" | "treesitter" | "lsp".
+    /// Impl kinds tried in order:
+    /// "manifest" | "treesitter" | "lsp" | "records".
     #[serde(default = "default_extract_kinds")]
     pub kinds: Vec<String>,
     /// Server command for the lsp adapter (per-language later).
@@ -242,7 +280,7 @@ impl Default for ExtractCfg {
 }
 
 fn default_extract_kinds() -> Vec<String> {
-    vec!["manifest".into(), "treesitter".into()]
+    vec!["manifest".into(), "treesitter".into(), "records".into()]
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -582,7 +620,7 @@ mod tests {
         assert_eq!(c.store.kind, "sqlite");
         assert_eq!(c.store.path, std::path::PathBuf::from(".kuda/index.sqlite"));
         assert_eq!(c.cards.dir, std::path::PathBuf::from(".kuda"));
-        assert_eq!(c.extract.kinds, vec!["manifest", "treesitter"]);
+        assert_eq!(c.extract.kinds, vec!["manifest", "treesitter", "records"]);
         assert!(c.repo.name.is_none());
         assert!(c.workspace.roots.is_empty());
         // full toml exercises the serde paths

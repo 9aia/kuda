@@ -1,41 +1,56 @@
 name: kuda
 path: Cargo.toml
-purpose: '*A hippocampus for your codebase.*'
+purpose: The `kuda` CLI composition root and its end-to-end test suite, plus the reusable Dagger CI module for Rust workspaces. `main.rs` parses `kuda.toml`, wires adapters behind ports, and dispatches subcommands (init, sync, status, map, card, find, dependents, refs, watch, mcp, acp, doctor); `e2e.rs` drives the compiled binary against temp-dir fixture repos; the Dagger module builds a cached toolchain container and exposes test/coverage pipeline functions.
 api:
+- name: ACP_STUB
+  kind: const
+  file: crates/kuda-cli/tests/e2e.rs
+  line: 912
+  module: kuda
 - name: API_CAP
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 1065
+  line: 1229
   module: kuda
 - name: BUDGET
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 835
+  line: 978
   module: kuda
 - name: CHUNK
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 834
+  line: 977
   module: kuda
 - name: Cli
   kind: type
   file: crates/kuda-cli/src/main.rs
-  line: 48
+  line: 51
   module: kuda
 - name: Cmd
   kind: type
   file: crates/kuda-cli/src/main.rs
-  line: 63
+  line: 66
+  module: kuda
+- name: DOMAIN_TOMLS
+  kind: const
+  file: crates/kuda-cli/src/main.rs
+  line: 43
   module: kuda
 - name: EXAMPLE_TOML
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 34
+  line: 33
   module: kuda
-- name: GENERATOR
+- name: FileCardJob
+  kind: type
+  file: crates/kuda-cli/src/main.rs
+  line: 944
+  module: kuda
+- name: GENERATOR_VERSION
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 600
+  line: 692
   module: kuda
 - name: Kuda
   kind: type
@@ -45,42 +60,57 @@ api:
 - name: LANG_TOMLS
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 35
+  line: 34
   module: kuda
 - name: SKIP_BYTES
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 836
+  line: 979
   module: kuda
 - name: VERIFY_CAP
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 1066
+  line: 1230
   module: kuda
 - name: acp
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1584
+  line: 1816
   module: kuda
 - name: acp_answer
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1640
+  line: 1889
+  module: kuda
+- name: acp_full_session
+  kind: function
+  file: crates/kuda-cli/tests/e2e.rs
+  line: 1177
+  module: kuda
+- name: acp_store_error_path
+  kind: function
+  file: crates/kuda-cli/tests/e2e.rs
+  line: 1224
   module: kuda
 - name: blob_hash
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 163
+  line: 179
   module: kuda
 - name: card
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1281
+  line: 1480
   module: kuda
 - name: cat_file
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1285
+  line: 1484
+  module: kuda
+- name: config_flag_changes_root
+  kind: function
+  file: crates/kuda-cli/tests/e2e.rs
+  line: 642
   module: kuda
 - name: coverage_gate
   kind: function
@@ -95,17 +125,27 @@ api:
 - name: crate_doc_purpose
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 987
+  line: 1149
   module: kuda
 - name: dependents
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1345
+  line: 1557
+  module: kuda
+- name: dependents_all_messages
+  kind: function
+  file: crates/kuda-cli/tests/e2e.rs
+  line: 420
+  module: kuda
+- name: dependents_skips_self_import_edges
+  kind: function
+  file: crates/kuda-cli/tests/e2e.rs
+  line: 1538
   module: kuda
 - name: detect_commands
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1098
+  line: 1274
   module: kuda
 - name: doctests
   kind: function
@@ -115,94 +155,54 @@ api:
 - name: doctor
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1669
+  line: 1921
   module: kuda
 - name: doctor
   kind: function
   file: modules/dagger/dagger/src/kuda/main.py
   line: 268
   module: kuda
+- name: doctor_and_docs_and_bad_config
+  kind: function
+  file: crates/kuda-cli/tests/e2e.rs
+  line: 617
+  module: kuda
+- name: domain_module
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 290
+  module: kuda
+- name: domains
+  kind: function
+  file: crates/kuda-cli/src/main.rs
+  line: 165
+  module: kuda
 - name: emit
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 18
+  line: 17
   module: kuda
 - name: find
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1298
+  line: 1497
+  module: kuda
+- name: find_exact_fuzzy_miss
+  kind: function
+  file: crates/kuda-cli/tests/e2e.rs
+  line: 356
+  module: kuda
+- name: find_workspace_tags_roots
+  kind: function
+  file: crates/kuda-cli/tests/e2e.rs
+  line: 381
   module: kuda
 - name: fname
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1099
+  line: 1275
   module: kuda
-- name: hash_files
-  kind: function
-  file: crates/kuda-cli/src/main.rs
-  line: 159
-  module: kuda
-- name: help_and_stub
-  kind: function
-  file: crates/kuda-cli/tests/e2e.rs
-  line: 15
-  module: kuda
-- name: init
-  kind: function
-  file: crates/kuda-cli/src/main.rs
-  line: 184
-  module: kuda
-- name: init_scaffolds
-  kind: function
-  file: crates/kuda-cli/tests/e2e.rs
-  line: 28
-  module: kuda
-- name: kuda
-  kind: module
-  file: Cargo.toml
-  line: 1
-  module: kuda
-- name: kuda
-  kind: module
-  file: crates/kuda-cli/Cargo.toml
-  line: 1
-  module: kuda
-- name: kuda
-  kind: function
-  file: crates/kuda-cli/tests/e2e.rs
-  line: 6
-  module: kuda
-- name: kuda
-  kind: module
-  file: modules/dagger/dagger/pyproject.toml
-  line: 1
-  module: kuda
-- name: langs
-  kind: function
-  file: crates/kuda-cli/src/main.rs
-  line: 149
-  module: kuda
-- name: load_config
-  kind: function
-  file: crates/kuda-cli/src/main.rs
-  line: 138
-  module: kuda
-- name: main
-  kind: function
-  file: crates/kuda-cli/src/main.rs
-  line: 104
-  module: kuda
-- name: makefile_targets
-  kind: function
-  file: crates/kuda-cli/src/main.rs
-  line: 1183
-  module: kuda
-- name: manifest_purpose
-  kind: function
-  file: crates/kuda-cli/src/main.rs
-  line: 1013
-  module: kuda
-api_omitted: 33
+api_omitted: 77
 deps:
 - dagger-io
 - clap
@@ -217,6 +217,7 @@ deps:
 - kuda-lsp
 - kuda-manifest
 - kuda-query
+- kuda-records
 - kuda-store
 - kuda-store-sqlite
 - kuda-summarize
@@ -237,10 +238,10 @@ deps:
 - kuda-config
 - kuda-config-toml
 - kuda-core
-- kuda-vcs
 - kuda-extract
 - kuda-store
 - kuda-summarize
+- kuda-vcs
 - sha1
 - text_splitter
 - serde_json
@@ -248,7 +249,19 @@ deps:
 - asyncio
 - typing
 - dagger
-notes: ''
+notes: |
+  - stdout writes survive `| head`: BrokenPipe exits 0 instead of panicking (regression-tested by `map_survives_broken_pipe`).
+  - Provenance uses in-process git blob hashes (`"blob <len>\0"` + bytes, sha1) — identical to `git hash-object`, no subprocess per file.
+  - `kuda init` refuses to overwrite an existing `kuda.toml` (exit 1).
+  - Stale L1 file-card sweeping is housekeeping, not summarization: it runs under default config and must not be gated on `file_cards`/acp summarize settings.
+  - The Dagger `_SELF_PATCH_PY` rewrite is idempotent: re-runs are byte-identical, stale patch rows and inner comments are stripped, surrounding tables/comments survive.
+  - `sync` falls back to the config dir when `--workspace` is set but `.kuda/workspace.yaml` is missing/empty; workspace roots are resolved relative to that file's dir.
+  - Declared domain corpus roots are descended into even when a `.git`-file worktree marker is present (myco's `project/` case); other worktrees are skipped.
+  - `watch` is excluded under `cfg(coverage)` (unbounded loop discards coverage data) and exercised by e2e in normal builds.
+  - Dagger auth token is mounted as a secret and the insteadOf rewrite runs inside each exec, never in an image layer; `CARGO_NET_GIT_FETCH_WITH_CLI=true` so cargo shells out to git for the credential rewrite.
+  - The self-patch block is needed because transitive git deps can reference the repo's own crates — without it cargo sees two sources for the same package; patch URL derives from `patch_host` or the repo's own `repository` field, and errors if neither exists.
+  - `test_self_patch.py` extracts the embedded script via AST (so `\n` escapes resolve as at runtime) and also statically checks that no function in `main.py` loads undeclared names (the `patch_host` regression class).
+  - e2e monorepo fixture covers dash-named dist imported with underscores (`neuralmind-shared`/`neuralmind_shared`), module-card private-symbol filtering with an `api_omitted` cap, and `tree_digest` drift detection for files added after sync.
 verify:
 - Cargo.toml
 - crates/kuda-cli/Cargo.toml
@@ -269,14 +282,14 @@ provenance:
   - modules/dagger/dagger/src/kuda/main.py
   - modules/dagger/tests/test_self_patch.py
   hashes:
-  - d020a3ae451500af2b8dde8ab51911eba62992e2
-  - 926a9b27518c9c3e709cf9683df72fb0e133aa58
-  - f89d1e5a3d7622acbb6c3565cc102d88fc1167da
-  - a2e1795433acc1be190294cf60fe13719ffb4802
+  - 46c41d99bbe6c6dd81853a3f5bfb12772463fefd
+  - df73801e3fe8951fa21666324282a49c5ecab47a
+  - dd4f29b2e54d2f9772f434561736663a3e368940
+  - c648c90b2fb66d7ea1dd9bdd22412ae5679b6f02
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
   - 5b331a1baf30b49f5bf03dd9693297d498117deb
   - d71646b878b3eae72aa42a5791588701197fdb2d
   - 203086b883ed1477efd6f9befccd76e2614cc9ea
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
-  generator: kuda-template/0.1.2
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
+  generator: kuda-acp/0.1.2

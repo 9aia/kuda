@@ -1,12 +1,12 @@
 path: modules/dagger/tests/test_self_patch.py
 module: kuda
-purpose: modules/dagger/tests/test_self_patch.py
+purpose: 'Pytest regression suite for the `_SELF_PATCH_PY` script embedded in the Dagger module''s `main.py`: extracts the decoded heredoc body via AST, applies the same placeholder substitution as `_link_repo`, and runs it against fixture Cargo.tomls in tmp dirs. Verifies patch-block generation from the `repository` field, `patch_host` override, idempotent re-runs, stripping of stale rows while preserving surrounding tables/comments, and the missing-repository error path; also statically checks that no function in `main.py` references undeclared names (the `patch_host` regression class).'
 symbols: []
 provenance:
   files:
   - modules/dagger/tests/test_self_patch.py
   hashes:
   - 203086b883ed1477efd6f9befccd76e2614cc9ea
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
   generator: kuda-acp/0.1.0

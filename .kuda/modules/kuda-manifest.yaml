@@ -1,6 +1,6 @@
 name: kuda-manifest
 path: crates/kuda-manifest/Cargo.toml
-purpose: 'Extract adapter: package manifests -> package graph'
+purpose: 'Manifest extractor adapter (kind `"manifest"`) — walks the repo for manifest basenames declared by `LangDef` entries and turns package manifests into the module graph: one `SymbolKind::Module` symbol per manifest plus `EdgeKind::PackageDep` edges, with no parser or language knowledge beyond per-format readers (Cargo.toml, package.json, pyproject.toml, setup.py, go.mod).'
 api:
 - name: ManifestExtractor
   kind: type
@@ -10,42 +10,52 @@ api:
 - name: cargo
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 180
+  line: 182
   module: kuda-manifest
 - name: cargo_dep_name
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 206
+  line: 208
   module: kuda-manifest
 - name: cargo_git_dep_flag_off_keeps_key
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 358
+  line: 554
   module: kuda-manifest
 - name: cargo_git_dep_resolves_to_repo_basename
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 313
+  line: 506
   module: kuda-manifest
 - name: cargo_package_rename_uses_real_name
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 329
+  line: 522
   module: kuda-manifest
 - name: cargo_plain_and_workspace_deps_keep_key
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 344
+  line: 540
   module: kuda-manifest
 - name: extract
   kind: function
   file: crates/kuda-manifest/src/lib.rs
   line: 24
   module: kuda-manifest
+- name: extract_root_manifest_falls_back_to_manifest_name
+  kind: function
+  file: crates/kuda-manifest/src/lib.rs
+  line: 355
+  module: kuda-manifest
+- name: extract_walks_tree_and_names_modules
+  kind: function
+  file: crates/kuda-manifest/src/lib.rs
+  line: 288
+  module: kuda-manifest
 - name: go_mod
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 243
+  line: 245
   module: kuda-manifest
 - name: kind
   kind: function
@@ -60,52 +70,67 @@ api:
 - name: package_json
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 229
+  line: 231
   module: kuda-manifest
 - name: parse_manifest
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 85
+  line: 84
+  module: kuda-manifest
+- name: parse_manifest_edge_cases
+  kind: function
+  file: crates/kuda-manifest/src/lib.rs
+  line: 373
   module: kuda-manifest
 - name: pep508_name
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 102
+  line: 101
   module: kuda-manifest
 - name: pep508_strips_extras_markers_and_versions
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 260
+  line: 446
   module: kuda-manifest
 - name: pyproject
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 110
+  line: 109
   module: kuda-manifest
 - name: pyproject_pep621
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 267
+  line: 456
   module: kuda-manifest
 - name: pyproject_poetry
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 287
+  line: 476
+  module: kuda-manifest
+- name: rust_lang
+  kind: function
+  file: crates/kuda-manifest/src/lib.rs
+  line: 269
   module: kuda-manifest
 - name: setup_py
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 169
+  line: 171
   module: kuda-manifest
 - name: setup_py_name_kwarg
   kind: function
   file: crates/kuda-manifest/src/lib.rs
-  line: 307
+  line: 496
   module: kuda-manifest
 - name: tests
   kind: module
   file: crates/kuda-manifest/src/lib.rs
-  line: 256
+  line: 258
+  module: kuda-manifest
+- name: tmp
+  kind: function
+  file: crates/kuda-manifest/src/lib.rs
+  line: 262
   module: kuda-manifest
 deps:
 - kuda-core
@@ -115,7 +140,14 @@ deps:
 - toml
 - kuda-core
 - kuda-extract
-notes: ''
+notes: |
+  - Every discovered manifest yields a module symbol even when unparsable or unnamed — package name first, then parent-dir name, then manifest basename as fallback; parse failures never abort the walk.
+  - Walk skips `dir_excluded` noise dirs (built-ins + `[extract] exclude` extras) and `.git`-FILE worktree markers; unreadable dirs/manifests are skipped quietly.
+  - Cargo dep naming precedence: `package = "real"` rename always wins; only then, with `resolve_git_deps` on and no `workspace` key, a `git =` URL resolves to its repo basename (last segment minus `.git`); everything else keeps the table key.
+  - `ManifestExtractor { excludes, resolve_git_deps }` is configured from `[extract] exclude` and `[workspace] resolve_git_deps` — git-dep resolution exists so edges land on sibling repo modules in multi-repo workspaces.
+  - pyproject support spans PEP 621 `dependencies`/`optional-dependencies`, Poetry `dependencies`/`dev-dependencies` + group tables (skipping the `python` key), and PEP 735 `[dependency-groups]`; PEP 508 strings are reduced to bare names (extras/markers/versions stripped).
+  - setup.py yields only the package name via a textual `name=` scan (deps live in code, not data); go.mod deps are recognized as tab-indented lines containing `" v"` — both deliberately shallow heuristics.
+  - Format detection is by manifest basename; unknown basenames are ignored entirely.
 verify:
 - crates/kuda-manifest/Cargo.toml
 - crates/kuda-manifest/src/lib.rs
@@ -125,7 +157,7 @@ provenance:
   - crates/kuda-manifest/src/lib.rs
   hashes:
   - e2ef5f546ee4d7eae4708f90a7e099497a44f675
-  - 33ad8e16633e164ace719456d0d3bb57c6090bcd
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
-  generator: kuda-template/0.1.2
+  - 324f54fc02d7ba653ee0b7167ced3063c6da3dee
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
+  generator: kuda-acp/0.1.2

@@ -45,6 +45,7 @@ fn sk_str(k: SymbolKind) -> &'static str {
         SymbolKind::Const => "const",
         SymbolKind::Module => "module",
         SymbolKind::Macro => "macro",
+        SymbolKind::Record => "record",
         SymbolKind::Other => "other",
     }
 }
@@ -57,6 +58,7 @@ fn sk_from(s: &str) -> SymbolKind {
         "const" => SymbolKind::Const,
         "module" => SymbolKind::Module,
         "macro" => SymbolKind::Macro,
+        "record" => SymbolKind::Record,
         _ => SymbolKind::Other,
     }
 }
@@ -67,6 +69,7 @@ fn ek_str(k: EdgeKind) -> &'static str {
         EdgeKind::Calls => "calls",
         EdgeKind::PackageDep => "package-dep",
         EdgeKind::WorkspaceMember => "workspace-member",
+        EdgeKind::References => "references",
     }
 }
 
@@ -75,6 +78,7 @@ fn ek_from(s: &str) -> EdgeKind {
         "imports" => EdgeKind::Imports,
         "calls" => EdgeKind::Calls,
         "workspace-member" => EdgeKind::WorkspaceMember,
+        "references" => EdgeKind::References,
         _ => EdgeKind::PackageDep,
     }
 }
@@ -385,8 +389,10 @@ mod tests {
         // drop tables under the store's feet -> every read/write errs
         {
             let conn = s.conn.lock().unwrap();
-            conn.execute_batch("DROP TABLE symbols; DROP TABLE edges; DROP TABLE files; DROP TABLE meta;")
-                .unwrap();
+            conn.execute_batch(
+                "DROP TABLE symbols; DROP TABLE edges; DROP TABLE files; DROP TABLE meta;",
+            )
+            .unwrap();
         }
         assert!(s.find("a").is_err());
         assert!(s.search("a").is_err());

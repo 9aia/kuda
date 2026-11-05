@@ -1,16 +1,20 @@
 path: crates/kuda-config-toml/tests/load.rs
 module: kuda-config-toml
-purpose: crates/kuda-config-toml/tests/load.rs
+purpose: 'Integration tests for `TomlSource::load` covering the full resolution behavior: loading via `$KUDA_CONFIG`, explicit path, missing-file error, malformed-TOML parse errors that surface the path, `./kuda.toml` cwd fallback, unreadable-file read errors (unix-only, mode 0o000), and the no-`HOME`/no-env "no kuda.toml found" error. Env/cwd-mutating tests are serialized through a shared `LOCK` mutex and restore `KUDA_CONFIG`/`HOME`/cwd afterwards.'
 symbols:
 - tmp
+- LOCK
 - CFG
 - loads_via_env_var
 - explicit_path_and_missing_error
+- parse_error_and_dotfile_fallback
+- unreadable_config_is_a_read_error
+- home_fallback_when_unset
 provenance:
   files:
   - crates/kuda-config-toml/tests/load.rs
   hashes:
-  - 6f5371079a853f0282a1e9ce5afa661fcd1d1bcf
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
+  - e61f26303098c6a88c012a302d72e995dfb20f48
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
   generator: kuda-acp/0.1.0

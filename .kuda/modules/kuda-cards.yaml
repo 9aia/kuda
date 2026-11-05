@@ -1,11 +1,21 @@
 name: kuda-cards
 path: crates/kuda-cards/Cargo.toml
-purpose: Card render — .kuda/index.yaml + modules/*.yaml
+purpose: Card serialization layer between kuda-core domain types and the committed `.kuda/*.yaml` artifacts — thin serde_yaml render/parse wrappers for `RepoCard`, `ModuleCard`, and `FileCard`, with errors stringified. Tests cover round-trips of all three card types plus malformed-YAML rejection.
 api:
+- name: file_card_roundtrip_and_bad_yaml
+  kind: function
+  file: crates/kuda-cards/tests/cards.rs
+  line: 63
+  module: kuda-cards
 - name: kuda-cards
   kind: module
   file: crates/kuda-cards/Cargo.toml
   line: 1
+  module: kuda-cards
+- name: module_card_roundtrip_with_omitted
+  kind: function
+  file: crates/kuda-cards/tests/cards.rs
+  line: 37
   module: kuda-cards
 - name: parse_file_card
   kind: function
@@ -22,6 +32,11 @@ api:
   file: crates/kuda-cards/src/lib.rs
   line: 12
   module: kuda-cards
+- name: prov
+  kind: function
+  file: crates/kuda-cards/tests/cards.rs
+  line: 7
+  module: kuda-cards
 - name: render_file_card
   kind: function
   file: crates/kuda-cards/src/lib.rs
@@ -37,22 +52,34 @@ api:
   file: crates/kuda-cards/src/lib.rs
   line: 8
   module: kuda-cards
+- name: repo_card_roundtrip
+  kind: function
+  file: crates/kuda-cards/tests/cards.rs
+  line: 18
+  module: kuda-cards
 deps:
 - kuda-core
 - serde
 - serde_yaml
 - kuda-core
-notes: ''
+notes: |
+  - Machine fields and the human-owned `notes:` region must round-trip through render/parse unchanged (regression-tested: `api_omitted`, symbol kinds, and notes survive).
+  - Parsers reject malformed or wrong-shaped YAML (e.g. `:::`, a bare list for a `FileCard`) with an `Err`, never a panic or silent default.
+  - Artifact layout is fixed by convention: `.kuda/index.yaml` is the L0 always-load repo card, `.kuda/modules/<name>.yaml` the L1 module cards, `.kuda/files/<module>/<file>.yaml` the L1 per-file cards.
+  - The crate is a pure pass-through — no validation, defaults, or migration logic; all schema knowledge lives in the kuda-core types' serde derives.
 verify:
 - crates/kuda-cards/Cargo.toml
 - crates/kuda-cards/src/lib.rs
+- crates/kuda-cards/tests/cards.rs
 provenance:
   files:
   - crates/kuda-cards/Cargo.toml
   - crates/kuda-cards/src/lib.rs
+  - crates/kuda-cards/tests/cards.rs
   hashes:
   - c2232432f5c2b51750ed9406059add07640caa15
-  - a0818022d3de6360d0fca779bf0f16ea13661d21
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
-  generator: kuda-template/0.1.2
+  - ac8ed078ee86cd1b6b087cf3ed964eb76366546a
+  - 86aa21bc77d7ac79a6a4d5f0944f511f4d5a32fc
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
+  generator: kuda-acp/0.1.2

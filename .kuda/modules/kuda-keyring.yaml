@@ -1,6 +1,6 @@
 name: kuda-keyring
 path: crates/kuda-keyring/Cargo.toml
-purpose: 'Secret adapter: OS keyring via secret-tool (libsecret)'
+purpose: Keyring adapter of the `Secrets` port that shells out to `secret-tool` (libsecret) for desktop-keyring storage, grouping entries under a `service` attribute (default `"kuda"`). The test drives a PATH-stubbed `secret-tool` shell script through hit/fail/empty/missing-binary modes.
 api:
 - name: KeyringSecrets
   kind: type
@@ -22,6 +22,11 @@ api:
   file: crates/kuda-keyring/Cargo.toml
   line: 1
   module: kuda-keyring
+- name: service_lookup_and_stubbed_secret_tool_roundtrip
+  kind: function
+  file: crates/kuda-keyring/tests/keyring.rs
+  line: 7
+  module: kuda-keyring
 - name: set
   kind: function
   file: crates/kuda-keyring/src/lib.rs
@@ -30,17 +35,25 @@ api:
 deps:
 - kuda-secret
 - kuda-secret
-notes: ''
+notes: |
+  - Secret values never appear in argv: `set` pipes the value to `secret-tool store`'s stdin; `get` returns only trimmed, non-empty stdout on exit success.
+  - Lookups are total — headless boxes without dbus, lookup failures, empty output, or a missing `secret-tool` binary all yield `None` so the caller falls through to the file store; only `set` surfaces `io::Error` (spawn failure or non-zero exit).
+  - Entries are keyed by the attribute pair `service=<service> name=<name>` with label `"<service>: <name>"`, so changing `service` partitions the keyring namespace.
+  - `secret-tool` must be installed and on PATH — the adapter does no dbus/libsecret linking itself, just subprocess calls.
+  - The test is a single function on purpose: it mutates process-global `PATH` and `KUDA_STUB_MODE`, which would race under parallel test threads.
 verify:
 - crates/kuda-keyring/Cargo.toml
 - crates/kuda-keyring/src/lib.rs
+- crates/kuda-keyring/tests/keyring.rs
 provenance:
   files:
   - crates/kuda-keyring/Cargo.toml
   - crates/kuda-keyring/src/lib.rs
+  - crates/kuda-keyring/tests/keyring.rs
   hashes:
   - 91090b39dc802b32e546f0af5ad5f1aa9e994bb8
   - 5242918416df1b111afa3ac068a34dd434191191
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
-  generator: kuda-template/0.1.2
+  - 2376ee17cf4aa48cec92e05dfd92f3eb3f0e477f
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
+  generator: kuda-acp/0.1.2

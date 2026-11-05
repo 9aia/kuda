@@ -6,7 +6,7 @@
 # root = "."                       # repo root (default: toml's dir)
 
 [extract]
-kinds = ["manifest", "treesitter", "lsp"] # adapter crates, tried in order
+kinds = ["manifest", "treesitter", "lsp", "records"] # adapter crates, tried in order
 lsp_server = "rust-analyzer"     # kuda-lsp adapter: server cmd per lang
 
 [summarize]

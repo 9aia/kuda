@@ -4,7 +4,7 @@
 use clap::{Parser, Subcommand};
 use kuda_config::ConfigSource;
 use kuda_config_toml::TomlSource;
-use kuda_core::{Config, LangDef, Provenance, RepoCard, Symbol};
+use kuda_core::{Config, DomainDef, LangDef, Provenance, RepoCard, Symbol};
 use kuda_extract::Extractor;
 use kuda_store::IndexStore;
 use kuda_summarize::Summarizer;
@@ -37,6 +37,10 @@ const LANG_TOMLS: &[&str] = &[
     include_str!("../../../data/langs/python.toml"),
     include_str!("../../../data/langs/go.toml"),
 ];
+
+/// Domain corpora — record descriptors (data/domains/*), same
+/// data-not-code trick as LANG_TOMLS one level up.
+const DOMAIN_TOMLS: &[&str] = &[include_str!("../../../data/domains/myco.toml")];
 
 #[derive(Parser)]
 #[command(
@@ -158,6 +162,13 @@ fn langs() -> Vec<LangDef> {
         .collect()
 }
 
+fn domains() -> Vec<DomainDef> {
+    DOMAIN_TOMLS
+        .iter()
+        .filter_map(|t| toml::from_str(t).ok())
+        .collect()
+}
+
 /// git blob hash — provenance key. In-process sha1
 /// ("blob <len>\0" + bytes): identical values to
 /// `git hash-object`, no subprocess per file.
@@ -274,12 +285,33 @@ fn walk_sets(
     (manifest_list, manifest_names, src_exts)
 }
 
+/// Which domain corpus a file belongs to — declared root prefix +
+/// extension. Returns the descriptor's module name on match.
+fn domain_module<'a>(rel: &Path, domains: &'a [DomainDef]) -> Option<&'a str> {
+    domains
+        .iter()
+        .find(|d| {
+            d.roots.iter().any(|r| rel.starts_with(r))
+                && rel
+                    .extension()
+                    .and_then(|x| x.to_str())
+                    .map(|x| {
+                        d.extensions
+                            .iter()
+                            .any(|de| de.trim_start_matches('.') == x)
+                    })
+                    .unwrap_or(false)
+        })
+        .map(|d| d.module.as_str())
+}
+
 /// Shared repo walk for `sync` + `status`: collect manifests and
 /// source files (same `dir_excluded` + worktree `.git`-file skip),
 /// group them into modules by manifest dir -> package name, and
 /// blob-hash every file. `pkg_by_dir` only affects module naming —
 /// pass an empty map when just the file set + hashes matter (the
-/// tree digest).
+/// tree digest). `domains` buckets record-corpus files under their
+/// descriptor's module (cards + provenance ride the same pipeline).
 fn scan_repo(
     dir: &Path,
     cfg: &Config,
@@ -287,10 +319,17 @@ fn scan_repo(
     manifest_names: &std::collections::HashSet<String>,
     src_exts: &std::collections::HashSet<String>,
     pkg_by_dir: &std::collections::HashMap<PathBuf, String>,
+    domains: &[DomainDef],
 ) -> (
     BTreeMap<String, Vec<PathBuf>>,
     std::collections::HashMap<PathBuf, String>,
 ) {
+    // Declared corpus roots — a `.git`-file worktree marker does not
+    // stop the descent here (myco's project/ is such a worktree).
+    let domain_roots: std::collections::HashSet<PathBuf> = domains
+        .iter()
+        .flat_map(|d| d.roots.iter().cloned())
+        .collect();
     // Cheap (no parse): drives both the incremental diff and the
     // per-module file lists in sync, and the tree digest in status.
     let mut mod_files: BTreeMap<String, Vec<PathBuf>> = BTreeMap::new();
@@ -302,18 +341,25 @@ fn scan_repo(
         for e in rd.flatten() {
             let p = e.path();
             if p.is_dir() {
+                let rel_dir = p.strip_prefix(dir).unwrap_or(&p);
+                let worktree = p.join(".git").is_file() && !domain_roots.contains(rel_dir);
                 if !e
                     .file_name()
                     .to_str()
                     .map(|n| kuda_core::dir_excluded(n, &cfg.extract.exclude))
                     .unwrap_or(true)
-                    && !p.join(".git").is_file()
+                    && !worktree
                 {
                     stack.push(p);
                 }
                 continue;
             }
             let name = e.file_name().to_string_lossy().into_owned();
+            let rel = p.strip_prefix(dir).unwrap_or(&p).to_path_buf();
+            if let Some(m) = domain_module(&rel, domains) {
+                mod_files.entry(m.to_owned()).or_default().push(rel);
+                continue;
+            }
             let is_manifest = manifest_names.contains(name.as_str());
             let is_src = p
                 .extension()
@@ -323,7 +369,6 @@ fn scan_repo(
             if !is_manifest && !is_src {
                 continue;
             }
-            let rel = p.strip_prefix(dir).unwrap_or(&p).to_path_buf();
             let module = kuda_treesitter::manifest_dir_of(dir, &p, manifest_list)
                 .map(|d| {
                     let rel_dir = d.strip_prefix(dir).unwrap_or(&d).to_path_buf();
@@ -351,6 +396,7 @@ fn scan_repo(
 
 fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli, full: bool) -> i32 {
     let langs = langs();
+    let doms = domains();
     let (manifest_list, manifest_names, src_exts) = walk_sets(&langs);
 
     // --- manifest pass first (cheap): package names decide module
@@ -379,6 +425,7 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli, full: bool) -> i32 {
         &manifest_names,
         &src_exts,
         &pkg_by_dir,
+        &doms,
     );
 
     let cards_dir = dir.join(&cfg.cards.dir);
@@ -495,6 +542,10 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli, full: bool) -> i32 {
             "lsp" => extractors.push(Box::new(kuda_lsp::LspExtractor {
                 server_cmd: cfg.extract.lsp_server.clone(),
             })),
+            "records" => extractors.push(Box::new(kuda_records::RecordsExtractor {
+                excludes: cfg.extract.exclude.clone(),
+                domains: doms.clone(),
+            })),
             other => eprintln!("extract: unknown kind {other} (adapter crate?)"),
         }
     }
@@ -550,7 +601,12 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli, full: bool) -> i32 {
 
     // group symbols + edges by module (filtered pass: changed only)
     let mut by_mod: BTreeMap<String, Vec<kuda_core::Symbol>> = BTreeMap::new();
+    // symbol name -> module, so sub-module edges (record -> record)
+    // still store under the module that owns their source symbol.
+    let mut sym_module: std::collections::HashMap<String, String> =
+        std::collections::HashMap::new();
     for s in &ext.symbols {
+        sym_module.insert(s.name.clone(), s.module.clone());
         by_mod.entry(s.module.clone()).or_default().push(s.clone());
     }
 
@@ -670,7 +726,13 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli, full: bool) -> i32 {
         let mod_edges: Vec<_> = ext
             .edges
             .iter()
-            .filter(|e| e.from == *module)
+            .filter(|e| {
+                e.from == *module
+                    || sym_module
+                        .get(&e.from)
+                        .map(|m| m == module)
+                        .unwrap_or(false)
+            })
             .cloned()
             .collect();
         // L1 file cards — per-source-file chunked summaries.
@@ -761,9 +823,18 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli, full: bool) -> i32 {
         #[cfg(coverage)]
         let mut card = card_res.unwrap();
         sanitize_card(&mut card, &manifest_names);
-        // purpose: manifest description -> crate docs -> README
+        // purpose: domain descriptor -> manifest description ->
+        // crate docs -> README. Domain modules have no manifest —
+        // skipping straight to the chain would steal the repo
+        // README's first line as their purpose.
         if card.purpose == card.name {
-            if let Some(d) = module_purpose(dir, &dir.join(&path)) {
+            if let Some(p) = doms
+                .iter()
+                .find(|d| d.module == *module)
+                .and_then(|d| d.purpose.as_ref())
+            {
+                card.purpose = p.clone();
+            } else if let Some(d) = module_purpose(dir, &dir.join(&path)) {
                 card.purpose = d;
             }
         }
@@ -1390,6 +1461,7 @@ fn status(cli: &Cli) -> i32 {
                     &manifest_names,
                     &src_exts,
                     &std::collections::HashMap::new(),
+                    &domains(),
                 );
                 if tree_digest(&filehash) != l0.tree_digest {
                     outln!(

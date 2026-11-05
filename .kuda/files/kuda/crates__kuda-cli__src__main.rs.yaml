@@ -1,18 +1,20 @@
 path: crates/kuda-cli/src/main.rs
 module: kuda
-purpose: crates/kuda-cli/src/main.rs
+purpose: 'CLI composition root for kuda: parses `kuda.toml`, wires config/extract/store/summarize/VCS adapters, and dispatches subcommands (init, sync, status, map, card, find, dependents, refs, watch, mcp, acp, doctor, gen-cli-docs). Implements the incremental index pipeline — repo walk grouping files into modules by manifest dir or domain corpus, in-process git blob hashing for provenance, per-module summarization, and card/index persistence — plus workspace mode driven by `.kuda/workspace.yaml`.'
 symbols:
 - emit
 - out
 - outln
 - EXAMPLE_TOML
 - LANG_TOMLS
+- DOMAIN_TOMLS
 - Cli
 - Cmd
 - main
 - root
 - load_config
 - langs
+- domains
 - hash_files
 - blob_hash
 - unix_now
@@ -20,23 +22,21 @@ symbols:
 - workspace_roots
 - sync
 - walk_sets
+- domain_module
 - scan_repo
 - sync_one
-- GENERATOR
+- GENERATOR_VERSION
+- FileCardJob
 - sync_file_cards
 - CHUNK
 - BUDGET
 - SKIP_BYTES
 - module_purpose
-- crate_doc_purpose
-- readme_purpose
-- manifest_purpose
-- safe
 provenance:
   files:
   - crates/kuda-cli/src/main.rs
   hashes:
-  - f89d1e5a3d7622acbb6c3565cc102d88fc1167da
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
+  - dd4f29b2e54d2f9772f434561736663a3e368940
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
   generator: kuda-acp/0.1.0

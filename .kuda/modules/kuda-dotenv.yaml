@@ -1,6 +1,6 @@
 name: kuda-dotenv
 path: crates/kuda-dotenv/Cargo.toml
-purpose: 'Secret adapter: KEY=VAL env file (chmod 600)'
+purpose: Dotenv adapter of the `Secrets` port — `DotenvSecrets { path }` persists secrets as a plain `KEY=VAL` file, the last store in the secrets chain for headless boxes without a desktop keyring. Tests cover set/get/update semantics, malformed-line handling, write-error paths, and permission hardening.
 api:
 - name: DotenvSecrets
   kind: type
@@ -12,6 +12,11 @@ api:
   file: crates/kuda-dotenv/src/lib.rs
   line: 14
   module: kuda-dotenv
+- name: get_skips_malformed_and_empty
+  kind: function
+  file: crates/kuda-dotenv/tests/store.rs
+  line: 24
+  module: kuda-dotenv
 - name: kuda-dotenv
   kind: module
   file: crates/kuda-dotenv/Cargo.toml
@@ -20,17 +25,27 @@ api:
 - name: perms_600
   kind: function
   file: crates/kuda-dotenv/tests/store.rs
-  line: 25
+  line: 58
   module: kuda-dotenv
 - name: set
   kind: function
   file: crates/kuda-dotenv/src/lib.rs
   line: 21
   module: kuda-dotenv
+- name: set_error_when_parent_is_file
+  kind: function
+  file: crates/kuda-dotenv/tests/store.rs
+  line: 45
+  module: kuda-dotenv
 - name: set_get_update
   kind: function
   file: crates/kuda-dotenv/tests/store.rs
   line: 9
+  module: kuda-dotenv
+- name: set_no_parent_path
+  kind: function
+  file: crates/kuda-dotenv/tests/store.rs
+  line: 37
   module: kuda-dotenv
 - name: tmp
   kind: function
@@ -39,9 +54,14 @@ api:
   module: kuda-dotenv
 deps:
 - kuda-secret
-- kuda-dotenv
 - kuda-secret
-notes: ''
+notes: |
+  - The secrets file is written with mode 0600 on unix after every `set` (regression-tested via permission bits).
+  - `set` updates an existing key IN PLACE — never appends a duplicate `KEY=` line; new keys append, parent dirs are created, file ends with a trailing newline.
+  - `get` returns `None` for missing keys, empty values, and lines without `=` (malformed lines are skipped, not errors).
+  - Parsing is deliberately minimal: keys/values are trimmed, first matching line wins — no quoting, escaping, comments, or `export ` handling, so values containing `=` survive only after the first separator and multi-line values are unsupported.
+  - `set` rewrites the whole file on every call (read-modify-write, not atomic); a missing file is treated as empty.
+  - Error paths are exercised: a parentless path or a parent that is a regular file makes `set` return an `io::Error` rather than panicking.
 verify:
 - crates/kuda-dotenv/Cargo.toml
 - crates/kuda-dotenv/src/lib.rs
@@ -54,7 +74,7 @@ provenance:
   hashes:
   - c00e5be2a18e90d8ecfd27f7e9f455e5343b7a86
   - cb40b55b263aafbb6428aabc0c2efdfc983be879
-  - 4d3dbaa112d4637449c1defd1780cf73f5683533
-  commit_sha: e360ec6671de95435c1a3ec3663fd04ec6cc2267
-  generated_at: '1792719500'
-  generator: kuda-template/0.1.2
+  - 4c2a39815095537b2b15c46d60a717575172fdcb
+  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
+  generated_at: '1793855773'
+  generator: kuda-acp/0.1.2
