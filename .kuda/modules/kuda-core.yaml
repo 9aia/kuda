@@ -1,6 +1,6 @@
 name: kuda-core
 path: crates/kuda-core/Cargo.toml
-purpose: 'kuda''s integration-free domain core: memory-tier types (L0 `RepoCard`, L1 `ModuleCard`/`FileCard`, L2 `Symbol`/`DepEdge` graph), `Provenance` for computed staleness, `LangDef`/`DomainDef` descriptors, and the `kuda.toml` config model. Also hosts shared name/dep helpers (`module_key`, `module_variants`, `dep_root`) and walk exclusions (`default_excludes`, `dir_excluded`).'
+purpose: 'notes: - Default extract kinds are `["manifest", "treesitter", "records"]` (note: `lsp` is opt-in, not a default); default summarize kind is `template`; default store is sqlite at `.kuda/index.sqlite`; default cards dir is `.kuda`. - `module_key` folds `-`→`_` and lowercases; `module_variants`/`dep_root` exist specifically so dash-named dists vs underscore imports (e.g. `neuralmind-shared` vs `neuralmind_shared`) can''t produce false-empty dependents — `dep_root` returns `None` for relative/`@/` imports (intra-module, no edge). - `SymbolKind` serializes lowercase, `EdgeKind` serializes kebab-case — relevant when reading/writing card YAML. - `DomainDef.roots` are walked even when they carry a `.git`-file worktree marker (the declaration is the intent), unlike ordinary dirs which the walk skips. - `api_omitted`, `tree_digest`, `files_total` use `skip_serializing_if` when zero/empty, so their absence in YAML means zero, not missing data.'
 api:
 - name: CardsCfg
   kind: type
@@ -180,7 +180,7 @@ api:
 - name: domain_types_serde_and_clone
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 667
+  line: 664
   module: kuda-core
 - name: is_valid_sha
   kind: function
@@ -209,17 +209,17 @@ deps:
 - toml
 - serde
 notes: |
-  - Staleness is a property of data, never prose: every card carries `Provenance` (files + parallel hashes, commit_sha, RFC3339 generated_at, generator stamp); `status` diffs commit vs HEAD and re-hashes files — drift is computed, not assumed.
-  - Humans own `ModuleCard.notes` — regeneration must never clobber it; machine owns `api`/`deps`/`verify`, and `api` is capped with `api_omitted` carrying the dropped count so the card stays honest.
-  - `RepoCard` stays an always-load blob (~1k tokens): the walked file list is never embedded — `tree_digest` (sha1 over sorted "path:hash" lines) + `files_total` carry the snapshot instead.
-  - A new language or record corpus is a data change, not an engine change (ADR-0001): `LangDef`/`DomainDef` descriptors are loaded from `data/langs/*` / `data/domains/*` at runtime.
-  - Dash/underscore spellings must not split a module: `module_key` folds both to one canonical key and `module_variants` expands queries, so dependents lookups can't return false empties.
-  - All config sections use `#[serde(deny_unknown_fields)]` — a typo'd key in `kuda.toml` is a parse error, not silently ignored; every section has a serde default (extract kinds `manifest,treesitter,records`, summarize `template`, store `sqlite` at `.kuda/index.sqlite`, cards dir `.kuda`).
-  - `FileCard` provenance is single-file (`files`/`hashes` len 1); `ContentHash`'s algorithm is pinned by the extractor, not the domain.
-  - `dep_root` returns `None` for relative/`@/` imports (intra-module, no edge), reduces python to the first dotted segment, keeps go paths whole (prefix-matched later), and keeps npm `@scope/pkg` two-segment.
-  - `DomainDef.roots` are walked even with a `.git`-file worktree marker — the declaration is the intent; `record_patterns` capture group 1 is the record id and the first matching line pins the symbol location.
-  - `SymbolKind::Record`/`EdgeKind::References` exist for non-code domain corpora (kuda-records); serde renames are lowercase for symbol kinds, kebab-case for edge kinds.
-  - `default_excludes` covers build/vendored noise (`.git`, `.kuda`, `target`, `node_modules`, `generated`, …) and `[extract] exclude` only ADDS names — keeping files out of walks also keeps them out of hashes and agent prompts (agent cost is per-file fed in).
+  - Every card carries `Provenance` (files + parallel hashes + commit_sha + generated_at + generator); drift is computed by re-hashing, never assumed — staleness is a property of the data, not prose.
+  - All config structs use `#[serde(deny_unknown_fields)]`, so a typo in any `kuda.toml` field name fails the load.
+  - `RepoCard` deliberately does not embed the walked-file list; it carries `tree_digest` (sha1 over sorted "path:hash" lines) + `files_total` instead, keeping the always-load card ~1k tokens.
+  - `ModuleCard.notes` is human-owned and survives regeneration; machine owns `api`/`deps`/`verify`.
+  - `ContentHash` is a type alias (`String`); the hash algorithm is pinned by the extractor, not the domain.
+
+  - Default extract kinds are `["manifest", "treesitter", "records"]` (note: `lsp` is opt-in, not a default); default summarize kind is `template`; default store is sqlite at `.kuda/index.sqlite`; default cards dir is `.kuda`.
+  - `module_key` folds `-`→`_` and lowercases; `module_variants`/`dep_root` exist specifically so dash-named dists vs underscore imports (e.g. `neuralmind-shared` vs `neuralmind_shared`) can't produce false-empty dependents — `dep_root` returns `None` for relative/`@/` imports (intra-module, no edge).
+  - `SymbolKind` serializes lowercase, `EdgeKind` serializes kebab-case — relevant when reading/writing card YAML.
+  - `DomainDef.roots` are walked even when they carry a `.git`-file worktree marker (the declaration is the intent), unlike ordinary dirs which the walk skips.
+  - `api_omitted`, `tree_digest`, `files_total` use `skip_serializing_if` when zero/empty, so their absence in YAML means zero, not missing data.
 verify:
 - crates/kuda-core/Cargo.toml
 - crates/kuda-core/src/lib.rs
@@ -229,7 +229,7 @@ provenance:
   - crates/kuda-core/src/lib.rs
   hashes:
   - 858a2d26892b5f1150a8b4663f27d32c408f6e1d
-  - 5eac6845a070da7d5fb9df97c894deecb1786456
-  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
-  generated_at: '1793855773'
+  - e37564aa1e5f1d3069980465288c88f705f7aa0c
+  commit_sha: b1927ee696f1f3d4b095990941559ff83b32e157
+  generated_at: '1793901944'
   generator: kuda-acp/0.1.2

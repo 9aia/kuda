@@ -1,0 +1,354 @@
+name: docs
+path: docs/package.json
+purpose: VitePress documentation site for kuda — hand-written getting-started/comparison/architecture/release-model pages plus how-to guides for each integration surface (languages, summarizers, MCP, ACP, multi-repo, sturn WAL, record corpora), with three Python generators that derive `reference/config.md`, `reference/crate-api.md`, and `public/api/index.html` from workspace sources so reference docs never drift from code.
+api:
+- name: Command-Line Help for `kuda`
+  kind: record
+  file: docs/reference/cli.md
+  line: 1
+  module: docs
+- name: Config — `kuda.toml`
+  kind: record
+  file: docs/reference/config.md
+  line: 1
+  module: docs
+- name: Crate API
+  kind: record
+  file: docs/reference/crate-api.md
+  line: 1
+  module: docs
+- name: 'Explanation: architecture'
+  kind: record
+  file: docs/explanation/architecture.md
+  line: 1
+  module: docs
+- name: Getting started
+  kind: record
+  file: docs/getting-started.md
+  line: 1
+  module: docs
+- name: 'How-to: add a language'
+  kind: record
+  file: docs/how-to/languages.md
+  line: 1
+  module: docs
+- name: 'How-to: index a multi-repo workspace'
+  kind: record
+  file: docs/how-to/multi-repo.md
+  line: 1
+  module: docs
+- name: 'How-to: index a record corpus'
+  kind: record
+  file: docs/how-to/domains.md
+  line: 1
+  module: docs
+- name: 'How-to: serve the index over MCP'
+  kind: record
+  file: docs/how-to/mcp.md
+  line: 1
+  module: docs
+- name: 'How-to: sturn WAL integration'
+  kind: record
+  file: docs/how-to/sturn.md
+  line: 1
+  module: docs
+- name: 'How-to: summarizers'
+  kind: record
+  file: docs/how-to/llm-summarizer.md
+  line: 1
+  module: docs
+- name: 'How-to: the ACP surface'
+  kind: record
+  file: docs/how-to/acp.md
+  line: 1
+  module: docs
+- name: 'Reference: card schema'
+  kind: record
+  file: docs/reference/cards.md
+  line: 1
+  module: docs
+- name: The release model
+  kind: record
+  file: docs/explanation/release-model.md
+  line: 1
+  module: docs
+- name: 'Tutorial: your first index'
+  kind: record
+  file: docs/tutorials/first-run.md
+  line: 1
+  module: docs
+- name: kuda vs the alternatives
+  kind: record
+  file: docs/comparison.md
+  line: 1
+  module: docs
+deps:
+- template
+- lsp
+- repo
+- RepoCfg
+- extract
+- ExtractCfg
+- summarize
+- SummarizeCfg
+- store
+- StoreCfg
+- cards
+- CardsCfg
+- workspace
+- WorkspaceCfg
+- name
+- string
+- root
+- path
+- kinds
+- list
+- lsp_server
+- exclude
+- default_excludes
+- kind
+- acp_cmd
+- file_cards
+- bool
+- provider
+- model
+- dir
+- roots
+- resolve_git_deps
+- deny_unknown_fields
+- manifest
+- treesitter
+- lsp
+- template
+- acp
+- purpose
+- tree_digest
+- files_total
+- status
+- files
+- hashes
+- hash-object
+- drifted
+- commit_sha
+- generator
+- api
+- deps
+- provenance
+- sync
+- kuda
+- init
+- sync
+- status
+- map
+- card
+- find
+- dependents
+- refs
+- watch
+- mcp
+- acp
+- doctor
+- rust-analyzer
+- kinds
+- sync
+- commit_sha
+- description
+- status
+- find
+- dependents
+- refs
+- card
+- map
+- status
+- purpose
+- sync
+- kuda-docs
+- docs
+- files
+- acp
+- manifest
+- treesitter
+- use
+- lsp
+- documentSymbol
+- SymbolKind
+- EdgeKind
+- kuda-core
+- Symbol
+- ModuleCard
+- Provenance
+- Claim
+- kuda-extract
+- kuda-manifest
+- kuda-treesitter
+- kuda-lsp
+- kuda-store
+- kuda-store-sqlite
+- kuda-summarize
+- kuda-template
+- kuda-llm
+- kuda-vcs
+- kuda-git
+- kuda-config
+- kuda-config-toml
+- kuda-secret
+- kuda-keyring
+- kuda-dotenv
+- main
+- gh
+- cancel_running
+- cmd
+- all
+- cargo-edit
+- cargo-dist
+- CARGO_REGISTRY_TOKEN
+- name
+- languageId
+- extensions
+- manifests
+- grammar
+- kuda-treesitter
+- symbol_query
+- dep_query
+- dependents
+- rust
+- typescript
+- python
+- go
+- manifest
+- SymbolKind
+- Other
+- dotted_name
+- neuralmind-shared
+- sync
+- write
+- path
+- rename
+- delete
+- from
+- to
+- claim
+- release
+- glob
+- write_file
+- sturn
+- kuda-cards
+- template
+- acp
+- llm
+- sync
+- purpose
+- notes
+- api
+- deps
+- verify
+- provenance
+- agent_thought_chunk
+- description
+- provider
+- model
+- map
+- status
+- agent_message_chunk
+- agentInfo
+- sessionId
+- end_turn
+- records
+- roots
+- extensions
+- module
+- purpose
+- record_patterns
+- ref_pattern
+- references
+- record
+- Symbol
+- status
+- DOMAIN_TOMLS
+- repo_card
+- module_card
+- find
+- dependents
+- refs
+- status
+- sync
+- initialize
+- kuda-core
+- mimus
+- find
+- refs
+- dependents
+notes: |
+  - Generated files are never hand-edited: `reference/config.md` comes from `gen-config-docs.py` reading doc comments on `crates/kuda-core/src/lib.rs` config structs; `reference/crate-api.md` and the crate-map table inside `explanation/architecture.md` come from `gen-crate-map.py` reading workspace `Cargo.toml`s; `reference/cli.md` comes from `cargo run -p kuda -- gen-cli-docs`; `public/api/index.html` comes from `gen-api-index.py` after `cargo doc`.
+  - Diátaxis structure is preserved: `tutorials/` (learn), `how-to/` (tasks), `reference/` (lookup), `explanation/` (why), with `getting-started.md` acting as the signpost across all four.
+  - Every how-to stays grounded in the actual CLI/config surface it documents — commands, config keys, and file paths cited in the docs must match what `kuda` ships (e.g. `kuda mcp`/`kuda acp` tool lists, `[extract].kinds`, `[summarize].kind`, `data/langs/*.toml` and `data/domains/*.toml` descriptor fields).
+
+  - `bun run docs:gen` (aliased into `docs:dev` and `docs:build`) runs all three generators in order — `docs:cli` → `docs:config` → `docs:crates`; editing a generated file without rerunning the generator will be overwritten on the next build.
+  - `gen-crate-map.py` rewrites the crate-map table *inside* `explanation/architecture.md` via regex substitution — the surrounding prose is hand-written, but the `| crate | layer | purpose |` table is machine-owned; the `LAYER` dict in the script hardcodes which crates are `domain`/`port`/`binary`, everything else defaults to `impl`.
+  - `gen-config-docs.py` only reads `crates/kuda-core/src/lib.rs` today (the `SRCS` dict) — adapter-crate config structs are not yet scraped, and the "Constraints" section at the bottom of the generated file is hardcoded in the script, not derived.
+  - `docs:api` wipes `docs/public/api/*` before copying `target/doc/` — any hand-placed file in that directory is destroyed; `gen-api-index.py` only links crates whose directory name starts with `kuda`.
+  - `docs/how-to/domains.md` documents the `records` extractor and `data/domains/*.toml` descriptors (ADR-0003); it explicitly notes that repo-local `[domains]` config and non-tree sources are deferred — don't document them as shipping.
+  - `docs/how-to/multi-repo.md` is honest about current limits: only `dependents` merges across roots today, `find`/`refs` stay per-root, and there is no aggregate workspace card — keep that caveat when editing.
+  - `docs/how-to/llm-summarizer.md` documents `template` and `acp` as the two shipping summarizers and explicitly parks `llm`; the ACP section carries operational gotchas (auto-answered `session/request_permission`, dropped `agent_thought_chunk`, silent template fallback on agent failure) that are contract, not flavor.
+  - `docs/explanation/release-model.md` documents a self-release flow (`kuda deploy release` seed + push-driven `scripts/release.sh`) with no hosted CI — the 5-minute debounce, `queue = "latest"`, and `cancel_running` are load-bearing rationale, not incidental detail.
+verify:
+- docs/package.json
+- docs/comparison.md
+- docs/explanation/architecture.md
+- docs/explanation/release-model.md
+- docs/gen-api-index.py
+- docs/gen-config-docs.py
+- docs/gen-crate-map.py
+- docs/getting-started.md
+- docs/how-to/acp.md
+- docs/how-to/domains.md
+provenance:
+  files:
+  - docs/comparison.md
+  - docs/explanation/architecture.md
+  - docs/explanation/release-model.md
+  - docs/gen-api-index.py
+  - docs/gen-config-docs.py
+  - docs/gen-crate-map.py
+  - docs/getting-started.md
+  - docs/how-to/acp.md
+  - docs/how-to/domains.md
+  - docs/how-to/languages.md
+  - docs/how-to/llm-summarizer.md
+  - docs/how-to/mcp.md
+  - docs/how-to/multi-repo.md
+  - docs/how-to/sturn.md
+  - docs/index.md
+  - docs/package.json
+  - docs/public/api/static.files/SourceSerif4-LICENSE-a2cfd9d5.md
+  - docs/reference/cards.md
+  - docs/reference/cli.md
+  - docs/reference/config.md
+  - docs/reference/crate-api.md
+  - docs/tutorials/first-run.md
+  hashes:
+  - 7eaa0db3af8683b36b2ec3fdda568b6e5daf7fc8
+  - 49e37335e5f71d970efc0dd744da32c5ac7225fc
+  - b2e80c7be89065036253a08a1a9adb8ce1348d09
+  - dc0d16bc092cec9b7271df2d6f0e7237b23ab6c3
+  - f1f6bf763583cbb9c2f8123066fc79566d68b71c
+  - 222808ea202bc00a67257777d283192f4becd81d
+  - 05aeffc5c5c763616831677dc4a76b882025ee43
+  - 48de4da88a8bb9cd7878747498464a1f67834ada
+  - dd4b6d748209b7b7f09c45575010d772d04b5f11
+  - 7ed659c545f6940b636aa926ccfb157b78f8ce96
+  - feff0b0a855207cb53131fcb68e4f55261956737
+  - d57d33f2fce46ac76d1e7bdb7161f4dbcca418db
+  - c50693504b274dc1b058beb696dfefd1d7e5c3d2
+  - 030409d432dbb2b0172cd5f698555303b4d9aa29
+  - 0305d52e1a05796cf90641c5ebceaff068b8399d
+  - 7dd14e4ebad201347de01d9ac9c8dc86857f66f2
+  - 175fa4f47aecdc02e902d243a1c29914eb2ee258
+  - 3464e95d9dfc4053151e91a36567dcc2db0f5a46
+  - 416f74f20de70b2eb4f9c097925c553c42281c27
+  - 86f4771e3274b5299e7c9bcadf3c8db3e75885b6
+  - 2f6e3dd3ee0d114def08a696c982ae7708f55e47
+  - 28d2ef76304e27db4eba1f66c93465d248f39bdd
+  commit_sha: b1927ee696f1f3d4b095990941559ff83b32e157
+  generated_at: '1793902113'
+  generator: kuda-acp/0.1.2

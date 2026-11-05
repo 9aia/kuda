@@ -1,10 +1,15 @@
 name: project
 path: project/BACKLOG.md
-purpose: 'Kuda''s planning and design corpus: the 0.1.0 TODO checklist (T-001–T-029), the 0.2+ BACKLOG (T-013–T-024), ADR-0001 (tiered memory + ports/adapters topology), archived handoffs, and an index page tying them together.'
+purpose: 'notes: - ADR numbering follows a meta counter, not file order — the domain-records ADR was filed as ADR-0003, not 0002 (per handoff T-029), so there is no 0002 file. - ADR-0003 (domain descriptors) is implemented on `feat/domain-records` (pushed b1927ee); deferred items are repo-local `[domains]` config, non-tree corpus sources (sturn refs/sqlite), and record→code-module edges. - `project/` is itself a git worktree (carries a `.git`-file marker); the records extractor walks declared corpus roots regardless, unlike the shared repo walk. - Several TODO items are already implemented in the codebase (e.g. T-019 `kuda watch`, T-024 release script, T-013 lsp adapter) though still listed open — the ledger''s checkbox state is not a reliable freshness signal; cross-check against the code. - BACKLOG references sibling tools that compose through artifacts, not code deps: malurus (critic/claim-verification) and bupha (CI, dogfooded via modules/dagger).'
 api:
 - name: ADR-0001
   kind: record
   file: project/adrs/0001-adr-0001-tiered-memory-artifacts-ports-adapters-topology.md
+  line: 2
+  module: project
+- name: ADR-0003
+  kind: record
+  file: project/adrs/0003-domain-descriptors-record-corpora-as-indexable-data.md
   line: 2
   module: project
 - name: T-001
@@ -12,60 +17,65 @@ api:
   file: project/TODO.md
   line: 5
   module: project
+- name: T-001
+  kind: record
+  file: project/adrs/0003-domain-descriptors-record-corpora-as-indexable-data.md
+  line: 28
+  module: project
 - name: T-002
   kind: record
   file: project/TODO.md
-  line: 12
+  line: 11
   module: project
 - name: T-003
   kind: record
   file: project/TODO.md
-  line: 13
+  line: 12
   module: project
 - name: T-004
   kind: record
   file: project/TODO.md
-  line: 14
+  line: 13
   module: project
 - name: T-005
   kind: record
   file: project/TODO.md
-  line: 15
+  line: 14
   module: project
 - name: T-006
   kind: record
   file: project/TODO.md
-  line: 16
+  line: 15
   module: project
 - name: T-007
   kind: record
   file: project/TODO.md
-  line: 20
+  line: 19
   module: project
 - name: T-008
   kind: record
   file: project/TODO.md
-  line: 21
+  line: 20
   module: project
 - name: T-009
   kind: record
   file: project/TODO.md
-  line: 25
+  line: 24
   module: project
 - name: T-010
   kind: record
   file: project/TODO.md
-  line: 29
+  line: 28
   module: project
 - name: T-011
   kind: record
   file: project/TODO.md
-  line: 33
+  line: 32
   module: project
 - name: T-012
   kind: record
   file: project/TODO.md
-  line: 37
+  line: 36
   module: project
 - name: T-013
   kind: record
@@ -130,7 +140,7 @@ api:
 - name: T-025
   kind: record
   file: project/TODO.md
-  line: 41
+  line: 40
   module: project
 - name: T-026
   kind: record
@@ -149,23 +159,67 @@ api:
   module: project
 - name: T-029
   kind: record
-  file: project/TODO.md
-  line: 8
+  file: project/handoffs/T-029.md
+  line: 2
   module: project
 deps:
-- ADR-0002
+- kuda-core
+- sturn
+- kuda
+- myco
+- kuda-wired
+- kuda-extract
+- kuda-manifest
+- kuda-treesitter
+- kuda-store
+- kuda-store-sqlite
+- kuda-vcs
+- kuda-git
+- bupha
+- kuda-summarize
+- kuda-template
+- kuda-query
+- kuda-cards
+- kuda
+- kuda
+- mimus
+- bupha
+- kuda
+- bupha
+- kuda
+- kuda-lsp
+- kuda-acp
+- kuda-llm
 - ADR-0001
+- kuda-workspace
+- kuda
+- kuda
+- malurus
+- bupha
+- kuda
+- kuda-store
+- bupha
+- kuda
+- malurus
+- T-027
+- ADR-0003
+- sturn
 notes: |
-  - ADR-0001 fixes the architecture: tiered index (L0 repo card always-load, L1 module cards on-demand, L2 symbol/dep graph queried), every concern a port + adapter crates, per-language knowledge as data files, committed YAML cards vs gitignored rebuildable sqlite, and per-card provenance with `verify:` file lists — memory is an index into code, never a second source of truth.
-  - Records use two frontmatter forms: `id = "..."` for ADRs and `item = "..."` for handoffs; tasks carry `T-NNN` ids referenced across TODO/BACKLOG/handoffs.
-  - TODO items are unchecked checkboxes even where the code now exists (T-001–T-008 describe shipped crates) — the list reflects 0.1.0 planning, not live status; T-029 (domain descriptors + kuda-records) is marked claimed by devin, and T-025/T-026 are recovered-session/process items.
-  - Dogfooding lessons are captured as tasks: T-009 (auto-gitignore `.kuda/index.sqlite` — mimus+bupha committed the binary by hand), T-011 (.hnl descriptor blocked on a tree-sitter-handl grammar), T-022 (index the ~70-repo handl-lang org as proving ground).
-  - Deferred directions live in BACKLOG: embedding/RAG as a later `kuda-store` adapter (ADR-0001 option B), llm prose summarizer, watch daemon, episodic session memory, and the malurus critic that reuses kuda's query layer for claim verification.
-  - T-027's handoff records the deck bugs as resolved upstream in slidev-theme-9aia (2a63bb8, e9b3cce), while TODO T-026 still tracks a failing deck verification — related but distinct work items.
+  - Records use stable ids in two formats — frontmatter (`id = "ADR-0001"`, `item = "T-027"`) and checklist lines (`- [ ] T-001`) — both captured by the same `record_patterns` regexes (capture group 1 = id).
+  - ADR-0001 fixes the architecture: tiered memory (L0 repo card, L1 module cards, L2 symbol/dep graph), ports+adapters topology, per-language knowledge as data (`data/langs/*`), committed YAML cards but gitignored rebuildable sqlite, and per-card provenance with `verify:` file lists.
+  - Cards are an index into code, never a second source of truth — staleness is a property of the data (sha/hash diff), not a promise in prose.
+
+  - ADR numbering follows a meta counter, not file order — the domain-records ADR was filed as ADR-0003, not 0002 (per handoff T-029), so there is no 0002 file.
+  - ADR-0003 (domain descriptors) is implemented on `feat/domain-records` (pushed b1927ee); deferred items are repo-local `[domains]` config, non-tree corpus sources (sturn refs/sqlite), and record→code-module edges.
+  - `project/` is itself a git worktree (carries a `.git`-file marker); the records extractor walks declared corpus roots regardless, unlike the shared repo walk.
+  - Several TODO items are already implemented in the codebase (e.g. T-019 `kuda watch`, T-024 release script, T-013 lsp adapter) though still listed open — the ledger's checkbox state is not a reliable freshness signal; cross-check against the code.
+  - BACKLOG references sibling tools that compose through artifacts, not code deps: malurus (critic/claim-verification) and bupha (CI, dogfooded via modules/dagger).
 verify:
 - project/BACKLOG.md
 - project/TODO.md
 - project/adrs/0001-adr-0001-tiered-memory-artifacts-ports-adapters-topology.md
+- project/adrs/0003-domain-descriptors-record-corpora-as-indexable-data.md
+- project/handoffs/T-029.md
 - project/handoffs/archive/T-027.md
 - project/index.md
 provenance:
@@ -173,14 +227,18 @@ provenance:
   - project/BACKLOG.md
   - project/TODO.md
   - project/adrs/0001-adr-0001-tiered-memory-artifacts-ports-adapters-topology.md
+  - project/adrs/0003-domain-descriptors-record-corpora-as-indexable-data.md
+  - project/handoffs/T-029.md
   - project/handoffs/archive/T-027.md
   - project/index.md
   hashes:
   - 6b4609cf8d307865615fd108300b69ef5d514c0a
-  - 37a5e2ae10fc0bc16ed45ae4d8e08bc624f0fd2f
+  - 18465d7714fe7592b65a12da57e8069a22aa870f
   - def5e4b43853bd31a3e51c7730f08820962dfdb4
+  - 38ea915738d89469f2ea9afcbc2e62e460a5dfd6
+  - 34f59afdfb337b361448d92a7290451f3ac36b6a
   - 9f3779ae765d34171c9fb02b6644265a8cca8f91
   - a9cbb363e46c66216b83994b2dba52c063dd59db
-  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
-  generated_at: '1793855773'
+  commit_sha: b1927ee696f1f3d4b095990941559ff83b32e157
+  generated_at: '1793901944'
   generator: kuda-acp/0.1.2

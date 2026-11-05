@@ -1,6 +1,6 @@
 path: crates/kuda-extract/src/lib.rs
 module: kuda-extract
-purpose: 'Extract port for kuda: the `Extractor` trait (`Send + Sync`, `kind()` matched against `extract.kinds` in kuda.toml, `extract(root, langs)`) plus the `Extraction` result struct (symbols, dep edges, and read files feeding `Provenance.files`). Contract is mechanical extraction only — report what the grammar/manifest actually says, never inferred structure; `extract_filtered` defaults to ignoring the per-file filter (tested via a `Stub`), with implementations in `kuda-manifest`, `kuda-treesitter`, and `kuda-lsp` adapter crates.'
+purpose: 'I''ll read the file to verify the content before summarizing.purpose: Defines the extract port — the `Extractor` trait (`kind`, `extract`, and a default `extract_filtered` that ignores the per-file filter and delegates to `extract`) and the `Extraction` result struct (`symbols`, `edges`, `files` feeding `Provenance.files`). Implementations live in adapter crates (`kuda-manifest`, `kuda-treesitter`, `kuda-lsp`, `kuda-records`); the port mandates mechanical extraction only — report what the grammar/manifest actually says, never inferred structure. Includes a unit test confirming the default `extract_filtered` delegates to `extract`.'
 symbols:
 - Extraction
 - Extractor
@@ -14,7 +14,7 @@ provenance:
   files:
   - crates/kuda-extract/src/lib.rs
   hashes:
-  - 22da58ce2ed7b500811a16defc43cde57d287fd4
-  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
-  generated_at: '1793855773'
+  - c027418eaff360abf76e3034b20b714eff2a5439
+  commit_sha: b1927ee696f1f3d4b095990941559ff83b32e157
+  generated_at: '1793901944'
   generator: kuda-acp/0.1.0

@@ -40,7 +40,10 @@ const LANG_TOMLS: &[&str] = &[
 
 /// Domain corpora — record descriptors (data/domains/*), same
 /// data-not-code trick as LANG_TOMLS one level up.
-const DOMAIN_TOMLS: &[&str] = &[include_str!("../../../data/domains/myco.toml")];
+const DOMAIN_TOMLS: &[&str] = &[
+    include_str!("../../../data/domains/myco.toml"),
+    include_str!("../../../data/domains/docs.toml"),
+];
 
 #[derive(Parser)]
 #[command(
@@ -248,14 +251,38 @@ fn sync(cli: &Cli, full: bool) -> i32 {
     } else {
         vec![dir.clone()]
     };
-    let mut code = 0;
-    for r in if roots.is_empty() {
+    let roots = if roots.is_empty() {
         vec![dir.clone()]
     } else {
         roots
-    } {
+    };
+    // cross-root edge resolution: a dep naming a sibling repo's
+    // module must resolve to its canonical spelling (dash-named
+    // package, underscore import — module_key folds both), not fall
+    // through as external. Names come from each root's manifest
+    // pass + domain descriptors — cheap enough to pre-pass.
+    let union: std::collections::HashSet<String> = if roots.len() > 1 {
+        let ls = langs();
+        roots
+            .iter()
+            .flat_map(|r| {
+                kuda_manifest::ManifestExtractor {
+                    excludes: cfg.extract.exclude.clone(),
+                    resolve_git_deps: cfg.workspace.resolve_git_deps,
+                }
+                .extract(r, &ls)
+                .map(|e| e.symbols.into_iter().map(|s| s.module).collect::<Vec<_>>())
+                .unwrap_or_default()
+            })
+            .chain(domains().iter().map(|d| d.module.clone()))
+            .collect()
+    } else {
+        Default::default()
+    };
+    let mut code = 0;
+    for r in &roots {
         outln!("sync {}", r.display());
-        code |= sync_one(&r, &cfg, cli, full);
+        code |= sync_one(r, &cfg, cli, full, &union);
     }
     code
 }
@@ -394,7 +421,13 @@ fn scan_repo(
     (mod_files, filehash)
 }
 
-fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli, full: bool) -> i32 {
+fn sync_one(
+    dir: &Path,
+    cfg: &Config,
+    _cli: &Cli,
+    full: bool,
+    union: &std::collections::HashSet<String>,
+) -> i32 {
     let langs = langs();
     let doms = domains();
     let (manifest_list, manifest_names, src_exts) = walk_sets(&langs);
@@ -578,8 +611,13 @@ fn sync_one(dir: &Path, cfg: &Config, _cli: &Cli, full: bool) -> i32 {
     }
     // resolve raw dep/import specifiers to indexed module names —
     // `import neuralmind_shared` lands an edge on `neuralmind-shared`;
-    // unmatched names (serde, os) stay external and queryable.
-    let module_set: Vec<String> = mod_files.keys().cloned().collect();
+    // unmatched names (serde, os) stay external and queryable. The
+    // workspace union lets sibling-repo modules resolve cross-root.
+    let module_set: Vec<String> = mod_files
+        .keys()
+        .cloned()
+        .chain(union.iter().cloned())
+        .collect();
     {
         let mut seen = std::collections::HashSet::new();
         for e in &mut ext.edges {
@@ -2077,7 +2115,7 @@ fn watch(cli: &Cli) -> i32 {
                 // debounce: drain the burst, then one sync
                 std::thread::sleep(std::time::Duration::from_millis(300));
                 while rx.try_recv().is_ok() {}
-                let _ = sync_one(&dir, &cfg, cli, false);
+                let _ = sync_one(&dir, &cfg, cli, false, &Default::default());
             }
             Ok(Err(e)) => eprintln!("watch: {e}"),
             Err(_) => return 0,

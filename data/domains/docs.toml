@@ -1,0 +1,19 @@
+# Domain descriptor — docs corpus (ADR-0003). Markdown pages as
+# records; backticked identifiers become edge targets, resolving
+# to indexed modules when the name matches — "which docs mention
+# this crate" is a dependents query.
+name = "docs"
+roots = ["docs"]
+extensions = [".md"]
+module = "docs"
+purpose = "documentation corpus — pages as records, backticked refs as edges"
+
+# H1 heading = the page's record id (first capture group).
+record_patterns = [
+  "^#\\s+(.+?)\\s*$",
+]
+
+# Backticked identifiers — `kuda-records` -> kuda-records (group 1).
+# Module names resolve through the union module set in workspace
+# syncs; unresolvable names stay queryable, never dropped.
+ref_pattern = "`([A-Za-z][A-Za-z0-9_-]+)`"

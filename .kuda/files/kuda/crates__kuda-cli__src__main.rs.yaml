@@ -1,6 +1,6 @@
 path: crates/kuda-cli/src/main.rs
 module: kuda
-purpose: 'CLI composition root for kuda: parses `kuda.toml`, wires config/extract/store/summarize/VCS adapters, and dispatches subcommands (init, sync, status, map, card, find, dependents, refs, watch, mcp, acp, doctor, gen-cli-docs). Implements the incremental index pipeline — repo walk grouping files into modules by manifest dir or domain corpus, in-process git blob hashing for provenance, per-module summarization, and card/index persistence — plus workspace mode driven by `.kuda/workspace.yaml`.'
+purpose: 'I''ll read the file to verify the content before summarizing. Given its size (113 chunks), I''ll read the beginning to confirm the composition-root structure.purpose: Composition root of the `kuda` binary — parses `kuda.toml` via `TomlSource`, wires adapters behind ports (extract/store/summarize/vcs), and dispatches all subcommands (`init`, `sync`, `status`, `map`, `card`, `find`, `dependents`, `refs`, `watch`, `mcp`, `acp`, `doctor`, plus hidden `gen-cli-docs`). Embeds language and domain descriptors at compile time via `include_str!` (`LANG_TOMLS`, `DOMAIN_TOMLS`), computes in-process git blob hashes (sha1 of `"blob <len>\0"+bytes`, no subprocess) for provenance, and implements the shared repo walk (`scan_repo`) that groups manifests/sources/record-corpus files into modules and blob-hashes every file. Handles BrokenPipe gracefully in stdout emission and supports multi-root workspace sync with cross-root module-name resolution.'
 symbols:
 - emit
 - out
@@ -36,7 +36,7 @@ provenance:
   files:
   - crates/kuda-cli/src/main.rs
   hashes:
-  - dd4f29b2e54d2f9772f434561736663a3e368940
-  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
-  generated_at: '1793855773'
+  - 766776ef212fd953680a0adca0f20dde0b47ef0a
+  commit_sha: b1927ee696f1f3d4b095990941559ff83b32e157
+  generated_at: '1793901944'
   generator: kuda-acp/0.1.0

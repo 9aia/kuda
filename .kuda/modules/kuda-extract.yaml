@@ -1,41 +1,41 @@
 name: kuda-extract
 path: crates/kuda-extract/Cargo.toml
-purpose: Extract port for kuda — the `Extractor` trait plus the `Extraction` result struct (symbols, dep edges, and the files read, which feed `Provenance.files`). Pulls symbols/edges/structure out of source trees; implementations live in separate adapter crates.
+purpose: 'notes: - `extract_filtered` has a default impl that ignores the per-file filter and calls `extract` — adapters without per-file control are always cheap or server-backed, so only override it when per-file extraction is actually supported (otherwise incremental sync re-extracts the whole root). - New extractor = new adapter crate; new language/domain = a data file, not a change to this port. - `Extraction` derives `Default`, so adapters can build it incrementally and return partial results.'
 api:
 - name: Extraction
   kind: type
   file: crates/kuda-extract/src/lib.rs
-  line: 11
+  line: 12
   module: kuda-extract
 - name: Extractor
   kind: trait
   file: crates/kuda-extract/src/lib.rs
-  line: 20
+  line: 21
   module: kuda-extract
 - name: Stub
   kind: type
   file: crates/kuda-extract/src/lib.rs
-  line: 42
+  line: 43
   module: kuda-extract
 - name: default_filtered_delegates_to_extract
   kind: function
   file: crates/kuda-extract/src/lib.rs
-  line: 61
+  line: 62
   module: kuda-extract
 - name: extract
   kind: function
   file: crates/kuda-extract/src/lib.rs
-  line: 47
+  line: 48
   module: kuda-extract
 - name: extract_filtered
   kind: function
   file: crates/kuda-extract/src/lib.rs
-  line: 28
+  line: 29
   module: kuda-extract
 - name: kind
   kind: function
   file: crates/kuda-extract/src/lib.rs
-  line: 44
+  line: 45
   module: kuda-extract
 - name: kuda-extract
   kind: module
@@ -45,17 +45,20 @@ api:
 - name: tests
   kind: module
   file: crates/kuda-extract/src/lib.rs
-  line: 39
+  line: 40
   module: kuda-extract
 deps:
 - kuda-core
 - kuda-core
 notes: |
-  - Mechanical extraction only: adapters report what the grammar/manifest actually says, never inferred structure.
-  - `Extractor` is `Send + Sync`; `kind()` returns the static string matched against `extract.kinds` in `kuda.toml`.
-  - `extract_filtered` defaults to delegating to `extract` (ignoring the file filter) — adapters without per-file control are always cheap or server-backed anyway; regression-tested with a `Stub`.
-  - Adding an extractor means a new adapter crate (`kuda-manifest` for package graphs without a parser, `kuda-treesitter` for grammar+query data, `kuda-lsp` for server-backed extraction); adding a language is just a data file, not a change here.
-  - `Extraction.files` must list the files actually read — it is what makes per-card provenance hashes accurate.
+  - Extraction is mechanical only: adapters report what the grammar/manifest actually says, never inferred structure.
+  - `Extraction.files` feeds `Provenance.files`, so every extractor must record the files it read.
+  - `Extractor.kind()` returns the kind string matched against `extract.kinds` in `kuda.toml` (`manifest`/`treesitter`/`lsp`/`records`).
+  - The trait is `Send + Sync`, so adapters must be thread-safe.
+
+  - `extract_filtered` has a default impl that ignores the per-file filter and calls `extract` — adapters without per-file control are always cheap or server-backed, so only override it when per-file extraction is actually supported (otherwise incremental sync re-extracts the whole root).
+  - New extractor = new adapter crate; new language/domain = a data file, not a change to this port.
+  - `Extraction` derives `Default`, so adapters can build it incrementally and return partial results.
 verify:
 - crates/kuda-extract/Cargo.toml
 - crates/kuda-extract/src/lib.rs
@@ -65,7 +68,7 @@ provenance:
   - crates/kuda-extract/src/lib.rs
   hashes:
   - 8474c16bc613412aaa22031cbce10ad3a1f9beea
-  - 22da58ce2ed7b500811a16defc43cde57d287fd4
-  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
-  generated_at: '1793855773'
+  - c027418eaff360abf76e3034b20b714eff2a5439
+  commit_sha: b1927ee696f1f3d4b095990941559ff83b32e157
+  generated_at: '1793901944'
   generator: kuda-acp/0.1.2

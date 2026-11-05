@@ -1,6 +1,6 @@
 path: crates/kuda-records/src/lib.rs
 module: kuda-records
-purpose: 'Records extractor adapter (kind `"records"`) — turns non-code record corpora into `SymbolKind::Record` symbols and `EdgeKind::References` edges, with all format knowledge in `DomainDef` regex data (per-line capture-group-1 id scan covers both frontmatter `id = "T-001"` and checklist `- [ ] T-001` records). Reference edges are scoped per record: whole-file text for single-record files, own-line only for multi-record checklists so every task doesn''t edge to every mentioned id; declared corpus roots are walked even through `.git`-file worktree markers, absent roots are silent skips, and bad regexes are compile errors naming the domain.'
+purpose: RecordsExtractor turns non-code record corpora declared by DomainDef data into Record symbols and References edges by compiling per-domain record/ref regexes, recursively walking each declared root (including .git-file worktrees, honoring extension and directory excludes), and scanning files line-by-line with capture group 1 as the record id while skipping fenced code blocks and deduplicating first matches per id. Reference edges are scoped to the whole text for single-record files but to each record's own line for multi-record files, preferring capture group 1 over the whole match for edge targets; absent corpus roots are silently skipped while invalid regexes return errors.
 symbols:
 - RecordsExtractor
 - kind
@@ -13,12 +13,13 @@ symbols:
 - tmp
 - myco
 - extracts_frontmatter_and_checklist_records
+- ref_pattern_prefers_capture_group_one
 - absent_root_and_bad_regex
 provenance:
   files:
   - crates/kuda-records/src/lib.rs
   hashes:
-  - 2e42eaf516a0921bed837f88016b2f4b643aeddb
-  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
-  generated_at: '1793855773'
+  - 33f99dbaa171fad2e213370e52c67781c5efb522
+  commit_sha: b1927ee696f1f3d4b095990941559ff83b32e157
+  generated_at: '1793902096'
   generator: kuda-acp/0.1.0

@@ -115,10 +115,20 @@ fn walk_corpus(
 /// files (checklists) scope each record's refs to its own line —
 /// otherwise every task would edge to every mentioned id.
 fn scan_file(rel: &Path, text: &str, def: &DomainDef, compiled: &Compiled, out: &mut Extraction) {
-    // (id, 1-based line) — first match wins per id per file
+    // (id, 1-based line) — first match wins per id per file.
+    // Fenced code blocks are skipped: `# comment` inside a toml
+    // sample is not an H1 record.
     let mut seen: HashSet<String> = HashSet::new();
     let mut records: Vec<(String, u32)> = Vec::new();
+    let mut fenced = false;
     for (i, line) in text.lines().enumerate() {
+        if line.trim_start().starts_with("```") {
+            fenced = !fenced;
+            continue;
+        }
+        if fenced {
+            continue;
+        }
         for re in &compiled.records {
             if let Some(c) = re.captures(line) {
                 if let Some(m) = c.get(1) {
@@ -152,10 +162,13 @@ fn scan_file(rel: &Path, text: &str, def: &DomainDef, compiled: &Compiled, out: 
             } else {
                 text
             };
-            for m in re.find_iter(hay) {
+            for c in re.captures_iter(hay) {
+                // capture group 1 if the pattern has one (e.g.
+                // "`(ident)`" -> ident), else the whole match
+                let to = c.get(1).or(c.get(0)).unwrap().as_str().to_owned();
                 out.edges.push(DepEdge {
                     from: id.clone(),
-                    to: m.as_str().to_owned(),
+                    to,
                     kind: EdgeKind::References,
                 });
             }
@@ -254,6 +267,29 @@ mod tests {
             .any(|e| e.from == "T-001" && e.to == "T-002"));
         assert!(out.edges.iter().all(|e| e.kind == EdgeKind::References));
 
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn ref_pattern_prefers_capture_group_one() {
+        let root = tmp("grp");
+        let f = root.join("project/page.md");
+        std::fs::create_dir_all(f.parent().unwrap()).unwrap();
+        std::fs::write(&f, "# Page One\n\ncall `kuda-records` for this\n").unwrap();
+        let mut def = myco();
+        def.record_patterns = vec!["^#\\s+(.+)$".into()];
+        def.ref_pattern = Some("`([a-z][a-z0-9_-]+)`".into());
+        let x = RecordsExtractor {
+            excludes: vec![],
+            domains: vec![def],
+        };
+        let out = x.extract(&root, &[]).unwrap();
+        // edge target is the group's contents, not the backticked match
+        assert!(out
+            .edges
+            .iter()
+            .any(|e| e.from == "Page One" && e.to == "kuda-records"));
+        assert!(!out.edges.iter().any(|e| e.to.contains('`')));
         let _ = std::fs::remove_dir_all(&root);
     }
 

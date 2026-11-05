@@ -1031,7 +1031,11 @@ fn sync_acp_module_and_file_cards() {
     );
     // modify a file whose card is intact -> hash mismatch falls
     // through the skip check and re-prompts
-    mk_at(&dir, "lib.rs", "pub fn rust_fn() {}\npub fn rust_fn2() {}\n");
+    mk_at(
+        &dir,
+        "lib.rs",
+        "pub fn rust_fn() {}\npub fn rust_fn2() {}\n",
+    );
     let out = kuda(&["sync"], &dir);
     assert!(out.status.success());
     #[cfg(unix)]
@@ -1599,4 +1603,67 @@ fn sync_acp_stamps_kuda_acp_generator() {
     assert!(!card.contains("kuda-template"), "{card}");
     assert!(card.contains("agent module prose"), "{card}");
     std::fs::remove_dir_all(&dir).ok();
+}
+
+/// Workspace union edge resolution: repo A's import spelling
+/// (`sister_lib`) must resolve to repo B's canonical package name
+/// (`sister-lib`) — the edge lands cross-root, so dependents works.
+/// Records corpus: checklist task ids become findable symbols and
+/// same-line engine-name mentions edge to the named module.
+#[test]
+fn workspace_union_edges_and_records() {
+    let a = tmp("union-a");
+    let b = tmp("union-b");
+    // repo B: dash-named package is the canonical module spelling
+    mk_at(&b, "pyproject.toml", "[project]\nname = \"sister-lib\"\n");
+    mk_at(&b, "sister_lib.py", "def go():\n    pass\n");
+    // repo A: imports the underscore spelling + a records corpus
+    mk_at(&a, "pyproject.toml", "[project]\nname = \"appa\"\n");
+    mk_at(
+        &a,
+        "main.py",
+        "import sister_lib\n\ndef serve():\n    pass\n",
+    );
+    mk_at(
+        &a,
+        "project/TODO.md",
+        "# TODO\n\n- [ ] T-001 wire sister_lib\n- [ ] T-002 blocked on T-001\n",
+    );
+    mk_at(
+        &a,
+        ".kuda/workspace.yaml",
+        &format!("roots:\n  - {}\n  - {}\n", a.display(), b.display()),
+    );
+    let out = Command::new(env!("CARGO_BIN_EXE_kuda"))
+        .args(["--workspace", "sync"])
+        .current_dir(&a)
+        .output()
+        .unwrap();
+    assert!(
+        out.status.success(),
+        "{:?}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    // cross-root: A's `import sister_lib` edge resolved to B's
+    // canonical module name — dependents on the dist spelling hits.
+    let out = kuda(&["--workspace", "dependents", "sister-lib"], &a);
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    assert!(out.status.success(), "{stdout}");
+    assert!(stdout.contains("appa"), "union edge missing: {stdout}");
+    // records: checklist ids index as symbols in module `project`
+    let out = kuda(&["find", "T-001"], &a);
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    assert!(out.status.success(), "{stdout}");
+    assert!(stdout.contains("project/TODO.md"), "{stdout}");
+    // same-line record->record edge: T-002 -> T-001
+    let out = kuda(&["dependents", "T-001"], &a);
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    assert!(stdout.contains("T-002"), "record edge missing: {stdout}");
+    // the corpus got its own card
+    let out = kuda(&["card", "project"], &a);
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    assert!(out.status.success(), "{stdout}");
+    assert!(stdout.contains("T-001"), "{stdout}");
+    std::fs::remove_dir_all(&a).ok();
+    std::fs::remove_dir_all(&b).ok();
 }

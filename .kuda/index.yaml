@@ -2,6 +2,7 @@ name: kuda
 root: /home/luis/GitHub/9aia/kuda
 purpose: '*Code-map engine — verified per-module cards agents read before code.*'
 modules:
+- docs
 - kuda
 - kuda-acp
 - kuda-cards
@@ -31,8 +32,8 @@ commands:
 - (cd presentation && npm run build)
 - (cd presentation && npm run dev)
 - (cd presentation && npm run export)
-tree_digest: 04d7333223199ef9d180db7bf3ca40646ad56b94
-files_total: 61
+tree_digest: 81c59258380b588f1fdea5495af624620f7bfa06
+files_total: 85
 provenance:
   files:
   - Cargo.toml
@@ -62,7 +63,7 @@ provenance:
   - presentation/package.json
   hashes:
   - 46c41d99bbe6c6dd81853a3f5bfb12772463fefd
-  - 69ba1c12aad25eb8b1d5a41de0bf75f86fc098df
+  - 2fb9b4cda0b4b48961c410592925fe6ab443aa3b
   - 235538739af3a723c914cd6ede000fee3811ee2d
   - c2232432f5c2b51750ed9406059add07640caa15
   - df73801e3fe8951fa21666324282a49c5ecab47a
@@ -86,6 +87,6 @@ provenance:
   - a3f3978c21457dd7be4e34dc16f31231d0a68777
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
   - 0f3a434bcbd7f03da300bb0068407063d067a223
-  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
-  generated_at: '1793855773'
+  commit_sha: b1927ee696f1f3d4b095990941559ff83b32e157
+  generated_at: '1793902113'
   generator: kuda/0.1.0

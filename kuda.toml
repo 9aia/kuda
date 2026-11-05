@@ -8,6 +8,7 @@
 [extract]
 kinds = ["manifest", "treesitter", "lsp", "records"] # adapter crates, tried in order
 lsp_server = "rust-analyzer"     # kuda-lsp adapter: server cmd per lang
+exclude = [".vitepress"]         # vitepress theme/dist — not corpus
 
 [summarize]
 kind = "acp"

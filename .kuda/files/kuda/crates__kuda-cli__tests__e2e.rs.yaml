@@ -1,6 +1,6 @@
 path: crates/kuda-cli/tests/e2e.rs
 module: kuda
-purpose: End-to-end CLI test suite that drives the compiled `kuda` binary against temp-dir fixture repos (seeded python monorepos, git repos, hand-crafted `.kuda` cards) and asserts on stdout, exit codes, and generated files. Covers `init` scaffolding and error paths, `sync` (monorepo dependency edges, bounded module cards, stale file-card sweeping, incremental/deletion/full/upgrade paths, store failures, workspace mode, sturn WAL marks), `status` tree-digest drift detection, `map`/`card` hits and misses, SIGPIPE-safe output, `find` exact/fuzzy/miss, `dependents`, `refs` text/docs/LSP tiers with fallback, `doctor`, docs generation, bad config, and ACP stub behavior.
+purpose: 'I''ll read the file to verify the content before summarizing.purpose: End-to-end CLI test suite that drives the compiled `kuda` binary (`CARGO_BIN_EXE_kuda`) against temp-dir fixture repos, asserting on stdout/stderr, exit codes, and generated `.kuda/` artifacts. Covers the full command surface — help/init scaffolding, sync (monorepo dash/underscore edge resolution, bounded cards with `api_omitted`, incremental + deletions, `--full`, workspace mode, sturn WAL module marking, stale file-card sweeping), status (per-card and `tree_digest` drift), map/card hit-and-miss, find (exact/fuzzy/miss), dependents, refs (text/docs/LSP tiers with error fall-through), doctor, config-flag root changes, and BrokenPipe survival. Includes a regression test for the `neuralmind-shared` monorepo field report (false-empty dependents, file-dump index.yaml, private symbols in cards) and an `ACP_STUB` for agent-mode tests.'
 symbols:
 - kuda
 - help_and_stub
@@ -36,7 +36,7 @@ provenance:
   files:
   - crates/kuda-cli/tests/e2e.rs
   hashes:
-  - c648c90b2fb66d7ea1dd9bdd22412ae5679b6f02
-  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
-  generated_at: '1793855773'
+  - 00dd3c55726b84b80ed648f47d23ed909f80dcd5
+  commit_sha: b1927ee696f1f3d4b095990941559ff83b32e157
+  generated_at: '1793901944'
   generator: kuda-acp/0.1.0

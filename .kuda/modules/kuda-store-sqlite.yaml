@@ -1,6 +1,6 @@
 name: kuda-store-sqlite
 path: crates/kuda-store-sqlite/Cargo.toml
-purpose: 'Sqlite adapter of `IndexStore` — a single-file, zero-server, rebuildable store at `.kuda/index.sqlite` (gitignored) with tables for symbols, edges, meta, and per-file hashes. Unit and integration tests cover the full contract: kind round-trips, replace semantics, meta upserts, LIKE escaping, and open/query error paths.'
+purpose: 'notes: - `Connection` is `!Sync`, hence the `Mutex` — the store is single-writer anyway; the lock is also what lets tests drop tables out from under the store to exercise error paths. - `open` creates parent dirs and runs the idempotent `CREATE TABLE IF NOT EXISTS` schema; it errors if the parent is a file, the path is a directory, or the file is non-sqlite garbage (covered by `open_error_paths`). - `dependents` only matches `edges.to_mod = ?1` exactly — dash/underscore canonicalization is the caller''s job (`module_variants` in kuda-core), not the store''s. - `modules()` derives from `DISTINCT module FROM symbols`, so a module with edges but zero symbols won''t appear in the module list. - Uses `rusqlite` with the `bundled` feature, so no system sqlite is required.'
 api:
 - name: SCHEMA
   kind: const
@@ -120,7 +120,7 @@ api:
 - name: search_escapes_like_metachars
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 409
+  line: 411
   module: kuda-store-sqlite
 - name: set_meta
   kind: function
@@ -165,14 +165,16 @@ deps:
 - kuda-store
 - rusqlite
 notes: |
-  - `replace_module` and `record_files` are replace-per-module, each delete+insert in ONE transaction: re-replacing a module drops its old symbols/outgoing edges/file rows and leaves other modules untouched.
-  - `search` escapes LIKE metachars (`\`, `%`, `_` with `ESCAPE '\'`) so user patterns stay literal substring matches.
-  - Kind strings degrade tolerantly on read: unknown symbol kind → `Other`, unknown edge kind → `PackageDep` (forward-compat with older readers; corrupt rows never panic).
-  - All store errors surface as `Err(String)` — dropped tables, unopenable paths, and non-sqlite files are errors, never panics (regression-tested).
-  - `Connection` is `!Sync`, so the store wraps it in a `Mutex` to satisfy the port's `Send + Sync` bound — single-writer anyway; mutex poisoning becomes an error string.
-  - Schema is `CREATE TABLE IF NOT EXISTS` on every open (symbols indexed by name+module, edges by to_mod, meta keyed, files keyed by path); parent dirs are created automatically.
-  - `modules()` derives from DISTINCT symbol rows (a module with edges but no symbols won't list); `meta` maps `QueryReturnedNoRows` to `Ok(None)`; `set_meta` is an upsert.
-  - `open` has `cfg(coverage)` variants for the parent-dir handling since `parent()` is only `None` for `/`-like paths, never a real store path.
+  - `replace_module` and `record_files` are transactional delete-then-insert scoped to one module — re-syncing a module fully replaces its symbols/edges/file-hashes rather than appending (verified by `replace_module_replaces` and the re-record case in `meta_and_file_hashes`).
+  - `SymbolKind`/`EdgeKind` persist as strings with fallback arms: unknown symbol kind → `Other`, unknown edge kind → `PackageDep` (exercised by inserting bogus kind strings in `all_kinds_roundtrip`).
+  - `search` escapes LIKE metachars (`\`, `%`, `_`) so user text stays literal.
+  - `set_meta` is an upsert (`ON CONFLICT(k) DO UPDATE`); `meta` returns `None` on no-rows rather than erroring.
+
+  - `Connection` is `!Sync`, hence the `Mutex` — the store is single-writer anyway; the lock is also what lets tests drop tables out from under the store to exercise error paths.
+  - `open` creates parent dirs and runs the idempotent `CREATE TABLE IF NOT EXISTS` schema; it errors if the parent is a file, the path is a directory, or the file is non-sqlite garbage (covered by `open_error_paths`).
+  - `dependents` only matches `edges.to_mod = ?1` exactly — dash/underscore canonicalization is the caller's job (`module_variants` in kuda-core), not the store's.
+  - `modules()` derives from `DISTINCT module FROM symbols`, so a module with edges but zero symbols won't appear in the module list.
+  - Uses `rusqlite` with the `bundled` feature, so no system sqlite is required.
 verify:
 - crates/kuda-store-sqlite/Cargo.toml
 - crates/kuda-store-sqlite/src/lib.rs
@@ -184,8 +186,8 @@ provenance:
   - crates/kuda-store-sqlite/tests/store.rs
   hashes:
   - 2d30a3d362d500ce8e4310218db2ea0f8da6ae99
-  - 3ab272fb68b6afcdcb2273246028e8446196a6c8
+  - 2dccfa3bb0870dea444c1897212870b5a89f2e1a
   - d9910b3de7a82327740d2f42d9a4b6b7f5117cce
-  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
-  generated_at: '1793855773'
+  commit_sha: b1927ee696f1f3d4b095990941559ff83b32e157
+  generated_at: '1793901944'
   generator: kuda-acp/0.1.2

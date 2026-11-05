@@ -1,6 +1,6 @@
 name: kuda
 path: Cargo.toml
-purpose: The `kuda` CLI composition root and its end-to-end test suite, plus the reusable Dagger CI module for Rust workspaces. `main.rs` parses `kuda.toml`, wires adapters behind ports, and dispatches subcommands (init, sync, status, map, card, find, dependents, refs, watch, mcp, acp, doctor); `e2e.rs` drives the compiled binary against temp-dir fixture repos; the Dagger module builds a cached toolchain container and exposes test/coverage pipeline functions.
+purpose: 'notes: - `watch` is excluded under `cfg(coverage)` because its unbounded loop only stops on a signal, which would discard coverage data; it''s exercised by e2e in normal builds. - The e2e suite includes a regression test for the `neuralmind-shared` monorepo field report: dash-named dist imported as `neuralmind_shared`, where dependents returned false-empty, index.yaml embedded every file, and cards dumped private symbols. - Dagger git auth uses an `insteadOf` rewrite that runs inside each exec (reading a mounted secret), never in an image layer, so tokens never persist in layers or cache; `CARGO_NET_GIT_FETCH_WITH_CLI=true` forces cargo to shell out to git so the rewrite applies. - The Dagger self-patch URL derives from `patch_host` if given, else the repo''s own `repository` field in Cargo.toml (any org, zero config); with neither, it errors. - `test_self_patch.py` extracts `_SELF_PATCH_PY` from the module AST (so `\n` escapes resolve as at runtime) and enforces that no public function forwards undeclared names — the `patch_host` regression class. - The binary depends on tree-sitter grammar crates (rust, typescript, python, go) directly, plus `notify` for watch, `sha1` for hashing, `text-splitter` for file-card chunking, and `clap-markdown` for the hidden `gen-cli-docs` command.'
 api:
 - name: ACP_STUB
   kind: const
@@ -10,27 +10,27 @@ api:
 - name: API_CAP
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 1229
+  line: 1274
   module: kuda
 - name: BUDGET
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 978
+  line: 1023
   module: kuda
 - name: CHUNK
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 977
+  line: 1022
   module: kuda
 - name: Cli
   kind: type
   file: crates/kuda-cli/src/main.rs
-  line: 51
+  line: 54
   module: kuda
 - name: Cmd
   kind: type
   file: crates/kuda-cli/src/main.rs
-  line: 66
+  line: 69
   module: kuda
 - name: DOMAIN_TOMLS
   kind: const
@@ -45,12 +45,12 @@ api:
 - name: FileCardJob
   kind: type
   file: crates/kuda-cli/src/main.rs
-  line: 944
+  line: 989
   module: kuda
 - name: GENERATOR_VERSION
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 692
+  line: 734
   module: kuda
 - name: Kuda
   kind: type
@@ -65,22 +65,22 @@ api:
 - name: SKIP_BYTES
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 979
+  line: 1024
   module: kuda
 - name: VERIFY_CAP
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 1230
+  line: 1275
   module: kuda
 - name: acp
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1816
+  line: 1861
   module: kuda
 - name: acp_answer
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1889
+  line: 1934
   module: kuda
 - name: acp_full_session
   kind: function
@@ -95,17 +95,17 @@ api:
 - name: blob_hash
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 179
+  line: 182
   module: kuda
 - name: card
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1480
+  line: 1525
   module: kuda
 - name: cat_file
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1484
+  line: 1529
   module: kuda
 - name: config_flag_changes_root
   kind: function
@@ -125,12 +125,12 @@ api:
 - name: crate_doc_purpose
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1149
+  line: 1194
   module: kuda
 - name: dependents
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1557
+  line: 1602
   module: kuda
 - name: dependents_all_messages
   kind: function
@@ -145,7 +145,7 @@ api:
 - name: detect_commands
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1274
+  line: 1319
   module: kuda
 - name: doctests
   kind: function
@@ -155,7 +155,7 @@ api:
 - name: doctor
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1921
+  line: 1966
   module: kuda
 - name: doctor
   kind: function
@@ -170,12 +170,12 @@ api:
 - name: domain_module
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 290
+  line: 317
   module: kuda
 - name: domains
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 165
+  line: 168
   module: kuda
 - name: emit
   kind: function
@@ -185,7 +185,7 @@ api:
 - name: find
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1497
+  line: 1542
   module: kuda
 - name: find_exact_fuzzy_miss
   kind: function
@@ -200,9 +200,9 @@ api:
 - name: fname
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1275
+  line: 1320
   module: kuda
-api_omitted: 77
+api_omitted: 78
 deps:
 - dagger-io
 - clap
@@ -250,18 +250,17 @@ deps:
 - typing
 - dagger
 notes: |
-  - stdout writes survive `| head`: BrokenPipe exits 0 instead of panicking (regression-tested by `map_survives_broken_pipe`).
-  - Provenance uses in-process git blob hashes (`"blob <len>\0"` + bytes, sha1) — identical to `git hash-object`, no subprocess per file.
-  - `kuda init` refuses to overwrite an existing `kuda.toml` (exit 1).
-  - Stale L1 file-card sweeping is housekeeping, not summarization: it runs under default config and must not be gated on `file_cards`/acp summarize settings.
-  - The Dagger `_SELF_PATCH_PY` rewrite is idempotent: re-runs are byte-identical, stale patch rows and inner comments are stripped, surrounding tables/comments survive.
-  - `sync` falls back to the config dir when `--workspace` is set but `.kuda/workspace.yaml` is missing/empty; workspace roots are resolved relative to that file's dir.
-  - Declared domain corpus roots are descended into even when a `.git`-file worktree marker is present (myco's `project/` case); other worktrees are skipped.
-  - `watch` is excluded under `cfg(coverage)` (unbounded loop discards coverage data) and exercised by e2e in normal builds.
-  - Dagger auth token is mounted as a secret and the insteadOf rewrite runs inside each exec, never in an image layer; `CARGO_NET_GIT_FETCH_WITH_CLI=true` so cargo shells out to git for the credential rewrite.
-  - The self-patch block is needed because transitive git deps can reference the repo's own crates — without it cargo sees two sources for the same package; patch URL derives from `patch_host` or the repo's own `repository` field, and errors if neither exists.
-  - `test_self_patch.py` extracts the embedded script via AST (so `\n` escapes resolve as at runtime) and also statically checks that no function in `main.py` loads undeclared names (the `patch_host` regression class).
-  - e2e monorepo fixture covers dash-named dist imported with underscores (`neuralmind-shared`/`neuralmind_shared`), module-card private-symbol filtering with an `api_omitted` cap, and `tree_digest` drift detection for files added after sync.
+  - The binary embeds language (`data/langs/*`) and domain (`data/domains/*`) descriptors at compile time via `include_str!`; adding a descriptor requires rebuilding.
+  - Provenance uses in-process git blob hashes (sha1 of `"blob <len>\0"+bytes`), never a subprocess per file.
+  - The Dagger module's `_SELF_PATCH_PY` script rewrites the consumer's `[patch]` block to point the repo's own crates at sibling checkouts under `/work`, and must stay idempotent (byte-identical re-runs) and strip stale rows.
+  - The Dagger `Source` default path ignores `target`, `.git`, `coverage`, `node_modules`, `dagger/.venv`, `dagger/sdk` so multi-GB build output is never uploaded to the engine.
+
+  - `watch` is excluded under `cfg(coverage)` because its unbounded loop only stops on a signal, which would discard coverage data; it's exercised by e2e in normal builds.
+  - The e2e suite includes a regression test for the `neuralmind-shared` monorepo field report: dash-named dist imported as `neuralmind_shared`, where dependents returned false-empty, index.yaml embedded every file, and cards dumped private symbols.
+  - Dagger git auth uses an `insteadOf` rewrite that runs inside each exec (reading a mounted secret), never in an image layer, so tokens never persist in layers or cache; `CARGO_NET_GIT_FETCH_WITH_CLI=true` forces cargo to shell out to git so the rewrite applies.
+  - The Dagger self-patch URL derives from `patch_host` if given, else the repo's own `repository` field in Cargo.toml (any org, zero config); with neither, it errors.
+  - `test_self_patch.py` extracts `_SELF_PATCH_PY` from the module AST (so `\n` escapes resolve as at runtime) and enforces that no public function forwards undeclared names — the `patch_host` regression class.
+  - The binary depends on tree-sitter grammar crates (rust, typescript, python, go) directly, plus `notify` for watch, `sha1` for hashing, `text-splitter` for file-card chunking, and `clap-markdown` for the hidden `gen-cli-docs` command.
 verify:
 - Cargo.toml
 - crates/kuda-cli/Cargo.toml
@@ -284,12 +283,12 @@ provenance:
   hashes:
   - 46c41d99bbe6c6dd81853a3f5bfb12772463fefd
   - df73801e3fe8951fa21666324282a49c5ecab47a
-  - dd4f29b2e54d2f9772f434561736663a3e368940
-  - c648c90b2fb66d7ea1dd9bdd22412ae5679b6f02
+  - 766776ef212fd953680a0adca0f20dde0b47ef0a
+  - 00dd3c55726b84b80ed648f47d23ed909f80dcd5
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
   - 5b331a1baf30b49f5bf03dd9693297d498117deb
   - d71646b878b3eae72aa42a5791588701197fdb2d
   - 203086b883ed1477efd6f9befccd76e2614cc9ea
-  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
-  generated_at: '1793855773'
+  commit_sha: b1927ee696f1f3d4b095990941559ff83b32e157
+  generated_at: '1793901944'
   generator: kuda-acp/0.1.2

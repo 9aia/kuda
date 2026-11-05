@@ -1,6 +1,6 @@
 path: crates/kuda-core/src/lib.rs
 module: kuda-core
-purpose: 'kuda''s domain core — integration-free types for the memory tiers (L0 `RepoCard`, L1 `ModuleCard`/`FileCard`, L2 `Symbol`/`DepEdge` graph), `Provenance` for computed staleness, `LangDef`/`DomainDef` descriptors that make new languages and record corpora data changes, and the `kuda.toml` config model with serde defaults and `deny_unknown_fields`. Also provides shared helpers: walk exclusions (`default_excludes`/`dir_excluded`), module-name canonicalization (`module_key`/`module_variants`), and language-aware dep-specifier reduction (`dep_root`).'
+purpose: 'I''ll read the file to verify the content before summarizing.purpose: `kuda-core` holds the domain types only — no ports, no integrations: the memory-tier cards (`RepoCard` L0, `ModuleCard`/`FileCard` L1), the `Symbol`/`DepEdge` graph types with `SymbolKind`/`EdgeKind` enums, `Provenance` (files/hashes/commit_sha/generator so drift is computed, never assumed), and the data descriptors `LangDef`/`DomainDef`. It also defines the `kuda.toml` config model (`Config` with `RepoCfg`/`ExtractCfg`/`SummarizeCfg`/`StoreCfg`/`CardsCfg`/`WorkspaceCfg`, all `deny_unknown_fields`), the walk-exclusion helpers (`default_excludes`, `dir_excluded`), and module-name canonicalization utilities (`module_key`, `module_variants`, `dep_root`) that fold dash/underscore spellings so cross-module edges resolve without false-empty dependents.'
 symbols:
 - ContentHash
 - Provenance
@@ -36,7 +36,7 @@ provenance:
   files:
   - crates/kuda-core/src/lib.rs
   hashes:
-  - 5eac6845a070da7d5fb9df97c894deecb1786456
-  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
-  generated_at: '1793855773'
+  - e37564aa1e5f1d3069980465288c88f705f7aa0c
+  commit_sha: b1927ee696f1f3d4b095990941559ff83b32e157
+  generated_at: '1793901944'
   generator: kuda-acp/0.1.0

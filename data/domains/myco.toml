@@ -14,6 +14,8 @@ record_patterns = [
   "-\\s*(?:\\[[ xX]\\]\\s*)?([A-Z]+-[0-9]+)",
 ]
 
-# Reference edges — id mentions. Single-record files scan the whole
-# text; multi-record files (ledgers) scope to the record's own line.
-ref_pattern = "\\b[A-Z]+-[0-9]+\\b"
+# Reference edges — id mentions plus org engine names (data-tuned:
+# tasks naming a crate edge to its module — "which tasks touch
+# kuda-store"). Single-record files scan the whole text;
+# multi-record files (ledgers) scope to the record's own line.
+ref_pattern = "\\b[A-Z]+-[0-9]+\\b|\\b(?:kuda|myco|mimus|sturn|arca|bupha|peregrin|malurus)[a-z0-9-]*\\b"
