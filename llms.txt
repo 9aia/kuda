@@ -16,6 +16,7 @@ Code-map engine — verified per-module cards agents read before code
 - [How-to: serve the index over MCP](/kuda/how-to/mcp.md)
 - [How-to: the ACP surface](/kuda/how-to/acp.md)
 - [How-to: add a language](/kuda/how-to/languages.md)
+- [How-to: index a record corpus](/kuda/how-to/domains.md)
 - [How-to: sturn WAL integration](/kuda/how-to/sturn.md)
 - [How-to: summarizers](/kuda/how-to/llm-summarizer.md)
 

@@ -20,6 +20,7 @@ documented at source (doc comments).
 * [kuda-lsp](/kuda/api/kuda_lsp/index.html) — impl
 * [kuda-manifest](/kuda/api/kuda_manifest/index.html) — impl
 * [kuda-query](/kuda/api/kuda_query/index.html) — impl
+* [kuda-records](/kuda/api/kuda_records/index.html) — impl
 * [kuda-store](/kuda/api/kuda_store/index.html) — impl
 * [kuda-store-sqlite](/kuda/api/kuda_store_sqlite/index.html) — impl
 * [kuda-summarize](/kuda/api/kuda_summarize/index.html) — impl
