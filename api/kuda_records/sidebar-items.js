@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["RecordsExtractor"]};
+window.SIDEBAR_ITEMS = {"fn":["check","validate"],"struct":["RecordsExtractor"]};

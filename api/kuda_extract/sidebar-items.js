@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Extraction"],"trait":["Extractor"]};
+window.SIDEBAR_ITEMS = {"struct":["ExtractWarning","Extraction"],"trait":["Extractor"]};

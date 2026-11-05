@@ -83,6 +83,30 @@ Shipped descriptors: `myco` (`project/` worktrees) and `docs`
 (`docs/` markdown — H1 headings as records, backticked
 identifiers as edges).
 
+## Schema validation
+
+Descriptors can carry `schema_json` — a JSON Schema (draft
+2020-12) applied to frontmatter-bearing corpus files (`+++`
+toml / `---` yaml). Regex finds records; the schema verifies
+them:
+
+```toml
+schema_json = '''
+{ "anyOf": [{"required": ["id"]}, {"required": ["item"]}],
+  "properties": {
+    "id":    {"type": "string", "pattern": "^[A-Z]+-[0-9]+$"},
+    "status": {"enum": ["open", "claimed", "in-progress", "done"]} } }
+'''
+```
+
+Invalid records stay indexed — they exist — but land as
+warnings everywhere the card travels: `kuda sync` prints them,
+`kuda card <module>` carries a `warnings:` field (so MCP's
+`module_card` and the ACP surface see them too), `kuda status`
+reports an invalid-record count, and `kuda doctor` reports
+descriptor + schema compile health per domain. Files with no
+frontmatter skip silently — line-records can't be schema'd.
+
 ## Try it
 
 ```sh
