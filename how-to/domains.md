@@ -56,11 +56,29 @@ knowledge, not the parser.
 this". Edge scope: a file with one record scans the whole text; a
 ledger with many records scopes each record's refs to its own
 line, so `- [ ] T-002 blocked on T-001` edges `T-002 -> T-001`
-without cross-wiring the whole file.
+without cross-wiring the whole file. If the pattern has a capture
+group, group 1 is the edge target — `"`(ident)`"` strips the
+backticks. Fenced code blocks never produce records; mentions
+inside them still produce edges.
 
 Corpus files bucket under `module` in the shared walk — the card,
 its `verify:` file list, `status` drift, and incremental sync all
 ride the existing pipeline.
+
+## Edges into the code graph
+
+`ref_pattern` targets resolve through the same `resolve_module`
+pass as code deps — a task line naming `kuda-store` edges
+`T-XXX -> kuda-store`, and `kuda dependents kuda-store` lists the
+task alongside `PackageDep` edges. Under `--workspace`, the
+resolution set is the **union of all roots' modules**: repo A's
+`import sister_lib` lands on repo B's canonical `sister-lib`
+module. One graph, federated stores — queries already merge
+across roots, so cross-repo edges answer normally.
+
+Shipped descriptors: `myco` (`project/` worktrees) and `docs`
+(`docs/` markdown — H1 headings as records, backticked
+identifiers as edges).
 
 ## Try it
 
