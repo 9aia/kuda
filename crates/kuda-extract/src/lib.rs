@@ -14,6 +14,16 @@ pub struct Extraction {
     pub edges: Vec<DepEdge>,
     /// Files the extraction read — feeds `Provenance.files`.
     pub files: Vec<PathBuf>,
+    /// Extraction warnings — invalid records, parse anomalies.
+    /// Land on the owning module's card; empty = clean corpus.
+    pub warnings: Vec<ExtractWarning>,
+}
+
+/// A non-fatal extraction finding, tied to the file that caused it.
+#[derive(Debug)]
+pub struct ExtractWarning {
+    pub file: PathBuf,
+    pub message: String,
 }
 
 /// Mechanical extraction only — report what the grammar/manifest

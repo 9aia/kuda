@@ -1,6 +1,6 @@
 path: crates/kuda-template/src/lib.rs
 module: kuda-template
-purpose: 'Deterministic, zero-model/zero-cost `Summarizer` adapter (kind `"template"`): builds a `ModuleCard` purely from extraction output — `purpose` is just the module name (the caller applies the manifest/README/doc fallback chain), `api` filters symbols to the module, `deps` collects its outgoing edge targets, `verify` is the extracted file list, and `notes` starts empty with `api_omitted: 0`. Prose belongs to the `acp` adapter (the llm path is parked).'
+purpose: 'I’ll verify the template adapter directly, then return the requested purpose statement.purpose: Implements the deterministic, zero-model `template` summarizer, constructing module cards solely from extraction results and supplied provenance. It uses the module name as the initial purpose, includes only symbols and outgoing edges belonging to that module, and copies extraction files into `verify`; richer purpose fallback and agent-written prose are handled elsewhere.'
 symbols:
 - TemplateSummarizer
 - kind
@@ -9,7 +9,7 @@ provenance:
   files:
   - crates/kuda-template/src/lib.rs
   hashes:
-  - 867d24ff10aaee1ded6a6415e689c6e19b1bacf3
-  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
-  generated_at: '1793855773'
+  - 4be986f5c2b56e52f6fcbb9be19ae7433625af72
+  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
+  generated_at: '1793907315'
   generator: kuda-acp/0.1.0

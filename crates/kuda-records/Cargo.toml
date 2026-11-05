@@ -9,6 +9,10 @@ keywords = ["code-intelligence", "kuda"]
 categories = ["development-tools"]
 
 [dependencies]
+jsonschema = "0.60.2"
 kuda-core.workspace = true
 kuda-extract.workspace = true
 regex.workspace = true
+serde_json.workspace = true
+serde_yaml.workspace = true
+toml.workspace = true

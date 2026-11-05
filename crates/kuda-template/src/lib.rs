@@ -39,6 +39,7 @@ impl Summarizer for TemplateSummarizer {
                 .filter(|e| e.from == module)
                 .map(|e| e.to.clone())
                 .collect(),
+            warnings: Vec::new(),
             notes: String::new(),
             verify: ext.files.clone(),
             provenance: prov,

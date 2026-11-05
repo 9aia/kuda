@@ -19,3 +19,23 @@ record_patterns = [
 # kuda-store"). Single-record files scan the whole text;
 # multi-record files (ledgers) scope to the record's own line.
 ref_pattern = "\\b[A-Z]+-[0-9]+\\b|\\b(?:kuda|myco|mimus|sturn|arca|bupha|peregrin|malurus)[a-z0-9-]*\\b"
+
+# JSON Schema (draft 2020-12) — frontmatter-bearing records must
+# carry `id` or `item`; status/priority are enum'd when present.
+# Invalid records stay indexed but land as card warnings.
+schema_json = '''
+{
+  "anyOf": [{"required": ["id"]}, {"required": ["item"]}],
+  "properties": {
+    "id":       {"type": "string", "pattern": "^[A-Z]+-[0-9]+$"},
+    "item":     {"type": "string", "pattern": "^[A-Z]+-[0-9]+$"},
+    "title":    {"type": "string"},
+    "status":   {"enum": ["open", "proposed", "claimed", "in-progress",
+                          "blocked", "deferred", "done", "resolved", "closed"]},
+    "priority": {"enum": ["low", "med", "high", "crit"]},
+    "owner":    {"type": "string"},
+    "epic":     {"type": "string"},
+    "milestone": {"type": "string"}
+  }
+}
+'''

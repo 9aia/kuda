@@ -1,6 +1,6 @@
 name: kuda-acp
 path: crates/kuda-acp/Cargo.toml
-purpose: Summarizer adapter (`AcpSummarizer`, kind `"acp"`) that spawns an ACP agent binary (zed, cline, gemini-cli…) over newline-delimited JSON-RPC on stdio to write grounded module-card prose — no API keys or provider lock, auth lives in the user's agent. Turns the streamed reply into a `ModuleCard` (purpose, notes, api/deps from the extraction, provenance passed through).
+purpose: 'I’ll verify the crate manifest and the adapter’s session, parsing, and failure-handling tests, then return only the grounded card fields.purpose: Summarizer adapter that spawns an ACP-capable agent over stdio JSON-RPC and converts grounded extraction prompts into module-card prose. Reuses a lazily initialized agent session and includes stub-based tests for protocol, parsing, and failure behavior. invariants: - Only `agent_message_chunk` text contributes to replies; `agent_thought_chunk` updates are discarded. - Structured card parsing starts at the final `purpose:` line so reasoning preambles cannot enter card fields. - Card `api`, `deps`, `verify`, and `provenance` come from extraction inputs rather than agent prose. - Agent permission requests are answered with the first option to prevent prompt deadlocks. notes: - The configured command runs through `sh -c`; agent stderr is discarded. - A missing `sessionId` falls back to `kuda-default`. - If no `purpose:` field exists, the last paragraph becomes the purpose, with the module name as the final fallback. - Both `invariants:` and `notes:` content are flattened into the card’s single `notes` string. - Prompts include at most 30 symbol names and 15 source files, though the full extraction still populates mechanical card fields. - Protocol errors and closed agent stdout return errors; template fallback is the caller’s responsibility. - Tests require `python3` and serialize environment mutation with `ENV_LOCK`.'
 api:
 - name: AcpClient
   kind: type
@@ -15,12 +15,12 @@ api:
 - name: ENV_LOCK
   kind: const
   file: crates/kuda-acp/src/lib.rs
-  line: 356
+  line: 357
   module: kuda-acp
 - name: STUB
   kind: const
   file: crates/kuda-acp/src/lib.rs
-  line: 297
+  line: 298
   module: kuda-acp
 - name: complete
   kind: function
@@ -30,22 +30,22 @@ api:
 - name: degenerate_reply_does_not_pollute_purpose
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 506
+  line: 508
   module: kuda-acp
 - name: error_response_and_agent_close
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 575
+  line: 577
   module: kuda-acp
 - name: ext
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 368
+  line: 369
   module: kuda-acp
 - name: garbage_lines_and_notifications_skipped
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 562
+  line: 564
   module: kuda-acp
 - name: kind
   kind: function
@@ -75,7 +75,7 @@ api:
 - name: permission_and_unknown_requests_answered
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 548
+  line: 550
   module: kuda-acp
 - name: prompt_for
   kind: function
@@ -85,12 +85,12 @@ api:
 - name: prov
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 358
+  line: 359
   module: kuda-acp
 - name: reasoning_preamble_never_reaches_purpose
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 445
+  line: 447
   module: kuda-acp
 - name: request
   kind: function
@@ -110,7 +110,7 @@ api:
 - name: stub
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 334
+  line: 335
   module: kuda-acp
 - name: summarize
   kind: function
@@ -120,32 +120,32 @@ api:
 - name: summarize_full_card
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 383
+  line: 385
   module: kuda-acp
 - name: summarize_parsing_variants
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 406
+  line: 408
   module: kuda-acp
 - name: summarizer
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 348
+  line: 349
   module: kuda-acp
 - name: tests
   kind: module
   file: crates/kuda-acp/src/lib.rs
-  line: 291
+  line: 292
   module: kuda-acp
 - name: thought_chunks_are_dropped
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 479
+  line: 481
   module: kuda-acp
 - name: tmp
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 341
+  line: 342
   module: kuda-acp
 deps:
 - kuda-core
@@ -158,13 +158,17 @@ deps:
 - kuda-summarize
 - serde_json
 notes: |
-  - Chain-of-thought must never reach the card: only `agent_message_chunk` text is collected; `agent_thought_chunk` updates are dropped.
-  - Structured fields count only in the reply's FINAL block — the anchor is the LAST `purpose:` line, so a reasoning preamble (even one containing `purpose:`) never pollutes the card; with no `purpose:` anywhere, the last paragraph (not the first line) is used.
-  - Agent→client requests must be answered or the prompt deadlocks: `session/request_permission` is granted its first option (default `allow_once`), unknown methods get JSON-RPC `-32601` method-not-found.
-  - One agent session is lazily initialized (`initialize` + `session/new`) and reused across all modules behind a `Mutex`; missing `sessionId` falls back to `"kuda-default"`.
-  - The agent is spawned via `sh -c <cmd>` with stderr nulled; garbage/non-JSON lines and notifications are skipped while waiting for the matching reply id, and EOF on stdout or a JSON-RPC error response fails the request (fallback is the caller's job — construction only fails when there's nothing to say).
-  - The prompt caps context at 30 symbols and 15 files and demands a closing `purpose:`/`invariants:`/`notes:` block with nothing after `notes:`.
-  - Tests drive a python ndjson stub (`KUDA_STUB_MODE`: ok/error/perm/garbage/close/noids, plus `KUDA_STUB_PROSE`/`KUDA_STUB_THOUGHT`) and serialize env mutation with `ENV_LOCK`, keeping all stubbed flows in one test to avoid races.
+  - Only `agent_message_chunk` text contributes to replies; `agent_thought_chunk` updates are discarded.
+  - Structured card parsing starts at the final `purpose:` line so reasoning preambles cannot enter card fields.
+  - Card `api`, `deps`, `verify`, and `provenance` come from extraction inputs rather than agent prose.
+  - Agent permission requests are answered with the first option to prevent prompt deadlocks.
+  - The configured command runs through `sh -c`; agent stderr is discarded.
+  - A missing `sessionId` falls back to `kuda-default`.
+  - If no `purpose:` field exists, the last paragraph becomes the purpose, with the module name as the final fallback.
+  - Both `invariants:` and `notes:` content are flattened into the card’s single `notes` string.
+  - Prompts include at most 30 symbol names and 15 source files, though the full extraction still populates mechanical card fields.
+  - Protocol errors and closed agent stdout return errors; template fallback is the caller’s responsibility.
+  - Tests require `python3` and serialize environment mutation with `ENV_LOCK`.
 verify:
 - crates/kuda-acp/Cargo.toml
 - crates/kuda-acp/src/lib.rs
@@ -174,7 +178,7 @@ provenance:
   - crates/kuda-acp/src/lib.rs
   hashes:
   - 235538739af3a723c914cd6ede000fee3811ee2d
-  - a55bdf8465cb1bdb2a4ae9b83568c9278ebd1217
-  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
-  generated_at: '1793855773'
+  - de9ec4644376a6fea5217763d8f1092a6846d332
+  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
+  generated_at: '1793907315'
   generator: kuda-acp/0.1.2

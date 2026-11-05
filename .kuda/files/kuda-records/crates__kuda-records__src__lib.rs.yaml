@@ -1,12 +1,15 @@
 path: crates/kuda-records/src/lib.rs
 module: kuda-records
-purpose: RecordsExtractor turns non-code record corpora declared by DomainDef data into Record symbols and References edges by compiling per-domain record/ref regexes, recursively walking each declared root (including .git-file worktrees, honoring extension and directory excludes), and scanning files line-by-line with capture group 1 as the record id while skipping fenced code blocks and deduplicating first matches per id. Reference edges are scoped to the whole text for single-record files but to each record's own line for multi-record files, preferring capture group 1 over the whole match for edge targets; absent corpus roots are silently skipped while invalid regexes return errors.
+purpose: 'I’ll verify the schema-validation tests and remaining implementation details, then return the concise purpose statement.purpose: Implements the `records` extractor for descriptor-driven non-code corpora, turning regex capture-group matches into record symbols and reference edges. Walks declared roots, supports frontmatter and checklist records with scoped references, and validates TOML/YAML frontmatter against optional JSON Schemas while reporting non-fatal warnings. Also provides descriptor health checks and validation-only scans, with tests covering extraction, malformed patterns, absent roots, and schema failures.'
 symbols:
 - RecordsExtractor
 - kind
 - extract
 - Compiled
 - compile
+- check
+- validate
+- frontmatter
 - walk_corpus
 - scan_file
 - tests
@@ -15,11 +18,16 @@ symbols:
 - extracts_frontmatter_and_checklist_records
 - ref_pattern_prefers_capture_group_one
 - absent_root_and_bad_regex
+- schema_tests
+- tmp
+- schema_def
+- schema_validates_frontmatter_records
+- bad_schema_fails_compile_loudly
 provenance:
   files:
   - crates/kuda-records/src/lib.rs
   hashes:
-  - 33f99dbaa171fad2e213370e52c67781c5efb522
-  commit_sha: b1927ee696f1f3d4b095990941559ff83b32e157
-  generated_at: '1793902096'
+  - 25e857cdc7d6afdc2c02e06810452ea0560591a7
+  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
+  generated_at: '1793907315'
   generator: kuda-acp/0.1.0

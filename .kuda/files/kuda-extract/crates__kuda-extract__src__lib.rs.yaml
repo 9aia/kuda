@@ -1,8 +1,9 @@
 path: crates/kuda-extract/src/lib.rs
 module: kuda-extract
-purpose: 'I''ll read the file to verify the content before summarizing.purpose: Defines the extract port — the `Extractor` trait (`kind`, `extract`, and a default `extract_filtered` that ignores the per-file filter and delegates to `extract`) and the `Extraction` result struct (`symbols`, `edges`, `files` feeding `Provenance.files`). Implementations live in adapter crates (`kuda-manifest`, `kuda-treesitter`, `kuda-lsp`, `kuda-records`); the port mandates mechanical extraction only — report what the grammar/manifest actually says, never inferred structure. Includes a unit test confirming the default `extract_filtered` delegates to `extract`.'
+purpose: 'I’ll verify the port definition directly, then return the requested purpose statement.purpose: Defines the mechanical extraction port and its result model: symbols, dependency edges, provenance input files, and non-fatal file-scoped warnings. The thread-safe `Extractor` trait supports full-repository and optionally file-filtered passes, with filtered extraction defaulting to a full `extract` call for adapters without per-file control.'
 symbols:
 - Extraction
+- ExtractWarning
 - Extractor
 - extract_filtered
 - tests
@@ -14,7 +15,7 @@ provenance:
   files:
   - crates/kuda-extract/src/lib.rs
   hashes:
-  - c027418eaff360abf76e3034b20b714eff2a5439
-  commit_sha: b1927ee696f1f3d4b095990941559ff83b32e157
-  generated_at: '1793901944'
+  - d75af826960ecbd254477203e9e0c3bd87da4a80
+  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
+  generated_at: '1793907315'
   generator: kuda-acp/0.1.0

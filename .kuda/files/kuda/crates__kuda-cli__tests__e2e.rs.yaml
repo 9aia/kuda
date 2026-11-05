@@ -1,6 +1,6 @@
 path: crates/kuda-cli/tests/e2e.rs
 module: kuda
-purpose: 'I''ll read the file to verify the content before summarizing.purpose: End-to-end CLI test suite that drives the compiled `kuda` binary (`CARGO_BIN_EXE_kuda`) against temp-dir fixture repos, asserting on stdout/stderr, exit codes, and generated `.kuda/` artifacts. Covers the full command surface — help/init scaffolding, sync (monorepo dash/underscore edge resolution, bounded cards with `api_omitted`, incremental + deletions, `--full`, workspace mode, sturn WAL module marking, stale file-card sweeping), status (per-card and `tree_digest` drift), map/card hit-and-miss, find (exact/fuzzy/miss), dependents, refs (text/docs/LSP tiers with error fall-through), doctor, config-flag root changes, and BrokenPipe survival. Includes a regression test for the `neuralmind-shared` monorepo field report (false-empty dependents, file-dump index.yaml, private symbols in cards) and an `ACP_STUB` for agent-mode tests.'
+purpose: 'I’ll check the remaining test sections to capture the suite’s full behavioral scope, including workspace, failure-path, protocol, and integration coverage.purpose: End-to-end CLI integration tests that build temporary repositories and exercise the compiled `kuda` binary across initialization, synchronization, card generation, drift detection, and symbol/dependency/reference queries. Covers incremental and workspace indexing, bounded cards, stale-artifact cleanup, cross-repo and record-corpus edges, configuration and failure paths, broken pipes, and sturn WAL integration. Also drives MCP/ACP stdio sessions and ACP-backed summarization with stubs, including file-card regeneration and template fallback on agent failure.'
 symbols:
 - kuda
 - help_and_stub
@@ -36,7 +36,7 @@ provenance:
   files:
   - crates/kuda-cli/tests/e2e.rs
   hashes:
-  - 00dd3c55726b84b80ed648f47d23ed909f80dcd5
-  commit_sha: b1927ee696f1f3d4b095990941559ff83b32e157
-  generated_at: '1793901944'
+  - a41fc76e097c7a4b6b31f6b87804fbf52425dc5b
+  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
+  generated_at: '1793907315'
   generator: kuda-acp/0.1.0

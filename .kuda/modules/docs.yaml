@@ -1,6 +1,6 @@
 name: docs
 path: docs/package.json
-purpose: VitePress documentation site for kuda — hand-written getting-started/comparison/architecture/release-model pages plus how-to guides for each integration surface (languages, summarizers, MCP, ACP, multi-repo, sturn WAL, record corpora), with three Python generators that derive `reference/config.md`, `reference/crate-api.md`, and `public/api/index.html` from workspace sources so reference docs never drift from code.
+purpose: 'I’ll inspect the documentation’s navigation, generation scripts, and cross-cutting guidance to produce a grounded module card with only evident invariants and practical gotchas.purpose: User-facing documentation for kuda’s code-map engine, covering installation and indexing, architecture and releases, comparisons, and task guides for languages, record corpora, workspaces, summarizers, and agent integrations. Includes generators for configuration, crate API, and rustdoc-index documentation. invariants: - Cards are committed, provenance-checked artifacts whose `verify:` files must be consulted before acting; the source code remains the source of truth. - The SQLite L2 graph is gitignored, rebuildable derived state, while L0/L1 cards are committed. - Extraction is mechanical and rerunnable; incremental sync hashes inputs and reprocesses only drifted modules or files. - Language-specific extraction knowledge belongs in `data/langs/*.toml`; adding a compiled grammar requires a tree-sitter adapter registry entry. notes: - `docs/reference/config.md` is generated from config-struct doc comments by `gen-config-docs.py`; edit those comments rather than the generated page. - `gen-crate-map.py` regenerates both the architecture crate table and `reference/crate-api.md` from workspace Cargo manifests; run it from `docs/` or account for its relative output paths. - `gen-api-index.py` generates only the styled rustdoc landing page, not `reference/crate-api.md`. - Language descriptors are embedded at build time, so adding one requires rebuilding the CLI. - MCP and ACP are stdio JSON-RPC surfaces over the same `.kuda/` artifacts; MCP exposes tools, while ACP exposes a promptable agent. - ACP summarization falls back silently to deterministic templates per module on agent failure; provider and model settings are environment variables, not ACP CLI flags. - Multi-repo `dependents` merges workspace stores, but `find` and `refs` remain per-root and there is no aggregate workspace card. - The sturn WAL supplements rather than replaces filesystem hash diffing; writes bypassing sturn are still indexed. - The initial `kuda deploy release` publication is explicitly manual; subsequent releases are push-driven, latest-wins jobs.'
 api:
 - name: Command-Line Help for `kuda`
   kind: record
@@ -264,6 +264,12 @@ deps:
 - record
 - Symbol
 - status
+- resolve_module
+- kuda-store
+- PackageDep
+- sister-lib
+- myco
+- docs
 - DOMAIN_TOMLS
 - repo_card
 - module_card
@@ -279,18 +285,19 @@ deps:
 - refs
 - dependents
 notes: |
-  - Generated files are never hand-edited: `reference/config.md` comes from `gen-config-docs.py` reading doc comments on `crates/kuda-core/src/lib.rs` config structs; `reference/crate-api.md` and the crate-map table inside `explanation/architecture.md` come from `gen-crate-map.py` reading workspace `Cargo.toml`s; `reference/cli.md` comes from `cargo run -p kuda -- gen-cli-docs`; `public/api/index.html` comes from `gen-api-index.py` after `cargo doc`.
-  - Diátaxis structure is preserved: `tutorials/` (learn), `how-to/` (tasks), `reference/` (lookup), `explanation/` (why), with `getting-started.md` acting as the signpost across all four.
-  - Every how-to stays grounded in the actual CLI/config surface it documents — commands, config keys, and file paths cited in the docs must match what `kuda` ships (e.g. `kuda mcp`/`kuda acp` tool lists, `[extract].kinds`, `[summarize].kind`, `data/langs/*.toml` and `data/domains/*.toml` descriptor fields).
-
-  - `bun run docs:gen` (aliased into `docs:dev` and `docs:build`) runs all three generators in order — `docs:cli` → `docs:config` → `docs:crates`; editing a generated file without rerunning the generator will be overwritten on the next build.
-  - `gen-crate-map.py` rewrites the crate-map table *inside* `explanation/architecture.md` via regex substitution — the surrounding prose is hand-written, but the `| crate | layer | purpose |` table is machine-owned; the `LAYER` dict in the script hardcodes which crates are `domain`/`port`/`binary`, everything else defaults to `impl`.
-  - `gen-config-docs.py` only reads `crates/kuda-core/src/lib.rs` today (the `SRCS` dict) — adapter-crate config structs are not yet scraped, and the "Constraints" section at the bottom of the generated file is hardcoded in the script, not derived.
-  - `docs:api` wipes `docs/public/api/*` before copying `target/doc/` — any hand-placed file in that directory is destroyed; `gen-api-index.py` only links crates whose directory name starts with `kuda`.
-  - `docs/how-to/domains.md` documents the `records` extractor and `data/domains/*.toml` descriptors (ADR-0003); it explicitly notes that repo-local `[domains]` config and non-tree sources are deferred — don't document them as shipping.
-  - `docs/how-to/multi-repo.md` is honest about current limits: only `dependents` merges across roots today, `find`/`refs` stay per-root, and there is no aggregate workspace card — keep that caveat when editing.
-  - `docs/how-to/llm-summarizer.md` documents `template` and `acp` as the two shipping summarizers and explicitly parks `llm`; the ACP section carries operational gotchas (auto-answered `session/request_permission`, dropped `agent_thought_chunk`, silent template fallback on agent failure) that are contract, not flavor.
-  - `docs/explanation/release-model.md` documents a self-release flow (`kuda deploy release` seed + push-driven `scripts/release.sh`) with no hosted CI — the 5-minute debounce, `queue = "latest"`, and `cancel_running` are load-bearing rationale, not incidental detail.
+  - Cards are committed, provenance-checked artifacts whose `verify:` files must be consulted before acting; the source code remains the source of truth.
+  - The SQLite L2 graph is gitignored, rebuildable derived state, while L0/L1 cards are committed.
+  - Extraction is mechanical and rerunnable; incremental sync hashes inputs and reprocesses only drifted modules or files.
+  - Language-specific extraction knowledge belongs in `data/langs/*.toml`; adding a compiled grammar requires a tree-sitter adapter registry entry.
+  - `docs/reference/config.md` is generated from config-struct doc comments by `gen-config-docs.py`; edit those comments rather than the generated page.
+  - `gen-crate-map.py` regenerates both the architecture crate table and `reference/crate-api.md` from workspace Cargo manifests; run it from `docs/` or account for its relative output paths.
+  - `gen-api-index.py` generates only the styled rustdoc landing page, not `reference/crate-api.md`.
+  - Language descriptors are embedded at build time, so adding one requires rebuilding the CLI.
+  - MCP and ACP are stdio JSON-RPC surfaces over the same `.kuda/` artifacts; MCP exposes tools, while ACP exposes a promptable agent.
+  - ACP summarization falls back silently to deterministic templates per module on agent failure; provider and model settings are environment variables, not ACP CLI flags.
+  - Multi-repo `dependents` merges workspace stores, but `find` and `refs` remain per-root and there is no aggregate workspace card.
+  - The sturn WAL supplements rather than replaces filesystem hash diffing; writes bypassing sturn are still indexed.
+  - The initial `kuda deploy release` publication is explicitly manual; subsequent releases are push-driven, latest-wins jobs.
 verify:
 - docs/package.json
 - docs/comparison.md
@@ -335,7 +342,7 @@ provenance:
   - 222808ea202bc00a67257777d283192f4becd81d
   - 05aeffc5c5c763616831677dc4a76b882025ee43
   - 48de4da88a8bb9cd7878747498464a1f67834ada
-  - dd4b6d748209b7b7f09c45575010d772d04b5f11
+  - af8312eb027182805467f1bd711d99122826d414
   - 7ed659c545f6940b636aa926ccfb157b78f8ce96
   - feff0b0a855207cb53131fcb68e4f55261956737
   - d57d33f2fce46ac76d1e7bdb7161f4dbcca418db
@@ -349,6 +356,6 @@ provenance:
   - 86f4771e3274b5299e7c9bcadf3c8db3e75885b6
   - 2f6e3dd3ee0d114def08a696c982ae7708f55e47
   - 28d2ef76304e27db4eba1f66c93465d248f39bdd
-  commit_sha: b1927ee696f1f3d4b095990941559ff83b32e157
-  generated_at: '1793902113'
+  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
+  generated_at: '1793907315'
   generator: kuda-acp/0.1.2

@@ -1,11 +1,11 @@
 name: kuda-cards
 path: crates/kuda-cards/Cargo.toml
-purpose: Card serialization layer between kuda-core domain types and the committed `.kuda/*.yaml` artifacts — thin serde_yaml render/parse wrappers for `RepoCard`, `ModuleCard`, and `FileCard`, with errors stringified. Tests cover round-trips of all three card types plus malformed-YAML rejection.
+purpose: 'I’ll inspect the card renderer/parser implementation and manifest to capture serialization rules, compatibility behavior, and human-note preservation accurately.purpose: Serializes and deserializes kuda’s committed L0 repository, L1 module, and L1 per-file cards as YAML. Provides thin `serde_yaml` adapters for `.kuda/index.yaml`, `.kuda/modules/<name>.yaml`, and `.kuda/files/<module>/<file>.yaml`. invariants: - Machine fields and the human-owned module `notes` region round-trip through rendering and parsing. - Parse failures are returned as `Err(String)` rather than panicking. notes: - This crate performs no filesystem I/O, card-path sanitization, schema migration, or freshness validation; callers supply paths and card text. - Serialization structure and defaults are inherited from the `kuda-core` card types and Serde, not defined independently here. - Tests cover round-trips for all three card types, omitted API counts, symbol kinds, notes, and rejection of malformed or structurally invalid YAML.'
 api:
 - name: file_card_roundtrip_and_bad_yaml
   kind: function
   file: crates/kuda-cards/tests/cards.rs
-  line: 63
+  line: 64
   module: kuda-cards
 - name: kuda-cards
   kind: module
@@ -63,10 +63,11 @@ deps:
 - serde_yaml
 - kuda-core
 notes: |
-  - Machine fields and the human-owned `notes:` region must round-trip through render/parse unchanged (regression-tested: `api_omitted`, symbol kinds, and notes survive).
-  - Parsers reject malformed or wrong-shaped YAML (e.g. `:::`, a bare list for a `FileCard`) with an `Err`, never a panic or silent default.
-  - Artifact layout is fixed by convention: `.kuda/index.yaml` is the L0 always-load repo card, `.kuda/modules/<name>.yaml` the L1 module cards, `.kuda/files/<module>/<file>.yaml` the L1 per-file cards.
-  - The crate is a pure pass-through — no validation, defaults, or migration logic; all schema knowledge lives in the kuda-core types' serde derives.
+  - Machine fields and the human-owned module `notes` region round-trip through rendering and parsing.
+  - Parse failures are returned as `Err(String)` rather than panicking.
+  - This crate performs no filesystem I/O, card-path sanitization, schema migration, or freshness validation; callers supply paths and card text.
+  - Serialization structure and defaults are inherited from the `kuda-core` card types and Serde, not defined independently here.
+  - Tests cover round-trips for all three card types, omitted API counts, symbol kinds, notes, and rejection of malformed or structurally invalid YAML.
 verify:
 - crates/kuda-cards/Cargo.toml
 - crates/kuda-cards/src/lib.rs
@@ -79,7 +80,7 @@ provenance:
   hashes:
   - c2232432f5c2b51750ed9406059add07640caa15
   - ac8ed078ee86cd1b6b087cf3ed964eb76366546a
-  - 86aa21bc77d7ac79a6a4d5f0944f511f4d5a32fc
-  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
-  generated_at: '1793855773'
+  - aa0d4566f9c902953ee8ce3f4e3bde0baf32d306
+  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
+  generated_at: '1793907315'
   generator: kuda-acp/0.1.2

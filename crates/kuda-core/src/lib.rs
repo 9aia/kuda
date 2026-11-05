@@ -93,6 +93,10 @@ pub struct ModuleCard {
     pub api_omitted: usize,
     /// Outgoing module deps.
     pub deps: Vec<String>,
+    /// Machine-owned warnings — invalid records, extraction
+    /// anomalies. Surfaced by `card`/status/MCP; empty = clean.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub warnings: Vec<String>,
     /// Human-owned region — survives regeneration.
     #[serde(default)]
     pub notes: String,
@@ -190,6 +194,11 @@ pub struct DomainDef {
     /// multiple records, whole-file when it holds one).
     #[serde(default)]
     pub ref_pattern: Option<String>,
+    /// JSON Schema (draft 2020-12) applied to frontmatter-bearing
+    /// corpus files (`+++` toml / `---` yaml). Invalid records stay
+    /// indexed — they exist — but land as warnings on the card.
+    #[serde(default)]
+    pub schema_json: Option<String>,
 }
 
 // ---- kuda.toml config model ----

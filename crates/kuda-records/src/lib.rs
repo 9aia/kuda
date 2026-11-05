@@ -5,7 +5,7 @@
 //! are the same mechanism — a per-line capture-group-1 scan.
 
 use kuda_core::{DepEdge, DomainDef, EdgeKind, LangDef, Symbol, SymbolKind};
-use kuda_extract::{Extraction, Extractor};
+use kuda_extract::{ExtractWarning, Extraction, Extractor};
 use std::collections::HashSet;
 use std::path::Path;
 
@@ -37,6 +37,7 @@ impl Extractor for RecordsExtractor {
 struct Compiled {
     records: Vec<regex::Regex>,
     refs: Option<regex::Regex>,
+    schema: Option<jsonschema::Validator>,
 }
 
 fn compile(def: &DomainDef) -> Result<Compiled, String> {
@@ -56,7 +57,62 @@ fn compile(def: &DomainDef) -> Result<Compiled, String> {
                 .map_err(|e| format!("domain {}: bad ref_pattern {p:?}: {e}", def.name))
         })
         .transpose()?;
-    Ok(Compiled { records, refs })
+    let schema = def
+        .schema_json
+        .as_ref()
+        .map(|s| {
+            let v: serde_json::Value = serde_json::from_str(s)
+                .map_err(|e| format!("domain {}: bad schema_json: {e}", def.name))?;
+            jsonschema::validator_for(&v)
+                .map_err(|e| format!("domain {}: bad schema_json: {e}", def.name))
+        })
+        .transpose()?;
+    Ok(Compiled {
+        records,
+        refs,
+        schema,
+    })
+}
+
+/// Compile-check a descriptor — `doctor` health, no corpus needed.
+pub fn check(def: &DomainDef) -> Result<(), String> {
+    compile(def).map(|_| ())
+}
+
+/// Validation-only pass for `status`/`doctor`: corpus warnings
+/// without index writes. Reuses the extractor's full scan.
+pub fn validate(
+    root: &Path,
+    domains: &[DomainDef],
+    excludes: &[String],
+) -> Result<Vec<ExtractWarning>, String> {
+    let x = RecordsExtractor {
+        excludes: excludes.to_vec(),
+        domains: domains.to_vec(),
+    };
+    Ok(x.extract(root, &[])?.warnings)
+}
+
+/// `+++` toml / `---` yaml front matter -> JSON value. `None` = no
+/// frontmatter (line-records can't be schema'd — skipped, not
+/// warned); `Some(Err)` = present but unparseable.
+fn frontmatter(text: &str) -> Option<Result<serde_json::Value, String>> {
+    let (delim, is_toml) = if text.starts_with("+++") {
+        ("+++", true)
+    } else if text.starts_with("---") {
+        ("---", false)
+    } else {
+        return None;
+    };
+    let closer = format!("\n{delim}");
+    let body = text[delim.len()..].split(&closer).next()?;
+    Some(if is_toml {
+        body.parse::<toml::Value>()
+            .map_err(|e| e.to_string())
+            .and_then(|v| serde_json::to_value(v).map_err(|e| e.to_string()))
+    } else {
+        serde_yaml::from_str::<serde_json::Value>(body).map_err(|e| e.to_string())
+    })
 }
 
 /// Recursive walk of one declared corpus root. Unlike the shared
@@ -106,6 +162,26 @@ fn walk_corpus(
                 continue;
             };
             scan_file(&rel, &text, def, compiled, out);
+            if let Some(v) = &compiled.schema {
+                if let Some(fm) = frontmatter(&text) {
+                    match fm {
+                        Ok(doc) => {
+                            let msgs: Vec<String> =
+                                v.iter_errors(&doc).map(|e| e.to_string()).take(3).collect();
+                            if !msgs.is_empty() {
+                                out.warnings.push(ExtractWarning {
+                                    file: rel.clone(),
+                                    message: format!("schema: {}", msgs.join("; ")),
+                                });
+                            }
+                        }
+                        Err(e) => out.warnings.push(ExtractWarning {
+                            file: rel.clone(),
+                            message: format!("frontmatter: {e}"),
+                        }),
+                    }
+                }
+            }
         }
     }
 }
@@ -201,6 +277,7 @@ mod tests {
                 "-\\s*\\[[ xX]\\]\\s*([A-Z]+-[0-9]+)".into(),
             ],
             ref_pattern: Some("\\b[A-Z]+-[0-9]+\\b".into()),
+            schema_json: None,
         }
     }
 
@@ -311,5 +388,103 @@ mod tests {
         };
         assert!(x.extract(&root, &[]).is_err());
         let _ = std::fs::remove_dir_all(&root);
+    }
+}
+
+#[cfg(test)]
+mod schema_tests {
+    use super::*;
+    use kuda_extract::Extractor;
+
+    fn tmp(tag: &str) -> std::path::PathBuf {
+        let d = std::env::temp_dir().join(format!("kuda-sch-{}-{tag}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&d);
+        std::fs::create_dir_all(&d).unwrap();
+        d
+    }
+
+    fn schema_def() -> DomainDef {
+        DomainDef {
+            name: "myco".into(),
+            roots: vec!["project".into()],
+            extensions: vec![".md".into()],
+            module: "project".into(),
+            purpose: None,
+            record_patterns: vec!["(?:id|item)\\s*=\\s*\"([A-Z]+-[0-9]+)\"".into()],
+            ref_pattern: None,
+            schema_json: Some(
+                r#"{
+                  "anyOf": [{"required":["id"]},{"required":["item"]}],
+                  "properties": {
+                    "id": {"type":"string","pattern":"^[A-Z]+-[0-9]+$"},
+                    "status": {"enum":["open","done"]}
+                  }
+                }"#
+                .into(),
+            ),
+        }
+    }
+
+    #[test]
+    fn schema_validates_frontmatter_records() {
+        let root = tmp("valid");
+        let mk = |p: &str, text: &str| {
+            let f = root.join(p);
+            std::fs::create_dir_all(f.parent().unwrap()).unwrap();
+            std::fs::write(&f, text).unwrap();
+        };
+        mk(
+            "project/good.md",
+            "+++\nid = \"T-001\"\nstatus = \"open\"\n+++\n",
+        );
+        mk("project/bad-id.md", "+++\nid = \"lowercase\"\n+++\n");
+        mk("project/no-id.md", "+++\nstatus = \"open\"\n+++\n");
+        mk(
+            "project/bad-enum.md",
+            "+++\nid = \"T-009\"\nstatus = \"bogus\"\n+++\n",
+        );
+        mk("project/broken.md", "+++\nnot = [valid toml\n+++\n");
+        // yaml frontmatter also validated
+        mk("project/yaml-bad.md", "---\nstatus: done\n---\n");
+        // no frontmatter at all -> silent skip, no warning
+        mk("project/plain.md", "- [ ] T-002 nothing structured\n");
+
+        let x = RecordsExtractor {
+            excludes: vec![],
+            domains: vec![schema_def()],
+        };
+        let out = x.extract(&root, &[]).unwrap();
+        let warned: Vec<&str> = out
+            .warnings
+            .iter()
+            .map(|w| w.file.display().to_string().leak() as &str)
+            .collect();
+        for bad in [
+            "bad-id.md",
+            "no-id.md",
+            "bad-enum.md",
+            "broken.md",
+            "yaml-bad.md",
+        ] {
+            assert!(
+                warned.iter().any(|w| w.contains(bad)),
+                "no warning for {bad}: {warned:?}"
+            );
+        }
+        assert!(!warned.iter().any(|w| w.contains("good.md")));
+        assert!(!warned.iter().any(|w| w.contains("plain.md")));
+        // invalid records are still indexed — they exist
+        assert!(out.symbols.iter().any(|s| s.name == "T-009"));
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn bad_schema_fails_compile_loudly() {
+        let mut def = schema_def();
+        def.schema_json = Some("{not json".into());
+        assert!(check(&def).is_err());
+        let mut def = schema_def();
+        def.schema_json = Some("{\"type\": 42}".into()); // valid json, invalid schema
+        assert!(check(&def).is_err());
     }
 }

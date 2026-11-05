@@ -48,6 +48,7 @@ fn module_card_roundtrip_with_omitted() {
         }],
         api_omitted: 7,
         deps: vec!["serde".into()],
+        warnings: Vec::new(),
         notes: "human notes survive".into(),
         verify: vec![PathBuf::from("src/lib.rs")],
         provenance: prov(),

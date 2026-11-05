@@ -1,6 +1,6 @@
 path: crates/kuda-cli/src/main.rs
 module: kuda
-purpose: 'I''ll read the file to verify the content before summarizing. Given its size (113 chunks), I''ll read the beginning to confirm the composition-root structure.purpose: Composition root of the `kuda` binary — parses `kuda.toml` via `TomlSource`, wires adapters behind ports (extract/store/summarize/vcs), and dispatches all subcommands (`init`, `sync`, `status`, `map`, `card`, `find`, `dependents`, `refs`, `watch`, `mcp`, `acp`, `doctor`, plus hidden `gen-cli-docs`). Embeds language and domain descriptors at compile time via `include_str!` (`LANG_TOMLS`, `DOMAIN_TOMLS`), computes in-process git blob hashes (sha1 of `"blob <len>\0"+bytes`, no subprocess) for provenance, and implements the shared repo walk (`scan_repo`) that groups manifests/sources/record-corpus files into modules and blob-hashes every file. Handles BrokenPipe gracefully in stdout emission and supports multi-root workspace sync with cross-root module-name resolution.'
+purpose: 'I’ll inspect the remaining command and synchronization sections to ensure the summary reflects the full composition root rather than only the provided excerpt.purpose: Implements kuda’s CLI composition root, loading TOML configuration and embedded language/domain descriptors to wire extraction, summarization, storage, VCS, and query adapters behind their ports. Provides initialization, incremental single- and multi-repo synchronization, provenance drift reporting, card and graph queries, watch/MCP/ACP surfaces, health checks, and CLI documentation generation. The sync pipeline groups and blob-hashes repository files, resolves cross-module edges, maintains cards and stale index entries, and optionally generates hash-gated file cards.'
 symbols:
 - emit
 - out
@@ -36,7 +36,7 @@ provenance:
   files:
   - crates/kuda-cli/src/main.rs
   hashes:
-  - 766776ef212fd953680a0adca0f20dde0b47ef0a
-  commit_sha: b1927ee696f1f3d4b095990941559ff83b32e157
-  generated_at: '1793901944'
+  - ff5ce594ab5016383f265d98000381346c7f1d20
+  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
+  generated_at: '1793907315'
   generator: kuda-acp/0.1.0

@@ -35,6 +35,7 @@ fn card_collects_only_own_module() {
             DepEdge { from: "other".into(), to: "x".into(), kind: EdgeKind::Calls },
         ],
         files: vec!["f.rs".into()],
+        ..Extraction::default()
     };
     let card = TemplateSummarizer
         .summarize("m", Path::new("m/"), &ext, prov())

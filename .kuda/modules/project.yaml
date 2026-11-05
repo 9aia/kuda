@@ -1,6 +1,6 @@
 name: project
 path: project/BACKLOG.md
-purpose: 'notes: - ADR numbering follows a meta counter, not file order — the domain-records ADR was filed as ADR-0003, not 0002 (per handoff T-029), so there is no 0002 file. - ADR-0003 (domain descriptors) is implemented on `feat/domain-records` (pushed b1927ee); deferred items are repo-local `[domains]` config, non-tree corpus sources (sturn refs/sqlite), and record→code-module edges. - `project/` is itself a git worktree (carries a `.git`-file marker); the records extractor walks declared corpus roots regardless, unlike the shared repo walk. - Several TODO items are already implemented in the codebase (e.g. T-019 `kuda watch`, T-024 release script, T-013 lsp adapter) though still listed open — the ledger''s checkbox state is not a reliable freshness signal; cross-check against the code. - BACKLOG references sibling tools that compose through artifacts, not code deps: malurus (critic/claim-verification) and bupha (CI, dogfooded via modules/dagger).'
+purpose: 'I’ll read the ledger, backlog, ADRs, index, and archived handoffs to distinguish current work from historical records and capture the project corpus’s operational conventions.purpose: Myco work ledger for kuda’s planning and design history, covering 0.1.0 tasks, longer-term backlog, architecture decisions, and archived handoffs. Tracks the tiered memory and ports/adapters design plus descriptor-driven indexing of record corpora. invariants: - Memory is an index into source, not a second source of truth; cards carry provenance and `verify:` file lists for source checking. - L0/L1 YAML cards are committed artifacts, while the rebuildable SQLite L2 graph is gitignored. - Extraction and summarization compose through ports and adapters, with deterministic template summarization as the default. - Language and domain knowledge lives in descriptors rather than engine-specific code. - Workspace record/code edges resolve across a logical union of modules while stores remain federated per repository root. notes: - `TODO.md` is the 0.1.0 checklist and `BACKLOG.md` contains unscheduled 0.2+ ideas; unchecked historical items should not be treated as proof that corresponding code is absent. - Both ADRs are marked proposed/open even though ADR-0003 says its domain-records design was implemented on `feat/domain-records`. - ADR-0003 was numbered 0003 rather than 0002 because of the metadata counter, as recorded in archived handoff T-029. - T-029 leaves repo-local `[domains]` overrides, non-tree corpus sources, and record-to-module edges open; its addendum nevertheless documents org-name references converging with code dependencies. - Archived T-027 records upstream slide-theme fixes, while current T-026 still requires presentation verification and integration through the sturn flow. - The project index links ADR-0001 but not ADR-0003 or the archived handoffs.'
 api:
 - name: ADR-0001
   kind: record
@@ -159,7 +159,7 @@ api:
   module: project
 - name: T-029
   kind: record
-  file: project/handoffs/T-029.md
+  file: project/handoffs/archive/T-029.md
   line: 2
   module: project
 deps:
@@ -204,23 +204,28 @@ deps:
 - T-027
 - ADR-0003
 - sturn
+warnings:
+- 'project/adrs/0001-adr-0001-tiered-memory-artifacts-ports-adapters-topology.md: schema: "medium" is not one of "low", "med" or 2 other candidates'
+- 'project/adrs/0003-domain-descriptors-record-corpora-as-indexable-data.md: schema: "medium" is not one of "low", "med" or 2 other candidates'
 notes: |
-  - Records use stable ids in two formats — frontmatter (`id = "ADR-0001"`, `item = "T-027"`) and checklist lines (`- [ ] T-001`) — both captured by the same `record_patterns` regexes (capture group 1 = id).
-  - ADR-0001 fixes the architecture: tiered memory (L0 repo card, L1 module cards, L2 symbol/dep graph), ports+adapters topology, per-language knowledge as data (`data/langs/*`), committed YAML cards but gitignored rebuildable sqlite, and per-card provenance with `verify:` file lists.
-  - Cards are an index into code, never a second source of truth — staleness is a property of the data (sha/hash diff), not a promise in prose.
-
-  - ADR numbering follows a meta counter, not file order — the domain-records ADR was filed as ADR-0003, not 0002 (per handoff T-029), so there is no 0002 file.
-  - ADR-0003 (domain descriptors) is implemented on `feat/domain-records` (pushed b1927ee); deferred items are repo-local `[domains]` config, non-tree corpus sources (sturn refs/sqlite), and record→code-module edges.
-  - `project/` is itself a git worktree (carries a `.git`-file marker); the records extractor walks declared corpus roots regardless, unlike the shared repo walk.
-  - Several TODO items are already implemented in the codebase (e.g. T-019 `kuda watch`, T-024 release script, T-013 lsp adapter) though still listed open — the ledger's checkbox state is not a reliable freshness signal; cross-check against the code.
-  - BACKLOG references sibling tools that compose through artifacts, not code deps: malurus (critic/claim-verification) and bupha (CI, dogfooded via modules/dagger).
+  - Memory is an index into source, not a second source of truth; cards carry provenance and `verify:` file lists for source checking.
+  - L0/L1 YAML cards are committed artifacts, while the rebuildable SQLite L2 graph is gitignored.
+  - Extraction and summarization compose through ports and adapters, with deterministic template summarization as the default.
+  - Language and domain knowledge lives in descriptors rather than engine-specific code.
+  - Workspace record/code edges resolve across a logical union of modules while stores remain federated per repository root.
+  - `TODO.md` is the 0.1.0 checklist and `BACKLOG.md` contains unscheduled 0.2+ ideas; unchecked historical items should not be treated as proof that corresponding code is absent.
+  - Both ADRs are marked proposed/open even though ADR-0003 says its domain-records design was implemented on `feat/domain-records`.
+  - ADR-0003 was numbered 0003 rather than 0002 because of the metadata counter, as recorded in archived handoff T-029.
+  - T-029 leaves repo-local `[domains]` overrides, non-tree corpus sources, and record-to-module edges open; its addendum nevertheless documents org-name references converging with code dependencies.
+  - Archived T-027 records upstream slide-theme fixes, while current T-026 still requires presentation verification and integration through the sturn flow.
+  - The project index links ADR-0001 but not ADR-0003 or the archived handoffs.
 verify:
 - project/BACKLOG.md
 - project/TODO.md
 - project/adrs/0001-adr-0001-tiered-memory-artifacts-ports-adapters-topology.md
 - project/adrs/0003-domain-descriptors-record-corpora-as-indexable-data.md
-- project/handoffs/T-029.md
 - project/handoffs/archive/T-027.md
+- project/handoffs/archive/T-029.md
 - project/index.md
 provenance:
   files:
@@ -228,17 +233,17 @@ provenance:
   - project/TODO.md
   - project/adrs/0001-adr-0001-tiered-memory-artifacts-ports-adapters-topology.md
   - project/adrs/0003-domain-descriptors-record-corpora-as-indexable-data.md
-  - project/handoffs/T-029.md
   - project/handoffs/archive/T-027.md
+  - project/handoffs/archive/T-029.md
   - project/index.md
   hashes:
   - 6b4609cf8d307865615fd108300b69ef5d514c0a
   - 18465d7714fe7592b65a12da57e8069a22aa870f
   - def5e4b43853bd31a3e51c7730f08820962dfdb4
-  - 38ea915738d89469f2ea9afcbc2e62e460a5dfd6
-  - 34f59afdfb337b361448d92a7290451f3ac36b6a
+  - 64c28d791fb138cc76a184b92c3d27f345b34068
   - 9f3779ae765d34171c9fb02b6644265a8cca8f91
+  - 34f59afdfb337b361448d92a7290451f3ac36b6a
   - a9cbb363e46c66216b83994b2dba52c063dd59db
-  commit_sha: b1927ee696f1f3d4b095990941559ff83b32e157
-  generated_at: '1793901944'
+  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
+  generated_at: '1793907315'
   generator: kuda-acp/0.1.2

@@ -1,6 +1,6 @@
 path: crates/kuda-acp/src/lib.rs
 module: kuda-acp
-purpose: Summarizer adapter that spawns an ACP agent (zed, cline, gemini-cli…) over newline-delimited JSON-RPC on stdio to write grounded module-card prose — no API keys, auth lives in the user's agent. Maintains one lazily-initialized agent session reused across modules, answers `session/request_permission` (grants first option) and unknown agent→client requests to avoid deadlocks, and collects only `agent_message_chunk` text so reasoning (`agent_thought_chunk`) never reaches the card. Parses the reply's final `purpose:`/`notes:` block (falling back to the last paragraph) into a `ModuleCard`; unit tests drive a python ndjson stub through ok/error/permission/garbage/close/thought-chunk modes.
+purpose: 'I’ll verify the adapter’s remaining tests and response-handling behavior before returning the concise purpose statement.purpose: Implements an ACP summarizer adapter that spawns an external agent over stdio JSON-RPC, lazily initializes and reuses a session, and turns grounded extraction prompts into module-card prose. Handles streamed replies, permission requests, malformed lines, and protocol errors while excluding thought chunks and reasoning preambles from card fields. Includes stub-based tests for response parsing, session behavior, permissions, and failure paths.'
 symbols:
 - AcpSummarizer
 - new
@@ -34,7 +34,7 @@ provenance:
   files:
   - crates/kuda-acp/src/lib.rs
   hashes:
-  - a55bdf8465cb1bdb2a4ae9b83568c9278ebd1217
-  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
-  generated_at: '1793855773'
+  - de9ec4644376a6fea5217763d8f1092a6846d332
+  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
+  generated_at: '1793907315'
   generator: kuda-acp/0.1.0

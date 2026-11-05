@@ -598,6 +598,7 @@ fn sync_one(
                 ext.symbols.extend(e.symbols);
                 ext.edges.extend(e.edges);
                 ext.files.extend(e.files);
+                ext.warnings.extend(e.warnings);
             }
             // bundled extractors are infallible by construction
             Err(e) => eprintln!("extract {}: {e}", x.kind()),
@@ -607,6 +608,7 @@ fn sync_one(
             ext.symbols.extend(e.symbols);
             ext.edges.extend(e.edges);
             ext.files.extend(e.files);
+            ext.warnings.extend(e.warnings);
         }
     }
     // resolve raw dep/import specifiers to indexed module names —
@@ -816,6 +818,7 @@ fn sync_one(
                         symbols: syms.to_vec(),
                         edges: mod_edges.clone(),
                         files: mfiles.clone(),
+                        warnings: Vec::new(),
                     },
                     prov.clone(),
                 )
@@ -833,6 +836,7 @@ fn sync_one(
                             symbols: syms.to_vec(),
                             edges: mod_edges.clone(),
                             files: mfiles.clone(),
+                            warnings: Vec::new(),
                         },
                         p,
                     )
@@ -845,6 +849,7 @@ fn sync_one(
                     symbols: syms.to_vec(),
                     edges: mod_edges.clone(),
                     files: mfiles.clone(),
+                    warnings: Vec::new(),
                 },
                 prov.clone(),
             )
@@ -860,6 +865,19 @@ fn sync_one(
         // acp errors already fell back to the infallible template
         #[cfg(coverage)]
         let mut card = card_res.unwrap();
+        // extraction findings on this module's files land on the
+        // card — `card`/`status`/MCP surface them, sync prints them
+        for w in &ext.warnings {
+            if mfiles.contains(&w.file) {
+                eprintln!("warn {}: {}", w.file.display(), w.message);
+            }
+        }
+        card.warnings = ext
+            .warnings
+            .iter()
+            .filter(|w| mfiles.contains(&w.file))
+            .map(|w| format!("{}: {}", w.file.display(), w.message))
+            .collect();
         sanitize_card(&mut card, &manifest_names);
         // purpose: domain descriptor -> manifest description ->
         // crate docs -> README. Domain modules have no manifest —
@@ -1511,6 +1529,18 @@ fn status(cli: &Cli) -> i32 {
             }
         }
     }
+    // domain corpus validity — schema'd records vs descriptors.
+    // Warnings name the file; absent corpus/schema = silent skip.
+    if cfg.extract.kinds.iter().any(|k| k == "records") {
+        if let Ok(ws) = kuda_records::validate(&dir, &domains(), &cfg.extract.exclude) {
+            for w in &ws {
+                outln!("invalid  {}: {}", w.file.display(), w.message);
+            }
+            if !ws.is_empty() {
+                outln!("{} invalid record(s)", ws.len());
+            }
+        }
+    }
     outln!(
         "{fresh} fresh, {drifted} drifted (HEAD {})",
         &head[..head.len().min(7)]
@@ -1964,6 +1994,7 @@ fn acp_answer(dir: &Path, cfg: &Config, prompt: &str) -> String {
 }
 
 fn doctor(cli: &Cli) -> i32 {
+    let dir = root(cli);
     outln!("kuda doctor");
     match (TomlSource {
         path: cli.config.clone(),
@@ -1978,7 +2009,20 @@ fn doctor(cli: &Cli) -> i32 {
         ),
         Err(e) => outln!("  config   --  {e}"),
     }
-    outln!("  adapters    manifest, treesitter, lsp, template, sqlite (llm pending)");
+    outln!("  adapters    manifest, treesitter, lsp, records, template, sqlite (llm pending)");
+    for d in domains() {
+        let health = match kuda_records::check(&d) {
+            Ok(()) => "ok".to_owned(),
+            Err(e) => format!("BAD — {e}"),
+        };
+        let present = d.roots.iter().any(|r| dir.join(r).is_dir());
+        outln!(
+            "  domain {:<8} {}{}",
+            d.name,
+            health,
+            if present { "" } else { " (corpus absent)" }
+        );
+    }
     0
 }
 

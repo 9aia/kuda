@@ -280,6 +280,7 @@ impl Summarizer for AcpSummarizer {
             api: ext.symbols.clone(),
             api_omitted: 0,
             deps: ext.edges.iter().map(|e| e.to.clone()).collect(),
+            warnings: Vec::new(),
             notes,
             verify: ext.files.clone(),
             provenance,
@@ -374,6 +375,7 @@ for line in sys.stdin:
                 kind: kuda_core::EdgeKind::Imports,
             }],
             files: vec!["a.rs".into()],
+            ..Extraction::default()
         }
     }
 

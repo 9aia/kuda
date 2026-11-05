@@ -1,6 +1,6 @@
 name: kuda-template
 path: crates/kuda-template/Cargo.toml
-purpose: Deterministic, zero-model/zero-cost `Summarizer` adapter (kind `"template"`, the default) — builds a `ModuleCard` purely from what extraction found, with no prose generation. The test verifies only the module's own symbols and outgoing edges land on its card.
+purpose: 'I’ll verify the crate manifest, adapter implementation, and test coverage, then return only the grounded card fields.purpose: Implements the deterministic, zero-model `template` summarizer, constructing module cards exclusively from extraction results and supplied provenance. Includes an integration test for module-scoped symbol and dependency collection. invariants: - Card `api` contains only symbols whose `module` matches the requested module. - Card `deps` contains targets only from edges whose `from` matches the requested module. - `verify` copies the extraction’s file list and `provenance` is passed through unchanged. notes: - The initial `purpose` is simply the module name; callers apply manifest, README, or documentation fallbacks. - `api_omitted` is always zero, and `warnings` and `notes` are initialized empty. - Dependencies are collected without filtering, deduplication, or sorting in this adapter. - The implementation performs no model calls or filesystem access and always returns `Ok` for the constructed card. - Agent-written prose belongs to the ACP adapter; the direct LLM path is parked.'
 api:
 - name: TemplateSummarizer
   kind: type
@@ -45,11 +45,14 @@ deps:
 - kuda-extract
 - kuda-summarize
 notes: |
-  - `api` contains only symbols whose `module` matches; `deps` only targets of edges whose `from` matches — other modules' data never leaks into a card (regression-tested).
-  - `purpose` is just the module name: the manifest/README/doc fallback chain is the CALLER's job, not this adapter's.
-  - `verify` is always the extraction's file list; `notes` starts empty (human-owned later) and `api_omitted` is 0 (no capping here).
-  - Prose belongs to the `acp` adapter — the `llm` path is parked; this adapter never fails on content (returns `Ok` unconditionally).
-  - Provenance is passed through untouched from the caller.
+  - Card `api` contains only symbols whose `module` matches the requested module.
+  - Card `deps` contains targets only from edges whose `from` matches the requested module.
+  - `verify` copies the extraction’s file list and `provenance` is passed through unchanged.
+  - The initial `purpose` is simply the module name; callers apply manifest, README, or documentation fallbacks.
+  - `api_omitted` is always zero, and `warnings` and `notes` are initialized empty.
+  - Dependencies are collected without filtering, deduplication, or sorting in this adapter.
+  - The implementation performs no model calls or filesystem access and always returns `Ok` for the constructed card.
+  - Agent-written prose belongs to the ACP adapter; the direct LLM path is parked.
 verify:
 - crates/kuda-template/Cargo.toml
 - crates/kuda-template/src/lib.rs
@@ -61,8 +64,8 @@ provenance:
   - crates/kuda-template/tests/template.rs
   hashes:
   - 65d11baa59bc50d3fb5d1b6a488a87922b66c9a3
-  - 867d24ff10aaee1ded6a6415e689c6e19b1bacf3
-  - cb77fca330428bc8ae500500acb9362f77079b23
-  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
-  generated_at: '1793855773'
+  - 4be986f5c2b56e52f6fcbb9be19ae7433625af72
+  - 110d7245c3ef544773480d0a39b93374244557eb
+  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
+  generated_at: '1793907315'
   generator: kuda-acp/0.1.2

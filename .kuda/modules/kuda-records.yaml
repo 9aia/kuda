@@ -1,6 +1,6 @@
 name: kuda-records
 path: crates/kuda-records/Cargo.toml
-purpose: RecordsExtractor implements the "records" Extractor by compiling DomainDef record/ref regexes and recursively walking each declared corpus root to produce Record symbols and References edges from non-code files (frontmatter `id = "..."` and checklist `- [ ] ID` lines share one per-line capture-group-1 mechanism). Missing corpus roots are silently skipped, while invalid record or ref patterns return an error naming the domain and pattern.
+purpose: 'I’ll verify the crate dependencies and complete extractor behavior, especially record scoping, frontmatter handling, and validation failure semantics, before producing the card.purpose: Implements the `records` extraction adapter, converting descriptor-driven non-code corpora into record symbols, reference edges, provenance files, and validation warnings. Supports regex-defined frontmatter and checklist records plus optional JSON Schema validation of TOML/YAML frontmatter. invariants: - Record IDs come from capture group 1 of per-line `record_patterns`; the first occurrence of each ID per file defines its one-based symbol location. - Record discovery skips fenced code blocks, while reference scanning uses the whole text for single-record files and only the record’s own line for multi-record files. - Reference targets use capture group 1 when present, otherwise the whole match, and edges have kind `References`. - Schema-invalid or unparseable frontmatter produces warnings without removing otherwise discoverable records. - Invalid descriptor regexes or schemas fail compilation loudly; absent corpus roots are silently skipped. notes: - `check` validates descriptor regexes and schemas without requiring corpus files; `validate` performs a full scan and returns only warnings without writing an index. - Only files under declared roots with declared extensions are scanned; configured and built-in directory exclusions still apply. - Declared corpus roots are descended into even when they contain a `.git` file marking a worktree. - Frontmatter must begin at the start of the file with `+++` for TOML or `---` for YAML; files without frontmatter skip schema validation without warning. - At most three schema error messages are included in a file’s combined warning. - Files with no discovered records are omitted from `Extraction.files`, even if schema validation examines them. - Reference self-edges are emitted here and expected to be removed downstream during sync.'
 api:
 - name: Compiled
   kind: type
@@ -15,12 +15,22 @@ api:
 - name: absent_root_and_bad_regex
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 297
+  line: 377
+  module: kuda-records
+- name: bad_schema_fails_compile_loudly
+  kind: function
+  file: crates/kuda-records/src/lib.rs
+  line: 470
+  module: kuda-records
+- name: check
+  kind: function
+  file: crates/kuda-records/src/lib.rs
+  line: 78
   module: kuda-records
 - name: compile
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 42
+  line: 43
   module: kuda-records
 - name: extract
   kind: function
@@ -30,7 +40,12 @@ api:
 - name: extracts_frontmatter_and_checklist_records
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 208
+  line: 288
+  module: kuda-records
+- name: frontmatter
+  kind: function
+  file: crates/kuda-records/src/lib.rs
+  line: 99
   module: kuda-records
 - name: kind
   kind: function
@@ -45,50 +60,81 @@ api:
 - name: myco
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 192
+  line: 271
   module: kuda-records
 - name: ref_pattern_prefers_capture_group_one
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 274
+  line: 354
   module: kuda-records
 - name: scan_file
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 117
+  line: 196
+  module: kuda-records
+- name: schema_def
+  kind: function
+  file: crates/kuda-records/src/lib.rs
+  line: 409
+  module: kuda-records
+- name: schema_tests
+  kind: module
+  file: crates/kuda-records/src/lib.rs
+  line: 398
+  module: kuda-records
+- name: schema_validates_frontmatter_records
+  kind: function
+  file: crates/kuda-records/src/lib.rs
+  line: 432
   module: kuda-records
 - name: tests
   kind: module
   file: crates/kuda-records/src/lib.rs
-  line: 181
+  line: 260
   module: kuda-records
 - name: tmp
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 185
+  line: 264
+  module: kuda-records
+- name: tmp
+  kind: function
+  file: crates/kuda-records/src/lib.rs
+  line: 402
+  module: kuda-records
+- name: validate
+  kind: function
+  file: crates/kuda-records/src/lib.rs
+  line: 84
   module: kuda-records
 - name: walk_corpus
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 66
+  line: 122
   module: kuda-records
 deps:
+- jsonschema
 - kuda-core
 - kuda-extract
 - regex
+- serde_json
+- serde_yaml
+- toml
 - kuda-core
 - kuda-extract
 notes: |
-  - Record ids come from capture group 1 of the first matching record pattern on a line; the first occurrence of an id wins per file, and only one record pattern is tried per line.
-  - Fenced code blocks delimited by lines whose trimmed start is ``` are skipped during record scanning.
-  - Reference edges use capture group 1 when present, otherwise the whole match, and are always EdgeKind::References.
-  - In multi-record files each record's refs are scanned only on its own line; single-record files scan the whole text, so self-edges can be emitted for downstream sync to drop.
-  - Directory descent honors kuda_core::dir_excluded with the configured extra excludes, and a `.git` file does not stop the walk; files must match a declared extension after trimming a leading dot.
-
-  - Unreadable directories/files and non-UTF-8 paths or contents are skipped rather than reported.
-  - Files with no records contribute no symbols, edges, or out.files entry.
-  - Symbol line numbers are 1-based and module is copied from DomainDef.module; the _langs extractor argument is unused.
-  - Tests cover frontmatter/checklist extraction, worktree-root descent, whole-text versus same-line edge scope, capture-group ref targets, absent roots, and bad regex errors.
+  - Record IDs come from capture group 1 of per-line `record_patterns`; the first occurrence of each ID per file defines its one-based symbol location.
+  - Record discovery skips fenced code blocks, while reference scanning uses the whole text for single-record files and only the record’s own line for multi-record files.
+  - Reference targets use capture group 1 when present, otherwise the whole match, and edges have kind `References`.
+  - Schema-invalid or unparseable frontmatter produces warnings without removing otherwise discoverable records.
+  - Invalid descriptor regexes or schemas fail compilation loudly; absent corpus roots are silently skipped.
+  - `check` validates descriptor regexes and schemas without requiring corpus files; `validate` performs a full scan and returns only warnings without writing an index.
+  - Only files under declared roots with declared extensions are scanned; configured and built-in directory exclusions still apply.
+  - Declared corpus roots are descended into even when they contain a `.git` file marking a worktree.
+  - Frontmatter must begin at the start of the file with `+++` for TOML or `---` for YAML; files without frontmatter skip schema validation without warning.
+  - At most three schema error messages are included in a file’s combined warning.
+  - Files with no discovered records are omitted from `Extraction.files`, even if schema validation examines them.
+  - Reference self-edges are emitted here and expected to be removed downstream during sync.
 verify:
 - crates/kuda-records/Cargo.toml
 - crates/kuda-records/src/lib.rs
@@ -97,8 +143,8 @@ provenance:
   - crates/kuda-records/Cargo.toml
   - crates/kuda-records/src/lib.rs
   hashes:
-  - 9acbd7c6d35d0ce10af2fa065bd9fc17748373c5
-  - 33f99dbaa171fad2e213370e52c67781c5efb522
-  commit_sha: b1927ee696f1f3d4b095990941559ff83b32e157
-  generated_at: '1793902096'
+  - 259e305a0f5b7719fbe0939293854b774746df12
+  - 25e857cdc7d6afdc2c02e06810452ea0560591a7
+  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
+  generated_at: '1793907315'
   generator: kuda-acp/0.1.2
