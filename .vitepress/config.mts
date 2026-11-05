@@ -37,6 +37,7 @@ export default defineConfig({
           { text: "MCP server", link: "/how-to/mcp" },
           { text: "ACP surface", link: "/how-to/acp" },
           { text: "Add a language", link: "/how-to/languages" },
+          { text: "Index a corpus", link: "/how-to/domains" },
           { text: "Sturn WAL", link: "/how-to/sturn" },
           { text: "Summarizers", link: "/how-to/llm-summarizer" },
         ],

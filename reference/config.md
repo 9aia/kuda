@@ -24,7 +24,7 @@
 
 | field | type | required | notes |
 |---|---|---|---|
-| `kinds` | `list` | optional | Impl kinds tried in order: "manifest" \| "treesitter" \| "lsp". |
+| `kinds` | `list` | optional | Impl kinds tried in order: "manifest" \| "treesitter" \| "lsp" \| "records". |
 | `lsp_server` | `string` | optional | Server command for the lsp adapter (per-language later). |
 | `exclude` | `list` | optional | Extra dir/file names skipped during walks — beyond the built-in noise set (`default_excludes`). Keeps generated, vendored, and build output out of index, hashes, and agent prompts (agent cost is per-file fed in). |
 
