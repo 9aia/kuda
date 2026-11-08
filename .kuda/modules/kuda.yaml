@@ -1,6 +1,6 @@
 name: kuda
 path: Cargo.toml
-purpose: 'I’ll inspect the workspace and CLI manifests plus the Dagger self-release implementation and tests, then produce a grounded card focused on composition, operational invariants, and release/automation gotchas.The card also needs the Dagger pipeline’s cache, credential, and test-sharding behavior; I’m reading those sections before fixing the invariants and notes.purpose: Provides the `kuda` CLI composition root and its end-to-end tests, wiring configuration, extraction, summarization, cards, SQLite storage, Git, workspace queries, and MCP/ACP surfaces. Also packages reusable Dagger CI functions for Rust workspace setup, sharded tests, doctests, coverage, and repository-specific scripts. invariants: - Sync uses Git-compatible blob hashes and card/store provenance to limit parsing and agent summarization to drift; `sync --full` discards the freshness baseline. - Module identity comes from manifest package names, while domain corpus files are grouped by their descriptors; dependency names are normalized and self-edges removed. - ACP summarization failures fall back to template cards stamped `kuda-template`, causing ACP regeneration on a later sync. - Stale module and file cards are swept independently of current summarizer settings. - Dagger self-patching must resolve a repository’s transitive Git dependencies to mounted checkouts, avoiding duplicate package sources and stale `main` code. notes: - `kuda init` refuses to overwrite an existing `kuda.toml`; configuration load failures otherwise print a warning and use defaults. - Language and domain descriptors are embedded with `include_str!`, so descriptor additions require changes to `LANG_TOMLS` or `DOMAIN_TOMLS` and a rebuild. - `status` checks per-card hashes and the L0 `tree_digest`, but older L0 cards without a digest skip the tree-level check. - `refs` prefers LSP results when configured and falls back to textual search; its text walk uses hard-noise exclusions rather than `[extract].exclude`. - MCP and ACP use line-delimited stdio JSON-RPC; malformed MCP input and notifications are skipped, while unknown ACP methods return method-not-found errors. - Dagger excludes `target`, `.git`, coverage, `node_modules`, and local SDK/virtualenv directories from source uploads and mounts Cargo, target, and sccache cache volumes. - Dagger GitHub tokens and sccache configuration are mounted secrets; Git credential rewriting runs inside execs rather than image layers. - Dagger self-patching derives its patch URL from `patch_host` or Cargo’s `repository` field and errors if neither is available; its heredoc is regression-tested via AST extraction with `pytest modules/dagger/tests/`. - The Dagger Python package requires Python 3.14 or newer; parallel tests warm the shared Cargo Git cache serially first to avoid fetch races.'
+purpose: '*Code-map engine — verified per-module cards agents read before code.*'
 api:
 - name: ACP_STUB
   kind: const
@@ -10,17 +10,17 @@ api:
 - name: API_CAP
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 1292
+  line: 1323
   module: kuda
 - name: BUDGET
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 1041
+  line: 1062
   module: kuda
 - name: CHUNK
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 1040
+  line: 1061
   module: kuda
 - name: Cli
   kind: type
@@ -45,12 +45,12 @@ api:
 - name: FileCardJob
   kind: type
   file: crates/kuda-cli/src/main.rs
-  line: 1007
+  line: 1028
   module: kuda
 - name: GENERATOR_VERSION
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 736
+  line: 744
   module: kuda
 - name: Kuda
   kind: type
@@ -65,32 +65,32 @@ api:
 - name: SKIP_BYTES
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 1042
+  line: 1063
   module: kuda
 - name: VERIFY_CAP
   kind: const
   file: crates/kuda-cli/src/main.rs
-  line: 1293
+  line: 1324
   module: kuda
 - name: acp
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1891
+  line: 1922
   module: kuda
 - name: acp_answer
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1964
+  line: 1995
   module: kuda
 - name: acp_full_session
   kind: function
   file: crates/kuda-cli/tests/e2e.rs
-  line: 1181
+  line: 1262
   module: kuda
 - name: acp_store_error_path
   kind: function
   file: crates/kuda-cli/tests/e2e.rs
-  line: 1228
+  line: 1309
   module: kuda
 - name: blob_hash
   kind: function
@@ -100,12 +100,12 @@ api:
 - name: card
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1555
+  line: 1586
   module: kuda
 - name: cat_file
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1559
+  line: 1590
   module: kuda
 - name: config_flag_changes_root
   kind: function
@@ -125,12 +125,12 @@ api:
 - name: crate_doc_purpose
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1212
+  line: 1243
   module: kuda
 - name: dependents
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1632
+  line: 1663
   module: kuda
 - name: dependents_all_messages
   kind: function
@@ -140,12 +140,12 @@ api:
 - name: dependents_skips_self_import_edges
   kind: function
   file: crates/kuda-cli/tests/e2e.rs
-  line: 1542
+  line: 1623
   module: kuda
 - name: detect_commands
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1337
+  line: 1368
   module: kuda
 - name: doctests
   kind: function
@@ -155,7 +155,7 @@ api:
 - name: doctor
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1996
+  line: 2027
   module: kuda
 - name: doctor
   kind: function
@@ -185,7 +185,7 @@ api:
 - name: find
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1572
+  line: 1603
   module: kuda
 - name: find_exact_fuzzy_miss
   kind: function
@@ -200,9 +200,9 @@ api:
 - name: fname
   kind: function
   file: crates/kuda-cli/src/main.rs
-  line: 1338
+  line: 1369
   module: kuda
-api_omitted: 78
+api_omitted: 80
 deps:
 - dagger-io
 - clap
@@ -286,12 +286,12 @@ provenance:
   hashes:
   - ec3d917b2dfc4520bd9cbf6c8f07071e0b899551
   - df73801e3fe8951fa21666324282a49c5ecab47a
-  - ff5ce594ab5016383f265d98000381346c7f1d20
-  - a41fc76e097c7a4b6b31f6b87804fbf52425dc5b
+  - b54222471938ec28ebfafe54de5c31d0ba8c05bd
+  - b2972f5124a9004bbe410253c02813a80a84ae29
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
   - 5b331a1baf30b49f5bf03dd9693297d498117deb
   - d71646b878b3eae72aa42a5791588701197fdb2d
   - 203086b883ed1477efd6f9befccd76e2614cc9ea
-  commit_sha: 849a2935ab8087064e4e8d123bbcdb5957cf75dd
-  generated_at: '1794151764'
-  generator: kuda-acp/0.1.2
+  commit_sha: 8d826eb1abfad4e0a0577f04e2d7a3ad83b0aa6a
+  generated_at: '1794180523'
+  generator: kuda-acp/0.1.3

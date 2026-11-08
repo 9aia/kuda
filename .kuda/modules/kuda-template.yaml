@@ -1,6 +1,6 @@
 name: kuda-template
 path: crates/kuda-template/Cargo.toml
-purpose: 'I’ll verify the crate manifest, adapter implementation, and test coverage, then return only the grounded card fields.purpose: Implements the deterministic, zero-model `template` summarizer, constructing module cards exclusively from extraction results and supplied provenance. Includes an integration test for module-scoped symbol and dependency collection. invariants: - Card `api` contains only symbols whose `module` matches the requested module. - Card `deps` contains targets only from edges whose `from` matches the requested module. - `verify` copies the extraction’s file list and `provenance` is passed through unchanged. notes: - The initial `purpose` is simply the module name; callers apply manifest, README, or documentation fallbacks. - `api_omitted` is always zero, and `warnings` and `notes` are initialized empty. - Dependencies are collected without filtering, deduplication, or sorting in this adapter. - The implementation performs no model calls or filesystem access and always returns `Ok` for the constructed card. - Agent-written prose belongs to the ACP adapter; the direct LLM path is parked.'
+purpose: 'Summarize adapter: deterministic zero-model cards'
 api:
 - name: TemplateSummarizer
   kind: type
@@ -65,7 +65,7 @@ provenance:
   hashes:
   - 65d11baa59bc50d3fb5d1b6a488a87922b66c9a3
   - 4be986f5c2b56e52f6fcbb9be19ae7433625af72
-  - 110d7245c3ef544773480d0a39b93374244557eb
-  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
-  generated_at: '1793907315'
-  generator: kuda-acp/0.1.2
+  - b200b56c3b2bd7b2d8d0b540dbce125ec8d84d38
+  commit_sha: 8d826eb1abfad4e0a0577f04e2d7a3ad83b0aa6a
+  generated_at: '1794180523'
+  generator: kuda-acp/0.1.3

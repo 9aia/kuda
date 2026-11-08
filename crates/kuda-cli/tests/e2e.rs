@@ -758,12 +758,12 @@ fn sync_incremental_and_deletions() {
     mk_at(&dir, "x.py", "def x():\n    pass\n");
     assert!(kuda(&["sync"], &dir).status.success());
     let card = std::fs::read_to_string(dir.join(".kuda/modules/app.yaml")).unwrap();
-    let stale = card.replace("kuda-template/0.1.2", "ancient/0.0");
+    let stale = card.replace("kuda-template/0.1.3", "ancient/0.0");
     std::fs::write(dir.join(".kuda/modules/app.yaml"), stale).unwrap();
     assert!(kuda(&["sync"], &dir).status.success());
     assert!(std::fs::read_to_string(dir.join(".kuda/modules/app.yaml"))
         .unwrap()
-        .contains("kuda-template/0.1.2"));
+        .contains("kuda-template/0.1.3"));
     std::fs::remove_dir_all(&dir).ok();
 }
 
@@ -1109,6 +1109,87 @@ fn sync_acp_agent_failure_template_fallback() {
     assert!(dir2.join(".kuda/modules/sub.yaml").exists());
     std::fs::remove_dir_all(&dir).ok();
     std::fs::remove_dir_all(&dir2).ok();
+}
+
+/// I-002 half 1: regen rewrites machine fields but the human-owned
+/// `notes:` region carries forward verbatim — template and acp
+/// summarizers alike.
+#[test]
+fn sync_preserves_human_notes() {
+    let dir = tmp("notes");
+    seed_py_repo(&dir);
+    assert!(kuda(&["sync"], &dir).status.success());
+    let card_path = dir.join(".kuda/modules/app.yaml");
+    let card = std::fs::read_to_string(&card_path).unwrap();
+    // human writes into the notes region
+    let human = card.replace(
+        "notes: ''",
+        "notes: |-\n  - human gotcha: keep me\n  - verbatim \"quotes\"",
+    );
+    assert_ne!(human, card, "fixture card should carry a notes key");
+    std::fs::write(&card_path, &human).unwrap();
+    // change a source file -> module re-summarizes
+    mk_at(
+        &dir,
+        "main.py",
+        "import requests\n\ndef serve():\n    pass\n\ndef extra():\n    pass\n",
+    );
+    assert!(kuda(&["sync"], &dir).status.success());
+    let regen = std::fs::read_to_string(&card_path).unwrap();
+    assert!(regen.contains("human gotcha: keep me"), "{regen}");
+    assert!(regen.contains("verbatim \"quotes\""), "{regen}");
+    // machine fields still updated
+    assert!(regen.contains("extra"), "{regen}");
+    std::fs::remove_dir_all(&dir).ok();
+}
+
+/// I-002 half 2: an acp reply that can't be parsed into card prose
+/// (monologue / embedded field blob) fails the summarize ->
+/// template fallback, counted in sync output — raw agent output
+/// never reaches `purpose`.
+#[test]
+fn sync_acp_monologue_falls_back_to_template() {
+    let dir = tmp("acpmono2");
+    let agent = write_acp_stub(&dir);
+    mk_at(&dir, "pyproject.toml", "[project]\nname = \"app\"\n");
+    mk_at(&dir, "main.py", "def serve():\n    pass\n");
+    mk_at(
+        &dir,
+        "kuda.toml",
+        &format!(
+            "[summarize]\nkind = \"acp\"\nacp_cmd = \"python3 {}\"\nfile_cards = true\n",
+            agent.display()
+        ),
+    );
+    // the observed failure shape: one unanchored blob with the
+    // agent's reasoning inlined before the card fields
+    let out = Command::new(env!("CARGO_BIN_EXE_kuda"))
+        .args(["sync"])
+        .current_dir(&dir)
+        .env(
+            "KUDA_STUB_PROSE",
+            "I’ll verify the manifest and tests, then return the fields.\
+             purpose: Agent module prose that should never land.\
+             invariants:\n- fake\nnotes:\n- fake note",
+        )
+        .output()
+        .unwrap();
+    let stderr = String::from_utf8_lossy(&out.stderr);
+    assert!(out.status.success(), "{stderr}");
+    assert!(stderr.contains("template fallback"), "{stderr}");
+    assert!(stderr.contains("fell back to template"), "{stderr}");
+    let card = std::fs::read_to_string(dir.join(".kuda/modules/app.yaml")).unwrap();
+    assert!(!card.contains("I’ll verify"), "{card}");
+    assert!(!card.contains("Agent module prose"), "{card}");
+    assert!(!card.contains("fake note"), "{card}");
+    // template fallback card: purpose resolves via the manifest
+    // chain, provenance stamps kuda-template so next sync retries
+    assert!(card.contains("kuda-template/"), "{card}");
+    // file cards hit the same monologue guard — skipped, not
+    // written, retried next sync
+    assert!(stderr.contains("card skipped"), "{stderr}");
+    assert!(!dir.join(".kuda/files/app/main.py.yaml").exists());
+    std::fs::remove_dir_all(&dir).ok();
 }
 
 // ---------- mcp / acp stdio servers ----------

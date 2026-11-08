@@ -1,59 +1,13 @@
 name: kuda-extract
 path: crates/kuda-extract/Cargo.toml
-purpose: 'I’ll verify the crate manifest and port contract, then return only the grounded card fields.purpose: Defines the extraction port and shared result types used by manifest, tree-sitter, LSP, and record-corpus adapters. `Extraction` carries symbols, dependency edges, files read for provenance, and non-fatal file-scoped warnings. invariants: - Extraction is mechanical: adapters report what grammars or manifests actually contain rather than inferred structure. - Extractor implementations must be `Send + Sync` and expose a static `kind` matching `extract.kinds` configuration. - Extraction warnings are non-fatal and retain the path of the file that caused them. notes: - `extract_filtered` accepts repo-relative paths but defaults to ignoring the filter and calling full `extract`; adapters must override it for actual incremental filtering. - Errors are returned as `Result<Extraction, String>`. - This crate depends only on `kuda-core`; concrete extraction behavior belongs in separate adapter crates, while new languages and domains are descriptor data. - The unit test verifies only the default filtered-to-full delegation behavior.'
+purpose: Extract port — pull symbols/deps/structure from source trees
 api:
-- name: ExtractWarning
-  kind: type
-  file: crates/kuda-extract/src/lib.rs
-  line: 24
-  module: kuda-extract
-- name: Extraction
-  kind: type
-  file: crates/kuda-extract/src/lib.rs
-  line: 12
-  module: kuda-extract
-- name: Extractor
-  kind: trait
-  file: crates/kuda-extract/src/lib.rs
-  line: 31
-  module: kuda-extract
-- name: Stub
-  kind: type
-  file: crates/kuda-extract/src/lib.rs
-  line: 53
-  module: kuda-extract
-- name: default_filtered_delegates_to_extract
-  kind: function
-  file: crates/kuda-extract/src/lib.rs
-  line: 72
-  module: kuda-extract
-- name: extract
-  kind: function
-  file: crates/kuda-extract/src/lib.rs
-  line: 58
-  module: kuda-extract
-- name: extract_filtered
-  kind: function
-  file: crates/kuda-extract/src/lib.rs
-  line: 39
-  module: kuda-extract
-- name: kind
-  kind: function
-  file: crates/kuda-extract/src/lib.rs
-  line: 55
-  module: kuda-extract
 - name: kuda-extract
   kind: module
   file: crates/kuda-extract/Cargo.toml
   line: 1
   module: kuda-extract
-- name: tests
-  kind: module
-  file: crates/kuda-extract/src/lib.rs
-  line: 50
-  module: kuda-extract
 deps:
-- kuda-core
 - kuda-core
 notes: |
   - Extraction is mechanical: adapters report what grammars or manifests actually contain rather than inferred structure.
@@ -73,6 +27,6 @@ provenance:
   hashes:
   - 8474c16bc613412aaa22031cbce10ad3a1f9beea
   - d75af826960ecbd254477203e9e0c3bd87da4a80
-  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
-  generated_at: '1793907315'
-  generator: kuda-acp/0.1.2
+  commit_sha: 8d826eb1abfad4e0a0577f04e2d7a3ad83b0aa6a
+  generated_at: '1794180523'
+  generator: kuda-acp/0.1.3

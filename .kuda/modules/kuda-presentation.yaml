@@ -19,6 +19,6 @@ provenance:
   - presentation/package.json
   hashes:
   - 0f3a434bcbd7f03da300bb0068407063d067a223
-  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
-  generated_at: '1793855773'
-  generator: kuda-template/0.1.2
+  commit_sha: 8d826eb1abfad4e0a0577f04e2d7a3ad83b0aa6a
+  generated_at: '1794180523'
+  generator: kuda-template/0.1.3

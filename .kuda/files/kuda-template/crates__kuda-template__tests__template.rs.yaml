@@ -1,6 +1,6 @@
 path: crates/kuda-template/tests/template.rs
 module: kuda-template
-purpose: 'I’ll verify the test directly, then return the requested purpose statement.purpose: Tests that `TemplateSummarizer` builds a deterministic module card containing only the requested module’s symbols and outgoing dependencies. Also verifies its `template` kind, module-name purpose, and propagation of extraction files into the card’s `verify` list.'
+purpose: crates/kuda-template/tests/template.rs
 symbols:
 - prov
 - sym
@@ -9,7 +9,7 @@ provenance:
   files:
   - crates/kuda-template/tests/template.rs
   hashes:
-  - 110d7245c3ef544773480d0a39b93374244557eb
-  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
-  generated_at: '1793907315'
+  - b200b56c3b2bd7b2d8d0b540dbce125ec8d84d38
+  commit_sha: 8d826eb1abfad4e0a0577f04e2d7a3ad83b0aa6a
+  generated_at: '1794180523'
   generator: kuda-acp/0.1.0

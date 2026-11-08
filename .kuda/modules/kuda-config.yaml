@@ -1,12 +1,7 @@
 name: kuda-config
 path: crates/kuda-config/Cargo.toml
-purpose: Config port for kuda — a single `ConfigSource` trait abstracting where the `kuda_core::Config` value comes from, keeping the core decoupled from any concrete source.
+purpose: 'Config port: where kuda.toml-shaped config comes from'
 api:
-- name: ConfigSource
-  kind: trait
-  file: crates/kuda-config/src/lib.rs
-  line: 5
-  module: kuda-config
 - name: kuda-config
   kind: module
   file: crates/kuda-config/Cargo.toml
@@ -28,6 +23,6 @@ provenance:
   hashes:
   - ea8d721cf84a29a6242dfb89a1cfe55211215dbb
   - 67df5f89ce57962d01a71781e96d8378f9c284c4
-  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
-  generated_at: '1793855773'
-  generator: kuda-acp/0.1.2
+  commit_sha: 8d826eb1abfad4e0a0577f04e2d7a3ad83b0aa6a
+  generated_at: '1794180523'
+  generator: kuda-acp/0.1.3

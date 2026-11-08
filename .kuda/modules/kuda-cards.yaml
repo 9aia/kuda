@@ -1,7 +1,17 @@
 name: kuda-cards
 path: crates/kuda-cards/Cargo.toml
-purpose: 'I’ll inspect the card renderer/parser implementation and manifest to capture serialization rules, compatibility behavior, and human-note preservation accurately.purpose: Serializes and deserializes kuda’s committed L0 repository, L1 module, and L1 per-file cards as YAML. Provides thin `serde_yaml` adapters for `.kuda/index.yaml`, `.kuda/modules/<name>.yaml`, and `.kuda/files/<module>/<file>.yaml`. invariants: - Machine fields and the human-owned module `notes` region round-trip through rendering and parsing. - Parse failures are returned as `Err(String)` rather than panicking. notes: - This crate performs no filesystem I/O, card-path sanitization, schema migration, or freshness validation; callers supply paths and card text. - Serialization structure and defaults are inherited from the `kuda-core` card types and Serde, not defined independently here. - Tests cover round-trips for all three card types, omitted API counts, symbol kinds, notes, and rejection of malformed or structurally invalid YAML.'
+purpose: Card render — .kuda/index.yaml + modules/*.yaml
 api:
+- name: carry_notes
+  kind: function
+  file: crates/kuda-cards/src/lib.rs
+  line: 40
+  module: kuda-cards
+- name: carry_notes_preserves_human_region
+  kind: function
+  file: crates/kuda-cards/tests/cards.rs
+  line: 80
+  module: kuda-cards
 - name: file_card_roundtrip_and_bad_yaml
   kind: function
   file: crates/kuda-cards/tests/cards.rs
@@ -79,8 +89,8 @@ provenance:
   - crates/kuda-cards/tests/cards.rs
   hashes:
   - c2232432f5c2b51750ed9406059add07640caa15
-  - ac8ed078ee86cd1b6b087cf3ed964eb76366546a
-  - aa0d4566f9c902953ee8ce3f4e3bde0baf32d306
-  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
-  generated_at: '1793907315'
-  generator: kuda-acp/0.1.2
+  - dbcf902aab00436a4809ffd5ab16b463e5cf395c
+  - b0b8add4ba3293bf9776cd510fddae17630ccd2c
+  commit_sha: 8d826eb1abfad4e0a0577f04e2d7a3ad83b0aa6a
+  generated_at: '1794180523'
+  generator: kuda-acp/0.1.3

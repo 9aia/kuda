@@ -1,6 +1,6 @@
 name: kuda-keyring
 path: crates/kuda-keyring/Cargo.toml
-purpose: Keyring adapter of the `Secrets` port that shells out to `secret-tool` (libsecret) for desktop-keyring storage, grouping entries under a `service` attribute (default `"kuda"`). The test drives a PATH-stubbed `secret-tool` shell script through hit/fail/empty/missing-binary modes.
+purpose: 'Secret adapter: OS keyring via secret-tool (libsecret)'
 api:
 - name: KeyringSecrets
   kind: type
@@ -53,7 +53,7 @@ provenance:
   hashes:
   - 91090b39dc802b32e546f0af5ad5f1aa9e994bb8
   - 5242918416df1b111afa3ac068a34dd434191191
-  - 2376ee17cf4aa48cec92e05dfd92f3eb3f0e477f
-  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
-  generated_at: '1793855773'
-  generator: kuda-acp/0.1.2
+  - 3f3cfe07bfe64addce9290896d7d6ab4c7fd20ae
+  commit_sha: 8d826eb1abfad4e0a0577f04e2d7a3ad83b0aa6a
+  generated_at: '1794180523'
+  generator: kuda-acp/0.1.3

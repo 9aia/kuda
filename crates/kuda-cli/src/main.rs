@@ -659,6 +659,10 @@ fn sync_one(
     let use_acp = cfg.summarize.kind == "acp" && acp.is_some();
     let summ = kuda_template::TemplateSummarizer;
     let mut module_names = Vec::new();
+    // acp replies that fail card-prose parsing (monologue, garbage)
+    // fall back to the template per-module — counted for the
+    // summary line so degraded syncs are visible, not silent.
+    let mut acp_fallbacks = 0usize;
     // modules that vanished from the walk entirely -> drop card +
     // store rows
     let present: std::collections::HashSet<&String> = mod_files.keys().collect();
@@ -733,7 +737,11 @@ fn sync_one(
         // written by a different generator (older mechanism, or a
         // different summarizer) is re-summarized even on
         // byte-identical inputs.
-        const GENERATOR_VERSION: &str = "0.1.2";
+        // 0.1.3: acp replies that fail card-prose parsing (monologue,
+        // embedded-field blobs) now fall back to template instead of
+        // writing garbage into `purpose` — restamp so degraded cards
+        // re-summarize on next sync (I-002).
+        const GENERATOR_VERSION: &str = "0.1.3";
         let stamp = |kind: &str| format!("kuda-{kind}/{GENERATOR_VERSION}");
         let want_acp = use_acp && !only_manifests;
         let generator = stamp(if want_acp { "acp" } else { "template" });
@@ -823,6 +831,7 @@ fn sync_one(
                     prov.clone(),
                 )
                 .or_else(|e| {
+                    acp_fallbacks += 1;
                     eprintln!("acp {module}: {e} — template fallback");
                     // the fallback wrote the prose — stamp it
                     // `kuda-template` so the mismatch re-prompts
@@ -894,6 +903,15 @@ fn sync_one(
                 card.purpose = d;
             }
         }
+        // `notes:` is the human-owned region (T-008): the committed
+        // card's notes carry forward verbatim — regen rewrites the
+        // machine fields only, never clobbers human prose.
+        if let Ok(prev) = std::fs::read_to_string(&card_path)
+            .map_err(|e| e.to_string())
+            .and_then(|t| kuda_cards::parse_module_card(&t))
+        {
+            kuda_cards::carry_notes(&mut card, &prev);
+        }
         let out = cards_dir
             .join("modules")
             .join(format!("{}.yaml", safe(&card.name)));
@@ -931,6 +949,9 @@ fn sync_one(
         module_names.push(card.name);
     }
     module_names.sort();
+    if acp_fallbacks > 0 {
+        eprintln!("acp: {acp_fallbacks} card(s) fell back to template — unparseable agent replies");
+    }
 
     // L0 repo card
     let name = cfg
@@ -1166,6 +1187,16 @@ fn sync_file_cards(job: FileCardJob<'_>) {
                     .or_else(|| (!t.is_empty()).then(|| t.to_owned()))
             })
             .unwrap_or_else(|| rel.display().to_string());
+        // same hygiene as module cards: a monologue/garbage reply
+        // must not land in `purpose` — skip the card, retry next
+        // sync (no card written -> hash gate re-prompts).
+        if kuda_acp::looks_like_monologue(&purpose) {
+            eprintln!(
+                "acp file {}: unparseable reply (monologue) — card skipped",
+                rel.display()
+            );
+            continue;
+        }
         let card = kuda_core::FileCard {
             path: rel.clone(),
             module: module.to_string(),

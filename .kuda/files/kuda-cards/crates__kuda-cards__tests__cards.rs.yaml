@@ -1,16 +1,17 @@
 path: crates/kuda-cards/tests/cards.rs
 module: kuda-cards
-purpose: 'I’ll verify the test file directly, then return the requested purpose statement.purpose: Tests YAML render/parse round-trips for committed repository, module, and file cards, including module omitted-symbol counts, human notes, and symbol kinds. Also verifies that malformed or structurally invalid YAML is rejected by each card parser.'
+purpose: crates/kuda-cards/tests/cards.rs
 symbols:
 - prov
 - repo_card_roundtrip
 - module_card_roundtrip_with_omitted
 - file_card_roundtrip_and_bad_yaml
+- carry_notes_preserves_human_region
 provenance:
   files:
   - crates/kuda-cards/tests/cards.rs
   hashes:
-  - aa0d4566f9c902953ee8ce3f4e3bde0baf32d306
-  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
-  generated_at: '1793907315'
+  - b0b8add4ba3293bf9776cd510fddae17630ccd2c
+  commit_sha: 8d826eb1abfad4e0a0577f04e2d7a3ad83b0aa6a
+  generated_at: '1794180523'
   generator: kuda-acp/0.1.0

@@ -1,6 +1,6 @@
 path: crates/kuda-store-sqlite/tests/store.rs
 module: kuda-store-sqlite
-purpose: 'Integration tests for `SqliteStore` against temp-dir databases, exercising the `IndexStore` contract end to end: replace/find/search/modules/edge_count/dependents, replace-semantics (re-replacing a module drops its old symbols), meta upsert (`None` → set → overwrite), and `record_files` replace-per-module behavior with `file_hashes` returning path → (hash, module).'
+purpose: crates/kuda-store-sqlite/tests/store.rs
 symbols:
 - scratch
 - sym
@@ -11,7 +11,7 @@ provenance:
   files:
   - crates/kuda-store-sqlite/tests/store.rs
   hashes:
-  - d9910b3de7a82327740d2f42d9a4b6b7f5117cce
-  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
-  generated_at: '1793855773'
+  - b9d9ac97a524605e83aac53b1bf4d38fde0c5a69
+  commit_sha: 8d826eb1abfad4e0a0577f04e2d7a3ad83b0aa6a
+  generated_at: '1794180523'
   generator: kuda-acp/0.1.0

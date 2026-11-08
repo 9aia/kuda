@@ -1,6 +1,6 @@
 path: crates/kuda-acp/src/lib.rs
 module: kuda-acp
-purpose: 'I’ll verify the adapter’s remaining tests and response-handling behavior before returning the concise purpose statement.purpose: Implements an ACP summarizer adapter that spawns an external agent over stdio JSON-RPC, lazily initializes and reuses a session, and turns grounded extraction prompts into module-card prose. Handles streamed replies, permission requests, malformed lines, and protocol errors while excluding thought chunks and reasoning preambles from card fields. Includes stub-based tests for response parsing, session behavior, permissions, and failure paths.'
+purpose: crates/kuda-acp/src/lib.rs
 symbols:
 - AcpSummarizer
 - new
@@ -11,6 +11,8 @@ symbols:
 - request
 - prompt_for
 - parse_card_body
+- MONOLOGUE_PREFIXES
+- looks_like_monologue
 - last_paragraph
 - kind
 - summarize
@@ -27,14 +29,14 @@ symbols:
 - reasoning_preamble_never_reaches_purpose
 - thought_chunks_are_dropped
 - degenerate_reply_does_not_pollute_purpose
+- monologue_reply_fails_to_template_fallback
+- monologue_detection_cases
 - permission_and_unknown_requests_answered
-- garbage_lines_and_notifications_skipped
-- error_response_and_agent_close
 provenance:
   files:
   - crates/kuda-acp/src/lib.rs
   hashes:
-  - de9ec4644376a6fea5217763d8f1092a6846d332
-  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
-  generated_at: '1793907315'
+  - 87e61913a93b5fe9a4d11832db30bbefd5721a69
+  commit_sha: 8d826eb1abfad4e0a0577f04e2d7a3ad83b0aa6a
+  generated_at: '1794180523'
   generator: kuda-acp/0.1.0

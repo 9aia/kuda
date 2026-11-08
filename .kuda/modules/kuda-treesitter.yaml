@@ -1,111 +1,11 @@
 name: kuda-treesitter
 path: crates/kuda-treesitter/Cargo.toml
-purpose: Tree-sitter extractor adapter (kind `"treesitter"`) — runs per-language symbol and import queries from `LangDef` data over compiled grammars (rust, typescript/tsx, python, go) to emit symbols and `EdgeKind::Imports` edges. Module identity matches the manifest extractor's package names via `pkg_names`, and `extract_filtered` supports incremental per-file re-parse.
+purpose: 'Extract adapter: tree-sitter grammar+query data -> symbols + import edges'
 api:
-- name: DEFAULT_RUST_QUERY
-  kind: const
-  file: crates/kuda-treesitter/src/lib.rs
-  line: 35
-  module: kuda-treesitter
-- name: TreesitterExtractor
-  kind: type
-  file: crates/kuda-treesitter/src/lib.rs
-  line: 15
-  module: kuda-treesitter
-- name: dep_query_aux_capture_and_unknown_kind
-  kind: function
-  file: crates/kuda-treesitter/src/lib.rs
-  line: 394
-  module: kuda-treesitter
-- name: extract
-  kind: function
-  file: crates/kuda-treesitter/src/lib.rs
-  line: 115
-  module: kuda-treesitter
-- name: extract_filtered
-  kind: function
-  file: crates/kuda-treesitter/src/lib.rs
-  line: 121
-  module: kuda-treesitter
-- name: extract_filtered_and_fallback_module
-  kind: function
-  file: crates/kuda-treesitter/src/lib.rs
-  line: 321
-  module: kuda-treesitter
-- name: extract_inner
-  kind: function
-  file: crates/kuda-treesitter/src/lib.rs
-  line: 132
-  module: kuda-treesitter
-- name: extract_symbols_edges_and_module_names
-  kind: function
-  file: crates/kuda-treesitter/src/lib.rs
-  line: 260
-  module: kuda-treesitter
-- name: kind
-  kind: function
-  file: crates/kuda-treesitter/src/lib.rs
-  line: 111
-  module: kuda-treesitter
-- name: kind_of
-  kind: function
-  file: crates/kuda-treesitter/src/lib.rs
-  line: 48
-  module: kuda-treesitter
 - name: kuda-treesitter
   kind: module
   file: crates/kuda-treesitter/Cargo.toml
   line: 1
-  module: kuda-treesitter
-- name: lang
-  kind: function
-  file: crates/kuda-treesitter/src/lib.rs
-  line: 248
-  module: kuda-treesitter
-- name: language
-  kind: function
-  file: crates/kuda-treesitter/src/lib.rs
-  line: 23
-  module: kuda-treesitter
-- name: manifest_dir_of
-  kind: function
-  file: crates/kuda-treesitter/src/lib.rs
-  line: 64
-  module: kuda-treesitter
-- name: manifest_dir_of_and_walk_excludes
-  kind: function
-  file: crates/kuda-treesitter/src/lib.rs
-  line: 416
-  module: kuda-treesitter
-- name: relative_import_makes_no_edge
-  kind: function
-  file: crates/kuda-treesitter/src/lib.rs
-  line: 371
-  module: kuda-treesitter
-- name: tests
-  kind: module
-  file: crates/kuda-treesitter/src/lib.rs
-  line: 237
-  module: kuda-treesitter
-- name: tmp
-  kind: function
-  file: crates/kuda-treesitter/src/lib.rs
-  line: 241
-  module: kuda-treesitter
-- name: unknown_grammar_skipped_and_bad_queries_err
-  kind: function
-  file: crates/kuda-treesitter/src/lib.rs
-  line: 344
-  module: kuda-treesitter
-- name: unreadable_file_and_dir_skipped
-  kind: function
-  file: crates/kuda-treesitter/src/lib.rs
-  line: 444
-  module: kuda-treesitter
-- name: walk_files
-  kind: function
-  file: crates/kuda-treesitter/src/lib.rs
-  line: 78
   module: kuda-treesitter
 deps:
 - kuda-core
@@ -115,9 +15,6 @@ deps:
 - tree-sitter-python
 - tree-sitter-rust
 - tree-sitter-typescript
-- kuda-core
-- kuda-extract
-- tree_sitter
 notes: |
   - Module identity is the PACKAGE name, not the dir name: `manifest_dir_of` finds the nearest ancestor holding a declared manifest, then `pkg_names` maps that dir to the manifest extractor's name (dir-name then `_root` fallbacks).
   - Only `@dep` captures produce import edges — queries may capture auxiliary nodes for `#eq?` predicates; `self`/`crate`/`std`/`core`/`alloc`/`super` roots and relative imports (via `dep_root` → None) never become edges.
@@ -137,6 +34,6 @@ provenance:
   hashes:
   - 3780213d000ceedfe88ece2c1a31f111e73e4bf4
   - 57daf6910a9575c10499e9ec0136546971c9d59e
-  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
-  generated_at: '1793855773'
-  generator: kuda-acp/0.1.2
+  commit_sha: 8d826eb1abfad4e0a0577f04e2d7a3ad83b0aa6a
+  generated_at: '1794180523'
+  generator: kuda-acp/0.1.3

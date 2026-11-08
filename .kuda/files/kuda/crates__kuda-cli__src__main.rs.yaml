@@ -1,6 +1,6 @@
 path: crates/kuda-cli/src/main.rs
 module: kuda
-purpose: 'I’ll inspect the remaining command and synchronization sections to ensure the summary reflects the full composition root rather than only the provided excerpt.purpose: Implements kuda’s CLI composition root, loading TOML configuration and embedded language/domain descriptors to wire extraction, summarization, storage, VCS, and query adapters behind their ports. Provides initialization, incremental single- and multi-repo synchronization, provenance drift reporting, card and graph queries, watch/MCP/ACP surfaces, health checks, and CLI documentation generation. The sync pipeline groups and blob-hashes repository files, resolves cross-module edges, maintains cards and stale index entries, and optionally generates hash-gated file cards.'
+purpose: crates/kuda-cli/src/main.rs
 symbols:
 - emit
 - out
@@ -36,7 +36,7 @@ provenance:
   files:
   - crates/kuda-cli/src/main.rs
   hashes:
-  - ff5ce594ab5016383f265d98000381346c7f1d20
-  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
-  generated_at: '1793907315'
+  - b54222471938ec28ebfafe54de5c31d0ba8c05bd
+  commit_sha: 8d826eb1abfad4e0a0577f04e2d7a3ad83b0aa6a
+  generated_at: '1794180523'
   generator: kuda-acp/0.1.0

@@ -1,116 +1,11 @@
 name: kuda-records
 path: crates/kuda-records/Cargo.toml
-purpose: 'notes: - `Compiled` is built per `DomainDef` on every `extract` call — there is no caching across syncs; `check(def)` is just `compile(def).map(|_| ())`. - `validate` reuses the full extractor scan and discards everything but `warnings` — it does real file I/O, so `status`/`doctor` pay the same walk cost as a sync for the declared roots. - Schema validation errors are truncated to the first 3 messages per file (`iter_errors(...).take(3)`) and joined with `"; "` under a `"schema: "` prefix; unparseable frontmatter gets a `"frontmatter: "` prefix instead. - Extension matching strips a leading `.` from the descriptor''s `extensions` entries and compares against `Path::extension` — so `".md"` and `"md"` both work, but the match is case-sensitive. - Only one `record_patterns` regex is tried per line (`break` after the first match) — order the patterns so the most specific wins; a line that could match two ids only yields the first. - `frontmatter` detects the dialect by the very first bytes of the file (`+++` vs `---`); a leading blank line or BOM defeats detection and the file is treated as having no frontmatter. - `Extractor::extract` ignores the `_langs` parameter entirely — records extraction is driven purely by `DomainDef`, independent of `data/langs/*`. - Dependencies are minimal and pinned: `jsonschema = "0.60.2"` plus workspace `regex`/`serde_json`/`serde_yaml`/`toml` and the `kuda-core`/`kuda-extract` traits — no async, no I/O crates beyond `std::fs`.'
+purpose: 'Records adapter: domain descriptor regexes -> record symbols + reference edges'
 api:
-- name: Compiled
-  kind: type
-  file: crates/kuda-records/src/lib.rs
-  line: 37
-  module: kuda-records
-- name: RecordsExtractor
-  kind: type
-  file: crates/kuda-records/src/lib.rs
-  line: 15
-  module: kuda-records
-- name: absent_root_and_bad_regex
-  kind: function
-  file: crates/kuda-records/src/lib.rs
-  line: 374
-  module: kuda-records
-- name: bad_schema_fails_compile_loudly
-  kind: function
-  file: crates/kuda-records/src/lib.rs
-  line: 482
-  module: kuda-records
-- name: check
-  kind: function
-  file: crates/kuda-records/src/lib.rs
-  line: 78
-  module: kuda-records
-- name: compile
-  kind: function
-  file: crates/kuda-records/src/lib.rs
-  line: 43
-  module: kuda-records
-- name: extract
-  kind: function
-  file: crates/kuda-records/src/lib.rs
-  line: 25
-  module: kuda-records
-- name: extracts_frontmatter_and_checklist_records
-  kind: function
-  file: crates/kuda-records/src/lib.rs
-  line: 285
-  module: kuda-records
-- name: frontmatter
-  kind: function
-  file: crates/kuda-records/src/lib.rs
-  line: 99
-  module: kuda-records
-- name: kind
-  kind: function
-  file: crates/kuda-records/src/lib.rs
-  line: 21
-  module: kuda-records
 - name: kuda-records
   kind: module
   file: crates/kuda-records/Cargo.toml
   line: 1
-  module: kuda-records
-- name: myco
-  kind: function
-  file: crates/kuda-records/src/lib.rs
-  line: 268
-  module: kuda-records
-- name: ref_pattern_prefers_capture_group_one
-  kind: function
-  file: crates/kuda-records/src/lib.rs
-  line: 351
-  module: kuda-records
-- name: scan_file
-  kind: function
-  file: crates/kuda-records/src/lib.rs
-  line: 193
-  module: kuda-records
-- name: schema_def
-  kind: function
-  file: crates/kuda-records/src/lib.rs
-  line: 406
-  module: kuda-records
-- name: schema_tests
-  kind: module
-  file: crates/kuda-records/src/lib.rs
-  line: 395
-  module: kuda-records
-- name: schema_validates_frontmatter_records
-  kind: function
-  file: crates/kuda-records/src/lib.rs
-  line: 429
-  module: kuda-records
-- name: tests
-  kind: module
-  file: crates/kuda-records/src/lib.rs
-  line: 257
-  module: kuda-records
-- name: tmp
-  kind: function
-  file: crates/kuda-records/src/lib.rs
-  line: 261
-  module: kuda-records
-- name: tmp
-  kind: function
-  file: crates/kuda-records/src/lib.rs
-  line: 399
-  module: kuda-records
-- name: validate
-  kind: function
-  file: crates/kuda-records/src/lib.rs
-  line: 84
-  module: kuda-records
-- name: walk_corpus
-  kind: function
-  file: crates/kuda-records/src/lib.rs
-  line: 122
   module: kuda-records
 deps:
 - jsonschema
@@ -120,8 +15,6 @@ deps:
 - serde_json
 - serde_yaml
 - toml
-- kuda-core
-- kuda-extract
 notes: |
   - Record id is always regex capture group 1 of a `record_patterns` match; first match wins per id per file (`seen: HashSet`), and the symbol's `line` is the 1-based line of that first match.
   - Ref-edge scope: a file with exactly one record takes `ref_pattern` matches from the whole text; a multi-record ledger scopes each record's refs to its own line, so `- [ ] T-002 blocked on T-001` edges `T-002 -> T-001` without cross-wiring the file.
@@ -150,6 +43,6 @@ provenance:
   hashes:
   - 259e305a0f5b7719fbe0939293854b774746df12
   - 49e5c9bcad97a2c0926771f3b324e547830527ea
-  commit_sha: 31359c590116f2690b25b7e76f0fc5814ec3365b
-  generated_at: '1793909940'
-  generator: kuda-acp/0.1.2
+  commit_sha: 8d826eb1abfad4e0a0577f04e2d7a3ad83b0aa6a
+  generated_at: '1794180523'
+  generator: kuda-acp/0.1.3

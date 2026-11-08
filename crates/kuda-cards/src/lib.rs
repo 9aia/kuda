@@ -30,3 +30,15 @@ pub fn render_file_card(card: &FileCard) -> Result<String, String> {
 pub fn parse_file_card(text: &str) -> Result<FileCard, String> {
     serde_yaml::from_str(text).map_err(|e| e.to_string())
 }
+
+/// `notes:` is the human-owned region of a module card (T-008):
+/// regeneration rewrites the machine fields and carries the
+/// previously committed card's notes forward verbatim. Freshly
+/// generated notes land only when the committed region was empty —
+/// agent-suggested bullets must never overwrite human prose, and
+/// stale machine notes must not resurrect once written.
+pub fn carry_notes(card: &mut ModuleCard, prev: &ModuleCard) {
+    if !prev.notes.trim().is_empty() {
+        card.notes = prev.notes.clone();
+    }
+}

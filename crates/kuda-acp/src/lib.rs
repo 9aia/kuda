@@ -235,6 +235,87 @@ fn parse_card_body(prose: &str) -> (Option<String>, String) {
     (purpose, notes)
 }
 
+/// First-person planning openers — agent reasoning, never card
+/// prose. A module `purpose` is a grounded declarative sentence.
+const MONOLOGUE_PREFIXES: &[&str] = &[
+    "let me",
+    "i'll",
+    "i will",
+    "i need to",
+    "i'm going to",
+    "i am going to",
+    "i should",
+    "i want to",
+    "i have to",
+    "i'll now",
+    "i'll start",
+    "i'll begin",
+    "let's",
+    "okay,",
+    "ok,",
+    "sure,",
+    "first,",
+    "to answer",
+    "thinking",
+    "my plan",
+    "step 1",
+    "we need to",
+    "the user",
+];
+
+/// Does `text` read like agent reasoning/garbage rather than card
+/// prose? Three failure shapes observed in the wild:
+///
+/// - **embedded field markers** — the single-line blob mode, where
+///   the whole reply (preamble + `purpose:` + `invariants:` +
+///   `notes:`) lands in one string because nothing was line-anchored;
+/// - **planning preambles** — "Let me check the files…", "I'll
+///   verify the manifest…" — chain-of-thought that survived
+///   `agent_thought_chunk` filtering (some agents reason inside
+///   `agent_message_chunk`);
+/// - **rambling length** — card purposes are 1-2 sentences.
+///
+/// Callers treat `true` as "unparseable" and fall back to the
+/// template summarizer — raw agent output must never reach a
+/// committed card.
+pub fn looks_like_monologue(text: &str) -> bool {
+    let t = text.trim();
+    if t.is_empty() {
+        return false;
+    }
+    // normalize typographic quotes — agents emit "I’ll" with U+2019
+    let low = t.to_lowercase().replace('’', "'");
+    // embedded structured-field markers — a real purpose sentence
+    // never carries "purpose:"/"notes:" mid-text. The blob failure
+    // mode glues fields with punctuation ("fields.purpose:"), so
+    // the left boundary is "not part of a longer word", not just
+    // whitespace.
+    for m in ["purpose:", "invariants:", "notes:", "verify:"] {
+        for (i, _) in low.match_indices(m) {
+            let before_ok = i == 0
+                || low[..i]
+                    .chars()
+                    .next_back()
+                    .map(|c| !c.is_alphanumeric() && c != '_')
+                    .unwrap_or(false);
+            let after = &low[i + m.len()..];
+            let after_ok = after.is_empty()
+                || after
+                    .chars()
+                    .next()
+                    .map(|c| c.is_whitespace() || c == '-')
+                    .unwrap_or(true);
+            if before_ok && after_ok {
+                return true;
+            }
+        }
+    }
+    if MONOLOGUE_PREFIXES.iter().any(|p| low.starts_with(p)) {
+        return true;
+    }
+    t.len() > 600
+}
+
 /// No `purpose:` field anywhere — take the reply's last paragraph
 /// (the agent's conclusion; the preamble is reasoning) rather than
 /// the first line, which is where the monologue starts.
@@ -273,6 +354,16 @@ impl Summarizer for AcpSummarizer {
         let purpose = purpose
             .or_else(|| last_paragraph(&prose))
             .unwrap_or_else(|| module.into());
+        // The reply couldn't be parsed into clean card prose —
+        // monologue, planning preamble, or a blob with embedded
+        // field markers. Fail so the caller falls back to the
+        // template summarizer: raw agent output must never reach
+        // a committed card's `purpose`.
+        if looks_like_monologue(&purpose) {
+            return Err(format!(
+                "unparseable reply for {module} (agent monologue/garbage)"
+            ));
+        }
         Ok(ModuleCard {
             name: module.into(),
             path: path.to_path_buf(),
@@ -544,6 +635,84 @@ for line in sys.stdin:
             .unwrap();
         assert_eq!(card.purpose, "It indexes module graphs.");
         let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// Monologue/garbage replies must fail `summarize` so the
+    /// caller falls back to the template — raw agent output never
+    /// reaches a committed card (I-002).
+    #[test]
+    fn monologue_reply_fails_to_template_fallback() {
+        let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        let dir = tmp("mono");
+        unsafe {
+            std::env::set_var("KUDA_STUB_MODE", "ok");
+        }
+        let s = || summarizer(&dir);
+        // the observed failure: the whole reply — preamble plus
+        // inline `purpose:`/`invariants:`/`notes:` fields — lands
+        // as one unanchored blob
+        unsafe {
+            std::env::set_var(
+                "KUDA_STUB_PROSE",
+                "I’ll verify the crate manifest and the adapter’s tests, \
+                 then return only the grounded card fields.purpose: Summarizer \
+                 adapter that spawns an ACP agent. invariants: - only message \
+                 chunks count notes: - sh -c spawn",
+            );
+        }
+        let err = s()
+            .summarize("m", Path::new("p"), &ext(), prov())
+            .unwrap_err();
+        assert!(err.contains("unparseable"), "{err}");
+        // planning-preamble-only reply: last paragraph is still
+        // first-person reasoning
+        unsafe {
+            std::env::set_var(
+                "KUDA_STUB_PROSE",
+                "Let me look at the files first.\n\nI'll check the symbol list now.",
+            );
+        }
+        assert!(s().summarize("m", Path::new("p"), &ext(), prov()).is_err());
+        // clean unstructured prose still lands via last_paragraph
+        unsafe {
+            std::env::set_var("KUDA_STUB_PROSE", "It indexes module graphs.");
+        }
+        let card = s().summarize("m", Path::new("p"), &ext(), prov()).unwrap();
+        assert_eq!(card.purpose, "It indexes module graphs.");
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn monologue_detection_cases() {
+        // clean card prose
+        assert!(!looks_like_monologue("Indexes the module dep graph."));
+        assert!(!looks_like_monologue("  Grounded purpose.  "));
+        assert!(!looks_like_monologue(""));
+        // embedded field markers (single-line blob mode) — glued
+        // by punctuation or whitespace alike
+        assert!(looks_like_monologue(
+            "preamble purpose: real field invariants: - x notes: - y"
+        ));
+        assert!(looks_like_monologue(
+            "I’ll verify the fields.purpose: Agent prose.invariants:"
+        ));
+        assert!(looks_like_monologue("does things. verify: these files"));
+        // first-person planning openers
+        for p in [
+            "Let me check the sources.",
+            "I'll verify the manifest first.",
+            "I need to look at the symbols.",
+            "Okay, starting with the README.",
+            "First, I'll read the entry points.",
+        ] {
+            assert!(looks_like_monologue(p), "{p}");
+        }
+        // rambling length — purposes are 1-2 sentences
+        assert!(looks_like_monologue(&"word ".repeat(200)));
+        // a marker glued to a word is not a field marker
+        assert!(!looks_like_monologue(
+            "Handles the purpose:fully qualified edge case."
+        ));
     }
 
     #[test]

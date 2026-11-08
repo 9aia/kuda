@@ -1,6 +1,6 @@
 path: crates/kuda-cli/tests/e2e.rs
 module: kuda
-purpose: 'I’ll check the remaining test sections to capture the suite’s full behavioral scope, including workspace, failure-path, protocol, and integration coverage.purpose: End-to-end CLI integration tests that build temporary repositories and exercise the compiled `kuda` binary across initialization, synchronization, card generation, drift detection, and symbol/dependency/reference queries. Covers incremental and workspace indexing, bounded cards, stale-artifact cleanup, cross-repo and record-corpus edges, configuration and failure paths, broken pipes, and sturn WAL integration. Also drives MCP/ACP stdio sessions and ACP-backed summarization with stubs, including file-card regeneration and template fallback on agent failure.'
+purpose: crates/kuda-cli/tests/e2e.rs
 symbols:
 - kuda
 - help_and_stub
@@ -36,7 +36,7 @@ provenance:
   files:
   - crates/kuda-cli/tests/e2e.rs
   hashes:
-  - a41fc76e097c7a4b6b31f6b87804fbf52425dc5b
-  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
-  generated_at: '1793907315'
+  - b2972f5124a9004bbe410253c02813a80a84ae29
+  commit_sha: 8d826eb1abfad4e0a0577f04e2d7a3ad83b0aa6a
+  generated_at: '1794180523'
   generator: kuda-acp/0.1.0
