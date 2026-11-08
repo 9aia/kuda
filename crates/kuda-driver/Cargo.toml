@@ -1,0 +1,26 @@
+[package]
+name = "kuda-driver"
+description = "pavo view driver — tamias-driver-kuda serves a kuda index as ViewNode IR"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords = ["kuda", "pavo", "driver", "visualization"]
+categories = ["development-tools"]
+
+[[bin]]
+name = "tamias-driver-kuda"
+path = "src/main.rs"
+
+[dependencies]
+kuda-core.workspace = true
+kuda-cards.workspace = true
+kuda-store.workspace = true
+kuda-store-sqlite.workspace = true
+kuda-query.workspace = true
+kuda-vcs.workspace = true
+kuda-git.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+toml.workspace = true
+sha1 = "0.11.0"

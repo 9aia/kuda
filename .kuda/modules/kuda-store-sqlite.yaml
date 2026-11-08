@@ -1,6 +1,6 @@
 name: kuda-store-sqlite
 path: crates/kuda-store-sqlite/Cargo.toml
-purpose: 'notes: - `Connection` is `!Sync`, hence the `Mutex` — the store is single-writer anyway; the lock is also what lets tests drop tables out from under the store to exercise error paths. - `open` creates parent dirs and runs the idempotent `CREATE TABLE IF NOT EXISTS` schema; it errors if the parent is a file, the path is a directory, or the file is non-sqlite garbage (covered by `open_error_paths`). - `dependents` only matches `edges.to_mod = ?1` exactly — dash/underscore canonicalization is the caller''s job (`module_variants` in kuda-core), not the store''s. - `modules()` derives from `DISTINCT module FROM symbols`, so a module with edges but zero symbols won''t appear in the module list. - Uses `rusqlite` with the `bundled` feature, so no system sqlite is required.'
+purpose: 'Store adapter: sqlite L2 symbol/dep graph'
 api:
 - name: SCHEMA
   kind: const
@@ -12,20 +12,30 @@ api:
   file: crates/kuda-store-sqlite/src/lib.rs
   line: 12
   module: kuda-store-sqlite
+- name: all_edges
+  kind: function
+  file: crates/kuda-store-sqlite/src/lib.rs
+  line: 113
+  module: kuda-store-sqlite
 - name: all_kinds_roundtrip
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 306
+  line: 351
+  module: kuda-store-sqlite
+- name: all_symbols
+  kind: function
+  file: crates/kuda-store-sqlite/src/lib.rs
+  line: 133
   module: kuda-store-sqlite
 - name: dependents
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 226
+  line: 271
   module: kuda-store-sqlite
 - name: edge_count
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 244
+  line: 289
   module: kuda-store-sqlite
 - name: ek_from
   kind: function
@@ -40,12 +50,12 @@ api:
 - name: file_hashes
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 144
+  line: 189
   module: kuda-store-sqlite
 - name: find
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 181
+  line: 226
   module: kuda-store-sqlite
 - name: kuda-store-sqlite
   kind: module
@@ -60,7 +70,7 @@ api:
 - name: meta
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 270
+  line: 315
   module: kuda-store-sqlite
 - name: meta_and_file_hashes
   kind: function
@@ -70,7 +80,7 @@ api:
 - name: modules
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 250
+  line: 295
   module: kuda-store-sqlite
 - name: open
   kind: function
@@ -80,17 +90,17 @@ api:
 - name: open_error_paths
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 365
+  line: 410
   module: kuda-store-sqlite
 - name: query_error_paths
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 382
+  line: 427
   module: kuda-store-sqlite
 - name: record_files
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 166
+  line: 211
   module: kuda-store-sqlite
 - name: replace_find_search
   kind: function
@@ -100,7 +110,7 @@ api:
 - name: replace_module
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 110
+  line: 155
   module: kuda-store-sqlite
 - name: replace_module_replaces
   kind: function
@@ -115,17 +125,17 @@ api:
 - name: search
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 201
+  line: 246
   module: kuda-store-sqlite
 - name: search_escapes_like_metachars
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 411
+  line: 456
   module: kuda-store-sqlite
 - name: set_meta
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 260
+  line: 305
   module: kuda-store-sqlite
 - name: sk_from
   kind: function
@@ -140,7 +150,7 @@ api:
 - name: sym
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 295
+  line: 340
   module: kuda-store-sqlite
 - name: sym
   kind: function
@@ -150,12 +160,12 @@ api:
 - name: tests
   kind: module
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 284
+  line: 329
   module: kuda-store-sqlite
 - name: tmp
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 288
+  line: 333
   module: kuda-store-sqlite
 deps:
 - kuda-core
@@ -186,8 +196,8 @@ provenance:
   - crates/kuda-store-sqlite/tests/store.rs
   hashes:
   - 2d30a3d362d500ce8e4310218db2ea0f8da6ae99
-  - 2dccfa3bb0870dea444c1897212870b5a89f2e1a
+  - ba51534e7e4977b5ccea658e6873b7f3f8cb87a0
   - d9910b3de7a82327740d2f42d9a4b6b7f5117cce
-  commit_sha: b1927ee696f1f3d4b095990941559ff83b32e157
-  generated_at: '1793901944'
+  commit_sha: 849a2935ab8087064e4e8d123bbcdb5957cf75dd
+  generated_at: '1794151634'
   generator: kuda-acp/0.1.2

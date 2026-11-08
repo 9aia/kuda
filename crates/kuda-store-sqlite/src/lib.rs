@@ -106,6 +106,51 @@ impl SqliteStore {
     }
 }
 
+impl SqliteStore {
+    /// Every edge row — the full dep graph. Not on the `IndexStore`
+    /// port (queries are point lookups); the pavo driver needs the
+    /// whole edge set for `kuda:graph`.
+    pub fn all_edges(&self) -> Result<Vec<DepEdge>, String> {
+        let conn = self.lock()?;
+        let mut st = conn
+            .prepare("SELECT from_mod,to_mod,kind FROM edges")
+            .map_err(|e| e.to_string())?;
+        let rows = st
+            .query_map([], |r| {
+                Ok(DepEdge {
+                    from: r.get(0)?,
+                    to: r.get(1)?,
+                    kind: ek_from(&r.get::<_, String>(2)?),
+                })
+            })
+            .map_err(|e| e.to_string())?;
+        rows.collect::<Result<Vec<_>, _>>()
+            .map_err(|e| e.to_string())
+    }
+
+    /// Every symbol row — symbol-level graph rendering. Same
+    /// rationale as [`Self::all_edges`].
+    pub fn all_symbols(&self) -> Result<Vec<Symbol>, String> {
+        let conn = self.lock()?;
+        let mut st = conn
+            .prepare("SELECT name,kind,file,line,module FROM symbols")
+            .map_err(|e| e.to_string())?;
+        let rows = st
+            .query_map([], |r| {
+                Ok(Symbol {
+                    name: r.get(0)?,
+                    kind: sk_from(&r.get::<_, String>(1)?),
+                    file: r.get::<_, String>(2)?.into(),
+                    line: r.get(3)?,
+                    module: r.get(4)?,
+                })
+            })
+            .map_err(|e| e.to_string())?;
+        rows.collect::<Result<Vec<_>, _>>()
+            .map_err(|e| e.to_string())
+    }
+}
+
 impl IndexStore for SqliteStore {
     fn replace_module(
         &mut self,

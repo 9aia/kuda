@@ -1,6 +1,6 @@
 path: crates/kuda-store-sqlite/src/lib.rs
 module: kuda-store-sqlite
-purpose: 'I''ll read the file to verify the content before summarizing.purpose: `kuda-store-sqlite` is the sqlite adapter of the `IndexStore` port — a single-file, zero-server, rebuildable L2 index living at `.kuda/index.sqlite` (gitignored). It wraps a `rusqlite::Connection` in a `Mutex` (since `Connection` is `!Sync`) to satisfy the port''s `Send + Sync` bound, and implements the full store surface over four tables (`symbols`, `edges`, `meta`, `files`): transactional `replace_module`/`record_files`, exact `find`, LIKE-based `search` (with metachar escaping), `dependents`, `edge_count`, `modules`, `file_hashes`, and `set_meta`/`meta`. `SymbolKind`/`EdgeKind` are persisted as strings with fallback arms (unknown → `Other`/`PackageDep`), and tests cover kind roundtrips, open/query error paths, and LIKE-metachar escaping.'
+purpose: crates/kuda-store-sqlite/src/lib.rs
 symbols:
 - SqliteStore
 - SCHEMA
@@ -10,6 +10,8 @@ symbols:
 - ek_from
 - open
 - lock
+- all_edges
+- all_symbols
 - replace_module
 - file_hashes
 - record_files
@@ -31,7 +33,7 @@ provenance:
   files:
   - crates/kuda-store-sqlite/src/lib.rs
   hashes:
-  - 2dccfa3bb0870dea444c1897212870b5a89f2e1a
-  commit_sha: b1927ee696f1f3d4b095990941559ff83b32e157
-  generated_at: '1793901944'
+  - ba51534e7e4977b5ccea658e6873b7f3f8cb87a0
+  commit_sha: 849a2935ab8087064e4e8d123bbcdb5957cf75dd
+  generated_at: '1794151271'
   generator: kuda-acp/0.1.0

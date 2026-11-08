@@ -284,7 +284,7 @@ provenance:
   - modules/dagger/dagger/src/kuda/main.py
   - modules/dagger/tests/test_self_patch.py
   hashes:
-  - 46c41d99bbe6c6dd81853a3f5bfb12772463fefd
+  - ec3d917b2dfc4520bd9cbf6c8f07071e0b899551
   - df73801e3fe8951fa21666324282a49c5ecab47a
   - ff5ce594ab5016383f265d98000381346c7f1d20
   - a41fc76e097c7a4b6b31f6b87804fbf52425dc5b
@@ -292,6 +292,6 @@ provenance:
   - 5b331a1baf30b49f5bf03dd9693297d498117deb
   - d71646b878b3eae72aa42a5791588701197fdb2d
   - 203086b883ed1477efd6f9befccd76e2614cc9ea
-  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
-  generated_at: '1793907315'
+  commit_sha: 849a2935ab8087064e4e8d123bbcdb5957cf75dd
+  generated_at: '1794151764'
   generator: kuda-acp/0.1.2

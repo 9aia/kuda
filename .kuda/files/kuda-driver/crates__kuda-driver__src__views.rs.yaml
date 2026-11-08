@@ -1,0 +1,18 @@
+path: crates/kuda-driver/src/views.rs
+module: kuda-driver
+purpose: Defines kuda’s static pavo driver manifest and JSON view trees for repository maps, module cards, dependency graphs, drift, and symbol search. It binds each view to named queries and contributes navbar, dashboard, and statusbar entries without depending on the pavo protocol crate.
+symbols:
+- binding
+- spec
+- table
+- kv
+- col
+- manifest
+provenance:
+  files:
+  - crates/kuda-driver/src/views.rs
+  hashes:
+  - ad91626bb9426dc592fb1f5a44ea8fd59f627743
+  commit_sha: 849a2935ab8087064e4e8d123bbcdb5957cf75dd
+  generated_at: '1794151271'
+  generator: kuda-acp/0.1.0

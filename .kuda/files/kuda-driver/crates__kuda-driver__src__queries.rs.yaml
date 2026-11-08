@@ -1,0 +1,39 @@
+path: crates/kuda-driver/src/queries.rs
+module: kuda-driver
+purpose: 'Implements pavo’s named kuda queries over SQLite indexes and committed cards, returning JSON payloads for repository summaries, modules, symbols, dependencies, graphs, search, and drift/status. Failures are represented as `{"error": …}` data for partial view degradation, while list results are capped at 200 rows and symbol graphs at 800 symbols.'
+symbols:
+- ROW_CAP
+- SYMBOL_GRAPH_CAP
+- err
+- need_store
+- need_indexed
+- param_str
+- symbol_kind_str
+- edge_kind_str
+- symbol_row
+- short_purpose
+- CAP
+- capped
+- drift_rows
+- run_query
+- repo
+- modules
+- module
+- module_deps
+- module_symbols
+- graph
+- edge_json
+- graph_modules
+- graph_symbols
+- drift
+- find
+- dependents
+- status
+provenance:
+  files:
+  - crates/kuda-driver/src/queries.rs
+  hashes:
+  - d287312e22e78abf6b678d771279c60de94004d4
+  commit_sha: 849a2935ab8087064e4e8d123bbcdb5957cf75dd
+  generated_at: '1794151271'
+  generator: kuda-acp/0.1.0

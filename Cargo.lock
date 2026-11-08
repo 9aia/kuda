@@ -1171,6 +1171,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "kuda-driver"
+version = "0.1.0"
+dependencies = [
+ "kuda-cards",
+ "kuda-core",
+ "kuda-git",
+ "kuda-query",
+ "kuda-store",
+ "kuda-store-sqlite",
+ "kuda-vcs",
+ "serde",
+ "serde_json",
+ "sha1",
+ "toml",
+]
+
+[[package]]
 name = "kuda-extract"
 version = "0.1.0"
 dependencies = [

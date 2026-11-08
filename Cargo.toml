@@ -22,6 +22,7 @@ members = [
     "crates/kuda-dotenv",
     "crates/kuda-config",
     "crates/kuda-config-toml",
+    "crates/kuda-driver",
 ]
 
 [workspace.package]
@@ -57,6 +58,7 @@ kuda-keyring = { path = "crates/kuda-keyring", version = "0.1.0" }
 kuda-dotenv = { path = "crates/kuda-dotenv", version = "0.1.0" }
 kuda-config = { path = "crates/kuda-config", version = "0.1.0" }
 kuda-config-toml = { path = "crates/kuda-config-toml", version = "0.1.0" }
+kuda-driver = { path = "crates/kuda-driver", version = "0.1.0" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_yaml = "0.9"
