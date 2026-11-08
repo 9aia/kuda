@@ -18,7 +18,7 @@ record_patterns = [
 # tasks naming a crate edge to its module — "which tasks touch
 # kuda-store"). Single-record files scan the whole text;
 # multi-record files (ledgers) scope to the record's own line.
-ref_pattern = "\\b[A-Z]+-[0-9]+\\b|\\b(?:kuda|myco|mimus|sturn|arca|bupha|peregrin|malurus)[a-z0-9-]*\\b"
+ref_pattern = "\\b[A-Z]+-[0-9]+\\b|\\b(?:kuda|myco|mimus|sturn|arca|cuora|bupha|peregrin|malurus)[a-z0-9-]*\\b"
 
 # JSON Schema (draft 2020-12) — frontmatter-bearing records must
 # carry `id` or `item`; status/priority are enum'd when present.
