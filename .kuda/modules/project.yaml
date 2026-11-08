@@ -1,6 +1,6 @@
 name: project
 path: project/BACKLOG.md
-purpose: 'notes: - No PRs in this repo: the pushed branch/commit is the deliverable (sturn flow); T-026''s deck on `presentation/initial` (e1844e5) still fails verification and needs a repair/verify pass before merge. - T-028''s agent-awareness block text is already deployed to the 6 `.kuda`-wired repos, but `kuda init` writing the `<!-- kuda:agent-awareness -->` block and freshness validation in `status`/`check` are still open. - Issue I-001: myco emits `priority=medium` but the CLI enum is `low|med|high|crit` — normalize the emitter to `med`; the kuda schema accepts both for now (visible in this corpus''s own frontmatter). - T-025 is a recovered stale-claim task: `.kuda/modules/Cargo.toml.yaml` cites a missing `Cargo.toml`; recovered from dead sessions. - Record scan skips fenced code blocks so H1-looking `#` comments in samples don''t become records; `ref_pattern` capture group 1 is the edge target (ADR-0003 addendum). - Workspace sync resolves edge targets against the union of all roots'' modules; stores are federated per-root, merged at read time — the union graph is logical, not physical. - T-011 (.hnl descriptor) is blocked on a tree-sitter-handl grammar existing or being written; the descriptor itself is just data.'
+purpose: myco work ledger — tasks, ADRs, issues, plans, handoffs
 api:
 - name: ADR-0001
   kind: record
@@ -15,6 +15,11 @@ api:
 - name: I-001
   kind: record
   file: project/issues/issue-0001-myco-emits-priority-medium-in-frontmatter-but-cli-enum-is-low-med-high-crit-normalize-emitter-to-med-kuda-schema-accepts-both-for-now.md
+  line: 2
+  module: project
+- name: I-002
+  kind: record
+  file: project/issues/issue-0002-kuda-sync-regresses-cards-acp-leaks-monologue-into-purpose-drops-notes.md
   line: 2
   module: project
 - name: T-001
@@ -207,6 +212,7 @@ deps:
 - kuda
 - malurus
 - T-027
+- kuda
 - myco
 - kuda
 - ADR-0003
@@ -234,6 +240,7 @@ verify:
 - project/handoffs/archive/T-029.md
 - project/index.md
 - project/issues/issue-0001-myco-emits-priority-medium-in-frontmatter-but-cli-enum-is-low-med-high-crit-normalize-emitter-to-med-kuda-schema-accepts-both-for-now.md
+- project/issues/issue-0002-kuda-sync-regresses-cards-acp-leaks-monologue-into-purpose-drops-notes.md
 provenance:
   files:
   - project/BACKLOG.md
@@ -244,6 +251,7 @@ provenance:
   - project/handoffs/archive/T-029.md
   - project/index.md
   - project/issues/issue-0001-myco-emits-priority-medium-in-frontmatter-but-cli-enum-is-low-med-high-crit-normalize-emitter-to-med-kuda-schema-accepts-both-for-now.md
+  - project/issues/issue-0002-kuda-sync-regresses-cards-acp-leaks-monologue-into-purpose-drops-notes.md
   hashes:
   - 6b4609cf8d307865615fd108300b69ef5d514c0a
   - 18465d7714fe7592b65a12da57e8069a22aa870f
@@ -253,6 +261,7 @@ provenance:
   - 34f59afdfb337b361448d92a7290451f3ac36b6a
   - a9cbb363e46c66216b83994b2dba52c063dd59db
   - 5b1a2edf5787fb263cdc54796ce6a5395bdf01fd
-  commit_sha: 31359c590116f2690b25b7e76f0fc5814ec3365b
-  generated_at: '1793910109'
+  - 41b6a56ba796852e3ecbe0fc9961cf154f0c8e9e
+  commit_sha: f0a43394780cea61b309c3f848b7ebc29b61c00e
+  generated_at: '1794177735'
   generator: kuda-acp/0.1.2

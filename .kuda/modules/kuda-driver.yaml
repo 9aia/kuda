@@ -1,6 +1,6 @@
 name: kuda-driver
 path: crates/kuda-driver/Cargo.toml
-purpose: 'Pavo view driver — `tamias-driver-kuda` serves the kuda index (repo/module cards, L2 symbol+dep graph, drift) as ViewNode IR over ndjson stdio; read-only, repo resolved per-request from params/cwd.'
+purpose: pavo view driver — tamias-driver-kuda serves a kuda index as ViewNode IR
 api:
 - name: CAP
   kind: const
@@ -72,6 +72,11 @@ api:
   file: crates/kuda-driver/src/queries.rs
   line: 103
   module: kuda-driver
+- name: driver_passes_pavo_conformance
+  kind: function
+  file: crates/kuda-driver/tests/conformance.rs
+  line: 17
+  module: kuda-driver
 - name: edge_json
   kind: function
   file: crates/kuda-driver/src/queries.rs
@@ -96,6 +101,11 @@ api:
   kind: function
   file: crates/kuda-driver/src/queries.rs
   line: 24
+  module: kuda-driver
+- name: every_binding_name_has_a_query_impl
+  kind: function
+  file: crates/kuda-driver/src/views.rs
+  line: 263
   module: kuda-driver
 - name: find
   kind: function
@@ -147,6 +157,11 @@ api:
   file: crates/kuda-driver/src/views.rs
   line: 63
   module: kuda-driver
+- name: manifest_advertises_pavo_and_declares_views
+  kind: function
+  file: crates/kuda-driver/src/views.rs
+  line: 242
+  module: kuda-driver
 - name: module
   kind: function
   file: crates/kuda-driver/src/queries.rs
@@ -187,22 +202,7 @@ api:
   file: crates/kuda-driver/src/queries.rs
   line: 28
   module: kuda-driver
-- name: ok
-  kind: function
-  file: crates/kuda-driver/src/main.rs
-  line: 63
-  module: kuda-driver
-- name: open
-  kind: function
-  file: crates/kuda-driver/src/repo.rs
-  line: 37
-  module: kuda-driver
-- name: param_str
-  kind: function
-  file: crates/kuda-driver/src/queries.rs
-  line: 46
-  module: kuda-driver
-api_omitted: 17
+api_omitted: 28
 deps:
 - kuda-cards
 - kuda-core
@@ -215,6 +215,7 @@ deps:
 - serde_json
 - sha1
 - toml
+- pavo-testkit
 - kuda-core
 - kuda-store
 - kuda-store-sqlite
@@ -238,6 +239,7 @@ verify:
 - crates/kuda-driver/src/queries.rs
 - crates/kuda-driver/src/repo.rs
 - crates/kuda-driver/src/views.rs
+- crates/kuda-driver/tests/conformance.rs
 provenance:
   files:
   - crates/kuda-driver/Cargo.toml
@@ -245,12 +247,14 @@ provenance:
   - crates/kuda-driver/src/queries.rs
   - crates/kuda-driver/src/repo.rs
   - crates/kuda-driver/src/views.rs
+  - crates/kuda-driver/tests/conformance.rs
   hashes:
-  - aedc11dbeec930cbd44348bad043e71608940f38
+  - 401d4761dbf782fba661f1a98617fd45e204b220
   - f2c0ef6661411f2563959e56c7af275ada4c0d1e
-  - d287312e22e78abf6b678d771279c60de94004d4
-  - 72d0a2d86212a52dad1c7b0623b3d80a2a39b654
-  - ad91626bb9426dc592fb1f5a44ea8fd59f627743
-  commit_sha: 849a2935ab8087064e4e8d123bbcdb5957cf75dd
-  generated_at: '1794151271'
+  - fa2d31ebcd3f75df04aa6d6753058d6591c6461e
+  - ef3437af6e571b7f077f339f196cc0a96f98bb84
+  - 340cf6f6824c454557e9d33869a9b1803998ad22
+  - e92e6b4b749e024b736a0372c8ab699445ae7e19
+  commit_sha: f0a43394780cea61b309c3f848b7ebc29b61c00e
+  generated_at: '1794177735'
   generator: kuda-acp/0.1.2

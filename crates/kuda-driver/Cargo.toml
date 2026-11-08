@@ -24,3 +24,11 @@ serde.workspace = true
 serde_json.workspace = true
 toml.workspace = true
 sha1 = "0.11.0"
+
+[dev-dependencies]
+# Conformance gate only — pulls pavo-protocol transitively for the wire
+# types; the driver itself stays pavo-protocol-free by design (the wire
+# JSON is hand-mirrored — tests/conformance.rs is the drift guard).
+# Git dep, not path: a fresh kuda clone has no sibling ../pavo checkout
+# and CI (coverage.sh) must still resolve.
+pavo-testkit = { git = "https://github.com/9aia/pavo" }

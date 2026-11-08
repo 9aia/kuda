@@ -1,0 +1,13 @@
+path: crates/kuda-driver/tests/conformance.rs
+module: kuda-driver
+purpose: crates/kuda-driver/tests/conformance.rs
+symbols:
+- driver_passes_pavo_conformance
+provenance:
+  files:
+  - crates/kuda-driver/tests/conformance.rs
+  hashes:
+  - e92e6b4b749e024b736a0372c8ab699445ae7e19
+  commit_sha: f0a43394780cea61b309c3f848b7ebc29b61c00e
+  generated_at: '1794177735'
+  generator: kuda-acp/0.1.0

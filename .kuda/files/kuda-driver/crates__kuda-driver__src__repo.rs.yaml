@@ -1,6 +1,6 @@
 path: crates/kuda-driver/src/repo.rs
 module: kuda-driver
-purpose: Resolves per-request kuda repository contexts and lazily loads configuration, cards, Git HEAD, and an existing SQLite store without creating index files. It provides sorted module-card loading, CLI-compatible provenance drift checks, and safe card filenames while degrading missing or invalid state to defaults and empty values.
+purpose: crates/kuda-driver/src/repo.rs
 symbols:
 - Ctx
 - open
@@ -13,11 +13,15 @@ symbols:
 - card_drift
 - blob_hash
 - safe
+- tests
+- safe_folds_unsafe_chars
+- resolve_root_prefers_params
+- unindexed_ctx_reports_not_indexed
 provenance:
   files:
   - crates/kuda-driver/src/repo.rs
   hashes:
-  - 72d0a2d86212a52dad1c7b0623b3d80a2a39b654
-  commit_sha: 849a2935ab8087064e4e8d123bbcdb5957cf75dd
-  generated_at: '1794151271'
+  - ef3437af6e571b7f077f339f196cc0a96f98bb84
+  commit_sha: f0a43394780cea61b309c3f848b7ebc29b61c00e
+  generated_at: '1794177735'
   generator: kuda-acp/0.1.0
