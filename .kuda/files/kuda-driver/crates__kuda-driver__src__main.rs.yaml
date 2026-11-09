@@ -1,24 +1,21 @@
 path: crates/kuda-driver/src/main.rs
 module: kuda-driver
-purpose: Implements the read-only `tamias-driver-kuda` pavo driver, exposing kuda manifests, views, and named queries through NDJSON JSON-RPC over stdio plus argv discovery commands. It resolves repository context per request, executes view query bindings with caller parameters overriding static parameters, and returns structured errors for malformed requests and unknown operations.
+purpose: Implements the read-only `tamias-driver-kuda` executable, exposing kuda views and queries to pavo through stdio NDJSON requests and argv discovery commands. It resolves repository context per request, executes view query bindings with caller-parameter overrides, and returns protocol errors for unknown views and unsupported operations.
 symbols:
 - queries
 - repo
 - views
 - main
-- emit
-- ok
-- err
 - dispatch
 - views_summaries
-- view
-- query
+- view_result
+- query_result
 - serve
 provenance:
   files:
   - crates/kuda-driver/src/main.rs
   hashes:
-  - f2c0ef6661411f2563959e56c7af275ada4c0d1e
-  commit_sha: 849a2935ab8087064e4e8d123bbcdb5957cf75dd
-  generated_at: '1794151271'
+  - 52f19d6b81b5074096ed5c0f4a9fe61aca7fb2f4
+  commit_sha: 572cee6a017ac61d7e690d1992c6b379e1404310
+  generated_at: '1794244771'
   generator: kuda-acp/0.1.0

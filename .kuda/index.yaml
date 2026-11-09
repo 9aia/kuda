@@ -1,5 +1,5 @@
 name: kuda
-root: /home/luis/GitHub/9aia/kuda
+root: /home/luis/GitHub/9aia/workspace/repos/kuda
 purpose: '*Code-map engine — verified per-module cards agents read before code.*'
 modules:
 - docs
@@ -33,7 +33,7 @@ commands:
 - (cd presentation && npm run build)
 - (cd presentation && npm run dev)
 - (cd presentation && npm run export)
-tree_digest: d23749b9195e85d8ed69d750506469a502dda8ab
+tree_digest: bfc53e076414ddc178e095e9bf7432b36b4f246f
 files_total: 93
 provenance:
   files:
@@ -73,7 +73,7 @@ provenance:
   - 69539d90b1b9cce1264bb96925db8212817849fa
   - 858a2d26892b5f1150a8b4663f27d32c408f6e1d
   - c00e5be2a18e90d8ecfd27f7e9f455e5343b7a86
-  - 401d4761dbf782fba661f1a98617fd45e204b220
+  - ec1e40238881e9e99dd3592759448f650b23174c
   - 8474c16bc613412aaa22031cbce10ad3a1f9beea
   - 04bbffa2faf364409f943e06689f50fb83b2e6c4
   - 91090b39dc802b32e546f0af5ad5f1aa9e994bb8
@@ -90,6 +90,6 @@ provenance:
   - a3f3978c21457dd7be4e34dc16f31231d0a68777
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
   - 0f3a434bcbd7f03da300bb0068407063d067a223
-  commit_sha: 8d826eb1abfad4e0a0577f04e2d7a3ad83b0aa6a
-  generated_at: '1794180523'
+  commit_sha: 572cee6a017ac61d7e690d1992c6b379e1404310
+  generated_at: '1794244771'
   generator: kuda/0.1.0

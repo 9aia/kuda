@@ -1,68 +1,115 @@
 //! Driver manifest + ViewNode trees — the static half of the pavo
-//! contract. Mirrors `pavo-protocol`'s JSON shapes exactly (the
-//! protocol crate isn't a dependency: kuda ships standalone, and the
-//! wire is plain serde JSON). Keep in sync with
+//! contract, built with `pavo-driver-kit` constructors over
+//! `pavo-protocol` types. Keep in sync with
 //! `pavo/crates/pavo-protocol/src/{manifest,view_node,wire}.rs`.
 
-use serde_json::{json, Value};
+use pavo_driver_kit as kit;
+use pavo_protocol::{Contribution, DriverManifest, FormFieldKind, QueryBinding, ViewNode};
 
-fn binding(name: &str) -> Value {
-    json!({"name": name, "op": "query", "params": {}})
+/// One `query` wire binding — `{"name":n,"op":"query"}`; the host
+/// calls the driver's `query` op with the binding name.
+fn binding(name: &str) -> QueryBinding {
+    kit::binding(name, "query")
 }
 
+/// A `ViewSpec` builder shorthand — id/title/route/description plus
+/// the query bindings the tree references, and the declarative root.
 fn spec(
     id: &str,
     title: &str,
     route: &str,
     description: &str,
     queries: &[&str],
-    root: Value,
-) -> Value {
-    json!({
-        "id": id,
-        "title": title,
-        "route": route,
-        "description": description,
-        "queries": queries.iter().map(|q| binding(q)).collect::<Vec<_>>(),
-        "root": root,
-    })
+    root: ViewNode,
+) -> kit::View {
+    let mut v = kit::view(id, title, route, root).description(description);
+    for q in queries {
+        v = v.query(binding(q));
+    }
+    v
 }
 
+/// `table` node — declared columns, query-fed rows (empty inline
+/// `rows`); `sortable` only where the current view had it.
 fn table(
     id: Option<&str>,
     title: &str,
     query: &str,
     columns: &[(&str, &str)],
     sortable: bool,
-) -> Value {
-    let mut t = json!({
-        "kind": "table",
-        "title": title,
-        "query": query,
-        "columns": columns.iter().map(|(k, t)| json!({"key": k, "title": t})).collect::<Vec<_>>(),
-    });
-    if sortable {
-        t["sortable"] = json!(true);
-    }
+) -> ViewNode {
+    let mut base = kit::base().title(title).query(query);
     if let Some(i) = id {
-        t["id"] = json!(i);
+        base = base.id(i);
     }
-    t
+    let cols = columns
+        .iter()
+        .map(|(k, t)| kit::table_column(k, t))
+        .collect();
+    if sortable {
+        kit::sortable_table(base, cols, Vec::new())
+    } else {
+        kit::table(base, cols, Vec::new())
+    }
 }
 
-fn kv(title: &str, query: &str) -> Value {
-    json!({"kind": "kv", "title": title, "query": query, "pairs": []})
+/// `kv` node — title + query binding, pairs filled by the host.
+fn kv(title: &str, query: &str) -> ViewNode {
+    kit::kv(kit::base().title(title).query(query), Vec::new())
 }
 
-fn col(children: Vec<Value>) -> Value {
-    json!({"kind": "column", "children": children})
+/// `column` layout container.
+fn col(children: Vec<ViewNode>) -> ViewNode {
+    kit::column(kit::base(), children)
+}
+
+/// `graph` node — query-fed (`graph` binding); `layout: "dot"` is a
+/// renderer hint the kit constructor leaves unset, so patch it in.
+fn graph_node() -> ViewNode {
+    let mut g = kit::graph(
+        kit::base().title("Dependency graph").query("graph"),
+        Vec::new(),
+        Vec::new(),
+    );
+    if let ViewNode::Graph(ref mut node) = g {
+        node.layout = Some("dot".to_string());
+    }
+    g
+}
+
+/// The `find` view's search form — `submit_op: "query"` with a
+/// "Search" label (the kit's `form_submit` leaves `submit_label`
+/// unset; patch it like `graph`'s layout).
+fn search_form() -> ViewNode {
+    let mut pattern = kit::field_kind("pattern", "Pattern", FormFieldKind::Text);
+    pattern.hint = Some("substring match; empty lists recent symbols".to_string());
+    let exact = kit::field_kind("exact", "Exact only", FormFieldKind::Bool);
+    let mut form = kit::form_submit(kit::base().title("Search"), vec![pattern, exact], "query");
+    if let ViewNode::Form(ref mut node) = form {
+        node.submit_label = Some("Search".to_string());
+    }
+    form
+}
+
+/// A chrome-slot [`Contribution`] with explicit priority/icon — the
+/// kit's `contribution()` defaults priority to 100 and no icon.
+fn contrib(id: &str, title: &str, route: &str, priority: i32, icon: Option<&str>) -> Contribution {
+    let mut c = kit::contribution(id, title, route);
+    c.priority = priority;
+    c.icon = icon.map(str::to_string);
+    c
 }
 
 /// The `manifest` verb body — also served over the wire `manifest`
 /// op and probed by pavo discovery as `tamias-driver-kuda manifest`.
-pub fn manifest() -> Value {
-    let views = vec![
-        spec(
+pub fn manifest() -> DriverManifest {
+    kit::Manifest::new("kuda", "Kuda")
+        .version(env!("CARGO_PKG_VERSION"))
+        .icon("🗺️")
+        .navbar(contrib("kuda", "Kuda", "/kuda/modules", 30, Some("🗺️")))
+        .dashboard(contrib("drift", "Kuda drift", "/kuda/drift", 40, None))
+        .statusbar(contrib("status", "Kuda", "/kuda/drift", 110, None))
+        .view(spec(
             "map",
             "Repo map",
             "/kuda",
@@ -84,8 +131,8 @@ pub fn manifest() -> Value {
                     true,
                 ),
             ]),
-        ),
-        spec(
+        ))
+        .view(spec(
             "modules",
             "Modules",
             "/kuda/modules",
@@ -104,8 +151,8 @@ pub fn manifest() -> Value {
                 ],
                 true,
             ),
-        ),
-        spec(
+        ))
+        .view(spec(
             "module",
             "Module card",
             "/kuda/module",
@@ -127,21 +174,16 @@ pub fn manifest() -> Value {
                     true,
                 ),
             ]),
-        ),
-        spec(
+        ))
+        .view(spec(
             "graph",
             "Dep graph",
             "/kuda/graph",
             "Module dependency graph from the L2 index — --param level=modules|symbols, records=true includes record-corpus edges.",
             &["graph"],
-            json!({
-                "kind": "graph",
-                "title": "Dependency graph",
-                "query": "graph",
-                "layout": "dot",
-            }),
-        ),
-        spec(
+            graph_node(),
+        ))
+        .view(spec(
             "drift",
             "Drift",
             "/kuda/drift",
@@ -163,24 +205,15 @@ pub fn manifest() -> Value {
                     true,
                 ),
             ]),
-        ),
-        spec(
+        ))
+        .view(spec(
             "find",
             "Find symbol",
             "/kuda/find",
             "Symbol search over the L2 index — --param pattern=<text> (exact: query find).",
             &["find", "search"],
             col(vec![
-                json!({
-                    "kind": "form",
-                    "title": "Search",
-                    "fields": [
-                        {"key": "pattern", "label": "Pattern", "kind": "text", "hint": "substring match; empty lists recent symbols"},
-                        {"key": "exact", "label": "Exact only", "kind": "bool"}
-                    ],
-                    "submit_op": "query",
-                    "submit_label": "Search",
-                }),
+                search_form(),
                 table(
                     None,
                     "Exact matches",
@@ -208,29 +241,8 @@ pub fn manifest() -> Value {
                     true,
                 ),
             ]),
-        ),
-    ];
-
-    json!({
-        "name": "kuda",
-        "title": "Kuda",
-        "icon": "🗺️",
-        "version": env!("CARGO_PKG_VERSION"),
-        "verbs": ["manifest", "serve"],
-        "capabilities": ["pavo"],
-        "contributes": {
-            "navbar": [
-                {"id": "kuda", "title": "Kuda", "route": "/kuda/modules", "priority": 30, "icon": "🗺️"},
-            ],
-            "dashboard": [
-                {"id": "drift", "title": "Kuda drift", "route": "/kuda/drift", "priority": 40},
-            ],
-            "statusbar": [
-                {"id": "status", "title": "Kuda", "route": "/kuda/drift", "priority": 110},
-            ],
-        },
-        "views": views,
-    })
+        ))
+        .build()
 }
 
 #[cfg(test)]
@@ -240,7 +252,7 @@ mod tests {
 
     #[test]
     fn manifest_advertises_pavo_and_declares_views() {
-        let m = manifest();
+        let m = serde_json::to_value(manifest()).unwrap();
         assert_eq!(m["name"], "kuda");
         assert!(m["verbs"].as_array().unwrap().iter().any(|v| v == "serve"));
         assert!(m["capabilities"]
@@ -277,7 +289,7 @@ mod tests {
             "dependents",
             "status",
         ];
-        let m = manifest();
+        let m = serde_json::to_value(manifest()).unwrap();
         for v in m["views"].as_array().unwrap() {
             for q in v["queries"].as_array().unwrap() {
                 let name = q["name"].as_str().unwrap();

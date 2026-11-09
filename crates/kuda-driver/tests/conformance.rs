@@ -2,10 +2,10 @@
 //! ([`pavo_testkit::conformance::check_driver`]) against this crate's
 //! own `tamias-driver-kuda serve` binary.
 //!
-//! kuda-driver deliberately does **not** depend on pavo-protocol: the
-//! wire JSON is hand-mirrored. This test is the drift guard — if the
+//! The driver builds its manifest/trees with `pavo-driver-kit` over
+//! `pavo-protocol` types; this test remains the drift guard — if the
 //! pavo driver contract moves, this fails here before it fails in
-//! pavo. Keep it that way: no pavo-protocol dep in `[dependencies]`.
+//! pavo.
 //!
 //! The spawned driver inherits this test's cwd (`crates/kuda-driver`,
 //! inside the kuda repo), so `.kuda/` discovery exercises the real

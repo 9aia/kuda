@@ -1,10 +1,11 @@
 //! tamias-driver-kuda — pavo view driver for kuda.
 //!
 //! Answers the pavo wire ops (`manifest`, `views`, `view`, `query`)
-//! as ndjson JSON-RPC over stdio — the same `{"op":…}` /
-//! `{"ok":…,"result"|"error":…}` shape every sibling `serve` speaks
-//! (see `pavo/crates/pavo-protocol/src/wire.rs`). Also answers the
-//! discovery verbs `manifest` and `capabilities` as plain argv.
+//! as ndjson JSON-RPC over stdio via `pavo-driver-kit`'s serve loop
+//! — the same `{"op":…}` / `{"ok":…,"result"|"error":…}` shape every
+//! sibling `serve` speaks (see `pavo/crates/pavo-protocol/src/wire.rs`).
+//! Also answers the discovery verbs `manifest` and `capabilities` as
+//! plain argv.
 //!
 //! Repo context: the driver is read-only. It resolves the kuda repo
 //! from the `root`/`dir`/`path` request param, `$KUDA_DRIVER_ROOT`,
@@ -19,19 +20,18 @@ mod queries;
 mod repo;
 mod views;
 
+use pavo_driver_kit as kit;
+use pavo_protocol::wire::{QueryResult, Request, Response, ViewResult, ViewSummary};
+use pavo_protocol::DriverManifest;
 use queries::run_query;
 use repo::{resolve_root, Ctx};
 use serde_json::{json, Map, Value};
-use std::io::{BufRead, Write};
 
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let code = match args.first().map(String::as_str) {
         Some("manifest") => {
-            println!(
-                "{}",
-                serde_json::to_string_pretty(&views::manifest()).unwrap_or_default()
-            );
+            println!("{}", kit::manifest_json(&views::manifest()));
             0
         }
         Some("capabilities") => {
@@ -54,137 +54,66 @@ fn main() {
     std::process::exit(code);
 }
 
-fn emit(v: &Value) {
-    let mut out = std::io::stdout().lock();
-    let _ = writeln!(out, "{v}");
-    let _ = out.flush();
-}
-
-fn ok(result: Value) {
-    emit(&json!({"ok": true, "result": result}));
-}
-
-fn err(msg: impl Into<String>) {
-    emit(&json!({"ok": false, "error": msg.into()}));
-}
-
-/// One ndjson request line → response. Never panics on bad input.
-fn dispatch(line: &str) {
-    let parsed: Result<Value, _> = serde_json::from_str(line);
-    let Ok(obj) = parsed else {
-        err("invalid JSON request");
-        return;
-    };
-    let Some(op) = obj.get("op").and_then(Value::as_str) else {
-        err("missing 'op'");
-        return;
-    };
-    let params = obj
-        .get("params")
-        .and_then(Value::as_object)
-        .cloned()
-        .unwrap_or_default();
-    match op {
-        "manifest" => ok(views::manifest()),
-        "views" => ok(views_summaries()),
-        "view" => view(&obj, &params),
-        "query" => query(&obj, &params),
-        other => err(format!("unknown op: {other}")),
+/// One parsed wire [`Request`] → response. The kit's serve loop owns
+/// the ndjson plumbing and turns parse failures into `ok:false`;
+/// ops this driver doesn't implement (`render`, `submit`, `jobs`,
+/// `notifications`) get the same `ok:false` convention every
+/// non-provider driver answers.
+fn dispatch(req: &Request, manifest: &DriverManifest) -> Response {
+    match req {
+        Request::Manifest => Response::ok_typed(manifest),
+        Request::Views => Response::ok_typed(&views_summaries(manifest)),
+        Request::View { view, params } => view_result(manifest, view, params),
+        Request::Query { query, params } => query_result(query, params),
+        Request::Render { .. } => Response::err("unsupported op: render"),
+        Request::Submit { .. } => Response::err("unsupported op: submit"),
+        Request::Jobs => Response::err("unsupported op: jobs"),
+        Request::Notifications => Response::err("unsupported op: notifications"),
     }
 }
 
 /// `Vec<ViewSummary>` — id/title/route/description/queries, no trees.
-fn views_summaries() -> Value {
-    let m = views::manifest();
-    Value::Array(
-        m.get("views")
-            .and_then(Value::as_array)
-            .cloned()
-            .unwrap_or_default()
-            .iter()
-            .map(|v| {
-                json!({
-                    "id": v.get("id").cloned().unwrap_or(Value::Null),
-                    "title": v.get("title").cloned().unwrap_or(Value::Null),
-                    "route": v.get("route").cloned().unwrap_or(Value::Null),
-                    "description": v.get("description").cloned().unwrap_or(Value::Null),
-                    "queries": v.get("queries").and_then(Value::as_array).map(|qs| {
-                        qs.iter()
-                            .filter_map(|b| b.get("name").cloned())
-                            .collect::<Vec<_>>()
-                    }).unwrap_or_default(),
-                })
-            })
-            .collect(),
-    )
+fn views_summaries(manifest: &DriverManifest) -> Vec<ViewSummary> {
+    manifest.views.iter().map(ViewSummary::from).collect()
 }
 
 /// `view` — resolve one ViewSpec, run every query binding against a
 /// fresh `Ctx` for the request's repo, return `ViewResult`.
-fn view(obj: &Value, params: &Map<String, Value>) {
-    let Some(id) = obj.get("view").and_then(Value::as_str) else {
-        err("missing 'view'");
-        return;
+fn view_result(manifest: &DriverManifest, id: &str, params: &Map<String, Value>) -> Response {
+    let Some(spec) = manifest.views.iter().find(|v| v.id == id) else {
+        return Response::err(format!("unknown view: {id}"));
     };
-    let manifest = views::manifest();
-    let Some(spec) = manifest
-        .get("views")
-        .and_then(Value::as_array)
-        .and_then(|vs| {
-            vs.iter()
-                .find(|v| v.get("id").and_then(Value::as_str) == Some(id))
-        })
-        .cloned()
-    else {
-        err(format!("unknown view: {id}"));
-        return;
-    };
+    let spec = spec.clone();
     let ctx = Ctx::open(resolve_root(params));
     let mut data = Map::new();
-    if let Some(bindings) = spec.get("queries").and_then(Value::as_array) {
-        for b in bindings {
-            let Some(name) = b.get("name").and_then(Value::as_str) else {
-                continue;
-            };
-            // static binding params first, caller params override
-            let mut merged = b
-                .get("params")
-                .and_then(Value::as_object)
-                .cloned()
-                .unwrap_or_default();
-            for (k, v) in params {
-                merged.insert(k.clone(), v.clone());
-            }
-            data.insert(name.to_string(), run_query(&ctx, name, &merged));
+    for b in &spec.queries {
+        // static binding params first, caller params override
+        let mut merged = b.params.clone();
+        for (k, v) in params {
+            merged.insert(k.clone(), v.clone());
         }
+        data.insert(b.name.clone(), run_query(&ctx, &b.name, &merged));
     }
-    ok(json!({"view": spec, "data": data}));
+    Response::ok_typed(&ViewResult { view: spec, data })
 }
 
 /// `query` — one named query with caller params.
-fn query(obj: &Value, params: &Map<String, Value>) {
-    let Some(name) = obj.get("query").and_then(Value::as_str) else {
-        err("missing 'query'");
-        return;
-    };
+fn query_result(name: &str, params: &Map<String, Value>) -> Response {
     let ctx = Ctx::open(resolve_root(params));
     let data = run_query(&ctx, name, params);
-    ok(json!({"query": name, "data": data}));
+    Response::ok_typed(&QueryResult {
+        query: name.to_string(),
+        data,
+    })
 }
 
 fn serve() -> i32 {
-    let stdin = std::io::stdin();
-    let mut stdout = std::io::stdout();
-    for line in stdin.lock().lines() {
-        let Ok(line) = line else { break };
-        let line = line.trim();
-        if line.is_empty() {
-            continue;
+    let manifest = views::manifest();
+    match kit::serve_stdio(|req| dispatch(req, &manifest)) {
+        Ok(()) => 0,
+        Err(e) => {
+            eprintln!("tamias-driver-kuda: {e}");
+            1
         }
-        // dispatch writes via emit(); keep stdout lock coherent by
-        // flushing through the same handle.
-        dispatch(line);
-        let _ = stdout.flush();
     }
-    0
 }
