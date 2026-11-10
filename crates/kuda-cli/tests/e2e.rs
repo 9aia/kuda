@@ -704,10 +704,7 @@ fn gitignore_skips_nonrepo_creates_missing() {
     seed_py_repo(&dir);
     assert!(kuda(&["sync"], &dir).status.success());
     let gi = std::fs::read_to_string(dir.join(".gitignore")).unwrap();
-    assert!(
-        gi.contains(".kuda/index.sqlite\n.kuda/meta.json\n"),
-        "{gi}"
-    );
+    assert!(gi.contains(".kuda/index.sqlite\n.kuda/meta.json\n"), "{gi}");
     std::fs::remove_dir_all(&dir).ok();
 }
 
@@ -1578,6 +1575,76 @@ fn watch_syncs_on_change() {
             panic!("watch never synced: {:?}", child.wait_with_output());
         }
         std::thread::sleep(std::time::Duration::from_millis(200));
+    }
+    // a domain-corpus write (myco's project/ ledger) must re-index
+    // the same way a code write does
+    mk_at(&dir, "project/TODO.md", "- [ ] T-001 corpus task\n");
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(15);
+    while !dir.join(".kuda/modules/project.yaml").exists() {
+        if std::time::Instant::now() > deadline {
+            let _ = child.kill();
+            panic!(
+                "watch never re-indexed the domain corpus: {:?}",
+                child.wait_with_output()
+            );
+        }
+        std::thread::sleep(std::time::Duration::from_millis(200));
+    }
+    let _ = child.kill();
+    let _ = child.wait();
+    std::fs::remove_dir_all(&dir).ok();
+}
+
+/// watch --poll-refs: a sturn WAL ref move produces no usable fs
+/// events (all writes land inside .git, which the filter drops) —
+/// only the ref fingerprint poll can trigger the re-index. The
+/// WAL commit is built with pure plumbing precisely so no worktree
+/// file write can fire the watcher first.
+#[cfg(not(coverage))]
+#[test]
+fn watch_poll_refs_reindexes_wal() {
+    let dir = tmp("watchrefs");
+    git_init(&dir);
+    seed_py_repo(&dir);
+    assert!(kuda(&["sync"], &dir).status.success());
+    let mut child = Command::new(env!("CARGO_BIN_EXE_kuda"))
+        .args(["watch", "--poll-refs", "1"])
+        .current_dir(&dir)
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .spawn()
+        .unwrap();
+    // give the watcher + poller a beat to register
+    std::thread::sleep(std::time::Duration::from_millis(800));
+    // event commit via plumbing — every write lands inside .git
+    mk_at(
+        &dir,
+        ".git/wal-event.json",
+        "{\"op\":{\"path\":\"main.py\"}}",
+    );
+    let blob = git(&dir, &["hash-object", "-w", ".git/wal-event.json"]);
+    git(
+        &dir,
+        &[
+            "update-index",
+            "--add",
+            "--cacheinfo",
+            &format!("100644,{blob},event.json"),
+        ],
+    );
+    let tree = git(&dir, &["write-tree"]);
+    let commit = git(&dir, &["commit-tree", &tree, "-m", "wal"]);
+    git(&dir, &["update-ref", "refs/sturn/wal/test", &commit]);
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(15);
+    while !dir.join(".kuda/modules/sturn-wal.yaml").exists() {
+        if std::time::Instant::now() > deadline {
+            let _ = child.kill();
+            panic!(
+                "watch --poll-refs never re-indexed the WAL ref: {:?}",
+                child.wait_with_output()
+            );
+        }
+        std::thread::sleep(std::time::Duration::from_millis(300));
     }
     let _ = child.kill();
     let _ = child.wait();

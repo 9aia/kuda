@@ -130,7 +130,7 @@ api:
 - name: T-011
   kind: record
   file: project/TODO.md
-  line: 17
+  line: 18
   module: project
 - name: T-011
   kind: record
@@ -140,7 +140,7 @@ api:
 - name: T-012
   kind: record
   file: project/TODO.md
-  line: 21
+  line: 22
   module: project
 - name: T-013
   kind: record
@@ -202,8 +202,69 @@ api:
   file: project/BACKLOG.md
   line: 33
   module: project
-api_omitted: 14
-deps: []
+api_omitted: 16
+deps:
+- sturn
+- kuda
+- kuda
+- bupha
+- kuda
+- kuda
+- kuda-core
+- sturn
+- kuda
+- kuda-driver
+- kuda-core
+- kuda-extract
+- kuda-manifest
+- kuda-treesitter
+- kuda-store
+- kuda-store-sqlite
+- kuda-vcs
+- kuda-git
+- bupha
+- kuda-summarize
+- kuda-template
+- kuda-query
+- kuda-cards
+- kuda
+- kuda
+- mimus
+- bupha
+- kuda
+- kuda-extract
+- kuda-lsp
+- kuda-acp
+- kuda
+- myco
+- kuda-wired
+- kuda-llm
+- ADR-0001
+- kuda-workspace
+- kuda
+- kuda
+- malurus
+- bupha
+- kuda
+- kuda-store
+- bupha
+- kuda
+- malurus
+- T-027
+- kuda
+- myco
+- kuda
+- sturn
+- kuda
+- sturn
+- myco
+- kuda
+- kuda-records
+- sturn-wal
+- T-031
+- kuda
+- ADR-0003
+- sturn
 notes: |
   - Cards are committed artifacts (`.kuda/index.yaml`, `.kuda/modules/*.yaml`); `.kuda/index.sqlite` is gitignored and rebuildable — `kuda init`/`sync` must auto-append it to `.gitignore` (T-009).
   - Every card ends with a `verify:` file list and carries provenance `{files, content_hash, commit_sha}`; `kuda status` reports drift as a sha diff vs HEAD.
@@ -251,6 +312,7 @@ provenance:
   - project/handoffs/T-026.md
   - project/handoffs/T-028.md
   - project/handoffs/T-033.md
+  - project/handoffs/T-035.md
   - project/handoffs/archive/T-027.md
   - project/handoffs/archive/T-029.md
   - project/index.md
@@ -259,7 +321,7 @@ provenance:
   hashes:
   - 1bdcccd980485ef7eb70b6e48c427d0b39225631
   - 1b44d4e097ad37b37040c08fae604cc2484546dc
-  - ad98c1681ebf487f09b939aa507b855b64ad9d76
+  - ddc15061a54d630226c48c660803df2ed86edebe
   - 38691754e9a480ceea4a77b886a7f1752ef050d6
   - 8a8f0610381680d4d20e20080585cfe7e890e864
   - 4b7f8398b36a75b62d6f23a7ca68fdb50c7df451
@@ -277,11 +339,12 @@ provenance:
   - 1a2b06abcde60b4f5ec8ab1288d37eaa6b9b3aa0
   - 231ed699315e7d9ee59f62d153fc923c1ab3819b
   - 314de45133bab301cc9920a6a4a7eecccfdc0cc4
+  - 1f00937b1a62bdd1b925ae4472ef951782e85528
   - 9f3779ae765d34171c9fb02b6644265a8cca8f91
   - 34f59afdfb337b361448d92a7290451f3ac36b6a
   - a9cbb363e46c66216b83994b2dba52c063dd59db
-  - 86d44d45d3589f251872fab0c31e2e480f326a92
+  - c30a9a2d61b2438663e9845ee1769fff29cf39df
   - 41b6a56ba796852e3ecbe0fc9961cf154f0c8e9e
-  commit_sha: a3b31d920875f8d5ae716fb81c171eefbf7920b8
-  generated_at: '1794325744'
-  generator: kuda-template/0.1.3
+  commit_sha: 4406b659ca5a3a26001f2c39ee90c9d2d99ff5d5
+  generated_at: '1794326967'
+  generator: kuda-acp/0.1.3

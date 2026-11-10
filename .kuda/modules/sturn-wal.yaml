@@ -1,6 +1,6 @@
 name: sturn-wal
 path: refs/sturn/wal/devin-wal-corpus
-purpose: The `sturn-wal` module is the sturn coordination WAL for workspace `devin-wal-corpus`, read as a non-tree corpus from the git ref `refs/sturn/wal/devin-wal-corpus` (head `1c003c14`) rather than from files on disk. It records actor `luis`'s coordination ops — a `claim` on glob `crates/*` (ttl 3600s), an `intent` ("kuda non-tree corpus support — first non-filesystem domain"), and a `presence` "left" — each a commit whose tree holds one `event.json`, indexed by the `records` extractor as queryable events.
+purpose: sturn coordination WAL — claims, writes, snaps, review events in refs/sturn/*
 api:
 - name: luis:claim@devin-wal-corpus#9802830f
   kind: record
@@ -38,6 +38,6 @@ provenance:
   - refs/sturn/wal/devin-wal-corpus
   hashes:
   - 1c003c147bf016f6a30e5b25fd63cf6c6495619f
-  commit_sha: 78f32019bcc7240b818e9256d7d799345f9d47d1
-  generated_at: '1794324935'
+  commit_sha: 4406b659ca5a3a26001f2c39ee90c9d2d99ff5d5
+  generated_at: '1794327018'
   generator: kuda-acp/0.1.3

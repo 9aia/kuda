@@ -103,8 +103,17 @@ pub enum Cmd {
         docs: bool,
     },
     /// Watch the repo — fs events trigger incremental syncs
-    /// (debounced; only changed modules re-summarize).
-    Watch,
+    /// (debounced; only changed modules re-summarize). Domain
+    /// corpus roots are watched explicitly, so record writes
+    /// (myco verbs, doc edits) re-index like code writes.
+    Watch {
+        /// Also poll non-tree domain sources every N seconds.
+        /// Git refs (refs/sturn/*) produce no fs events a watcher
+        /// can use — a moved/new/deleted ref fingerprint triggers
+        /// the same debounced sync.
+        #[arg(long, value_name = "SECS")]
+        poll_refs: Option<u64>,
+    },
     /// Serve the index over MCP (stdio).
     Mcp,
     /// Speak ACP — Agent Client Protocol surface for any agent
@@ -151,9 +160,9 @@ pub fn dispatch(cli: &Cli) -> i32 {
         // signals discard coverage data, so it's excluded below and
         // exercised by the e2e test in normal builds.
         #[cfg(not(coverage))]
-        Cmd::Watch => watch(cli),
+        Cmd::Watch { poll_refs } => watch(cli, *poll_refs),
         #[cfg(coverage)]
-        Cmd::Watch => 0,
+        Cmd::Watch { .. } => 0,
         Cmd::Mcp => mcp(cli),
         Cmd::Acp => acp(cli),
         Cmd::GenCliDocs => {
@@ -2333,14 +2342,44 @@ fn sturn_wal_changes(dir: &Path, store: &mut dyn IndexStore) -> std::collections
     touched
 }
 
+/// Watch wakeups — fs events from notify plus synthetic kicks from
+/// the ref poller, funneled through one channel so a burst of either
+/// debounces into a single sync.
 #[cfg(not(coverage))]
-fn watch(cli: &Cli) -> i32 {
+enum Wake {
+    Fs(Result<notify::Event, notify::Error>),
+    Refs,
+}
+
+/// Fingerprint of the non-tree domain inputs (ref -> head sha
+/// pairs): a moved, new, or deleted ref changes it. Tree domains
+/// yield no inputs — fs events already cover them.
+#[cfg(not(coverage))]
+fn ref_fingerprint(dir: &Path, doms: &[DomainDef]) -> String {
+    use sha1::Digest;
+    let mut h = sha1::Sha1::new();
+    for d in doms {
+        for (p, sha) in kuda_records::source_inputs(dir, d) {
+            h.update(p.display().to_string().as_bytes());
+            h.update(sha.as_bytes());
+        }
+    }
+    h.finalize().iter().map(|b| format!("{b:02x}")).collect()
+}
+
+#[cfg(not(coverage))]
+fn watch(cli: &Cli, poll_refs: Option<u64>) -> i32 {
     use notify::{recommended_watcher, RecursiveMode, Watcher};
-    let dir = std::path::PathBuf::from(".");
+    // Same root sync resolves — a `--config` elsewhere must not
+    // watch the cwd while indexing the config's repo.
+    let dir = root(cli);
     let cfg = load_config(cli);
     let (tx, rx) = std::sync::mpsc::channel();
-    let mut w = match recommended_watcher(move |r| {
-        let _ = tx.send(r);
+    let mut w = match recommended_watcher({
+        let tx = tx.clone();
+        move |r| {
+            let _ = tx.send(Wake::Fs(r));
+        }
     }) {
         Ok(w) => w,
         Err(e) => {
@@ -2352,28 +2391,95 @@ fn watch(cli: &Cli) -> i32 {
         eprintln!("watch {e}");
         return 1;
     }
-    outln!("watching — sync on change (ctrl-c to stop)");
-    loop {
-        match rx.recv() {
-            Ok(Ok(evt)) => {
-                let relevant = evt.paths.iter().any(|p| {
-                    !p.components().any(|c| {
-                        matches!(
-                            c.as_os_str().to_str(),
-                            Some(".git" | ".kuda" | "target" | "node_modules")
-                        )
-                    })
-                });
-                if !relevant {
-                    continue;
-                }
-                // debounce: drain the burst, then one sync
-                std::thread::sleep(std::time::Duration::from_millis(300));
-                while rx.try_recv().is_ok() {}
-                let _ = sync_one(&dir, &cfg, cli, false, &Default::default());
+    // Domain corpus roots get an explicit watch on top of the
+    // repo-tree one: a `roots` entry that's a symlink or reaches
+    // outside the watched tree (`../shared`) escapes the recursive
+    // descent but is still corpus the sync walk indexes. Missing
+    // roots skip silently — the corpus appearing later still lands
+    // in repo-tree events.
+    let doms = resolve_domains(&cfg);
+    for d in doms.iter().filter(|d| d.source.is_none()) {
+        for r in &d.roots {
+            let p = dir.join(r);
+            if p.exists() {
+                let _ = w.watch(&p, RecursiveMode::Recursive);
             }
-            Ok(Err(e)) => eprintln!("watch: {e}"),
-            Err(_) => return 0,
         }
+    }
+    // WAL refs (refs/sturn/*) aren't filesystem-watchable: a
+    // `git update-ref` writes inside .git, which the event filter
+    // drops on purpose. `--poll-refs <secs>` is the seam — the
+    // proper fix is a sturn-side post-op hook, not a deeper watch.
+    if let Some(secs) = poll_refs {
+        let dir = dir.clone();
+        let doms = doms.clone();
+        std::thread::spawn(move || {
+            let mut last = ref_fingerprint(&dir, &doms);
+            loop {
+                std::thread::sleep(std::time::Duration::from_secs(secs.max(1)));
+                let now = ref_fingerprint(&dir, &doms);
+                if now != last {
+                    last = now;
+                    if tx.send(Wake::Refs).is_err() {
+                        return;
+                    }
+                }
+            }
+        });
+    }
+    outln!(
+        "watching {} — sync on change (ctrl-c to stop)",
+        dir.display()
+    );
+    loop {
+        let fire = match rx.recv() {
+            Ok(Wake::Fs(Ok(evt))) => {
+                if std::env::var_os("KUDA_WATCH_DEBUG").is_some() {
+                    eprintln!("watch-dbg fs {:?} {:?}", evt.kind, evt.paths);
+                }
+                // Access events (open/read/close-nowrite) can't
+                // change content — without this guard the sync's own
+                // repo walk and the poller's git reads re-trigger
+                // the watcher forever.
+                !matches!(evt.kind, notify::EventKind::Access(_))
+                    && evt.paths.iter().any(|p| {
+                        // same noise set as the sync walk — writes
+                        // under excluded dirs (.git, .kuda, target, …)
+                        // can't change the index either.
+                        !p.components().any(|c| {
+                            c.as_os_str()
+                                .to_str()
+                                .map(|n| kuda_core::dir_excluded(n, &cfg.extract.exclude))
+                                .unwrap_or(true)
+                        })
+                    })
+            }
+            Ok(Wake::Refs) => {
+                if std::env::var_os("KUDA_WATCH_DEBUG").is_some() {
+                    eprintln!("watch-dbg refs wake");
+                }
+                true
+            }
+            Ok(Wake::Fs(Err(e))) => {
+                eprintln!("watch: {e}");
+                continue;
+            }
+            Err(_) => return 0,
+        };
+        if !fire {
+            continue;
+        }
+        // debounce: drain the burst, then one sync
+        std::thread::sleep(std::time::Duration::from_millis(300));
+        while let Ok(w) = rx.try_recv() {
+            if std::env::var_os("KUDA_WATCH_DEBUG").is_some() {
+                match w {
+                    Wake::Fs(Ok(e)) => eprintln!("watch-dbg fs {:?}", e.paths),
+                    Wake::Fs(Err(e)) => eprintln!("watch-dbg fs err {e}"),
+                    Wake::Refs => eprintln!("watch-dbg refs"),
+                }
+            }
+        }
+        let _ = sync_one(&dir, &cfg, cli, false, &Default::default());
     }
 }
