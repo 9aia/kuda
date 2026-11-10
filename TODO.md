@@ -11,7 +11,6 @@
 - [ ] T-004 kuda-store port + kuda-store-sqlite adapter (L2 graph)
 - [ ] T-005 kuda-vcs port + kuda-git adapter (sha, changed files -> staleness) — bupha's vcs/git crates already fit; repurpose
 - [ ] T-006 kuda-summarize port + kuda-template adapter (deterministic cards: API list, deps, commands — zero-model default)
-- [ ] T-002 kuda-extract port + kuda-manifest adapter (cargo/npm/go/py manifests -> package graph; no parser needed — lands first) · status:in-progress
 
 ## Pipeline + queries
 
