@@ -1,7 +1,7 @@
 +++
 id = "I-001"
 title = "myco emits priority=medium in frontmatter but CLI enum is low|med|high|crit — normalize emitter to med (kuda schema accepts both for now)"
-status = "open"
+status = "in-progress"
 created = "2026-11-05"
 priority = "med"
 +++
