@@ -31,8 +31,16 @@ fn card_collects_only_own_module() {
     let ext = Extraction {
         symbols: vec![sym("in", "m"), sym("out", "other")],
         edges: vec![
-            DepEdge { from: "m".into(), to: "dep".into(), kind: EdgeKind::Imports },
-            DepEdge { from: "other".into(), to: "x".into(), kind: EdgeKind::Calls },
+            DepEdge {
+                from: "m".into(),
+                to: "dep".into(),
+                kind: EdgeKind::Imports,
+            },
+            DepEdge {
+                from: "other".into(),
+                to: "x".into(),
+                kind: EdgeKind::Calls,
+            },
         ],
         files: vec!["f.rs".into()],
         ..Extraction::default()

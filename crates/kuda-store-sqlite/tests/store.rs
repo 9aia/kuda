@@ -29,10 +29,15 @@ fn replace_find_search() {
     s.replace_module(
         "core",
         &[sym("alpha", "core"), sym("beta", "core")],
-        &[DepEdge { from: "core".into(), to: "serde".into(), kind: EdgeKind::PackageDep }],
+        &[DepEdge {
+            from: "core".into(),
+            to: "serde".into(),
+            kind: EdgeKind::PackageDep,
+        }],
     )
     .unwrap();
-    s.replace_module("cli", &[sym("gamma", "cli")], &[]).unwrap();
+    s.replace_module("cli", &[sym("gamma", "cli")], &[])
+        .unwrap();
 
     assert_eq!(s.find("alpha").unwrap().len(), 1);
     assert_eq!(s.search("a").unwrap().len(), 3);
@@ -62,12 +67,16 @@ fn meta_and_file_hashes() {
     s.set_meta("k", "v2").unwrap();
     assert_eq!(s.meta("k").unwrap().as_deref(), Some("v2"));
 
-    s.record_files("m", &[("a.rs".into(), "h1".into()), ("b.rs".into(), "h2".into())])
-        .unwrap();
+    s.record_files(
+        "m",
+        &[("a.rs".into(), "h1".into()), ("b.rs".into(), "h2".into())],
+    )
+    .unwrap();
     let h = s.file_hashes().unwrap();
     assert_eq!(h["a.rs"], ("h1".into(), "m".into()));
     // Re-record replaces the module's set.
-    s.record_files("m", &[("b.rs".into(), "h2b".into())]).unwrap();
+    s.record_files("m", &[("b.rs".into(), "h2b".into())])
+        .unwrap();
     let h = s.file_hashes().unwrap();
     assert!(!h.contains_key("a.rs"));
     assert_eq!(h["b.rs"].0, "h2b");

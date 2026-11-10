@@ -48,7 +48,9 @@ fn set_error_when_parent_is_file() {
     std::fs::create_dir_all(&dir).unwrap();
     let f = dir.join("afile");
     std::fs::write(&f, "x").unwrap();
-    let s = DotenvSecrets { path: f.join("secrets") };
+    let s = DotenvSecrets {
+        path: f.join("secrets"),
+    };
     assert!(s.set("K", "v").is_err());
     let _ = std::fs::remove_dir_all(&dir);
 }

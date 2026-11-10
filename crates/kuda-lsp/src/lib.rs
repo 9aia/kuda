@@ -472,11 +472,8 @@ while True:
         #[cfg(unix)]
         {
             use std::os::unix::fs::PermissionsExt;
-            std::fs::set_permissions(
-                dir.join("gone.rs"),
-                std::fs::Permissions::from_mode(0o000),
-            )
-            .unwrap();
+            std::fs::set_permissions(dir.join("gone.rs"), std::fs::Permissions::from_mode(0o000))
+                .unwrap();
         }
         // excluded dirs skipped by walk_files
         std::fs::create_dir_all(dir.join("node_modules")).unwrap();
@@ -488,11 +485,8 @@ while True:
         #[cfg(unix)]
         {
             use std::os::unix::fs::PermissionsExt;
-            std::fs::set_permissions(
-                dir.join("noperm"),
-                std::fs::Permissions::from_mode(0o000),
-            )
-            .unwrap();
+            std::fs::set_permissions(dir.join("noperm"), std::fs::Permissions::from_mode(0o000))
+                .unwrap();
         }
         // a .git *file* marks a mounted worktree -> not walked
         std::fs::create_dir_all(dir.join("wt")).unwrap();

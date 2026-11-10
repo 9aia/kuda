@@ -297,7 +297,10 @@ mod tests {
             "[package]\nname = \"a\"\n[dependencies]\nb = { path = \"../b\" }\n",
         );
         // manifest without a package name -> falls back to dir name
-        mk("crates/noname/Cargo.toml", "[dependencies]\nserde = \"1\"\n");
+        mk(
+            "crates/noname/Cargo.toml",
+            "[dependencies]\nserde = \"1\"\n",
+        );
         // manifest at repo root: parent dir-name fallback uses the basename
         mk("pyproject.toml", "not [valid toml");
         // unknown basename -> ignored entirely
@@ -315,11 +318,8 @@ mod tests {
         #[cfg(unix)]
         {
             use std::os::unix::fs::PermissionsExt;
-            std::fs::set_permissions(
-                root.join("locked"),
-                std::fs::Permissions::from_mode(0o000),
-            )
-            .unwrap();
+            std::fs::set_permissions(root.join("locked"), std::fs::Permissions::from_mode(0o000))
+                .unwrap();
         }
 
         let x = ManifestExtractor {
@@ -342,11 +342,8 @@ mod tests {
         #[cfg(unix)]
         {
             use std::os::unix::fs::PermissionsExt;
-            std::fs::set_permissions(
-                root.join("locked"),
-                std::fs::Permissions::from_mode(0o755),
-            )
-            .unwrap();
+            std::fs::set_permissions(root.join("locked"), std::fs::Permissions::from_mode(0o755))
+                .unwrap();
         }
         let _ = std::fs::remove_dir_all(&root);
     }
@@ -374,14 +371,23 @@ mod tests {
         // unknown basename
         assert_eq!(parse_manifest("Brewfile", "x", false), (None, vec![]));
         // invalid bodies -> (None, [])
-        assert_eq!(parse_manifest("Cargo.toml", "not [toml", false), (None, vec![]));
-        assert_eq!(parse_manifest("package.json", "{bad", false), (None, vec![]));
+        assert_eq!(
+            parse_manifest("Cargo.toml", "not [toml", false),
+            (None, vec![])
+        );
+        assert_eq!(
+            parse_manifest("package.json", "{bad", false),
+            (None, vec![])
+        );
         assert_eq!(
             parse_manifest("pyproject.toml", "not [toml", false),
             (None, vec![])
         );
         // setup.py without name=
-        assert_eq!(parse_manifest("setup.py", "setup(version='1')", false), (None, vec![]));
+        assert_eq!(
+            parse_manifest("setup.py", "setup(version='1')", false),
+            (None, vec![])
+        );
         // setup.py name with double quotes
         let (n, _) = parse_manifest("setup.py", "setup(name=\"dq\")", false);
         assert_eq!(n.as_deref(), Some("dq"));
@@ -440,7 +446,6 @@ mod tests {
         );
         assert!(deps.iter().any(|x| x == "pytest"));
     }
-
 
     #[test]
     fn pep508_strips_extras_markers_and_versions() {

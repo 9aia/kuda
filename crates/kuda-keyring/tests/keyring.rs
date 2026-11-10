@@ -7,7 +7,9 @@ use kuda_secret::Secrets;
 fn service_lookup_and_stubbed_secret_tool_roundtrip() {
     assert_eq!(KeyringSecrets::default().service, "kuda");
     {
-        let s = KeyringSecrets { service: "kuda-test".into() };
+        let s = KeyringSecrets {
+            service: "kuda-test".into(),
+        };
         assert_eq!(s.get("kuda-test-definitely-missing"), None);
     }
     let bin = std::env::temp_dir().join(format!("kuda-keyring-{}", std::process::id()));
