@@ -1,6 +1,6 @@
 name: project
 path: project/BACKLOG.md
-purpose: The `project` module is kuda's myco work ledger — a record corpus of tasks (`T-NNN`), ADRs (`ADR-NNNN`), and handoffs tracking the engine's design and build-out. It holds the backlog (`BACKLOG.md`), open 0.1.0 tasks (`TODO.md`), completed work (`DONE.md`), architecture decision records (`adrs/`), and per-task handoff notes (`handoffs/`), all indexed by the `records` extractor into `record`-kind symbols and `references` edges under the `project` module.
+purpose: myco work ledger — tasks, ADRs, issues, plans, handoffs
 api:
 - name: ADR-0001
   kind: record
@@ -130,7 +130,7 @@ api:
 - name: T-011
   kind: record
   file: project/TODO.md
-  line: 18
+  line: 17
   module: project
 - name: T-011
   kind: record
@@ -140,7 +140,7 @@ api:
 - name: T-012
   kind: record
   file: project/TODO.md
-  line: 22
+  line: 21
   module: project
 - name: T-013
   kind: record
@@ -203,64 +203,7 @@ api:
   line: 33
   module: project
 api_omitted: 14
-deps:
-- sturn
-- kuda-extract
-- kuda
-- bupha
-- kuda
-- kuda
-- kuda-core
-- sturn
-- kuda
-- kuda-driver
-- kuda-core
-- kuda-extract
-- kuda-manifest
-- kuda-treesitter
-- kuda-store
-- kuda-store-sqlite
-- kuda-vcs
-- kuda-git
-- bupha
-- kuda-summarize
-- kuda-template
-- kuda-query
-- kuda-cards
-- kuda
-- kuda
-- mimus
-- bupha
-- kuda
-- kuda-lsp
-- kuda-acp
-- kuda
-- myco
-- kuda-wired
-- kuda-llm
-- ADR-0001
-- kuda-workspace
-- kuda
-- kuda
-- malurus
-- bupha
-- kuda
-- kuda-store
-- bupha
-- kuda
-- malurus
-- T-027
-- kuda
-- myco
-- kuda
-- kuda
-- kuda
-- kuda-records
-- sturn-wal
-- T-031
-- kuda
-- ADR-0003
-- sturn
+deps: []
 notes: |
   - Cards are committed artifacts (`.kuda/index.yaml`, `.kuda/modules/*.yaml`); `.kuda/index.sqlite` is gitignored and rebuildable — `kuda init`/`sync` must auto-append it to `.gitignore` (T-009).
   - Every card ends with a `verify:` file list and carries provenance `{files, content_hash, commit_sha}`; `kuda status` reports drift as a sha diff vs HEAD.
@@ -315,10 +258,10 @@ provenance:
   - project/issues/issue-0002-kuda-sync-regresses-cards-acp-leaks-monologue-into-purpose-drops-notes.md
   hashes:
   - 1bdcccd980485ef7eb70b6e48c427d0b39225631
-  - 7b2b82800d0ebb01bcc1cc38a1e5a24a1294442c
-  - 9c5247c973e14bc24f19380db78a6e2dd7d5cd02
-  - def5e4b43853bd31a3e51c7730f08820962dfdb4
-  - 64c28d791fb138cc76a184b92c3d27f345b34068
+  - 1b44d4e097ad37b37040c08fae604cc2484546dc
+  - ad98c1681ebf487f09b939aa507b855b64ad9d76
+  - 38691754e9a480ceea4a77b886a7f1752ef050d6
+  - 8a8f0610381680d4d20e20080585cfe7e890e864
   - 4b7f8398b36a75b62d6f23a7ca68fdb50c7df451
   - 7633d888f3798cedcc664f199a47a76a8435fcf6
   - bcd31db5cd4bf1df63f2d0b238769f30e92a257d
@@ -337,8 +280,8 @@ provenance:
   - 9f3779ae765d34171c9fb02b6644265a8cca8f91
   - 34f59afdfb337b361448d92a7290451f3ac36b6a
   - a9cbb363e46c66216b83994b2dba52c063dd59db
-  - 5b1a2edf5787fb263cdc54796ce6a5395bdf01fd
+  - 86d44d45d3589f251872fab0c31e2e480f326a92
   - 41b6a56ba796852e3ecbe0fc9961cf154f0c8e9e
-  commit_sha: 78f32019bcc7240b818e9256d7d799345f9d47d1
-  generated_at: '1794324935'
-  generator: kuda-acp/0.1.3
+  commit_sha: a3b31d920875f8d5ae716fb81c171eefbf7920b8
+  generated_at: '1794325744'
+  generator: kuda-template/0.1.3
