@@ -436,6 +436,7 @@ mod schema_tests {
                 }"#
                 .into(),
             ),
+            file_records: false,
         }
     }
 
