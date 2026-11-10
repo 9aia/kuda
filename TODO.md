@@ -14,7 +14,7 @@
 
 ## Languages
 
-- [ ] T-011 .hnl — add a data/langs/hnl.toml descriptor (extensions, manifests if any, symbol/dep queries). Blocked on a tree-sitter-handl grammar: check for an existing one; else write/publish it — grammar is the only real work, the descriptor is data. Pays off immediately: handl-lang fixtures/packages stop being invisible to the index.
+- [ ] T-011 .hnl — add a data/langs/hnl.toml descriptor (extensions, manifests if any, symbol/dep queries). Blocked on a tree-sitter-handl grammar: check for an existing one; else write/publish it — grammar is the only real work, the descriptor is data. Pays off immediately: handl-lang fixtures/packages stop being invisible to the index. · status:in-progress
 
 ## Scaffold debt (forked from bupha — rewrite crate-by-crate)
 
