@@ -1,6 +1,6 @@
 name: docs
 path: docs/package.json
-purpose: documentation corpus — pages as records, backticked refs as edges
+purpose: The `docs` module is kuda's documentation site — getting-started, tutorials, how-to guides, reference (card schema, CLI help, config, crate API), architecture and release-model explanations, and comparison docs — plus generator scripts (gen-config-docs.py, gen-crate-map.py, gen-api-index.py) that build generated reference pages from struct doc comments and workspace Cargo.tomls.
 api:
 - name: Command-Line Help for `kuda`
   kind: record
@@ -248,6 +248,9 @@ deps:
 - verify
 - provenance
 - agent_thought_chunk
+- kuda-template
+- CLINE_MODEL
+- end_turn
 - description
 - provider
 - model
@@ -361,7 +364,7 @@ provenance:
   - 48de4da88a8bb9cd7878747498464a1f67834ada
   - c49057c88d718ea4d29762ea8218f80b5c27a847
   - 3246005788ff788b94e51606e532f98280bc8648
-  - feff0b0a855207cb53131fcb68e4f55261956737
+  - 61f8009a780981d3aeb8d5acc2880a4ff1e9d1fa
   - d57d33f2fce46ac76d1e7bdb7161f4dbcca418db
   - c50693504b274dc1b058beb696dfefd1d7e5c3d2
   - 52dd9832a535ae96c90506e2bc4fa9876733d34c
@@ -373,6 +376,6 @@ provenance:
   - c7e39b8531ba492bbaaa24a2bb9dc8d7833e0725
   - 7610721156875b8de9cec27cd21ca2a65c7773a8
   - 28d2ef76304e27db4eba1f66c93465d248f39bdd
-  commit_sha: 80c2152c265a741af22d657ef3537dcd52e9feb0
-  generated_at: '1794329001'
-  generator: kuda-acp/0.1.3
+  commit_sha: 003b0eaf25f75763a6865c1ec29e9a60e5da0bfb
+  generated_at: '1794330926'
+  generator: kuda-acp/0.1.4

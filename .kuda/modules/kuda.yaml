@@ -10,17 +10,17 @@ api:
 - name: API_CAP
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 1505
+  line: 1560
   module: kuda
 - name: BUDGET
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 1244
+  line: 1273
   module: kuda
 - name: CHUNK
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 1243
+  line: 1272
   module: kuda
 - name: Cli
   kind: type
@@ -42,15 +42,20 @@ api:
   file: crates/kuda-cli/src/lib.rs
   line: 41
   module: kuda
+- name: FILE_CARD_GENERATOR
+  kind: const
+  file: crates/kuda-cli/src/lib.rs
+  line: 1277
+  module: kuda
 - name: FileCardJob
   kind: type
   file: crates/kuda-cli/src/lib.rs
-  line: 1210
+  line: 1239
   module: kuda
 - name: GENERATOR_VERSION
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 756
+  line: 760
   module: kuda
 - name: Kuda
   kind: type
@@ -65,37 +70,37 @@ api:
 - name: SKIP_BYTES
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 1245
+  line: 1274
   module: kuda
 - name: VERIFY_CAP
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 1506
+  line: 1561
   module: kuda
 - name: Wake
   kind: type
   file: crates/kuda-cli/src/lib.rs
-  line: 2349
+  line: 2404
   module: kuda
 - name: acp
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 2104
+  line: 2159
   module: kuda
 - name: acp_answer
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 2177
+  line: 2232
   module: kuda
 - name: acp_full_session
   kind: function
   file: crates/kuda-cli/tests/e2e.rs
-  line: 1295
+  line: 1347
   module: kuda
 - name: acp_store_error_path
   kind: function
   file: crates/kuda-cli/tests/e2e.rs
-  line: 1342
+  line: 1394
   module: kuda
 - name: acp_summarizer
   kind: function
@@ -110,12 +115,12 @@ api:
 - name: card
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 1768
+  line: 1823
   module: kuda
 - name: cat_file
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 1772
+  line: 1827
   module: kuda
 - name: config_flag_changes_root
   kind: function
@@ -135,12 +140,12 @@ api:
 - name: crate_doc_purpose
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 1425
+  line: 1480
   module: kuda
 - name: dependents
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 1845
+  line: 1900
   module: kuda
 - name: dependents_all_messages
   kind: function
@@ -150,12 +155,12 @@ api:
 - name: dependents_skips_self_import_edges
   kind: function
   file: crates/kuda-cli/tests/e2e.rs
-  line: 1726
+  line: 1778
   module: kuda
 - name: detect_commands
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 1550
+  line: 1605
   module: kuda
 - name: dispatch
   kind: function
@@ -170,7 +175,7 @@ api:
 - name: doctor
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 2209
+  line: 2264
   module: kuda
 - name: doctor
   kind: function
@@ -185,7 +190,7 @@ api:
 - name: domain_config_replace_and_disable
   kind: function
   file: crates/kuda-cli/tests/e2e.rs
-  line: 1859
+  line: 1911
   module: kuda
 - name: domain_module
   kind: function
@@ -197,12 +202,7 @@ api:
   file: crates/kuda-cli/src/lib.rs
   line: 209
   module: kuda
-- name: emit
-  kind: function
-  file: crates/kuda-cli/src/lib.rs
-  line: 25
-  module: kuda
-api_omitted: 95
+api_omitted: 97
 deps:
 - dagger-io
 - clap
@@ -249,6 +249,8 @@ deps:
 - asyncio
 - typing
 - dagger
+warnings:
+- 'acp: unparseable reply for kuda (agent monologue/garbage) — template fallback'
 notes: |
   - Sync uses Git-compatible blob hashes and card/store provenance to limit parsing and agent summarization to drift; `sync --full` discards the freshness baseline.
   - Module identity comes from manifest package names, while domain corpus files are grouped by their descriptors; dependency names are normalized and self-edges removed.
@@ -288,13 +290,13 @@ provenance:
   hashes:
   - 7b8ebc89d41a3b1d6631c54aa6f90f32852a9818
   - 2bcee5e009cd2a0d1dacb5b51d5dc526d8de435b
-  - b33dd3e81aaeac671563a574fd4d7fa2441ecd59
+  - 405081130346c371bb4e8d3eec92b94d762b0620
   - 5645c359f4cb7671d1ac62243ef2ebb34c10d46e
-  - 9010012edc1118b1dd0903b97d4554e4f0e2b5a5
+  - 02a224c8158bc703aada5f4da3e52649e451619c
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
   - 5b331a1baf30b49f5bf03dd9693297d498117deb
   - d71646b878b3eae72aa42a5791588701197fdb2d
   - 203086b883ed1477efd6f9befccd76e2614cc9ea
-  commit_sha: 4406b659ca5a3a26001f2c39ee90c9d2d99ff5d5
-  generated_at: '1794326943'
-  generator: kuda-acp/0.1.3
+  commit_sha: 003b0eaf25f75763a6865c1ec29e9a60e5da0bfb
+  generated_at: '1794330926'
+  generator: kuda-template/0.1.4

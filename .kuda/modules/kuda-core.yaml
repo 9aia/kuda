@@ -1,6 +1,6 @@
 name: kuda-core
 path: crates/kuda-core/Cargo.toml
-purpose: '`kuda-core` is the domain core — cards, symbols, edges, provenance, and the `kuda.toml` config model, with no ports and no integrations (its only deps are serde/serde_json/toml). It defines the memory-tier artifacts (`RepoCard` L0 always-load, `ModuleCard`/`FileCard` L1 on-demand, `Symbol`/`DepEdge` L2 graph), the `SymbolKind`/`EdgeKind` vocabularies, the `LangDef`/`DomainDef`/`Source` descriptors that make languages and record corpora data-not-code, and the serde config structs with their defaults.'
+purpose: '`kuda-core` is the domain-type crate — memory tiers (`RepoCard` L0, `ModuleCard`/`FileCard` L1, `Symbol`/`DepEdge` L2 graph), `Provenance` staleness data, `LangDef`/`DomainDef` data descriptors, and the full `deny_unknown_fields` `kuda.toml` `Config` model — with no ports or integrations.'
 api:
 - name: CardsCfg
   kind: type
@@ -231,6 +231,6 @@ provenance:
   hashes:
   - 858a2d26892b5f1150a8b4663f27d32c408f6e1d
   - 482271b070c98c8461c51eedd369a4d753e2176f
-  commit_sha: 78f32019bcc7240b818e9256d7d799345f9d47d1
-  generated_at: '1794324935'
-  generator: kuda-acp/0.1.3
+  commit_sha: 003b0eaf25f75763a6865c1ec29e9a60e5da0bfb
+  generated_at: '1794330926'
+  generator: kuda-acp/0.1.4

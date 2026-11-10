@@ -1,61 +1,76 @@
 name: kuda-acp
 path: crates/kuda-acp/Cargo.toml
-purpose: 'Summarizer adapter: spawns an ACP agent to write grounded module cards'
+purpose: '`kuda-acp` provides `AcpSummarizer`, the `kuda-summarize` adapter (kind `"acp"`) that spawns any ACP-capable agent binary via `sh -c`, reuses one `session/prompt` session across all modules, and asks it to write grounded `purpose:`/`notes:` card prose from extracted symbols and files; only the reply''s final structured block counts, `agent_thought_chunk` is dropped, `session/request_permission` is auto-granted, and empty/monologue/unparseable replies fail so the caller falls back to the template summarizer — raw agent output never reaches a committed card.'
 api:
 - name: AcpClient
   kind: type
   file: crates/kuda-acp/src/lib.rs
-  line: 62
+  line: 100
   module: kuda-acp
 - name: AcpSummarizer
   kind: type
   file: crates/kuda-acp/src/lib.rs
   line: 15
   module: kuda-acp
+- name: DebugSink
+  kind: type
+  file: crates/kuda-acp/src/lib.rs
+  line: 67
+  module: kuda-acp
 - name: ENV_LOCK
   kind: const
   file: crates/kuda-acp/src/lib.rs
-  line: 448
+  line: 512
   module: kuda-acp
 - name: MONOLOGUE_PREFIXES
   kind: const
   file: crates/kuda-acp/src/lib.rs
-  line: 240
+  line: 290
   module: kuda-acp
 - name: STUB
   kind: const
   file: crates/kuda-acp/src/lib.rs
-  line: 389
+  line: 453
   module: kuda-acp
 - name: complete
   kind: function
   file: crates/kuda-acp/src/lib.rs
   line: 36
   module: kuda-acp
+- name: debug_log
+  kind: function
+  file: crates/kuda-acp/src/lib.rs
+  line: 84
+  module: kuda-acp
+- name: debug_sink
+  kind: function
+  file: crates/kuda-acp/src/lib.rs
+  line: 72
+  module: kuda-acp
 - name: degenerate_reply_does_not_pollute_purpose
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 599
+  line: 664
   module: kuda-acp
 - name: error_response_and_agent_close
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 746
+  line: 811
   module: kuda-acp
 - name: ext
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 460
+  line: 524
   module: kuda-acp
 - name: garbage_lines_and_notifications_skipped
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 733
+  line: 798
   module: kuda-acp
 - name: kind
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 338
+  line: 388
   module: kuda-acp
 - name: kuda-acp
   kind: module
@@ -65,22 +80,22 @@ api:
 - name: last_paragraph
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 322
+  line: 372
   module: kuda-acp
 - name: looks_like_monologue
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 281
+  line: 331
   module: kuda-acp
 - name: monologue_detection_cases
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 686
+  line: 751
   module: kuda-acp
 - name: monologue_reply_fails_to_template_fallback
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 644
+  line: 709
   module: kuda-acp
 - name: new
   kind: function
@@ -90,82 +105,82 @@ api:
 - name: parse_card_body
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 198
+  line: 248
   module: kuda-acp
 - name: permission_and_unknown_requests_answered
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 719
+  line: 784
   module: kuda-acp
 - name: prompt_for
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 164
+  line: 214
   module: kuda-acp
 - name: prov
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 450
+  line: 514
   module: kuda-acp
 - name: reasoning_preamble_never_reaches_purpose
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 538
+  line: 603
   module: kuda-acp
 - name: request
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 96
+  line: 145
   module: kuda-acp
 - name: send
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 88
+  line: 136
   module: kuda-acp
 - name: spawn
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 70
+  line: 109
   module: kuda-acp
 - name: stub
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 426
+  line: 490
   module: kuda-acp
 - name: summarize
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 342
+  line: 392
   module: kuda-acp
 - name: summarize_full_card
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 476
+  line: 540
   module: kuda-acp
 - name: summarize_parsing_variants
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 499
+  line: 563
   module: kuda-acp
 - name: summarizer
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 440
+  line: 504
   module: kuda-acp
 - name: tests
   kind: module
   file: crates/kuda-acp/src/lib.rs
-  line: 383
+  line: 447
   module: kuda-acp
 - name: thought_chunks_are_dropped
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 572
+  line: 637
   module: kuda-acp
 - name: tmp
   kind: function
   file: crates/kuda-acp/src/lib.rs
-  line: 433
+  line: 497
   module: kuda-acp
 deps:
 - kuda-core
@@ -198,7 +213,7 @@ provenance:
   - crates/kuda-acp/src/lib.rs
   hashes:
   - 235538739af3a723c914cd6ede000fee3811ee2d
-  - 87e61913a93b5fe9a4d11832db30bbefd5721a69
-  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
-  generated_at: '1794291501'
-  generator: kuda-acp/0.1.3
+  - bf86a9fe694c97b2fd2ee2f75b56d46c0d50b404
+  commit_sha: 003b0eaf25f75763a6865c1ec29e9a60e5da0bfb
+  generated_at: '1794330926'
+  generator: kuda-acp/0.1.4

@@ -1,6 +1,6 @@
 name: kuda-cards
 path: crates/kuda-cards/Cargo.toml
-purpose: Card render — .kuda/index.yaml + modules/*.yaml
+purpose: '`kuda-cards` is the committed-artifact render layer: `render_repo_card`/`parse_repo_card`, `render_module_card`/`parse_module_card`, and `render_file_card`/`parse_file_card` round-trip `RepoCard`, `ModuleCard`, and `FileCard` domain types to/from `.kuda/*.yaml` via serde_yaml, while `carry_notes` preserves the human-owned `notes:` region across regeneration so machine field updates never overwrite human prose.'
 api:
 - name: carry_notes
   kind: function
@@ -91,6 +91,6 @@ provenance:
   - c2232432f5c2b51750ed9406059add07640caa15
   - dbcf902aab00436a4809ffd5ab16b463e5cf395c
   - b0b8add4ba3293bf9776cd510fddae17630ccd2c
-  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
-  generated_at: '1794291501'
-  generator: kuda-acp/0.1.3
+  commit_sha: 003b0eaf25f75763a6865c1ec29e9a60e5da0bfb
+  generated_at: '1794330926'
+  generator: kuda-acp/0.1.4
