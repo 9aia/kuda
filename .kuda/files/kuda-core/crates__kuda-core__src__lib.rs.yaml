@@ -1,6 +1,6 @@
 path: crates/kuda-core/src/lib.rs
 module: kuda-core
-purpose: kuda-core holds the integration-free domain types for the tiered memory model (ADR-0001) — L0 `RepoCard`, L1 `ModuleCard`/`FileCard`, L2 `Symbol`/`DepEdge`, all stamped with `Provenance` (files, hashes, commit sha, generator) so staleness is computed, never assumed. It also defines the `kuda.toml` config model (`Config` and its `Repo`/`Extract`/`Summarize`/`Store`/`Cards`/`Workspace` sections with defaults), the data-driven `LangDef`/`DomainDef` descriptors, and walk helpers (`default_excludes`, `dir_excluded`, `module_key`).
+purpose: Defines kuda’s integration-free domain model for provenance-bearing repository, module, and file cards, symbols, dependency edges, and language and record-corpus descriptors. It also models `kuda.toml`, including strict unknown-field rejection, extraction and summarization settings, storage and card paths, domain overrides, and workspace configuration. Defaults enable manifest, tree-sitter, and records extraction, deterministic template summaries, SQLite at `.kuda/index.sqlite`, committed cards under `.kuda`, and a shared set of walk exclusions.
 symbols:
 - ContentHash
 - Provenance
@@ -30,13 +30,13 @@ symbols:
 - CardsCfg
 - default
 - default_cards_dir
+- DomainsCfg
 - WorkspaceCfg
-- module_key
 provenance:
   files:
   - crates/kuda-core/src/lib.rs
   hashes:
-  - 949e75a8b15939611e7822a020793f3a67217b52
-  commit_sha: b973f17617cb703bf0d5693780790e689161dbed
-  generated_at: '1794286092'
+  - d85d228cb3c45631d13c61560dde1c733d267cec
+  commit_sha: 07787d26d99420340b1210795611606e746a5f73
+  generated_at: '1794288355'
   generator: kuda-acp/0.1.0

@@ -1,16 +1,16 @@
 name: kuda-core
 path: crates/kuda-core/Cargo.toml
-purpose: 'Integration-free domain core (deps: serde, serde_json, toml only) defining the tiered memory model — L0 `RepoCard`, L1 `ModuleCard`/`FileCard`, L2 `Symbol`/`DepEdge` — plus the `kuda.toml` config model (`Config` with `Repo`/`Extract`/`Summarize`/`Store`/`Cards`/`Workspace` sections) and the data-driven `LangDef`/`DomainDef` descriptors. Every card carries `Provenance` (files, hashes, commit sha, generated_at, generator) so drift is computed by `status`, never assumed.'
+purpose: 'kuda domain core: cards, symbols, edges, provenance — no ports, no integrations'
 api:
 - name: CardsCfg
   kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 367
+  line: 380
   module: kuda-core
 - name: Config
   kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 214
+  line: 219
   module: kuda-core
 - name: ContentHash
   kind: type
@@ -25,7 +25,12 @@ api:
 - name: DomainDef
   kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 173
+  line: 175
+  module: kuda-core
+- name: DomainsCfg
+  kind: type
+  file: crates/kuda-core/src/lib.rs
+  line: 406
   module: kuda-core
 - name: EdgeKind
   kind: type
@@ -35,7 +40,7 @@ api:
 - name: ExtractCfg
   kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 241
+  line: 254
   module: kuda-core
 - name: FileCard
   kind: type
@@ -65,17 +70,17 @@ api:
 - name: RepoCfg
   kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 231
+  line: 244
   module: kuda-core
 - name: StoreCfg
   kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 341
+  line: 354
   module: kuda-core
 - name: SummarizeCfg
   kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 303
+  line: 316
   module: kuda-core
 - name: Symbol
   kind: type
@@ -90,119 +95,114 @@ api:
 - name: WorkspaceCfg
   kind: type
   file: crates/kuda-core/src/lib.rs
-  line: 387
+  line: 419
   module: kuda-core
 - name: config_defaults_and_toml_parse
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 632
+  line: 664
   module: kuda-core
 - name: cycle_errors
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 520
+  line: 552
   module: kuda-core
 - name: default
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 288
+  line: 301
   module: kuda-core
 - name: default
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 324
+  line: 337
   module: kuda-core
 - name: default
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 350
+  line: 363
   module: kuda-core
 - name: default
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 374
+  line: 387
   module: kuda-core
 - name: default_cards_dir
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 381
+  line: 394
   module: kuda-core
 - name: default_excludes
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 259
+  line: 272
   module: kuda-core
 - name: default_extract_kinds
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 297
+  line: 310
   module: kuda-core
 - name: default_store_kind
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 358
+  line: 371
   module: kuda-core
 - name: default_store_path
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 361
+  line: 374
   module: kuda-core
 - name: default_summarize_kind
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 335
+  line: 348
   module: kuda-core
 - name: dep_root
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 421
+  line: 453
   module: kuda-core
 - name: dep_root_edge_cases
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 586
+  line: 618
   module: kuda-core
 - name: dep_root_per_language
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 533
+  line: 565
   module: kuda-core
 - name: dir_excluded
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 283
+  line: 296
   module: kuda-core
 - name: dir_excluded_builtin_and_extra
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 612
+  line: 644
   module: kuda-core
 - name: domain_types_serde_and_clone
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 679
+  line: 758
+  module: kuda-core
+- name: domains_cfg_parses_inline_descriptors
+  kind: function
+  file: crates/kuda-core/src/lib.rs
+  line: 714
   module: kuda-core
 - name: is_valid_sha
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 462
+  line: 494
   module: kuda-core
 - name: is_valid_sha_rules
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 600
+  line: 632
   module: kuda-core
-- name: is_zero
-  kind: function
-  file: crates/kuda-core/src/lib.rs
-  line: 456
-  module: kuda-core
-- name: kuda-core
-  kind: module
-  file: crates/kuda-core/Cargo.toml
-  line: 1
-  module: kuda-core
-api_omitted: 10
+api_omitted: 12
 deps:
 - serde
 - serde_json
@@ -230,7 +230,7 @@ provenance:
   - crates/kuda-core/src/lib.rs
   hashes:
   - 858a2d26892b5f1150a8b4663f27d32c408f6e1d
-  - 949e75a8b15939611e7822a020793f3a67217b52
-  commit_sha: b973f17617cb703bf0d5693780790e689161dbed
-  generated_at: '1794286092'
-  generator: kuda-acp/0.1.3
+  - d85d228cb3c45631d13c61560dde1c733d267cec
+  commit_sha: 07787d26d99420340b1210795611606e746a5f73
+  generated_at: '1794288355'
+  generator: kuda-template/0.1.3

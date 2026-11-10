@@ -1748,3 +1748,59 @@ fn workspace_union_edges_and_records() {
     std::fs::remove_dir_all(&a).ok();
     std::fs::remove_dir_all(&b).ok();
 }
+
+/// Repo-local domains: a `[[domain]]` entry whose `name` matches a
+/// built-in replaces it (repo wins) and `[domains].disable` drops
+/// one — the resolved set drives sync, find, card, and doctor.
+#[test]
+fn domain_config_replace_and_disable() {
+    let dir = tmp("domaincfg");
+    seed_py_repo(&dir);
+    // corpus reachable only via the repo-local `myco` replacement
+    mk_at(
+        &dir,
+        "ops/ledger/TODO.md",
+        "# ops\n\n- [ ] T-900 custom corpus\n",
+    );
+    // the built-in myco root — must NOT index once replaced
+    mk_at(&dir, "project/TODO.md", "# ledger\n\n- [ ] T-001 builtin\n");
+    // docs corpus — disabled
+    mk_at(&dir, "docs/guide.md", "# Guide\n\nmentions `app`\n");
+    mk_at(
+        &dir,
+        "kuda.toml",
+        "[extract]\nkinds = [\"manifest\", \"records\"]\n\n\
+         [domains]\ndisable = [\"docs\"]\n\n\
+         [[domain]]\nname = \"myco\"\nroots = [\"ops/ledger\"]\n\
+         extensions = [\".md\"]\nmodule = \"ops-ledger\"\n\
+         purpose = \"ops ledger\"\n\
+         record_patterns = [\"-\\\\s*(?:\\\\[[ xX]\\\\]\\\\s*)?([A-Z]+-[0-9]+)\"]\n\
+         ref_pattern = \"\\\\b[A-Z]+-[0-9]+\\\\b\"\n",
+    );
+    let out = kuda(&["sync"], &dir);
+    assert!(
+        out.status.success(),
+        "{:?}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    // replaced myco -> ops/ledger records index under ops-ledger
+    let out = kuda(&["find", "T-900"], &dir);
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    assert!(stdout.contains("ops/ledger/TODO.md"), "{stdout}");
+    let out = kuda(&["card", "ops-ledger"], &dir);
+    assert!(String::from_utf8_lossy(&out.stdout).contains("ops ledger"));
+    // the built-in `project` root no longer applies -> T-001 absent
+    let out = kuda(&["find", "T-001"], &dir);
+    assert_eq!(out.status.code(), Some(1));
+    let out = kuda(&["card", "project"], &dir);
+    assert_eq!(out.status.code(), Some(1));
+    // disabled docs -> no docs card
+    let out = kuda(&["card", "docs"], &dir);
+    assert_eq!(out.status.code(), Some(1));
+    // doctor lists the resolved set
+    let out = kuda(&["doctor"], &dir);
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    assert!(stdout.contains("domain myco"), "{stdout}");
+    assert!(!stdout.contains("domain docs"), "{stdout}");
+    std::fs::remove_dir_all(&dir).ok();
+}

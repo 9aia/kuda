@@ -27,6 +27,23 @@ path = ".kuda/index.sqlite"        # L2 graph — rebuildable, gitignored
 [cards]
 dir = ".kuda"                      # index.yaml + modules/*.yaml — committed
 
+[domains]
+# disable = ["media"]              # drop built-in corpora by name
+                                   # (built-ins: myco, docs, media)
+
+# [[domain]]                       # repo-local corpus — or same
+# name = "myco"                    # name as a built-in to replace it
+# roots = ["ops/project"]
+# extensions = [".md"]
+# module = "ops-ledger"            # card + provenance grouping
+# purpose = "ops ledger"
+# record_patterns = ['-\s*(?:\[[ xX]\]\s*)?([A-Z]+-[0-9]+)']
+# ref_pattern = '\b[A-Z]+-[0-9]+\b'
+# schema_json = ''' {...} '''      # optional JSON Schema for
+                                  # frontmatter records
+# file_records = true              # optional: file-as-record mode
+                                  # (binaries — no patterns needed)
+
 [workspace]
 # roots = ["../cli", "../lsp"]     # sibling repos indexed together
 # resolve_git_deps = true          # git deps -> sibling checkouts

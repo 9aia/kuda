@@ -169,7 +169,9 @@ pub struct LangDef {
 /// The `records` extractor turns descriptor regexes into
 /// [`SymbolKind::Record`] symbols and [`EdgeKind::References`]
 /// edges; a new corpus is a data change, not an engine change.
+/// Also the `[[domain]]` inline-descriptor shape in `kuda.toml`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct DomainDef {
     pub name: String,
     /// Corpus dirs relative to the repo root ("project"). Declared
@@ -187,7 +189,10 @@ pub struct DomainDef {
     /// Regexes matched per line; capture group 1 is the record id.
     /// First match line pins the `Symbol` location. Covers both
     /// frontmatter (`id = "T-001"`) and checklist (`- [ ] T-001`)
-    /// records — the pattern is the format knowledge.
+    /// records — the pattern is the format knowledge. Optional:
+    /// `file_records` descriptors emit a record per file and never
+    /// scan text.
+    #[serde(default)]
     pub record_patterns: Vec<String>,
     /// Regex over file text — every match is a dep-edge target for
     /// the file's records (same-line scope when a file holds
@@ -222,6 +227,14 @@ pub struct Config {
     pub store: StoreCfg,
     #[serde(default)]
     pub cards: CardsCfg,
+    #[serde(default)]
+    pub domains: DomainsCfg,
+    /// `[[domain]]` inline domain descriptors — same shape as
+    /// `data/domains/*`. A `name` matching a built-in replaces it
+    /// (repo wins); others append. `[domains] domain` is the nested
+    /// equivalent — both feed the resolved set.
+    #[serde(default)]
+    pub domain: Vec<DomainDef>,
     #[serde(default)]
     pub workspace: WorkspaceCfg,
 }
@@ -380,6 +393,25 @@ impl Default for CardsCfg {
 
 fn default_cards_dir() -> PathBuf {
     ".kuda".into()
+}
+
+/// Repo-local domain overrides — `disable` drops built-in
+/// descriptors by `name`; `domain` entries (usually written as the
+/// top-level `[[domain]]` array, see [`Config::domain`]) add a
+/// corpus or replace a same-named built-in — the repo wins.
+/// Resolution is deterministic: built-ins -> minus `disable` ->
+/// overlaid with `domain` entries, in declared order.
+#[derive(Debug, Deserialize, Clone, Default)]
+#[serde(deny_unknown_fields)]
+pub struct DomainsCfg {
+    /// Built-in domain names to skip ("myco", "docs", "media").
+    #[serde(default)]
+    pub disable: Vec<String>,
+    /// Inline descriptors nested as `[[domains.domain]]` — the flat
+    /// `[[domain]]` spelling ([`Config::domain`]) is the canonical
+    /// form; both merge in declared order.
+    #[serde(default)]
+    pub domain: Vec<DomainDef>,
 }
 
 #[derive(Debug, Deserialize, Clone, Default)]
@@ -673,6 +705,53 @@ resolve_git_deps = true
         // deny_unknown_fields
         assert!(toml::from_str::<super::Config>("[bogus]\nx = 1").is_err());
         assert!(toml::from_str::<super::Config>("[extract]\nbogus = 1").is_err());
+    }
+
+    /// `[domains]` — `disable` names + inline `[[domain]]`
+    /// descriptors parse straight into `DomainDef` (the same shape
+    /// `data/domains/*` carries).
+    #[test]
+    fn domains_cfg_parses_inline_descriptors() {
+        let t = r#"
+[domains]
+disable = ["myco", "media"]
+
+[[domain]]
+name = "ops"
+roots = ["ops/project"]
+extensions = [".md"]
+module = "ops-ledger"
+purpose = "ops ledger"
+record_patterns = ["-\\s*(?:\\[[ xX]\\]\\s*)?([A-Z]+-[0-9]+)"]
+ref_pattern = "\\b[A-Z]+-[0-9]+\\b"
+
+[[domains.domain]]
+name = "assets2"
+roots = ["assets"]
+extensions = [".png"]
+module = "assets"
+file_records = true
+"#;
+        let c: super::Config = toml::from_str(t).unwrap();
+        assert_eq!(c.domains.disable, vec!["myco", "media"]);
+        // flat [[domain]] and nested [[domains.domain]] both land
+        assert_eq!(c.domain.len(), 1);
+        assert_eq!(c.domains.domain.len(), 1);
+        let d = &c.domain[0];
+        assert_eq!(d.name, "ops");
+        assert_eq!(d.module, "ops-ledger");
+        assert_eq!(d.roots, vec![std::path::PathBuf::from("ops/project")]);
+        assert_eq!(d.record_patterns.len(), 1);
+        assert_eq!(d.ref_pattern.as_deref(), Some("\\b[A-Z]+-[0-9]+\\b"));
+        assert!(!d.file_records);
+        assert!(c.domains.domain[0].file_records);
+        // defaults stay empty
+        assert!(super::Config::default().domain.is_empty());
+        // unknown keys inside a [[domain]] entry are rejected
+        assert!(toml::from_str::<super::Config>(
+            "[[domain]]\nname = \"x\"\nroots = []\nextensions = []\nmodule = \"m\"\nrecord_patterns = []\nbogus = 1"
+        )
+        .is_err());
     }
 
     #[test]

@@ -203,6 +203,25 @@ fn domains() -> Vec<DomainDef> {
         .collect()
 }
 
+/// The effective domain set for a config: built-ins minus
+/// `[domains].disable` names, then `[[domain]]` entries overlaid —
+/// a same-named entry replaces the built-in (repo wins), the rest
+/// append. Deterministic; `domains()` stays the bare built-ins for
+/// tests/defaults.
+fn resolve_domains(cfg: &Config) -> Vec<DomainDef> {
+    let mut doms: Vec<DomainDef> = domains()
+        .into_iter()
+        .filter(|d| !cfg.domains.disable.iter().any(|n| n == &d.name))
+        .collect();
+    for d in cfg.domains.domain.iter().chain(&cfg.domain) {
+        match doms.iter_mut().find(|b| b.name == d.name) {
+            Some(slot) => *slot = d.clone(),
+            None => doms.push(d.clone()),
+        }
+    }
+    doms
+}
+
 /// git blob hash — provenance key. In-process sha1
 /// ("blob <len>\0" + bytes): identical values to
 /// `git hash-object`, no subprocess per file.
@@ -305,7 +324,7 @@ fn sync(cli: &Cli, full: bool) -> i32 {
                 .map(|e| e.symbols.into_iter().map(|s| s.module).collect::<Vec<_>>())
                 .unwrap_or_default()
             })
-            .chain(domains().iter().map(|d| d.module.clone()))
+            .chain(resolve_domains(&cfg).iter().map(|d| d.module.clone()))
             .collect()
     } else {
         Default::default()
@@ -510,7 +529,7 @@ fn sync_one(
     union: &std::collections::HashSet<String>,
 ) -> i32 {
     let langs = langs();
-    let doms = domains();
+    let doms = resolve_domains(cfg);
     let (manifest_list, manifest_names, src_exts) = walk_sets(&langs);
 
     // --- manifest pass first (cheap): package names decide module
@@ -1627,7 +1646,7 @@ fn status(cli: &Cli) -> i32 {
                     &manifest_names,
                     &src_exts,
                     &std::collections::HashMap::new(),
-                    &domains(),
+                    &resolve_domains(&cfg),
                 );
                 if tree_digest(&filehash) != l0.tree_digest {
                     outln!(
@@ -1642,7 +1661,7 @@ fn status(cli: &Cli) -> i32 {
     // domain corpus validity — schema'd records vs descriptors.
     // Warnings name the file; absent corpus/schema = silent skip.
     if cfg.extract.kinds.iter().any(|k| k == "records") {
-        if let Ok(ws) = kuda_records::validate(&dir, &domains(), &cfg.extract.exclude) {
+        if let Ok(ws) = kuda_records::validate(&dir, &resolve_domains(&cfg), &cfg.extract.exclude) {
             for w in &ws {
                 outln!("invalid  {}: {}", w.file.display(), w.message);
             }
@@ -2106,21 +2125,27 @@ fn acp_answer(dir: &Path, cfg: &Config, prompt: &str) -> String {
 fn doctor(cli: &Cli) -> i32 {
     let dir = root(cli);
     outln!("kuda doctor");
-    match (TomlSource {
+    let cfg = match (TomlSource {
         path: cli.config.clone(),
     })
     .load()
     {
-        Ok(c) => outln!(
-            "  config   ok  (extract: {:?}, summarize: {}, store: {})",
-            c.extract.kinds,
-            c.summarize.kind,
-            c.store.kind
-        ),
-        Err(e) => outln!("  config   --  {e}"),
-    }
+        Ok(c) => {
+            outln!(
+                "  config   ok  (extract: {:?}, summarize: {}, store: {})",
+                c.extract.kinds,
+                c.summarize.kind,
+                c.store.kind
+            );
+            c
+        }
+        Err(e) => {
+            outln!("  config   --  {e}");
+            Config::default()
+        }
+    };
     outln!("  adapters    manifest, treesitter, lsp, records, template, sqlite (llm pending)");
-    for d in domains() {
+    for d in resolve_domains(&cfg) {
         let health = match kuda_records::check(&d) {
             Ok(()) => "ok".to_owned(),
             Err(e) => format!("BAD — {e}"),
