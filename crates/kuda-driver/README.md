@@ -64,14 +64,17 @@ manifest — the engine's verb table as JSON:
 
 | wire query | kuda op | params | mutates |
 | --- | --- | --- | --- |
-| `cli.sync` | `sync` | `full`, `workspace` | yes |
-| `cli.status` | `status` | — | no |
-| `cli.map` | `map` | — | no |
-| `cli.card` | `card` | `module` | no |
-| `cli.find` | `find` | `symbol`, `workspace` | no |
-| `cli.dependents` | `dependents` | `name`, `workspace` | no |
-| `cli.refs` | `refs` | `name`, `docs`, `workspace` | no |
-| `cli.doctor` | `doctor` | — | no |
+| `cli.sync` | `sync` | `full`(flag), `workspace`(flag), `config`(opt) | yes |
+| `cli.status` | `status` | `workspace`(flag), `config`(opt) | no |
+| `cli.map` | `map` | `workspace`(flag), `config`(opt) | no |
+| `cli.card` | `card` | `module`(arg), `workspace`(flag), `config`(opt) | no |
+| `cli.find` | `find` | `symbol`(arg), `workspace`(flag), `config`(opt) | no |
+| `cli.dependents` | `dependents` | `name`(arg), `workspace`(flag), `config`(opt) | no |
+| `cli.refs` | `refs` | `name`(arg), `docs`(flag), `workspace`(flag), `config`(opt) | no |
+| `cli.doctor` | `doctor` | `workspace`(flag), `config`(opt) | no |
+
+Params are typed (`arg` = positional, `opt` = `--name [v]`, `flag` =
+`--name` bool) — the contract surface drivers generate args from.
 
 Each `cli.*` query re-execs `tamias-driver-kuda run <argv>` with the
 resolved repo root as cwd — `kuda::dispatch` writes to the child's
@@ -81,8 +84,17 @@ engine's own exit status (`ok:false` is reserved for spawn
 failures). `tamias-driver-kuda run <argv>` is also a human
 passthrough — `run sync --full` ≡ `kuda sync --full`.
 
-`watch`/`mcp`/`acp` are deliberately not ops — they never return and
-belong to surface drivers (`tamias-driver-cli` / `-mcp`, follow-up).
+`watch`/`mcp`/`acp` are deliberately not ops — they never return.
+They ride the manifest's `surfaces` list instead, which surface
+drivers render as streaming subcommands. Two ways to reach them:
+
+- **Standalone surface drivers** (pavo): `tamias-driver-cli kuda
+  find parse`, `tamias-driver-mcp kuda` — discovery + dispatch over
+  the wire, no kuda feature needed.
+- **Embedded features** here: build with `--features cli,mcp` and
+  `tamias-driver-kuda cli find parse` / `tamias-driver-kuda mcp`
+  serve the same ops in-process. Optional, never required — the
+  default build stays a view driver + `run` passthrough.
 
 ## Contributes
 
@@ -94,9 +106,13 @@ to the drift view rather than rendering "N stale" inline.
 ## Layout
 
 - `src/main.rs` — argv verbs (`manifest`, `capabilities`, `ops`,
-  `run`, `serve`) + the ndjson dispatch loop.
-- `src/ops.rs` — the engine ops manifest + `cli.*` dispatch (re-exec
-  `run`, captured output → `{code, stdout, stderr}`).
+  `run`, `serve`, plus feature-gated `cli`/`mcp`) + the ndjson
+  dispatch loop.
+- `src/surface.rs` — the driver's `Surface` impl for embedded
+  surfaces (feature `cli`/`mcp`): `op` → `ops::run_op`, `surface` →
+  in-process `kuda::dispatch`.
+- `src/ops.rs` — the engine ops manifest (typed params) + `cli.*`
+  dispatch (re-exec `run`, captured output → `{code, stdout, stderr}`).
 - `src/repo.rs` — root resolution, `kuda.toml` config, card
   parsing, `kuda status`-equivalent drift.
 - `src/queries.rs` — query-name → payload implementations.

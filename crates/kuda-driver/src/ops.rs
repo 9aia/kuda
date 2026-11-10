@@ -8,13 +8,34 @@
 //!
 //! `ops` answers the manifest table below as JSON. Long-running
 //! surfaces (`watch`, `mcp`, `acp`) are deliberately *not* ops —
-//! they never return; they belong to surface drivers
-//! (tamias-driver-cli / -mcp are follow-ups), not request/response
-//! wires.
+//! they never return, so they stay out of the request/response wire.
+//! They live in the manifest's `surfaces` list instead: surface
+//! drivers (tamias-driver-cli / -mcp, the pavo-driver-kit `surface`
+//! layer) expose them as streaming subcommands —
+//! `tamias-driver-kuda cli watch` ≡ `kuda watch`.
 
 use pavo_protocol::wire::{QueryResult, Response};
 use serde_json::{json, Map, Value};
 use std::path::Path;
+
+/// One op param, typed the way `pavo-driver-kit`'s surface layer
+/// spells it: `arg` = positional, `opt` = `--name [v]`, `flag` =
+/// `--name` bool. (Bare-string params in a manifest read as `opt` —
+/// typed entries are what let generated surfaces not guess.)
+struct Param {
+    name: &'static str,
+    kind: &'static str,
+}
+
+const fn arg(name: &'static str) -> Param {
+    Param { name, kind: "arg" }
+}
+const fn opt(name: &'static str) -> Param {
+    Param { name, kind: "opt" }
+}
+const fn flag(name: &'static str) -> Param {
+    Param { name, kind: "flag" }
+}
 
 /// One engine verb in the ops manifest.
 struct Op {
@@ -22,8 +43,9 @@ struct Op {
     name: &'static str,
     /// One-line doc — mirrors the clap subcommand's help.
     doc: &'static str,
-    /// Wire params the op reads (positional args + flags).
-    params: &'static [&'static str],
+    /// Wire params the op reads (positional args + flags); `workspace`
+    /// and `config` are the engine's globals, accepted by every op.
+    params: &'static [Param],
     /// `true` when the op writes `.kuda/` — mutators belong behind a
     /// deliberate trigger, not ambient view polling.
     mutates: bool,
@@ -34,55 +56,57 @@ const OPS: &[Op] = &[
     Op {
         name: "sync",
         doc: "incremental index (hash -> extract -> summarize -> store)",
-        params: &["full", "workspace"],
+        params: &[flag("full"), flag("workspace"), opt("config")],
         mutates: true,
     },
     Op {
         name: "status",
         doc: "per-card provenance drift vs HEAD",
-        params: &[],
+        params: &[flag("workspace"), opt("config")],
         mutates: false,
     },
     Op {
         name: "map",
         doc: "L0 repo card — the always-load blob",
-        params: &[],
+        params: &[flag("workspace"), opt("config")],
         mutates: false,
     },
     Op {
         name: "card",
         doc: "module card + freshness",
-        params: &["module"],
+        params: &[arg("module"), flag("workspace"), opt("config")],
         mutates: false,
     },
     Op {
         name: "find",
         doc: "symbol -> file:line",
-        params: &["symbol", "workspace"],
+        params: &[arg("symbol"), flag("workspace"), opt("config")],
         mutates: false,
     },
     Op {
         name: "dependents",
         doc: "reverse dep lookup — impact analysis",
-        params: &["name", "workspace"],
+        params: &[arg("name"), flag("workspace"), opt("config")],
         mutates: false,
     },
     Op {
         name: "refs",
         doc: "code + docs mentions — the doc-sweep",
-        params: &["name", "docs", "workspace"],
+        params: &[arg("name"), flag("docs"), flag("workspace"), opt("config")],
         mutates: false,
     },
     Op {
         name: "doctor",
         doc: "extractor/store/config health",
-        params: &[],
+        params: &[flag("workspace"), opt("config")],
         mutates: false,
     },
 ];
 
 /// The `ops` query/`ops` argv verb payload — self-describing so
 /// hosts and agents discover the engine surface without argv help.
+/// `params` are typed (`{name, kind: arg|opt|flag}`) — the contract
+/// surface drivers consume to render args without guessing.
 pub fn manifest() -> Value {
     json!({
         "engine": "kuda",
@@ -90,7 +114,10 @@ pub fn manifest() -> Value {
         "ops": OPS.iter().map(|o| json!({
             "query": format!("cli.{}", o.name),
             "doc": o.doc,
-            "params": o.params,
+            "params": o.params.iter().map(|p| json!({
+                "name": p.name,
+                "kind": p.kind,
+            })).collect::<Vec<_>>(),
             "mutates": o.mutates,
         })).collect::<Vec<_>>(),
         "surfaces": ["watch", "mcp", "acp"],
@@ -222,6 +249,12 @@ mod tests {
         for (i, o) in OPS.iter().enumerate() {
             assert_eq!(ops[i]["query"], json!(format!("cli.{}", o.name)));
             assert_eq!(ops[i]["mutates"], json!(o.mutates));
+            // params ride typed ({name, kind: arg|opt|flag}) — the
+            // contract surface drivers render args from.
+            for p in ops[i]["params"].as_array().unwrap() {
+                assert!(["arg", "opt", "flag"].contains(&p["kind"].as_str().unwrap()));
+            }
         }
+        assert_eq!(m["surfaces"], json!(["watch", "mcp", "acp"]));
     }
 }

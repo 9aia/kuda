@@ -5,7 +5,15 @@
 //! — the same `{"op":…}` / `{"ok":…,"result"|"error":…}` shape every
 //! sibling `serve` speaks (see `pavo/crates/pavo-protocol/src/wire.rs`).
 //! Also answers the discovery verbs `manifest` and `capabilities` as
-//! plain argv.
+//! plain argv, plus `ops` (the engine ops manifest) and `run`
+//! (engine passthrough).
+//!
+//! Optional surfaces: features `cli`/`mcp` embed pavo-driver-kit's
+//! surface layer — `cli <op> [args]` is a generated CLI over the ops
+//! manifest (`watch`/`mcp`/`acp` ride as streaming subcommands),
+//! `mcp` serves the ops as MCP tools on stdio. Both are equivalent
+//! to the standalone `tamias-driver-cli`/`tamias-driver-mcp` surface
+//! drivers, minus the PATH/discovery hop.
 //!
 //! Repo context: views/queries are read-only — the driver never
 //! opens `.kuda/index.sqlite` for writing. Engine ops are the
@@ -23,6 +31,8 @@
 mod ops;
 mod queries;
 mod repo;
+#[cfg(any(feature = "cli", feature = "mcp"))]
+mod surface;
 mod views;
 
 use pavo_driver_kit as kit;
@@ -56,9 +66,36 @@ fn main() {
             let argv = std::iter::once("kuda".to_string()).chain(args.iter().skip(1).cloned());
             std::process::exit(kuda::dispatch(&kuda::parse_from(argv)));
         }
+        // Embedded surface verbs (feature-gated, optional): the
+        // pavo-driver-kit surface layer renders this driver's own
+        // ops manifest — `cli` = generated clap CLI (op → subcommand,
+        // `cli watch` streams), `mcp` = ops → MCP tools over stdio.
+        // The standalone tamias-driver-cli/-mcp binaries do the same
+        // over process dispatch; these verbs need nothing on PATH.
+        #[cfg(feature = "cli")]
+        Some("cli") => {
+            let m = kit::surface::OpsManifest::from_value(&ops::manifest()).unwrap_or_default();
+            let argv: Vec<String> = std::iter::once("kuda".to_string())
+                .chain(args.iter().skip(1).cloned())
+                .collect();
+            kit::surface::cli::run("kuda", &m, &argv, &mut surface::Engine)
+        }
+        #[cfg(feature = "mcp")]
+        Some("mcp") => {
+            let m = kit::surface::OpsManifest::from_value(&ops::manifest()).unwrap_or_default();
+            match kit::surface::mcp::serve_stdio(&m, &mut surface::Engine) {
+                Ok(()) => 0,
+                Err(e) => {
+                    eprintln!("tamias-driver-kuda mcp: {e}");
+                    1
+                }
+            }
+        }
         Some("serve") | None => serve(),
         _ => {
-            eprintln!("usage: tamias-driver-kuda manifest|capabilities|ops|run <argv>|serve");
+            eprintln!(
+                "usage: tamias-driver-kuda manifest|capabilities|ops|run <argv>|serve\n       (feature `cli` adds `cli <op> [args]`; feature `mcp` adds `mcp`)"
+            );
             1
         }
     };
