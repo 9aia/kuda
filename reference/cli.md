@@ -34,7 +34,7 @@ A hippocampus for your codebase — repo memory: index, query, verify
 * `find` — Symbol -> file:line
 * `dependents` — Reverse dep lookup — impact analysis
 * `refs` — Code + docs/comments mentions — the doc-sweep query
-* `watch` — Watch the repo — fs events trigger incremental syncs (debounced; only changed modules re-summarize)
+* `watch` — Watch the repo — fs events trigger incremental syncs (debounced; only changed modules re-summarize). Domain corpus roots are watched explicitly, so record writes (myco verbs, doc edits) re-index like code writes
 * `mcp` — Serve the index over MCP (stdio)
 * `acp` — Speak ACP — Agent Client Protocol surface for any agent client (zed, cline, cursor)
 * `doctor` — Extractor/store/config health
@@ -136,9 +136,13 @@ Code + docs/comments mentions — the doc-sweep query
 
 ## `kuda watch`
 
-Watch the repo — fs events trigger incremental syncs (debounced; only changed modules re-summarize)
+Watch the repo — fs events trigger incremental syncs (debounced; only changed modules re-summarize). Domain corpus roots are watched explicitly, so record writes (myco verbs, doc edits) re-index like code writes
 
-**Usage:** `kuda watch`
+**Usage:** `kuda watch [OPTIONS]`
+
+###### **Options:**
+
+* `--poll-refs <SECS>` — Also poll non-tree domain sources every N seconds. Git refs (refs/sturn/*) produce no fs events a watcher can use — a moved/new/deleted ref fingerprint triggers the same debounced sync
 
 
 

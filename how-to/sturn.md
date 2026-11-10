@@ -48,6 +48,20 @@ Point agents at sturn's MCP surface in their rules:
   correct either way.
 ```
 
+## Watching the WAL
+
+WAL refs aren't files — a `git update-ref` lands inside `.git`,
+which `kuda watch` filters out on purpose. If you want ref moves
+to trigger a re-index, give the watcher a poll interval:
+
+```console
+$ kuda watch --poll-refs 30   # check refs/sturn/* every 30s
+```
+
+The poll fingerprints each non-tree domain's inputs
+(`refs/sturn/*` -> head sha); a moved, new, or deleted ref runs
+the same debounced sync a file write would.
+
 ## Why additive, not exclusive
 
 The WAL is ground truth *only* for writes that flowed through it.
