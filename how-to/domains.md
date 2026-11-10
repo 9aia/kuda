@@ -37,8 +37,9 @@ ref_pattern = "\\b[A-Z]+-[0-9]+\\b"
 
 | field             | controls                                              |
 | ----------------- | ----------------------------------------------------- |
-| `roots`           | dirs walked for records — worktree `.git`-file markers don't stop declared roots |
-| `extensions`      | which files are scanned                               |
+| `roots`           | dirs walked for records — worktree `.git`-file markers don't stop declared roots (omit for non-tree sources) |
+| `extensions`      | which files are scanned (unused by non-tree sources)  |
+| `source`          | non-tree corpus location — see [Non-tree sources](#non-tree-sources) |
 | `module`          | the card the corpus gets (`kuda card <module>`)        |
 | `purpose`         | card purpose (domain modules have no manifest/README) |
 | `record_patterns` | per-line regexes; capture group 1 = the record id     |
@@ -76,9 +77,59 @@ resolution set is the **union of all roots' modules**: repo A's
 module. One graph, federated stores — queries already merge
 across roots, so cross-repo edges answer normally.
 
-Shipped descriptors: `myco` (`project/` worktrees) and `docs`
+Shipped descriptors: `myco` (`project/` worktrees), `docs`
 (`docs/` markdown — H1 headings as records, backticked
-identifiers as edges).
+identifiers as edges), `media` (`file_records` mode — a record
+per binary file), and `sturn` (non-tree — the coordination WAL
+in git refs).
+
+## Non-tree sources
+
+A corpus doesn't have to live in the file tree. `[source]`
+declares a non-filesystem corpus; today that's `sturn-wal` —
+sturn's coordination WAL in git refs (`data/domains/sturn.toml`):
+
+```toml
+name = "sturn"
+module = "sturn-wal"
+purpose = "sturn coordination WAL — claims, writes, snaps, review events in refs/sturn/*"
+
+record_patterns = ['"record":\s*"([^"]+)"']
+ref_pattern = '"(?:path|from|to|glob|subject|event|ask|actor|ws)":\s*"([^"]+)"'
+
+# [source] must come LAST: TOML nests every key after a table
+# header inside that table, so a misplaced [source] would swallow
+# the patterns into itself.
+[source]
+type = "sturn-wal"
+ref_prefix = "refs/sturn"        # wal + archive refs
+```
+
+sturn keeps one ref per workspace — `refs/sturn/wal/<ws>`
+(archives at `refs/sturn/archive/<ws>` on compaction) — each a
+chain of commits whose tree holds one `event.json`. The
+`records` extractor reads each ref as a **virtual JSONL file**:
+one event per line, the ref name as `Symbol.file`, the event's
+position as `Symbol.line`. The ordinary per-line record/edge
+scan then applies unchanged — a WAL ref is just a multi-record
+file that happens not to exist on disk.
+
+Two fields are injected into each event line before scanning:
+`seq` (1-based entry offset) and `record` — the queryable id
+`<actor>:<op>@<ws>#<id8>` (`id8` = event/commit hash, stable
+across compaction; `seq` is not). The descriptor's
+`record_patterns` captures `record`, so `kuda find luis`,
+`kuda find claim`, and `kuda find devin-wal-corpus` all land on
+events, while `ref_pattern` edges each event to its payload —
+`kuda dependents luis` lists an actor's ops, `kuda dependents
+"crates/*"` finds claims on a glob.
+
+Incremental sync works because each ref is registered as a
+module input whose "content hash" is the ref's head sha: a
+moved ref diffs exactly like a file write. A repo without
+matching refs gets no module and no work — silent skip, same
+as an absent corpus dir; `kuda doctor` reports `sturn` with
+`(corpus absent)` there.
 
 ## Schema validation
 
@@ -120,8 +171,10 @@ Point `roots` at any dir of uniform-format record files, write a
 `ref_pattern` to match that id shape. For a shared built-in, ship
 it as a `data/domains/*.toml` and add it to `DOMAIN_TOMLS` in
 `crates/kuda-cli/src/lib.rs`. For a repo-local corpus, declare it
-in `kuda.toml` instead — no engine change needed. Non-tree
-sources (git refs, sqlite) remain deferred — see ADR-0003.
+in `kuda.toml` instead — no engine change needed. For a corpus
+that isn't files at all, declare a `[source]` (see
+[Non-tree sources](#non-tree-sources)) — new source types are an
+engine change, new corpora of an existing type are data.
 
 ## Repo-local descriptors and disabling built-ins
 
