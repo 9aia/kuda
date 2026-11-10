@@ -15,9 +15,9 @@ path = "src/main.rs"
 [dependencies]
 kuda-core.workspace = true
 kuda-extract.workspace = true
-kuda-manifest.workspace = true
-kuda-treesitter.workspace = true
-kuda-lsp.workspace = true
+kuda-extract-manifest.workspace = true
+kuda-extract-treesitter.workspace = true
+kuda-extract-lsp.workspace = true
 kuda-records.workspace = true
 kuda-acp.workspace = true
 kuda-store.workspace = true

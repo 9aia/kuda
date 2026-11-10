@@ -1,6 +1,6 @@
-path: crates/kuda-manifest/src/lib.rs
-module: kuda-manifest
-purpose: crates/kuda-manifest/src/lib.rs
+path: crates/kuda-extract-manifest/src/lib.rs
+module: kuda-extract-manifest
+purpose: crates/kuda-extract-manifest/src/lib.rs
 symbols:
 - ManifestExtractor
 - kind
@@ -29,9 +29,9 @@ symbols:
 - cargo_git_dep_flag_off_keeps_key
 provenance:
   files:
-  - crates/kuda-manifest/src/lib.rs
+  - crates/kuda-extract-manifest/src/lib.rs
   hashes:
   - 0d34a7c287454dbd2c0fdd755319b08772f2ace5
-  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
-  generated_at: '1794291501'
-  generator: kuda-acp/0.1.0
+  commit_sha: 15708d4424106e52b588fff808de91984521c168
+  generated_at: '1794324811'
+  generator: kuda-template/0.1.3

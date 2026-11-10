@@ -213,16 +213,16 @@ deps:
 - kuda-config-toml
 - kuda-core
 - kuda-extract
+- kuda-extract-lsp
+- kuda-extract-manifest
+- kuda-extract-treesitter
 - kuda-git
-- kuda-lsp
-- kuda-manifest
 - kuda-query
 - kuda-records
 - kuda-store
 - kuda-store-sqlite
 - kuda-summarize
 - kuda-template
-- kuda-treesitter
 - kuda-vcs
 - notify
 - serde_json
@@ -286,15 +286,15 @@ provenance:
   - modules/dagger/dagger/src/kuda/main.py
   - modules/dagger/tests/test_self_patch.py
   hashes:
-  - c3184dac8ad2da15cc385ecde5428494921263ce
-  - df73801e3fe8951fa21666324282a49c5ecab47a
-  - 2d1543e012bd2cdaa33cf6dbbc30c303ae8c1e25
+  - 7b8ebc89d41a3b1d6631c54aa6f90f32852a9818
+  - 2bcee5e009cd2a0d1dacb5b51d5dc526d8de435b
+  - 9b451d8828f66070f0a16cca14e2dceac9ccc286
   - 5645c359f4cb7671d1ac62243ef2ebb34c10d46e
   - 7f30f4c17404777293fa7e6f779b2dfa1b63e4b1
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
   - 5b331a1baf30b49f5bf03dd9693297d498117deb
   - d71646b878b3eae72aa42a5791588701197fdb2d
   - 203086b883ed1477efd6f9befccd76e2614cc9ea
-  commit_sha: 35a7996a327c17a42c84b960d9856f68ba419e7a
-  generated_at: '1794324196'
+  commit_sha: 15708d4424106e52b588fff808de91984521c168
+  generated_at: '1794324597'
   generator: kuda-template/0.1.3

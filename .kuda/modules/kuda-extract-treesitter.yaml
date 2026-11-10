@@ -1,0 +1,134 @@
+name: kuda-extract-treesitter
+path: crates/kuda-extract-treesitter/Cargo.toml
+purpose: 'Extract adapter: tree-sitter grammar+query data -> symbols + import edges'
+api:
+- name: DEFAULT_RUST_QUERY
+  kind: const
+  file: crates/kuda-extract-treesitter/src/lib.rs
+  line: 35
+  module: kuda-extract-treesitter
+- name: TreesitterExtractor
+  kind: type
+  file: crates/kuda-extract-treesitter/src/lib.rs
+  line: 15
+  module: kuda-extract-treesitter
+- name: dep_query_aux_capture_and_unknown_kind
+  kind: function
+  file: crates/kuda-extract-treesitter/src/lib.rs
+  line: 394
+  module: kuda-extract-treesitter
+- name: extract
+  kind: function
+  file: crates/kuda-extract-treesitter/src/lib.rs
+  line: 115
+  module: kuda-extract-treesitter
+- name: extract_filtered
+  kind: function
+  file: crates/kuda-extract-treesitter/src/lib.rs
+  line: 121
+  module: kuda-extract-treesitter
+- name: extract_filtered_and_fallback_module
+  kind: function
+  file: crates/kuda-extract-treesitter/src/lib.rs
+  line: 321
+  module: kuda-extract-treesitter
+- name: extract_inner
+  kind: function
+  file: crates/kuda-extract-treesitter/src/lib.rs
+  line: 132
+  module: kuda-extract-treesitter
+- name: extract_symbols_edges_and_module_names
+  kind: function
+  file: crates/kuda-extract-treesitter/src/lib.rs
+  line: 260
+  module: kuda-extract-treesitter
+- name: kind
+  kind: function
+  file: crates/kuda-extract-treesitter/src/lib.rs
+  line: 111
+  module: kuda-extract-treesitter
+- name: kind_of
+  kind: function
+  file: crates/kuda-extract-treesitter/src/lib.rs
+  line: 48
+  module: kuda-extract-treesitter
+- name: kuda-extract-treesitter
+  kind: module
+  file: crates/kuda-extract-treesitter/Cargo.toml
+  line: 1
+  module: kuda-extract-treesitter
+- name: lang
+  kind: function
+  file: crates/kuda-extract-treesitter/src/lib.rs
+  line: 248
+  module: kuda-extract-treesitter
+- name: language
+  kind: function
+  file: crates/kuda-extract-treesitter/src/lib.rs
+  line: 23
+  module: kuda-extract-treesitter
+- name: manifest_dir_of
+  kind: function
+  file: crates/kuda-extract-treesitter/src/lib.rs
+  line: 64
+  module: kuda-extract-treesitter
+- name: manifest_dir_of_and_walk_excludes
+  kind: function
+  file: crates/kuda-extract-treesitter/src/lib.rs
+  line: 416
+  module: kuda-extract-treesitter
+- name: relative_import_makes_no_edge
+  kind: function
+  file: crates/kuda-extract-treesitter/src/lib.rs
+  line: 371
+  module: kuda-extract-treesitter
+- name: tests
+  kind: module
+  file: crates/kuda-extract-treesitter/src/lib.rs
+  line: 237
+  module: kuda-extract-treesitter
+- name: tmp
+  kind: function
+  file: crates/kuda-extract-treesitter/src/lib.rs
+  line: 241
+  module: kuda-extract-treesitter
+- name: unknown_grammar_skipped_and_bad_queries_err
+  kind: function
+  file: crates/kuda-extract-treesitter/src/lib.rs
+  line: 344
+  module: kuda-extract-treesitter
+- name: unreadable_file_and_dir_skipped
+  kind: function
+  file: crates/kuda-extract-treesitter/src/lib.rs
+  line: 444
+  module: kuda-extract-treesitter
+- name: walk_files
+  kind: function
+  file: crates/kuda-extract-treesitter/src/lib.rs
+  line: 78
+  module: kuda-extract-treesitter
+deps:
+- kuda-core
+- kuda-extract
+- tree-sitter
+- tree-sitter-go
+- tree-sitter-python
+- tree-sitter-rust
+- tree-sitter-typescript
+- kuda-core
+- kuda-extract
+- tree_sitter
+notes: ''
+verify:
+- crates/kuda-extract-treesitter/Cargo.toml
+- crates/kuda-extract-treesitter/src/lib.rs
+provenance:
+  files:
+  - crates/kuda-extract-treesitter/Cargo.toml
+  - crates/kuda-extract-treesitter/src/lib.rs
+  hashes:
+  - 7ead2a85e1a7cd93b2207104b41ec1fbecf2374b
+  - 57daf6910a9575c10499e9ec0136546971c9d59e
+  commit_sha: 15708d4424106e52b588fff808de91984521c168
+  generated_at: '1794324597'
+  generator: kuda-template/0.1.3

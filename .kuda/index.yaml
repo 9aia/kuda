@@ -12,10 +12,11 @@ modules:
 - kuda-dotenv
 - kuda-driver
 - kuda-extract
+- kuda-extract-lsp
+- kuda-extract-manifest
+- kuda-extract-treesitter
 - kuda-git
 - kuda-keyring
-- kuda-lsp
-- kuda-manifest
 - kuda-presentation
 - kuda-query
 - kuda-records
@@ -24,7 +25,6 @@ modules:
 - kuda-store-sqlite
 - kuda-summarize
 - kuda-template
-- kuda-treesitter
 - kuda-vcs
 - project
 - sturn-wal
@@ -34,8 +34,8 @@ commands:
 - (cd presentation && npm run build)
 - (cd presentation && npm run dev)
 - (cd presentation && npm run export)
-tree_digest: 03bb865575d201cf3bd32e4d70070219f203e275
-files_total: 100
+tree_digest: 7197c392c9f0c5e61a8b30924e790bb10af5c6c5
+files_total: 114
 provenance:
   files:
   - Cargo.toml
@@ -49,10 +49,11 @@ provenance:
   - crates/kuda-dotenv/Cargo.toml
   - crates/kuda-driver/Cargo.toml
   - crates/kuda-extract/Cargo.toml
+  - crates/kuda-extract-lsp/Cargo.toml
+  - crates/kuda-extract-manifest/Cargo.toml
+  - crates/kuda-extract-treesitter/Cargo.toml
   - crates/kuda-git/Cargo.toml
   - crates/kuda-keyring/Cargo.toml
-  - crates/kuda-lsp/Cargo.toml
-  - crates/kuda-manifest/Cargo.toml
   - crates/kuda-query/Cargo.toml
   - crates/kuda-records/Cargo.toml
   - crates/kuda-secret/Cargo.toml
@@ -60,26 +61,26 @@ provenance:
   - crates/kuda-store-sqlite/Cargo.toml
   - crates/kuda-summarize/Cargo.toml
   - crates/kuda-template/Cargo.toml
-  - crates/kuda-treesitter/Cargo.toml
   - crates/kuda-vcs/Cargo.toml
   - modules/dagger/dagger/pyproject.toml
   - presentation/package.json
   hashes:
-  - c3184dac8ad2da15cc385ecde5428494921263ce
+  - 7b8ebc89d41a3b1d6631c54aa6f90f32852a9818
   - 2fb9b4cda0b4b48961c410592925fe6ab443aa3b
   - 235538739af3a723c914cd6ede000fee3811ee2d
   - c2232432f5c2b51750ed9406059add07640caa15
-  - df73801e3fe8951fa21666324282a49c5ecab47a
+  - 2bcee5e009cd2a0d1dacb5b51d5dc526d8de435b
   - ea8d721cf84a29a6242dfb89a1cfe55211215dbb
   - 69539d90b1b9cce1264bb96925db8212817849fa
   - 858a2d26892b5f1150a8b4663f27d32c408f6e1d
   - c00e5be2a18e90d8ecfd27f7e9f455e5343b7a86
   - 2606f9a4b93dfee2a8c6c48be61da1db2ec2310d
   - 8474c16bc613412aaa22031cbce10ad3a1f9beea
+  - 629ebbb90ef12a624718c9a046bb9403fce3b0fe
+  - 6308e7a5d07441803a3d5ffe4e9bc179d2bc7605
+  - 7ead2a85e1a7cd93b2207104b41ec1fbecf2374b
   - 04bbffa2faf364409f943e06689f50fb83b2e6c4
   - 91090b39dc802b32e546f0af5ad5f1aa9e994bb8
-  - f67a4e0af5e5702eea94a963c1b91e8349a246ab
-  - e2ef5f546ee4d7eae4708f90a7e099497a44f675
   - c09df8b9f1045151d00b8825259c76bf2e5a1fa7
   - 259e305a0f5b7719fbe0939293854b774746df12
   - f826462ae7337233c57e6151c6a7b516a437abbc
@@ -87,10 +88,9 @@ provenance:
   - 2d30a3d362d500ce8e4310218db2ea0f8da6ae99
   - 11910998e03f533e3852432fcb107e980fbe99f5
   - 65d11baa59bc50d3fb5d1b6a488a87922b66c9a3
-  - 3780213d000ceedfe88ece2c1a31f111e73e4bf4
   - a3f3978c21457dd7be4e34dc16f31231d0a68777
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
   - 0f3a434bcbd7f03da300bb0068407063d067a223
-  commit_sha: 35a7996a327c17a42c84b960d9856f68ba419e7a
-  generated_at: '1794324196'
+  commit_sha: 15708d4424106e52b588fff808de91984521c168
+  generated_at: '1794324597'
   generator: kuda/0.1.0

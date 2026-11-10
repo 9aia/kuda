@@ -8,7 +8,7 @@ dogfoods its own CI. Fork freely under MIT.
 `crates/` — rust workspace. `kuda-core` is pure domain (cards,
 symbols, edges, provenance); ports are crates: `kuda-extract`,
 `kuda-summarize`, `kuda-store`, `kuda-vcs`; adapters:
-`kuda-manifest`/`kuda-treesitter`/`kuda-lsp` (extractors),
+`kuda-extract-manifest`/`kuda-extract-treesitter`/`kuda-extract-lsp` (extractors),
 `kuda-template`/`kuda-llm` (summarizers), `kuda-store-sqlite`
 (store), `kuda-git` (vcs); `kuda` (cli) is the composition root.
 `modules/dagger/` is the shared pipeline module (Python SDK).

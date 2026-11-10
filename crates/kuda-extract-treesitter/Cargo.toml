@@ -1,5 +1,5 @@
 [package]
-name = "kuda-treesitter"
+name = "kuda-extract-treesitter"
 description = "Extract adapter: tree-sitter grammar+query data -> symbols + import edges"
 version.workspace = true
 edition.workspace = true

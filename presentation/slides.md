@@ -151,7 +151,7 @@ Every card ends in `verify:` — what to open before acting on it.
 $ kuda status
 drifted  kuda-core
 drifted  kuda-cards
-drifted  kuda-manifest
+drifted  kuda-extract-manifest
 …
 tree drifted (tree_digest mismatch)
 7 fresh, 13 drifted (HEAD 0c540dd)

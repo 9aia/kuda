@@ -1,6 +1,6 @@
 [package]
-name = "kuda-lsp"
-description = "Extract adapter: LSP server-backed symbol extraction (documentSymbol)"
+name = "kuda-extract-manifest"
+description = "Extract adapter: package manifests -> package graph"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -11,5 +11,6 @@ categories = ["development-tools"]
 [dependencies]
 kuda-core.workspace = true
 kuda-extract.workspace = true
-serde.workspace = true
-serde_json.workspace = true
+toml = "0.8"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

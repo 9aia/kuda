@@ -375,7 +375,7 @@ fn sync(cli: &Cli, full: bool) -> i32 {
         roots
             .iter()
             .flat_map(|r| {
-                kuda_manifest::ManifestExtractor {
+                kuda_extract_manifest::ManifestExtractor {
                     excludes: cfg.extract.exclude.clone(),
                     resolve_git_deps: cfg.workspace.resolve_git_deps,
                 }
@@ -435,15 +435,15 @@ fn extractors(
     kinds
         .iter()
         .filter_map(|k| match k.as_str() {
-            "manifest" => Some(Box::new(kuda_manifest::ManifestExtractor {
+            "manifest" => Some(Box::new(kuda_extract_manifest::ManifestExtractor {
                 excludes: cfg.extract.exclude.clone(),
                 resolve_git_deps: cfg.workspace.resolve_git_deps,
             }) as Box<dyn Extractor>),
-            "treesitter" => Some(Box::new(kuda_treesitter::TreesitterExtractor {
+            "treesitter" => Some(Box::new(kuda_extract_treesitter::TreesitterExtractor {
                 excludes: cfg.extract.exclude.clone(),
                 pkg_names: pkg_by_dir.clone(),
             })),
-            "lsp" => Some(Box::new(kuda_lsp::LspExtractor {
+            "lsp" => Some(Box::new(kuda_extract_lsp::LspExtractor {
                 server_cmd: cfg.extract.lsp_server.clone(),
             })),
             "records" => Some(Box::new(kuda_records::RecordsExtractor {
@@ -556,7 +556,7 @@ fn scan_repo(
             if !is_manifest && !is_src {
                 continue;
             }
-            let module = kuda_treesitter::manifest_dir_of(dir, &p, manifest_list)
+            let module = kuda_extract_treesitter::manifest_dir_of(dir, &p, manifest_list)
                 .map(|d| {
                     let rel_dir = d.strip_prefix(dir).unwrap_or(&d).to_path_buf();
                     pkg_by_dir.get(&rel_dir).cloned().unwrap_or_else(|| {
@@ -610,7 +610,7 @@ fn sync_one(
     // --- manifest pass first (cheap): package names decide module
     // identity — walk groups by manifest dir -> pkg name, matching
     // the Module symbols the manifest extractor emits.
-    let manifest_ext = kuda_manifest::ManifestExtractor {
+    let manifest_ext = kuda_extract_manifest::ManifestExtractor {
         excludes: cfg.extract.exclude.clone(),
         resolve_git_deps: cfg.workspace.resolve_git_deps,
     }
@@ -1900,7 +1900,7 @@ fn refs(cli: &Cli, name: &str, docs_only: bool) -> i32 {
         if let Some(cmd) = cfg.extract.lsp_server.clone() {
             let mut any = false;
             for r in &roots {
-                match kuda_lsp::references(&cmd, r, name) {
+                match kuda_extract_lsp::references(&cmd, r, name) {
                     Ok(locs) if !locs.is_empty() => {
                         any = true;
                         for (f, l) in locs {

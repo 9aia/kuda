@@ -1,0 +1,161 @@
+name: kuda-extract-lsp
+path: crates/kuda-extract-lsp/Cargo.toml
+purpose: 'Extract adapter: LSP server-backed symbol extraction (documentSymbol)'
+api:
+- name: ENV_LOCK
+  kind: const
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 444
+  module: kuda-extract-lsp
+- name: LspClient
+  kind: type
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 19
+  module: kuda-extract-lsp
+- name: LspExtractor
+  kind: type
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 14
+  module: kuda-extract-lsp
+- name: STUB
+  kind: const
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 323
+  module: kuda-extract-lsp
+- name: extract
+  kind: function
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 261
+  module: kuda-extract-lsp
+- name: extract_disabled_and_absent_server
+  kind: function
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 447
+  module: kuda-extract-lsp
+- name: extract_document_symbol_error_and_nonarray
+  kind: function
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 526
+  module: kuda-extract-lsp
+- name: extract_symbols_both_forms
+  kind: function
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 463
+  module: kuda-extract-lsp
+- name: flatten_syms
+  kind: function
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 131
+  module: kuda-extract-lsp
+- name: kind
+  kind: function
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 257
+  module: kuda-extract-lsp
+- name: kuda-extract-lsp
+  kind: module
+  file: crates/kuda-extract-lsp/Cargo.toml
+  line: 1
+  module: kuda-extract-lsp
+- name: lsp_kind
+  kind: function
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 119
+  module: kuda-extract-lsp
+- name: module_of
+  kind: function
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 160
+  module: kuda-extract-lsp
+- name: module_of_walks_ancestors
+  kind: function
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 575
+  module: kuda-extract-lsp
+- name: notify
+  kind: function
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 107
+  module: kuda-extract-lsp
+- name: recv
+  kind: function
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 70
+  module: kuda-extract-lsp
+- name: references
+  kind: function
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 210
+  module: kuda-extract-lsp
+- name: references_all_outcomes
+  kind: function
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 548
+  module: kuda-extract-lsp
+- name: request
+  kind: function
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 92
+  module: kuda-extract-lsp
+- name: rust
+  kind: function
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 433
+  module: kuda-extract-lsp
+- name: send
+  kind: function
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 63
+  module: kuda-extract-lsp
+- name: shutdown
+  kind: function
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 111
+  module: kuda-extract-lsp
+- name: spawn
+  kind: function
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 27
+  module: kuda-extract-lsp
+- name: stub
+  kind: function
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 419
+  module: kuda-extract-lsp
+- name: tests
+  kind: module
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 316
+  module: kuda-extract-lsp
+- name: tmp
+  kind: function
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 412
+  module: kuda-extract-lsp
+- name: walk_files
+  kind: function
+  file: crates/kuda-extract-lsp/src/lib.rs
+  line: 177
+  module: kuda-extract-lsp
+deps:
+- kuda-core
+- kuda-extract
+- serde
+- serde_json
+- kuda-core
+- kuda-extract
+- serde_json
+notes: ''
+verify:
+- crates/kuda-extract-lsp/Cargo.toml
+- crates/kuda-extract-lsp/src/lib.rs
+provenance:
+  files:
+  - crates/kuda-extract-lsp/Cargo.toml
+  - crates/kuda-extract-lsp/src/lib.rs
+  hashes:
+  - 629ebbb90ef12a624718c9a046bb9403fce3b0fe
+  - 0360bf2281fb3a5c2cf1f8b1c2d87be5d4e5effa
+  commit_sha: 15708d4424106e52b588fff808de91984521c168
+  generated_at: '1794324597'
+  generator: kuda-template/0.1.3

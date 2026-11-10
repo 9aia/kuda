@@ -4,9 +4,9 @@ members = [
     "crates/kuda-cli",
     "crates/kuda-core",
     "crates/kuda-extract",
-    "crates/kuda-manifest",
-    "crates/kuda-treesitter",
-    "crates/kuda-lsp",
+    "crates/kuda-extract-manifest",
+    "crates/kuda-extract-treesitter",
+    "crates/kuda-extract-lsp",
     "crates/kuda-records",
     "crates/kuda-acp",
     "crates/kuda-store",
@@ -41,9 +41,9 @@ lto = "thin"
 kuda = { path = "crates/kuda-cli", version = "0.1.0" }
 kuda-core = { path = "crates/kuda-core", version = "0.1.0" }
 kuda-extract = { path = "crates/kuda-extract", version = "0.1.0" }
-kuda-manifest = { path = "crates/kuda-manifest", version = "0.1.0" }
-kuda-treesitter = { path = "crates/kuda-treesitter", version = "0.1.0" }
-kuda-lsp = { path = "crates/kuda-lsp", version = "0.1.0" }
+kuda-extract-manifest = { path = "crates/kuda-extract-manifest", version = "0.1.0" }
+kuda-extract-treesitter = { path = "crates/kuda-extract-treesitter", version = "0.1.0" }
+kuda-extract-lsp = { path = "crates/kuda-extract-lsp", version = "0.1.0" }
 kuda-records = { path = "crates/kuda-records", version = "0.1.0" }
 kuda-acp = { path = "crates/kuda-acp", version = "0.1.0" }
 kuda-store = { path = "crates/kuda-store", version = "0.1.0" }

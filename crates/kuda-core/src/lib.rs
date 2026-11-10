@@ -569,16 +569,20 @@ mod tests {
 
     #[test]
     fn order_respects_path_deps() {
-        let members = vec!["kuda".into(), "kuda-core".into(), "kuda-manifest".into()];
+        let members = vec![
+            "kuda".into(),
+            "kuda-core".into(),
+            "kuda-extract-manifest".into(),
+        ];
         let deps = vec![
-            ("kuda".into(), "kuda-manifest".into()),
+            ("kuda".into(), "kuda-extract-manifest".into()),
             ("kuda".into(), "kuda-core".into()),
-            ("kuda-manifest".into(), "kuda-core".into()),
+            ("kuda-extract-manifest".into(), "kuda-core".into()),
         ];
         let order = publish_order(&members, &deps).unwrap();
         let pos = |n: &str| order.iter().position(|x| x == n).unwrap();
-        assert!(pos("kuda-core") < pos("kuda-manifest"));
-        assert!(pos("kuda-manifest") < pos("kuda"));
+        assert!(pos("kuda-core") < pos("kuda-extract-manifest"));
+        assert!(pos("kuda-extract-manifest") < pos("kuda"));
     }
 
     #[test]

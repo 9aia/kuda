@@ -7,7 +7,7 @@
 
 [extract]
 kinds = ["manifest", "treesitter", "records"] # adapter crates, tried in order
-# lsp_server = "rust-analyzer"     # kuda-lsp adapter: server cmd per lang
+# lsp_server = "rust-analyzer"     # kuda-extract-lsp adapter: server cmd per lang
 
 [summarize]
 kind = "template"                  # deterministic cards, zero-model

@@ -105,12 +105,12 @@ api:
 - name: config_defaults_and_toml_parse
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 697
+  line: 701
   module: kuda-core
 - name: cycle_errors
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 585
+  line: 589
   module: kuda-core
 - name: default
   kind: function
@@ -175,12 +175,12 @@ api:
 - name: dep_root_edge_cases
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 651
+  line: 655
   module: kuda-core
 - name: dep_root_per_language
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 598
+  line: 602
   module: kuda-core
 - name: dir_excluded
   kind: function
@@ -190,17 +190,17 @@ api:
 - name: dir_excluded_builtin_and_extra
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 677
+  line: 681
   module: kuda-core
 - name: domain_types_serde_and_clone
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 791
+  line: 795
   module: kuda-core
 - name: domains_cfg_parses_inline_descriptors
   kind: function
   file: crates/kuda-core/src/lib.rs
-  line: 747
+  line: 751
   module: kuda-core
 api_omitted: 14
 deps:
@@ -230,7 +230,7 @@ provenance:
   - crates/kuda-core/src/lib.rs
   hashes:
   - 858a2d26892b5f1150a8b4663f27d32c408f6e1d
-  - e50959499917516eed9e714866d85676ef7a5690
-  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
-  generated_at: '1794291501'
-  generator: kuda-acp/0.1.3
+  - 482271b070c98c8461c51eedd369a4d753e2176f
+  commit_sha: 15708d4424106e52b588fff808de91984521c168
+  generated_at: '1794324597'
+  generator: kuda-template/0.1.3

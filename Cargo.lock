@@ -1111,16 +1111,16 @@ dependencies = [
  "kuda-config-toml",
  "kuda-core",
  "kuda-extract",
+ "kuda-extract-lsp",
+ "kuda-extract-manifest",
+ "kuda-extract-treesitter",
  "kuda-git",
- "kuda-lsp",
- "kuda-manifest",
  "kuda-query",
  "kuda-records",
  "kuda-store",
  "kuda-store-sqlite",
  "kuda-summarize",
  "kuda-template",
- "kuda-treesitter",
  "kuda-vcs",
  "notify",
  "serde_json",
@@ -1215,6 +1215,40 @@ dependencies = [
 ]
 
 [[package]]
+name = "kuda-extract-lsp"
+version = "0.1.0"
+dependencies = [
+ "kuda-core",
+ "kuda-extract",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "kuda-extract-manifest"
+version = "0.1.0"
+dependencies = [
+ "kuda-core",
+ "kuda-extract",
+ "serde",
+ "serde_json",
+ "toml",
+]
+
+[[package]]
+name = "kuda-extract-treesitter"
+version = "0.1.0"
+dependencies = [
+ "kuda-core",
+ "kuda-extract",
+ "tree-sitter",
+ "tree-sitter-go",
+ "tree-sitter-python",
+ "tree-sitter-rust",
+ "tree-sitter-typescript",
+]
+
+[[package]]
 name = "kuda-git"
 version = "0.1.0"
 dependencies = [
@@ -1226,27 +1260,6 @@ name = "kuda-keyring"
 version = "0.1.0"
 dependencies = [
  "kuda-secret",
-]
-
-[[package]]
-name = "kuda-lsp"
-version = "0.1.0"
-dependencies = [
- "kuda-core",
- "kuda-extract",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "kuda-manifest"
-version = "0.1.0"
-dependencies = [
- "kuda-core",
- "kuda-extract",
- "serde",
- "serde_json",
- "toml",
 ]
 
 [[package]]
@@ -1305,19 +1318,6 @@ dependencies = [
  "kuda-core",
  "kuda-extract",
  "kuda-summarize",
-]
-
-[[package]]
-name = "kuda-treesitter"
-version = "0.1.0"
-dependencies = [
- "kuda-core",
- "kuda-extract",
- "tree-sitter",
- "tree-sitter-go",
- "tree-sitter-python",
- "tree-sitter-rust",
- "tree-sitter-typescript",
 ]
 
 [[package]]

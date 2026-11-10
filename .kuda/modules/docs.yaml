@@ -92,7 +92,7 @@ notes: |
   - `gen-config-docs.py` and `gen-crate-map.py` resolve the repo root via `KUDA_ROOT` env or `__file__/../..`; `gen-crate-map.py` writes `explanation/architecture.md` and `reference/crate-api.md` relative to CWD, so run it from `docs/`.
   - `gen-crate-map.py` hardcodes a `LAYER` map for port crates (`kuda-runner`, `kuda-tunnel`, `kuda-trigger`, `kuda-status`, `kuda-vcs`, `kuda-queue`, `kuda-service`, `kuda-secret`, `kuda-config`, `kuda-cache`); new port crates need an entry there or they sort as `impl`.
   - `gen-config-docs.py` only reads `crates/kuda-core/src/lib.rs` — adapter-crate config structs are not yet sourced (the `SRCS` map is the extension point).
-  - `how-to/languages.md` and `how-to/domains.md` both end with "ship the descriptor + register it in code": languages register in the `kuda-treesitter::language()` match arm, domains register in `DOMAIN_TOMLS` in `crates/kuda-cli/src/main.rs` — both are build-time embedded, not runtime-discovered.
+  - `how-to/languages.md` and `how-to/domains.md` both end with "ship the descriptor + register it in code": languages register in the `kuda-extract-treesitter::language()` match arm, domains register in `DOMAIN_TOMLS` in `crates/kuda-cli/src/main.rs` — both are build-time embedded, not runtime-discovered.
   - `how-to/llm-summarizer.md` documents the `acp` summarizer's env-var contract (`CLINE_PROVIDER`/`CLINE_MODEL`, not `-P`/`-m`) and the auto-answer of `session/request_permission` — changing either breaks batch card generation.
   - `how-to/multi-repo.md` is explicit that there is no aggregate workspace card yet; readers compose one from `kuda map` per root.
   - `comparison.md` positions kuda against grep/RAG/LSP — keep it in sync when a new adapter (e.g. embeddings store) lands, since it currently lists fuzzy semantic lookup as "(optional store adapter later)".
@@ -155,6 +155,6 @@ provenance:
   - c7e39b8531ba492bbaaa24a2bb9dc8d7833e0725
   - 2f6e3dd3ee0d114def08a696c982ae7708f55e47
   - 28d2ef76304e27db4eba1f66c93465d248f39bdd
-  commit_sha: 35a7996a327c17a42c84b960d9856f68ba419e7a
-  generated_at: '1794324196'
+  commit_sha: 15708d4424106e52b588fff808de91984521c168
+  generated_at: '1794324597'
   generator: kuda-template/0.1.3

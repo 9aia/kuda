@@ -1,6 +1,6 @@
-path: crates/kuda-treesitter/src/lib.rs
-module: kuda-treesitter
-purpose: crates/kuda-treesitter/src/lib.rs
+path: crates/kuda-extract-treesitter/src/lib.rs
+module: kuda-extract-treesitter
+purpose: crates/kuda-extract-treesitter/src/lib.rs
 symbols:
 - TreesitterExtractor
 - language
@@ -24,9 +24,9 @@ symbols:
 - unreadable_file_and_dir_skipped
 provenance:
   files:
-  - crates/kuda-treesitter/src/lib.rs
+  - crates/kuda-extract-treesitter/src/lib.rs
   hashes:
   - 57daf6910a9575c10499e9ec0136546971c9d59e
-  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
-  generated_at: '1794291501'
-  generator: kuda-acp/0.1.0
+  commit_sha: 15708d4424106e52b588fff808de91984521c168
+  generated_at: '1794324811'
+  generator: kuda-template/0.1.3

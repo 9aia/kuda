@@ -1,6 +1,6 @@
-path: crates/kuda-lsp/src/lib.rs
-module: kuda-lsp
-purpose: crates/kuda-lsp/src/lib.rs
+path: crates/kuda-extract-lsp/src/lib.rs
+module: kuda-extract-lsp
+purpose: crates/kuda-extract-lsp/src/lib.rs
 symbols:
 - LspExtractor
 - LspClient
@@ -30,9 +30,9 @@ symbols:
 - module_of_walks_ancestors
 provenance:
   files:
-  - crates/kuda-lsp/src/lib.rs
+  - crates/kuda-extract-lsp/src/lib.rs
   hashes:
-  - f950692c132d7df043fb1ac1658667efb7bff80f
-  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
-  generated_at: '1794291501'
-  generator: kuda-acp/0.1.0
+  - 0360bf2281fb3a5c2cf1f8b1c2d87be5d4e5effa
+  commit_sha: 15708d4424106e52b588fff808de91984521c168
+  generated_at: '1794324811'
+  generator: kuda-template/0.1.3

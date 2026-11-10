@@ -24,68 +24,123 @@ api:
   module: project
 - name: T-001
   kind: record
-  file: project/TODO.md
-  line: 5
+  file: project/DONE.md
+  line: 7
   module: project
 - name: T-001
   kind: record
   file: project/adrs/0003-domain-descriptors-record-corpora-as-indexable-data.md
   line: 28
   module: project
+- name: T-001
+  kind: record
+  file: project/handoffs/T-001.md
+  line: 2
+  module: project
 - name: T-002
   kind: record
-  file: project/TODO.md
-  line: 11
+  file: project/DONE.md
+  line: 8
+  module: project
+- name: T-002
+  kind: record
+  file: project/handoffs/T-002.md
+  line: 2
   module: project
 - name: T-003
   kind: record
-  file: project/TODO.md
-  line: 12
+  file: project/DONE.md
+  line: 9
+  module: project
+- name: T-003
+  kind: record
+  file: project/handoffs/T-003.md
+  line: 2
   module: project
 - name: T-004
   kind: record
-  file: project/TODO.md
-  line: 13
+  file: project/DONE.md
+  line: 10
+  module: project
+- name: T-004
+  kind: record
+  file: project/handoffs/T-004.md
+  line: 2
   module: project
 - name: T-005
   kind: record
-  file: project/TODO.md
-  line: 14
+  file: project/DONE.md
+  line: 11
+  module: project
+- name: T-005
+  kind: record
+  file: project/handoffs/T-005.md
+  line: 2
   module: project
 - name: T-006
   kind: record
-  file: project/TODO.md
-  line: 15
+  file: project/DONE.md
+  line: 12
+  module: project
+- name: T-006
+  kind: record
+  file: project/handoffs/T-006.md
+  line: 2
   module: project
 - name: T-007
   kind: record
-  file: project/TODO.md
-  line: 19
+  file: project/DONE.md
+  line: 13
+  module: project
+- name: T-007
+  kind: record
+  file: project/handoffs/T-007.md
+  line: 2
   module: project
 - name: T-008
   kind: record
-  file: project/TODO.md
-  line: 20
+  file: project/DONE.md
+  line: 14
+  module: project
+- name: T-008
+  kind: record
+  file: project/handoffs/T-008.md
+  line: 2
   module: project
 - name: T-009
   kind: record
-  file: project/TODO.md
-  line: 24
+  file: project/DONE.md
+  line: 15
+  module: project
+- name: T-009
+  kind: record
+  file: project/handoffs/T-009.md
+  line: 2
   module: project
 - name: T-010
   kind: record
-  file: project/TODO.md
-  line: 28
+  file: project/BACKLOG.md
+  line: 9
+  module: project
+- name: T-010
+  kind: record
+  file: project/handoffs/T-010.md
+  line: 2
   module: project
 - name: T-011
   kind: record
   file: project/TODO.md
-  line: 32
+  line: 18
+  module: project
+- name: T-011
+  kind: record
+  file: project/handoffs/T-011.md
+  line: 2
   module: project
 - name: T-012
   kind: record
   file: project/TODO.md
-  line: 36
+  line: 22
   module: project
 - name: T-013
   kind: record
@@ -105,98 +160,49 @@ api:
 - name: T-016
   kind: record
   file: project/BACKLOG.md
-  line: 11
+  line: 13
   module: project
 - name: T-017
   kind: record
   file: project/BACKLOG.md
-  line: 12
+  line: 14
   module: project
 - name: T-018
   kind: record
   file: project/BACKLOG.md
-  line: 16
+  line: 18
   module: project
 - name: T-019
   kind: record
   file: project/BACKLOG.md
-  line: 20
+  line: 22
   module: project
 - name: T-020
   kind: record
   file: project/BACKLOG.md
-  line: 21
+  line: 23
   module: project
 - name: T-021
   kind: record
   file: project/BACKLOG.md
-  line: 25
+  line: 27
   module: project
 - name: T-022
   kind: record
   file: project/BACKLOG.md
-  line: 26
+  line: 28
   module: project
 - name: T-023
   kind: record
   file: project/BACKLOG.md
-  line: 30
+  line: 32
   module: project
 - name: T-024
   kind: record
   file: project/BACKLOG.md
-  line: 31
+  line: 33
   module: project
-- name: T-025
-  kind: record
-  file: project/TODO.md
-  line: 40
-  module: project
-- name: T-026
-  kind: record
-  file: project/TODO.md
-  line: 6
-  module: project
-- name: T-027
-  kind: record
-  file: project/handoffs/archive/T-027.md
-  line: 2
-  module: project
-- name: T-028
-  kind: record
-  file: project/TODO.md
-  line: 7
-  module: project
-- name: T-029
-  kind: record
-  file: project/handoffs/archive/T-029.md
-  line: 2
-  module: project
-- name: T-030
-  kind: record
-  file: project/DONE.md
-  line: 3
-  module: project
-- name: T-031
-  kind: record
-  file: project/DONE.md
-  line: 6
-  module: project
-- name: T-032
-  kind: record
-  file: project/DONE.md
-  line: 4
-  module: project
-- name: T-033
-  kind: record
-  file: project/DONE.md
-  line: 5
-  module: project
-- name: T-033
-  kind: record
-  file: project/handoffs/T-033.md
-  line: 2
-  module: project
+api_omitted: 14
 deps: []
 notes: |
   - Cards are committed artifacts (`.kuda/index.yaml`, `.kuda/modules/*.yaml`); `.kuda/index.sqlite` is gitignored and rebuildable — `kuda init`/`sync` must auto-append it to `.gitignore` (T-009).
@@ -218,11 +224,11 @@ verify:
 - project/TODO.md
 - project/adrs/0001-adr-0001-tiered-memory-artifacts-ports-adapters-topology.md
 - project/adrs/0003-domain-descriptors-record-corpora-as-indexable-data.md
-- project/handoffs/T-033.md
-- project/handoffs/archive/T-027.md
-- project/handoffs/archive/T-029.md
-- project/index.md
-- project/issues/issue-0001-myco-emits-priority-medium-in-frontmatter-but-cli-enum-is-low-med-high-crit-normalize-emitter-to-med-kuda-schema-accepts-both-for-now.md
+- project/handoffs/T-001.md
+- project/handoffs/T-002.md
+- project/handoffs/T-003.md
+- project/handoffs/T-004.md
+- project/handoffs/T-005.md
 provenance:
   files:
   - project/BACKLOG.md
@@ -230,6 +236,20 @@ provenance:
   - project/TODO.md
   - project/adrs/0001-adr-0001-tiered-memory-artifacts-ports-adapters-topology.md
   - project/adrs/0003-domain-descriptors-record-corpora-as-indexable-data.md
+  - project/handoffs/T-001.md
+  - project/handoffs/T-002.md
+  - project/handoffs/T-003.md
+  - project/handoffs/T-004.md
+  - project/handoffs/T-005.md
+  - project/handoffs/T-006.md
+  - project/handoffs/T-007.md
+  - project/handoffs/T-008.md
+  - project/handoffs/T-009.md
+  - project/handoffs/T-010.md
+  - project/handoffs/T-011.md
+  - project/handoffs/T-025.md
+  - project/handoffs/T-026.md
+  - project/handoffs/T-028.md
   - project/handoffs/T-033.md
   - project/handoffs/archive/T-027.md
   - project/handoffs/archive/T-029.md
@@ -237,17 +257,31 @@ provenance:
   - project/issues/issue-0001-myco-emits-priority-medium-in-frontmatter-but-cli-enum-is-low-med-high-crit-normalize-emitter-to-med-kuda-schema-accepts-both-for-now.md
   - project/issues/issue-0002-kuda-sync-regresses-cards-acp-leaks-monologue-into-purpose-drops-notes.md
   hashes:
-  - 6b4609cf8d307865615fd108300b69ef5d514c0a
-  - 67255fe4ac808787b5ac3d89a317ec39d7f88166
-  - 18465d7714fe7592b65a12da57e8069a22aa870f
+  - 1bdcccd980485ef7eb70b6e48c427d0b39225631
+  - 7b2b82800d0ebb01bcc1cc38a1e5a24a1294442c
+  - 9c5247c973e14bc24f19380db78a6e2dd7d5cd02
   - def5e4b43853bd31a3e51c7730f08820962dfdb4
   - 64c28d791fb138cc76a184b92c3d27f345b34068
+  - 4b7f8398b36a75b62d6f23a7ca68fdb50c7df451
+  - 7633d888f3798cedcc664f199a47a76a8435fcf6
+  - bcd31db5cd4bf1df63f2d0b238769f30e92a257d
+  - ee235ee9183f1c216ac93408b3acab84d025f0dc
+  - 26dfa1412d94df2c079de4c9787a81eeaa2b0775
+  - 4fa9f3dcf81bcab9de9dd651d1ad59162d39bd28
+  - cb0c85448a420d2088e564da1f0ccf19a4fa3ecf
+  - 94789c212012dafc314e8cca79751f6c8909cb24
+  - d0f2bfa26937f6828436620765a49adf3df062b6
+  - 718dec8261c30916546eeeac01c69e980f4141cc
+  - eb383725fbbfaa857ab832731ef69cf37cc88f91
+  - 358b60a0205bf587be497abb1d64c517f1fca115
+  - 1a2b06abcde60b4f5ec8ab1288d37eaa6b9b3aa0
+  - 231ed699315e7d9ee59f62d153fc923c1ab3819b
   - 314de45133bab301cc9920a6a4a7eecccfdc0cc4
   - 9f3779ae765d34171c9fb02b6644265a8cca8f91
   - 34f59afdfb337b361448d92a7290451f3ac36b6a
   - a9cbb363e46c66216b83994b2dba52c063dd59db
   - 5b1a2edf5787fb263cdc54796ce6a5395bdf01fd
   - 41b6a56ba796852e3ecbe0fc9961cf154f0c8e9e
-  commit_sha: 35a7996a327c17a42c84b960d9856f68ba419e7a
-  generated_at: '1794324196'
+  commit_sha: 15708d4424106e52b588fff808de91984521c168
+  generated_at: '1794324597'
   generator: kuda-template/0.1.3

@@ -1,6 +1,6 @@
 //! Extract port — pull symbols/edges/structure out of source trees.
-//! Impls: `kuda-manifest` (manifests -> package graph, no parser),
-//! `kuda-treesitter` (grammar+query data), `kuda-lsp` (server-backed),
+//! Impls: `kuda-extract-manifest` (manifests -> package graph, no parser),
+//! `kuda-extract-treesitter` (grammar+query data), `kuda-extract-lsp` (server-backed),
 //! `kuda-records` (domain-corpus descriptors -> record ids + refs).
 //! New extractor = new adapter crate; new language/domain = data file.
 
