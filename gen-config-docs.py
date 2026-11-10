@@ -13,6 +13,7 @@ SRCS = {
         "Config": "Top level", "RepoCfg": "`[repo]`",
         "ExtractCfg": "`[extract]`", "SummarizeCfg": "`[summarize]`",
         "StoreCfg": "`[store]`", "CardsCfg": "`[cards]`",
+        "DomainsCfg": "`[domains]`",
         "WorkspaceCfg": "`[workspace]`",
     },
 }
@@ -23,6 +24,7 @@ STRUCTS = [n for names in SRCS.values() for n in names]
 
 SIMPLE = {"String": "string", "PathBuf": "path", "bool": "bool",
           "u16": "int", "usize": "int", "Vec<String>": "list",
+          "Vec<DomainDef>": "descriptor table",
           "QueuePolicy": '"latest" | "all"'}
 
 def fields(name):

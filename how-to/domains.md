@@ -117,8 +117,36 @@ kuda dependents ADR-0001 # what references this record
 
 Point `roots` at any dir of uniform-format record files, write a
 `record_patterns` regex whose group 1 is the stable id, and set
-`ref_pattern` to match that id shape. Ship it as a
-`data/domains/*.toml` and add it to `DOMAIN_TOMLS` in
-`crates/kuda-cli/src/main.rs`. Repo-local descriptors
-(`[domains]` config) and non-tree sources (git refs, sqlite) are
-deferred — see ADR-0003.
+`ref_pattern` to match that id shape. For a shared built-in, ship
+it as a `data/domains/*.toml` and add it to `DOMAIN_TOMLS` in
+`crates/kuda-cli/src/lib.rs`. For a repo-local corpus, declare it
+in `kuda.toml` instead — no engine change needed. Non-tree
+sources (git refs, sqlite) remain deferred — see ADR-0003.
+
+## Repo-local descriptors and disabling built-ins
+
+`kuda.toml` can carry descriptors inline via `[[domain]]` — the
+same fields as `data/domains/*` — and skip built-ins by name via
+`[domains].disable`:
+
+```toml
+[domains]
+disable = ["media"]        # built-ins: myco, docs, media
+
+[[domain]]
+name = "myco"              # same name as a built-in -> replace it
+roots = ["ops/project"]
+extensions = [".md"]
+module = "ops-ledger"
+purpose = "ops ledger"
+record_patterns = ['-\s*(?:\[[ xX]\]\s*)?([A-Z]+-[0-9]+)']
+ref_pattern = '\b[A-Z]+-[0-9]+\b'
+```
+
+Resolution is deterministic: built-ins load first, `disable`
+names drop out, then `[[domain]]` entries apply in declared
+order — a `name` matching a built-in replaces it (the repo wins),
+any other name appends. The resolved set is what `sync`,
+`status`, and `doctor` use — `kuda doctor` lists it with per
+descriptor health, so a bad regex or schema in an inline entry
+surfaces the same way a shipped one would.

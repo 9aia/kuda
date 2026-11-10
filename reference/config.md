@@ -11,6 +11,8 @@
 | `summarize` | `SummarizeCfg` | optional | — |
 | `store` | `StoreCfg` | optional | — |
 | `cards` | `CardsCfg` | optional | — |
+| `domains` | `DomainsCfg` | optional | — |
+| `domain` | `descriptor table` | optional | `[[domain]]` inline domain descriptors — same shape as `data/domains/*`. A `name` matching a built-in replaces it (repo wins); others append. `[domains] domain` is the nested equivalent — both feed the resolved set. |
 | `workspace` | `WorkspaceCfg` | optional | — |
 
 ## `[repo]`
@@ -50,6 +52,13 @@
 | field | type | required | notes |
 |---|---|---|---|
 | `dir` | `path` | optional | Committed artifacts dir: index.yaml + modules/*.yaml. |
+
+## `[domains]`
+
+| field | type | required | notes |
+|---|---|---|---|
+| `disable` | `list` | optional | Built-in domain names to skip ("myco", "docs", "media"). |
+| `domain` | `descriptor table` | optional | Inline descriptors nested as `[[domains.domain]]` — the flat `[[domain]]` spelling ([`Config::domain`]) is the canonical form; both merge in declared order. |
 
 ## `[workspace]`
 
