@@ -6,3 +6,4 @@
 - T-031 surface drivers for kuda watch/mcp/acp — tamias-driver-cli / tamias-driver-mcp pattern doesn't exist yet (pavo-driver-kit is view-driver only); kuda-driver ops.rs notes the gap · owner:devin · created:2026-11-10
 - T-001 kuda-core — RepoCard / ModuleCard / Symbol / DepEdge / Provenance{files,hash,sha}; Lang descriptors loaded from data/langs/\*.toml — a new language is a data change.
 - T-002 kuda-extract port + kuda-manifest adapter (cargo/npm/go/py manifests -> package graph; no parser needed — lands first)
+- T-003 kuda-treesitter adapter — grammar+query data per language (rust first)
