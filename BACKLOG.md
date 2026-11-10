@@ -6,6 +6,7 @@
 - T-014 kuda-acp adapter — ACP (Agent Client Protocol) surface so any agent client (cline, cursor, zed) queries the index natively — SCIP / workspace-symbol crawl for cross-file refs where a server exists (rust-analyzer, gopls, tsserver)
 - T-015 Per-lang data packs: python, ts, go, java — grammar+query files under data/langs/
 - T-028 agent-awareness managed block — kuda init should write \<!-- kuda:agent-awareness --> into AGENTS.md (pattern: myco init) + validate block freshness in kuda status/check. Block text already deployed to the 6 .kuda-wired repos (cards-are-artifacts, kuda status drift, sync-on-change) · created:2026-11-02
+- T-010 Embedding-based claim clustering for doc↔doc contradiction detection (today: identifier-token clustering — finds the obvious pairs, misses paraphrases). Needs a local embedder or embedding API; evaluate cost vs precision first.
 
 ## Summarizers
 
