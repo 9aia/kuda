@@ -4,7 +4,7 @@ title = "Domain descriptors — record corpora as indexable data"
 status = "open"
 created = "2026-11-05"
 owner = "devin"
-priority = "medium"
+priority = "med"
 +++
 
 Status: proposed (implemented on feat/domain-records)
