@@ -28,14 +28,14 @@ symbol_query = '''
 | `name`         | reports, LSP `languageId`, dep normalization |
 | `extensions`   | both extractors' file walking            |
 | `manifests`    | package graph + module attribution       |
-| `grammar`      | `kuda-treesitter` language registry      |
+| `grammar`      | `kuda-extract-treesitter` language registry      |
 | `symbol_query` | optional; falls back to a builtin        |
 | `dep_query`    | optional; import edges for `dependents`  |
 
 ## What the adapter id controls
 
 `grammar` is looked up in the adapter's registry — the match arm
-inside `kuda-treesitter::language()`. Today that registry has
+inside `kuda-extract-treesitter::language()`. Today that registry has
 `rust`, `typescript`, `python`, and `go`. Adding a grammar needs
 the compiled `tree-sitter-<lang>` crate as a dependency plus one
 arm — an adapter change, not an engine change. Descriptors for

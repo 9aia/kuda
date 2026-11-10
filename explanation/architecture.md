@@ -95,7 +95,7 @@ adapters' vocabulary (`language()` registries, `SymbolKind`,
 `Provenance`, `Claim`-free config). Every concern is a trait
 crate + adapter crates:
 
-- `kuda-extract` → `kuda-manifest`, `kuda-treesitter`, `kuda-lsp`
+- `kuda-extract` → `kuda-extract-manifest`, `kuda-extract-treesitter`, `kuda-extract-lsp`
 - `kuda-store` → `kuda-store-sqlite`
 - `kuda-summarize` → `kuda-template`, (`kuda-llm` planned)
 - `kuda-vcs` → `kuda-git`; `kuda-config` → `kuda-config-toml`;
