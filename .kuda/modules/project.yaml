@@ -1,6 +1,6 @@
 name: project
 path: project/BACKLOG.md
-purpose: myco work ledger — tasks, ADRs, issues, plans, handoffs
+purpose: The `project` module is kuda's myco work ledger — a record corpus of tasks (`T-NNN`), ADRs (`ADR-NNNN`), and handoffs tracking the engine's design and build-out. It holds the backlog (`BACKLOG.md`), open 0.1.0 tasks (`TODO.md`), completed work (`DONE.md`), architecture decision records (`adrs/`), and per-task handoff notes (`handoffs/`), all indexed by the `records` extractor into `record`-kind symbols and `references` edges under the `project` module.
 api:
 - name: ADR-0001
   kind: record
@@ -203,7 +203,64 @@ api:
   line: 33
   module: project
 api_omitted: 14
-deps: []
+deps:
+- sturn
+- kuda-extract
+- kuda
+- bupha
+- kuda
+- kuda
+- kuda-core
+- sturn
+- kuda
+- kuda-driver
+- kuda-core
+- kuda-extract
+- kuda-manifest
+- kuda-treesitter
+- kuda-store
+- kuda-store-sqlite
+- kuda-vcs
+- kuda-git
+- bupha
+- kuda-summarize
+- kuda-template
+- kuda-query
+- kuda-cards
+- kuda
+- kuda
+- mimus
+- bupha
+- kuda
+- kuda-lsp
+- kuda-acp
+- kuda
+- myco
+- kuda-wired
+- kuda-llm
+- ADR-0001
+- kuda-workspace
+- kuda
+- kuda
+- malurus
+- bupha
+- kuda
+- kuda-store
+- bupha
+- kuda
+- malurus
+- T-027
+- kuda
+- myco
+- kuda
+- kuda
+- kuda
+- kuda-records
+- sturn-wal
+- T-031
+- kuda
+- ADR-0003
+- sturn
 notes: |
   - Cards are committed artifacts (`.kuda/index.yaml`, `.kuda/modules/*.yaml`); `.kuda/index.sqlite` is gitignored and rebuildable — `kuda init`/`sync` must auto-append it to `.gitignore` (T-009).
   - Every card ends with a `verify:` file list and carries provenance `{files, content_hash, commit_sha}`; `kuda status` reports drift as a sha diff vs HEAD.
@@ -282,6 +339,6 @@ provenance:
   - a9cbb363e46c66216b83994b2dba52c063dd59db
   - 5b1a2edf5787fb263cdc54796ce6a5395bdf01fd
   - 41b6a56ba796852e3ecbe0fc9961cf154f0c8e9e
-  commit_sha: 15708d4424106e52b588fff808de91984521c168
-  generated_at: '1794324597'
-  generator: kuda-template/0.1.3
+  commit_sha: 78f32019bcc7240b818e9256d7d799345f9d47d1
+  generated_at: '1794324935'
+  generator: kuda-acp/0.1.3

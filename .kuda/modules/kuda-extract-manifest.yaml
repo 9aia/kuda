@@ -1,6 +1,6 @@
 name: kuda-extract-manifest
 path: crates/kuda-extract-manifest/Cargo.toml
-purpose: 'Extract adapter: package manifests -> package graph'
+purpose: '`kuda-extract-manifest` is the manifest extract adapter — it turns package manifests into the module/package graph with no parser and no language knowledge, reading the manifest basenames declared by `LangDef` entries (Cargo.toml, package.json, pyproject.toml, setup.py, go.mod). For each manifest it emits a `Module`-kind symbol named after the package (falling back to the parent dir name, then the manifest basename) plus a `PackageDep` edge per declared dependency.'
 api:
 - name: ManifestExtractor
   kind: type
@@ -140,7 +140,15 @@ deps:
 - toml
 - kuda-core
 - kuda-extract
-notes: ''
+notes: |
+  - Module identity comes from the manifest's package name when present; otherwise it falls back to the parent directory name, then the manifest basename — a symbol is always emitted even for invalid/empty manifests.
+  - Format detection is by filename (`parse_manifest` matches the basename); unknown basenames and unparseable bodies yield `(None, [])` rather than an error — extraction never fails on a bad manifest.
+  - The walk skips noise dirs via `kuda_core::dir_excluded` (built-ins + `[extract] exclude`) and skips mounted git worktrees (a `.git` *file*, not a dir).
+  - Cargo dep naming (`cargo_dep_name`): a `package = "real"` rename always wins (with or without `git`, and not gated by the flag); when `resolve_git_deps` is on and the entry isn't `workspace = true`, a `git = "<url>"` source resolves to the URL's repo basename (last path segment minus `.git`, trailing slashes trimmed) so the edge lands on a sibling repo module; plain/`workspace`/`path` deps keep the table key. Reads `dependencies`, `dev-dependencies`, and `build-dependencies`.
+  - `resolve_git_deps` comes from `[workspace] resolve_git_deps`; `excludes` from `[extract] exclude`.
+  - pyproject handles PEP 621 (`dependencies` array + `optional-dependencies` table), Poetry (`[tool.poetry.dependencies]`/`dev-dependencies`/`group.*.dependencies`, skipping the `python` key), and PEP 735/uv `[dependency-groups]`; PEP 508 requirement strings are reduced to the bare name via `pep508_name` (strips extras, version markers, `;` constraints).
+  - `setup.py` only scans for the `name=` kwarg (deps live in code, not data) — the package name alone establishes module identity.
+  - `go.mod` takes the `module ` line as the name and tab-indented lines containing `" v"` (require entries) as deps; `package.json` reads `dependencies` + `devDependencies` keys.
 verify:
 - crates/kuda-extract-manifest/Cargo.toml
 - crates/kuda-extract-manifest/src/lib.rs
@@ -151,6 +159,6 @@ provenance:
   hashes:
   - 6308e7a5d07441803a3d5ffe4e9bc179d2bc7605
   - 0d34a7c287454dbd2c0fdd755319b08772f2ace5
-  commit_sha: 15708d4424106e52b588fff808de91984521c168
-  generated_at: '1794324597'
-  generator: kuda-template/0.1.3
+  commit_sha: 78f32019bcc7240b818e9256d7d799345f9d47d1
+  generated_at: '1794324935'
+  generator: kuda-acp/0.1.3

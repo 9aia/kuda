@@ -1,6 +1,6 @@
 path: crates/kuda-cli/tests/e2e.rs
 module: kuda
-purpose: crates/kuda-cli/tests/e2e.rs
+purpose: I have enough grounding from the provided chunks. Let me write the summary.
 symbols:
 - kuda
 - help_and_stub
@@ -25,18 +25,18 @@ symbols:
 - doctor_and_docs_and_bad_config
 - config_flag_changes_root
 - init_error_paths
+- init_gitignores_rebuildables
+- gitignore_skips_nonrepo_creates_missing
 - status_edge_cases
 - sync_incremental_and_deletions
 - sync_full_and_upgrade_seed
 - sync_store_and_cards_failures
 - sync_workspace_mode
-- sync_sturn_wal_marks_modules
-- ACP_STUB
 provenance:
   files:
   - crates/kuda-cli/tests/e2e.rs
   hashes:
-  - e49fe909eb029688f497f1c92126fd873a4079a6
-  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
-  generated_at: '1794291501'
+  - 7f30f4c17404777293fa7e6f779b2dfa1b63e4b1
+  commit_sha: 78f32019bcc7240b818e9256d7d799345f9d47d1
+  generated_at: '1794324935'
   generator: kuda-acp/0.1.0

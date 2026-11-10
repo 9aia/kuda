@@ -1,6 +1,6 @@
 name: sturn-wal
 path: refs/sturn/wal/devin-wal-corpus
-purpose: sturn coordination WAL — claims, writes, snaps, review events in refs/sturn/*
+purpose: The `sturn-wal` module is the sturn coordination WAL for workspace `devin-wal-corpus`, read as a non-tree corpus from the git ref `refs/sturn/wal/devin-wal-corpus` (head `1c003c14`) rather than from files on disk. It records actor `luis`'s coordination ops — a `claim` on glob `crates/*` (ttl 3600s), an `intent` ("kuda non-tree corpus support — first non-filesystem domain"), and a `presence` "left" — each a commit whose tree holds one `event.json`, indexed by the `records` extractor as queryable events.
 api:
 - name: luis:claim@devin-wal-corpus#9802830f
   kind: record
@@ -17,8 +17,20 @@ api:
   file: refs/sturn/wal/devin-wal-corpus
   line: 3
   module: sturn-wal
-deps: []
-notes: ''
+deps:
+- luis
+- crates/*
+- devin-wal-corpus
+- luis
+- devin-wal-corpus
+- luis
+- devin-wal-corpus
+notes: |
+  - Each event's queryable id is `<actor>:<op>@<ws>#<id8>` where `id8` is the event/commit hash prefix (stable across compaction) — e.g. `luis:claim@devin-wal-corpus#9802830f`; the `seq` offset is 1-based but not stable.
+  - The ref's head sha is the module input's content hash, so a moved ref diffs exactly like a file write and incremental sync consumes each op exactly once.
+  - This is the first non-filesystem domain source (`DomainDef.source` = `sturn-wal`, descriptor `data/domains/sturn.toml`); the ref is read as a virtual JSONL file — one event per line, the ref name as `Symbol.file`, the event position as `Symbol.line`.
+  - `ref_pattern` edges each event to its payload, so `kuda dependents luis` lists the actor's ops and `kuda dependents "crates/*"` finds the claim on that glob.
+  - The three events are timestamped 1794290887 (claim), 1794291560 (intent), 1794291702 (presence) — the presence "left" is the head, so the workspace currently has no active presence from `luis`.
 verify:
 - refs/sturn/wal/devin-wal-corpus
 provenance:
@@ -26,6 +38,6 @@ provenance:
   - refs/sturn/wal/devin-wal-corpus
   hashes:
   - 1c003c147bf016f6a30e5b25fd63cf6c6495619f
-  commit_sha: 15708d4424106e52b588fff808de91984521c168
-  generated_at: '1794324597'
-  generator: kuda-template/0.1.3
+  commit_sha: 78f32019bcc7240b818e9256d7d799345f9d47d1
+  generated_at: '1794324935'
+  generator: kuda-acp/0.1.3
