@@ -51,8 +51,26 @@ Point agents at sturn's MCP surface in their rules:
 ## Watching the WAL
 
 WAL refs aren't files — a `git update-ref` lands inside `.git`,
-which `kuda watch` filters out on purpose. If you want ref moves
-to trigger a re-index, give the watcher a poll interval:
+which `kuda watch` filters out on purpose. Two ways to get ref
+moves to trigger a re-index:
+
+**Event-driven (recommended when sturn drives the writes).**
+sturn's `[hooks] post_op` runs a command after every successful
+ref-moving verb — point it at `kuda sync` and each claim, write,
+or snap re-indexes immediately, no watcher needed:
+
+```toml
+# sturn.toml
+[hooks]
+post_op = "kuda sync"
+```
+
+The hook is detached and best-effort: it can't fail the op, and
+the index settles a beat after the command returns.
+
+**Daemon poll.** When writes come from outside sturn (or you
+want one always-on watcher regardless), give `kuda watch` a poll
+interval:
 
 ```console
 $ kuda watch --poll-refs 30   # check refs/sturn/* every 30s
