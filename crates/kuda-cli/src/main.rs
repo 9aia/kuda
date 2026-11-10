@@ -43,6 +43,7 @@ const LANG_TOMLS: &[&str] = &[
 const DOMAIN_TOMLS: &[&str] = &[
     include_str!("../../../data/domains/myco.toml"),
     include_str!("../../../data/domains/docs.toml"),
+    include_str!("../../../data/domains/media.toml"),
 ];
 
 #[derive(Parser)]

@@ -1,0 +1,10 @@
+# Domain descriptor — binary/media corpus (file-as-record).
+# Every matched file IS a record named by its path — no text is
+# read; drift rides the content hash. The last genericity gap:
+# any bytes can join the graph.
+name = "media"
+roots = ["assets", "static", "public"]
+extensions = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".pdf", ".mp4", ".woff2"]
+module = "media"
+purpose = "media/binary assets — file-as-record provenance"
+file_records = true

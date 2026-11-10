@@ -199,6 +199,12 @@ pub struct DomainDef {
     /// indexed — they exist — but land as warnings on the card.
     #[serde(default)]
     pub schema_json: Option<String>,
+    /// File-as-record mode: every matched file emits a record
+    /// symbol named by its path — images, PDFs, binaries, any
+    /// bytes. No text is read; drift rides the content hash.
+    /// `record_patterns`/`schema_json` don't apply.
+    #[serde(default)]
+    pub file_records: bool,
 }
 
 // ---- kuda.toml config model ----

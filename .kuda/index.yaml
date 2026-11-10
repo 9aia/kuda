@@ -33,7 +33,7 @@ commands:
 - (cd presentation && npm run build)
 - (cd presentation && npm run dev)
 - (cd presentation && npm run export)
-tree_digest: bfc53e076414ddc178e095e9bf7432b36b4f246f
+tree_digest: 75fb923945888719212145ed8f5147872bfec475
 files_total: 93
 provenance:
   files:
@@ -90,6 +90,6 @@ provenance:
   - a3f3978c21457dd7be4e34dc16f31231d0a68777
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
   - 0f3a434bcbd7f03da300bb0068407063d067a223
-  commit_sha: 572cee6a017ac61d7e690d1992c6b379e1404310
-  generated_at: '1794244771'
+  commit_sha: b071e6adc76f88db14dc35cb8b79241b3132e805
+  generated_at: '1794284267'
   generator: kuda/0.1.0

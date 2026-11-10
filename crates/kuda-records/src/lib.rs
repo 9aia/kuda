@@ -158,6 +158,19 @@ fn walk_corpus(
                 continue;
             }
             let rel = p.strip_prefix(root).unwrap_or(&p).to_path_buf();
+            if def.file_records {
+                // file-as-record: the path IS the record — no text
+                // read, drift rides the content hash downstream
+                out.symbols.push(Symbol {
+                    name: rel.display().to_string(),
+                    kind: SymbolKind::Record,
+                    file: rel.clone(),
+                    line: 0,
+                    module: def.module.clone(),
+                });
+                out.files.push(rel);
+                continue;
+            }
             let Ok(text) = std::fs::read_to_string(&p) else {
                 continue;
             };
@@ -278,6 +291,7 @@ mod tests {
             ],
             ref_pattern: Some("\\b[A-Z]+-[0-9]+\\b".into()),
             schema_json: None,
+            file_records: false,
         }
     }
 
@@ -486,5 +500,44 @@ mod schema_tests {
         let mut def = schema_def();
         def.schema_json = Some("{\"type\": 42}".into()); // valid json, invalid schema
         assert!(check(&def).is_err());
+    }
+}
+
+#[cfg(test)]
+mod file_record_tests {
+    use super::*;
+    use kuda_extract::Extractor;
+
+    #[test]
+    fn file_records_emit_path_records_without_reading() {
+        let root = std::env::temp_dir()
+            .join(format!("kuda-fr-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&root);
+        let f = root.join("assets/logo.png");
+        std::fs::create_dir_all(f.parent().unwrap()).unwrap();
+        // invalid UTF-8 bytes — must not break the walk (never read)
+        std::fs::write(&f, [0x89, 0x50, 0x4E, 0x47, 0xFF, 0x00]).unwrap();
+        std::fs::write(root.join("assets/notes.txt"), "plain text").unwrap();
+        let def = DomainDef {
+            name: "media".into(),
+            roots: vec!["assets".into()],
+            extensions: vec![".png".into(), ".txt".into()],
+            module: "media".into(),
+            purpose: None,
+            record_patterns: vec![],
+            ref_pattern: None,
+            schema_json: None,
+            file_records: true,
+        };
+        let x = RecordsExtractor {
+            excludes: vec![],
+            domains: vec![def],
+        };
+        let out = x.extract(&root, &[]).unwrap();
+        let names: Vec<&str> = out.symbols.iter().map(|s| s.name.as_str()).collect();
+        assert!(names.contains(&"assets/logo.png"), "{names:?}");
+        assert!(names.contains(&"assets/notes.txt"), "{names:?}");
+        assert!(out.symbols.iter().all(|s| s.kind == SymbolKind::Record && s.line == 0));
+        let _ = std::fs::remove_dir_all(&root);
     }
 }
