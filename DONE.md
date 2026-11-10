@@ -11,3 +11,4 @@
 - T-005 kuda-vcs port + kuda-git adapter (sha, changed files -> staleness) — bupha's vcs/git crates already fit; repurpose
 - T-006 kuda-summarize port + kuda-template adapter (deterministic cards: API list, deps, commands — zero-model default)
 - T-007 kuda-query — find / dependents / card / refs (--docs)
+- T-008 kuda-cards — .kuda/index.yaml + modules/\*.yaml render; machine owns api/deps fields, humans own notes: region; every card ends with verify: file list

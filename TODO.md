@@ -9,8 +9,6 @@
 
 ## Pipeline + queries
 
-- [ ] T-008 kuda-cards — .kuda/index.yaml + modules/\*.yaml render; machine owns api/deps fields, humans own notes: region; every card ends with verify: file list · status:in-progress
-
 ## Init ergonomics
 
 - [ ] T-009 kuda init / sync should append .kuda/index.sqlite + .kuda/meta.json to .gitignore automatically — cards are committed artifacts, the graph is rebuildable. Found via dogfood: mimus+bupha committed the sqlite binary by hand.
