@@ -1,7 +1,7 @@
 +++
 id = "I-002"
 title = "kuda sync regresses cards: acp leaks monologue into purpose, drops notes"
-status = "open"
+status = "claimed"
 created = "2026-11-08"
 priority = "high"
 +++
