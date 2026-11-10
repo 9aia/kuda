@@ -7,3 +7,4 @@
 - T-001 kuda-core — RepoCard / ModuleCard / Symbol / DepEdge / Provenance{files,hash,sha}; Lang descriptors loaded from data/langs/\*.toml — a new language is a data change.
 - T-002 kuda-extract port + kuda-manifest adapter (cargo/npm/go/py manifests -> package graph; no parser needed — lands first)
 - T-003 kuda-treesitter adapter — grammar+query data per language (rust first)
+- T-004 kuda-store port + kuda-store-sqlite adapter (L2 graph)
