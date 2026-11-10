@@ -1,0 +1,42 @@
+path: crates/kuda-cli/src/lib.rs
+module: kuda
+purpose: Implements the kuda CLI as a reusable library, defining clap parsing and dispatch for init, sync, status, map, card, find, dependents, refs, watch, MCP, ACP, doctor, and hidden CLI-doc generation. Provides the indexing pipeline’s shared configuration, language/domain loading, workspace-root discovery, repository walking, extractor/summarizer selection, and Git-compatible blob hashing. Exposes parse, parse_from, dispatch, and run so the compat binary and external drivers can invoke the same operations.
+symbols:
+- emit
+- out
+- outln
+- EXAMPLE_TOML
+- LANG_TOMLS
+- DOMAIN_TOMLS
+- Cli
+- Cmd
+- parse
+- parse_from
+- dispatch
+- run
+- root
+- load_config
+- langs
+- domains
+- hash_files
+- blob_hash
+- unix_now
+- init
+- workspace_roots
+- sync
+- walk_sets
+- extractors
+- acp_summarizer
+- domain_module
+- scan_repo
+- sync_one
+- GENERATOR_VERSION
+- FileCardJob
+provenance:
+  files:
+  - crates/kuda-cli/src/lib.rs
+  hashes:
+  - 101bc4fede54f3bc6e261518cd659b3194f8c1a7
+  commit_sha: b973f17617cb703bf0d5693780790e689161dbed
+  generated_at: '1794286153'
+  generator: kuda-acp/0.1.0

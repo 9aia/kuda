@@ -1,6 +1,6 @@
 path: crates/kuda-driver/src/repo.rs
 module: kuda-driver
-purpose: crates/kuda-driver/src/repo.rs
+purpose: Resolves the repository for each driver request and opens a read-only `Ctx` containing its configuration, repository card, module cards, optional SQLite index, and Git HEAD. Provides card loading, filename-safe module names, and Git-blob-hash drift checks matching `kuda status`. Missing or malformed repository components degrade to defaults or empty values so queries can report an unindexed repository without failing context creation.
 symbols:
 - Ctx
 - open
@@ -21,7 +21,7 @@ provenance:
   files:
   - crates/kuda-driver/src/repo.rs
   hashes:
-  - ef3437af6e571b7f077f339f196cc0a96f98bb84
-  commit_sha: f0a43394780cea61b309c3f848b7ebc29b61c00e
-  generated_at: '1794177735'
+  - 32280e5b451db32cffe9defb9ec523a466166066
+  commit_sha: b973f17617cb703bf0d5693780790e689161dbed
+  generated_at: '1794286153'
   generator: kuda-acp/0.1.0

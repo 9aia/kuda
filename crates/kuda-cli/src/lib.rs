@@ -637,6 +637,58 @@ fn sync_one(
             }
         }
     }
+    // summarizer adapter: acp spawns an agent; anything else is template
+    let acp = acp_summarizer(cfg, dir);
+    let use_acp = acp.is_some();
+    // Provenance names the adapter that writes the prose — an
+    // acp card stamps `kuda-acp`, never `kuda-template`. The
+    // same stamp drives mechanism-version invalidation: a card
+    // written by a different generator (older mechanism, or a
+    // different summarizer) is re-summarized even on
+    // byte-identical inputs.
+    // 0.1.3: acp replies that fail card-prose parsing (monologue,
+    // embedded-field blobs) now fall back to template instead of
+    // writing garbage into `purpose` — restamp so degraded cards
+    // re-summarize on next sync (I-002).
+    const GENERATOR_VERSION: &str = "0.1.3";
+    let stamp = |kind: &str| format!("kuda-{kind}/{GENERATOR_VERSION}");
+    // manifest-only pseudo-modules (root Cargo.toml, docs/
+    // package.json) have no source to ground on — the agent
+    // would return empty prose. Skip the prompt entirely.
+    let manifest_only = |mfiles: &[PathBuf]| {
+        !mfiles.is_empty()
+            && mfiles.iter().all(|f| {
+                f.file_name()
+                    .and_then(|n| n.to_str())
+                    .map(|n| manifest_names.contains(n))
+                    .unwrap_or(false)
+            })
+    };
+    // Generator staleness must join `changed` *before* the parse
+    // filter: a fresh-but-stale module still needs its files
+    // re-extracted, else card and store rows would rebuild with
+    // zero symbols (treesitter honors parse_set).
+    for (module, mfiles) in &mod_files {
+        if changed.contains(module) {
+            continue;
+        }
+        let generator = stamp(if use_acp && !manifest_only(mfiles) {
+            "acp"
+        } else {
+            "template"
+        });
+        let card_path = cards_dir
+            .join("modules")
+            .join(format!("{}.yaml", safe(module)));
+        let stale_generator = std::fs::read_to_string(&card_path)
+            .ok()
+            .and_then(|t| kuda_cards::parse_module_card(&t).ok())
+            .map(|old| old.provenance.generator != generator)
+            .unwrap_or(true);
+        if stale_generator {
+            changed.insert(module.clone());
+        }
+    }
     let parse_set: std::collections::HashSet<PathBuf> = changed
         .iter()
         .flat_map(|m| mod_files.get(m).cloned().unwrap_or_default())
@@ -711,9 +763,6 @@ fn sync_one(
         by_mod.entry(s.module.clone()).or_default().push(s.clone());
     }
 
-    // summarizer adapter: acp spawns an agent; anything else is template
-    let acp = acp_summarizer(cfg, dir);
-    let use_acp = acp.is_some();
     let summ = kuda_template::TemplateSummarizer;
     let mut module_names = Vec::new();
     // acp replies that fail card-prose parsing (monologue, garbage)
@@ -778,43 +827,16 @@ fn sync_one(
         }
     }
     for (module, mfiles) in &mod_files {
-        // manifest-only pseudo-modules (root Cargo.toml, docs/
-        // package.json) have no source to ground on — the agent
-        // would return empty prose. Skip the prompt entirely.
-        let only_manifests = !mfiles.is_empty()
-            && mfiles.iter().all(|f| {
-                f.file_name()
-                    .and_then(|n| n.to_str())
-                    .map(|n| manifest_names.contains(n))
-                    .unwrap_or(false)
-            });
-        // Provenance names the adapter that writes the prose — an
-        // acp card stamps `kuda-acp`, never `kuda-template`. The
-        // same stamp drives mechanism-version invalidation: a card
-        // written by a different generator (older mechanism, or a
-        // different summarizer) is re-summarized even on
-        // byte-identical inputs.
-        // 0.1.3: acp replies that fail card-prose parsing (monologue,
-        // embedded-field blobs) now fall back to template instead of
-        // writing garbage into `purpose` — restamp so degraded cards
-        // re-summarize on next sync (I-002).
-        const GENERATOR_VERSION: &str = "0.1.3";
-        let stamp = |kind: &str| format!("kuda-{kind}/{GENERATOR_VERSION}");
-        let want_acp = use_acp && !only_manifests;
+        let want_acp = use_acp && !manifest_only(mfiles);
         let generator = stamp(if want_acp { "acp" } else { "template" });
         let card_path = cards_dir
             .join("modules")
             .join(format!("{}.yaml", safe(module)));
         if !changed.contains(module) {
-            let stale_generator = std::fs::read_to_string(&card_path)
-                .ok()
-                .and_then(|t| kuda_cards::parse_module_card(&t).ok())
-                .map(|old| old.provenance.generator != generator)
-                .unwrap_or(true);
-            if !stale_generator {
-                module_names.push(module.clone());
-                continue; // store + card already agree with the bytes
-            }
+            // store + card already agree with the bytes — generator
+            // staleness was folded into `changed` pre-extraction.
+            module_names.push(module.clone());
+            continue;
         }
         let prov = Provenance {
             hashes: mfiles

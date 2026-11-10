@@ -1,6 +1,6 @@
 path: crates/kuda-driver/src/views.rs
 module: kuda-driver
-purpose: Defines kuda’s static pavo driver manifest, including navigation contributions and declarative views for repository maps, module cards, dependency graphs, drift, and symbol search. It builds query-bound tables, key-value panels, forms, and graphs with `pavo-driver-kit`, with tests checking protocol metadata and query-binding names.
+purpose: Builds the kuda pavo driver manifest, including discovery verbs, navigation contributions, and declarative views for repository maps, modules, dependencies, drift, and symbol search. Defines query-bound tables, key-value panels, forms, and graph layouts using `pavo-driver-kit`, with tests ensuring views and bindings conform to the wire contract.
 symbols:
 - binding
 - spec
@@ -18,7 +18,7 @@ provenance:
   files:
   - crates/kuda-driver/src/views.rs
   hashes:
-  - d722ebd94d2482098e725eeaacc1ea2fbd342e8a
-  commit_sha: 572cee6a017ac61d7e690d1992c6b379e1404310
-  generated_at: '1794244771'
+  - c5e20f966ceb5c1618788dd56765deace6d0946f
+  commit_sha: b973f17617cb703bf0d5693780790e689161dbed
+  generated_at: '1794286153'
   generator: kuda-acp/0.1.0

@@ -9,48 +9,48 @@ api:
   module: kuda
 - name: API_CAP
   kind: const
-  file: crates/kuda-cli/src/main.rs
-  line: 1324
+  file: crates/kuda-cli/src/lib.rs
+  line: 1402
   module: kuda
 - name: BUDGET
   kind: const
-  file: crates/kuda-cli/src/main.rs
-  line: 1063
+  file: crates/kuda-cli/src/lib.rs
+  line: 1141
   module: kuda
 - name: CHUNK
   kind: const
-  file: crates/kuda-cli/src/main.rs
-  line: 1062
+  file: crates/kuda-cli/src/lib.rs
+  line: 1140
   module: kuda
 - name: Cli
   kind: type
-  file: crates/kuda-cli/src/main.rs
-  line: 55
+  file: crates/kuda-cli/src/lib.rs
+  line: 63
   module: kuda
 - name: Cmd
   kind: type
-  file: crates/kuda-cli/src/main.rs
-  line: 70
+  file: crates/kuda-cli/src/lib.rs
+  line: 78
   module: kuda
 - name: DOMAIN_TOMLS
   kind: const
-  file: crates/kuda-cli/src/main.rs
-  line: 43
+  file: crates/kuda-cli/src/lib.rs
+  line: 51
   module: kuda
 - name: EXAMPLE_TOML
   kind: const
-  file: crates/kuda-cli/src/main.rs
-  line: 33
+  file: crates/kuda-cli/src/lib.rs
+  line: 41
   module: kuda
 - name: FileCardJob
   kind: type
-  file: crates/kuda-cli/src/main.rs
-  line: 1029
+  file: crates/kuda-cli/src/lib.rs
+  line: 1107
   module: kuda
 - name: GENERATOR_VERSION
   kind: const
-  file: crates/kuda-cli/src/main.rs
-  line: 745
+  file: crates/kuda-cli/src/lib.rs
+  line: 653
   module: kuda
 - name: Kuda
   kind: type
@@ -59,28 +59,28 @@ api:
   module: kuda
 - name: LANG_TOMLS
   kind: const
-  file: crates/kuda-cli/src/main.rs
-  line: 34
+  file: crates/kuda-cli/src/lib.rs
+  line: 42
   module: kuda
 - name: SKIP_BYTES
   kind: const
-  file: crates/kuda-cli/src/main.rs
-  line: 1064
+  file: crates/kuda-cli/src/lib.rs
+  line: 1142
   module: kuda
 - name: VERIFY_CAP
   kind: const
-  file: crates/kuda-cli/src/main.rs
-  line: 1325
+  file: crates/kuda-cli/src/lib.rs
+  line: 1403
   module: kuda
 - name: acp
   kind: function
-  file: crates/kuda-cli/src/main.rs
-  line: 1923
+  file: crates/kuda-cli/src/lib.rs
+  line: 2001
   module: kuda
 - name: acp_answer
   kind: function
-  file: crates/kuda-cli/src/main.rs
-  line: 1996
+  file: crates/kuda-cli/src/lib.rs
+  line: 2074
   module: kuda
 - name: acp_full_session
   kind: function
@@ -92,20 +92,25 @@ api:
   file: crates/kuda-cli/tests/e2e.rs
   line: 1309
   module: kuda
+- name: acp_summarizer
+  kind: function
+  file: crates/kuda-cli/src/lib.rs
+  line: 386
+  module: kuda
 - name: blob_hash
   kind: function
-  file: crates/kuda-cli/src/main.rs
-  line: 183
+  file: crates/kuda-cli/src/lib.rs
+  line: 213
   module: kuda
 - name: card
   kind: function
-  file: crates/kuda-cli/src/main.rs
-  line: 1587
+  file: crates/kuda-cli/src/lib.rs
+  line: 1665
   module: kuda
 - name: cat_file
   kind: function
-  file: crates/kuda-cli/src/main.rs
-  line: 1591
+  file: crates/kuda-cli/src/lib.rs
+  line: 1669
   module: kuda
 - name: config_flag_changes_root
   kind: function
@@ -124,13 +129,13 @@ api:
   module: kuda
 - name: crate_doc_purpose
   kind: function
-  file: crates/kuda-cli/src/main.rs
-  line: 1244
+  file: crates/kuda-cli/src/lib.rs
+  line: 1322
   module: kuda
 - name: dependents
   kind: function
-  file: crates/kuda-cli/src/main.rs
-  line: 1664
+  file: crates/kuda-cli/src/lib.rs
+  line: 1742
   module: kuda
 - name: dependents_all_messages
   kind: function
@@ -144,8 +149,13 @@ api:
   module: kuda
 - name: detect_commands
   kind: function
-  file: crates/kuda-cli/src/main.rs
-  line: 1369
+  file: crates/kuda-cli/src/lib.rs
+  line: 1447
+  module: kuda
+- name: dispatch
+  kind: function
+  file: crates/kuda-cli/src/lib.rs
+  line: 138
   module: kuda
 - name: doctests
   kind: function
@@ -154,8 +164,8 @@ api:
   module: kuda
 - name: doctor
   kind: function
-  file: crates/kuda-cli/src/main.rs
-  line: 2028
+  file: crates/kuda-cli/src/lib.rs
+  line: 2106
   module: kuda
 - name: doctor
   kind: function
@@ -169,40 +179,30 @@ api:
   module: kuda
 - name: domain_module
   kind: function
-  file: crates/kuda-cli/src/main.rs
-  line: 318
+  file: crates/kuda-cli/src/lib.rs
+  line: 398
   module: kuda
 - name: domains
   kind: function
-  file: crates/kuda-cli/src/main.rs
-  line: 169
+  file: crates/kuda-cli/src/lib.rs
+  line: 199
   module: kuda
 - name: emit
   kind: function
-  file: crates/kuda-cli/src/main.rs
-  line: 17
+  file: crates/kuda-cli/src/lib.rs
+  line: 25
+  module: kuda
+- name: extractors
+  kind: function
+  file: crates/kuda-cli/src/lib.rs
+  line: 350
   module: kuda
 - name: find
   kind: function
-  file: crates/kuda-cli/src/main.rs
-  line: 1604
+  file: crates/kuda-cli/src/lib.rs
+  line: 1682
   module: kuda
-- name: find_exact_fuzzy_miss
-  kind: function
-  file: crates/kuda-cli/tests/e2e.rs
-  line: 356
-  module: kuda
-- name: find_workspace_tags_roots
-  kind: function
-  file: crates/kuda-cli/tests/e2e.rs
-  line: 381
-  module: kuda
-- name: fname
-  kind: function
-  file: crates/kuda-cli/src/main.rs
-  line: 1370
-  module: kuda
-api_omitted: 80
+api_omitted: 86
 deps:
 - dagger-io
 - clap
@@ -267,6 +267,7 @@ notes: |
 verify:
 - Cargo.toml
 - crates/kuda-cli/Cargo.toml
+- crates/kuda-cli/src/lib.rs
 - crates/kuda-cli/src/main.rs
 - crates/kuda-cli/tests/e2e.rs
 - modules/dagger/dagger/pyproject.toml
@@ -277,6 +278,7 @@ provenance:
   files:
   - Cargo.toml
   - crates/kuda-cli/Cargo.toml
+  - crates/kuda-cli/src/lib.rs
   - crates/kuda-cli/src/main.rs
   - crates/kuda-cli/tests/e2e.rs
   - modules/dagger/dagger/pyproject.toml
@@ -284,14 +286,15 @@ provenance:
   - modules/dagger/dagger/src/kuda/main.py
   - modules/dagger/tests/test_self_patch.py
   hashes:
-  - ec3d917b2dfc4520bd9cbf6c8f07071e0b899551
+  - c3184dac8ad2da15cc385ecde5428494921263ce
   - df73801e3fe8951fa21666324282a49c5ecab47a
-  - 61c72daf10fab7ff3769709d82080e427f0ce83b
+  - 101bc4fede54f3bc6e261518cd659b3194f8c1a7
+  - 5645c359f4cb7671d1ac62243ef2ebb34c10d46e
   - b2972f5124a9004bbe410253c02813a80a84ae29
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
   - 5b331a1baf30b49f5bf03dd9693297d498117deb
   - d71646b878b3eae72aa42a5791588701197fdb2d
   - 203086b883ed1477efd6f9befccd76e2614cc9ea
-  commit_sha: b071e6adc76f88db14dc35cb8b79241b3132e805
-  generated_at: '1794284267'
+  commit_sha: b973f17617cb703bf0d5693780790e689161dbed
+  generated_at: '1794286153'
   generator: kuda-template/0.1.3

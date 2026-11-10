@@ -1,6 +1,6 @@
 path: crates/kuda-core/src/lib.rs
 module: kuda-core
-purpose: 'I’ll verify the remaining configuration and module-name resolution definitions, then return the concise purpose statement.purpose: Defines kuda’s integration-free domain model for provenance-bearing repository, module, and file cards, symbols, dependency edges, and language/domain descriptors. Also models strict `kuda.toml` configuration with defaults and walk exclusions, plus helpers for dependency normalization and dash/underscore-insensitive module resolution.'
+purpose: kuda-core holds the integration-free domain types for the tiered memory model (ADR-0001) — L0 `RepoCard`, L1 `ModuleCard`/`FileCard`, L2 `Symbol`/`DepEdge`, all stamped with `Provenance` (files, hashes, commit sha, generator) so staleness is computed, never assumed. It also defines the `kuda.toml` config model (`Config` and its `Repo`/`Extract`/`Summarize`/`Store`/`Cards`/`Workspace` sections with defaults), the data-driven `LangDef`/`DomainDef` descriptors, and walk helpers (`default_excludes`, `dir_excluded`, `module_key`).
 symbols:
 - ContentHash
 - Provenance
@@ -36,7 +36,7 @@ provenance:
   files:
   - crates/kuda-core/src/lib.rs
   hashes:
-  - f94533f7aaa118b2b29439de4eebc96b30514ffb
-  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
-  generated_at: '1793907315'
+  - 949e75a8b15939611e7822a020793f3a67217b52
+  commit_sha: b973f17617cb703bf0d5693780790e689161dbed
+  generated_at: '1794286092'
   generator: kuda-acp/0.1.0

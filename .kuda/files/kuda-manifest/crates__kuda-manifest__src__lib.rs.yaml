@@ -1,6 +1,6 @@
 path: crates/kuda-manifest/src/lib.rs
 module: kuda-manifest
-purpose: crates/kuda-manifest/src/lib.rs
+purpose: Implements a manifest-based extractor that walks configured manifest filenames and emits module symbols plus package-dependency edges without requiring language parsers. Supports Cargo, npm, Python PEP 621/Poetry/uv, setup.py, and Go module metadata, including dependency renames and optional Cargo Git repository resolution. Uses directory or manifest-name fallbacks for unnamed or malformed manifests and skips excluded directories and mounted Git worktrees.
 symbols:
 - ManifestExtractor
 - kind
@@ -31,7 +31,7 @@ provenance:
   files:
   - crates/kuda-manifest/src/lib.rs
   hashes:
-  - 0d34a7c287454dbd2c0fdd755319b08772f2ace5
-  commit_sha: 8d826eb1abfad4e0a0577f04e2d7a3ad83b0aa6a
-  generated_at: '1794180523'
+  - 324f54fc02d7ba653ee0b7167ced3063c6da3dee
+  commit_sha: b973f17617cb703bf0d5693780790e689161dbed
+  generated_at: '1794286153'
   generator: kuda-acp/0.1.0

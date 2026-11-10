@@ -33,8 +33,8 @@ commands:
 - (cd presentation && npm run build)
 - (cd presentation && npm run dev)
 - (cd presentation && npm run export)
-tree_digest: 75fb923945888719212145ed8f5147872bfec475
-files_total: 93
+tree_digest: 1f1dcfd4e384669b968ec928651d63dbcb88bebe
+files_total: 95
 provenance:
   files:
   - Cargo.toml
@@ -64,7 +64,7 @@ provenance:
   - modules/dagger/dagger/pyproject.toml
   - presentation/package.json
   hashes:
-  - ec3d917b2dfc4520bd9cbf6c8f07071e0b899551
+  - c3184dac8ad2da15cc385ecde5428494921263ce
   - 2fb9b4cda0b4b48961c410592925fe6ab443aa3b
   - 235538739af3a723c914cd6ede000fee3811ee2d
   - c2232432f5c2b51750ed9406059add07640caa15
@@ -73,7 +73,7 @@ provenance:
   - 69539d90b1b9cce1264bb96925db8212817849fa
   - 858a2d26892b5f1150a8b4663f27d32c408f6e1d
   - c00e5be2a18e90d8ecfd27f7e9f455e5343b7a86
-  - ec1e40238881e9e99dd3592759448f650b23174c
+  - 4f5f9960a2ded6698de938ce338d3cd8c22cfc81
   - 8474c16bc613412aaa22031cbce10ad3a1f9beea
   - 04bbffa2faf364409f943e06689f50fb83b2e6c4
   - 91090b39dc802b32e546f0af5ad5f1aa9e994bb8
@@ -90,6 +90,6 @@ provenance:
   - a3f3978c21457dd7be4e34dc16f31231d0a68777
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
   - 0f3a434bcbd7f03da300bb0068407063d067a223
-  commit_sha: b071e6adc76f88db14dc35cb8b79241b3132e805
-  generated_at: '1794284267'
+  commit_sha: b973f17617cb703bf0d5693780790e689161dbed
+  generated_at: '1794286153'
   generator: kuda/0.1.0

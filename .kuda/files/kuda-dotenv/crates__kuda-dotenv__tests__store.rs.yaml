@@ -1,6 +1,6 @@
 path: crates/kuda-dotenv/tests/store.rs
 module: kuda-dotenv
-purpose: crates/kuda-dotenv/tests/store.rs
+purpose: Tests the dotenv-backed `Secrets` implementation, covering setting, retrieving, and updating keys without duplicate entries. Verifies malformed lines and empty values are ignored, invalid paths return errors, and secret files use mode `0600` on Unix.
 symbols:
 - tmp
 - set_get_update
@@ -12,7 +12,7 @@ provenance:
   files:
   - crates/kuda-dotenv/tests/store.rs
   hashes:
-  - 4ca3425e1e767aa61caa1554588b1f713e5f55d4
-  commit_sha: 8d826eb1abfad4e0a0577f04e2d7a3ad83b0aa6a
-  generated_at: '1794180523'
+  - 4c2a39815095537b2b15c46d60a717575172fdcb
+  commit_sha: b973f17617cb703bf0d5693780790e689161dbed
+  generated_at: '1794286153'
   generator: kuda-acp/0.1.0

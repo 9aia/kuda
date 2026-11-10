@@ -1,13 +1,210 @@
 name: kuda-driver
 path: crates/kuda-driver/Cargo.toml
-purpose: pavo view driver — tamias-driver-kuda serves a kuda index as ViewNode IR
+purpose: tamias-driver-kuda — pavo view driver over a kuda index (ViewNode IR) plus engine ops dispatching to the kuda lib
 api:
+- name: CAP
+  kind: const
+  file: crates/kuda-driver/src/queries.rs
+  line: 88
+  module: kuda-driver
+- name: Ctx
+  kind: type
+  file: crates/kuda-driver/src/repo.rs
+  line: 20
+  module: kuda-driver
+- name: OPS
+  kind: const
+  file: crates/kuda-driver/src/ops.rs
+  line: 33
+  module: kuda-driver
+- name: Op
+  kind: type
+  file: crates/kuda-driver/src/ops.rs
+  line: 20
+  module: kuda-driver
+- name: ROW_CAP
+  kind: const
+  file: crates/kuda-driver/src/queries.rs
+  line: 18
+  module: kuda-driver
+- name: SYMBOL_GRAPH_CAP
+  kind: const
+  file: crates/kuda-driver/src/queries.rs
+  line: 22
+  module: kuda-driver
+- name: argv
+  kind: function
+  file: crates/kuda-driver/src/ops.rs
+  line: 118
+  module: kuda-driver
+- name: argv_maps_params_to_kuda_flags
+  kind: function
+  file: crates/kuda-driver/src/ops.rs
+  line: 202
+  module: kuda-driver
+- name: binding
+  kind: function
+  file: crates/kuda-driver/src/views.rs
+  line: 11
+  module: kuda-driver
+- name: blob_hash
+  kind: function
+  file: crates/kuda-driver/src/repo.rs
+  line: 168
+  module: kuda-driver
+- name: bool_param
+  kind: function
+  file: crates/kuda-driver/src/ops.rs
+  line: 107
+  module: kuda-driver
+- name: capped
+  kind: function
+  file: crates/kuda-driver/src/queries.rs
+  line: 96
+  module: kuda-driver
+- name: card_drift
+  kind: function
+  file: crates/kuda-driver/src/repo.rs
+  line: 145
+  module: kuda-driver
+- name: cards_dir
+  kind: function
+  file: crates/kuda-driver/src/repo.rs
+  line: 134
+  module: kuda-driver
+- name: col
+  kind: function
+  file: crates/kuda-driver/src/views.rs
+  line: 62
+  module: kuda-driver
+- name: contrib
+  kind: function
+  file: crates/kuda-driver/src/views.rs
+  line: 96
+  module: kuda-driver
+- name: dependents
+  kind: function
+  file: crates/kuda-driver/src/queries.rs
+  line: 464
+  module: kuda-driver
+- name: dispatch
+  kind: function
+  file: crates/kuda-driver/src/main.rs
+  line: 73
+  module: kuda-driver
+- name: drift
+  kind: function
+  file: crates/kuda-driver/src/queries.rs
+  line: 426
+  module: kuda-driver
+- name: drift_rows
+  kind: function
+  file: crates/kuda-driver/src/queries.rs
+  line: 103
+  module: kuda-driver
+- name: driver_passes_pavo_conformance
+  kind: function
+  file: crates/kuda-driver/tests/conformance.rs
+  line: 17
+  module: kuda-driver
+- name: edge_json
+  kind: function
+  file: crates/kuda-driver/src/queries.rs
+  line: 292
+  module: kuda-driver
+- name: edge_kind_str
+  kind: function
+  file: crates/kuda-driver/src/queries.rs
+  line: 64
+  module: kuda-driver
+- name: err
+  kind: function
+  file: crates/kuda-driver/src/queries.rs
+  line: 24
+  module: kuda-driver
+- name: every_binding_name_has_a_query_impl
+  kind: function
+  file: crates/kuda-driver/src/views.rs
+  line: 281
+  module: kuda-driver
+- name: find
+  kind: function
+  file: crates/kuda-driver/src/queries.rs
+  line: 443
+  module: kuda-driver
+- name: graph
+  kind: function
+  file: crates/kuda-driver/src/queries.rs
+  line: 270
+  module: kuda-driver
+- name: graph_modules
+  kind: function
+  file: crates/kuda-driver/src/queries.rs
+  line: 303
+  module: kuda-driver
+- name: graph_node
+  kind: function
+  file: crates/kuda-driver/src/views.rs
+  line: 68
+  module: kuda-driver
+- name: graph_symbols
+  kind: function
+  file: crates/kuda-driver/src/queries.rs
+  line: 348
+  module: kuda-driver
+- name: indexed
+  kind: function
+  file: crates/kuda-driver/src/repo.rs
+  line: 91
+  module: kuda-driver
 - name: kuda-driver
   kind: module
   file: crates/kuda-driver/Cargo.toml
   line: 1
   module: kuda-driver
+- name: kv
+  kind: function
+  file: crates/kuda-driver/src/views.rs
+  line: 57
+  module: kuda-driver
+- name: load_config
+  kind: function
+  file: crates/kuda-driver/src/repo.rs
+  line: 123
+  module: kuda-driver
+- name: main
+  kind: function
+  file: crates/kuda-driver/src/main.rs
+  line: 35
+  module: kuda-driver
+- name: manifest
+  kind: function
+  file: crates/kuda-driver/src/ops.rs
+  line: 86
+  module: kuda-driver
+- name: manifest
+  kind: function
+  file: crates/kuda-driver/src/views.rs
+  line: 105
+  module: kuda-driver
+- name: manifest_advertises_pavo_and_declares_views
+  kind: function
+  file: crates/kuda-driver/src/views.rs
+  line: 260
+  module: kuda-driver
+- name: manifest_lists_every_op_as_cli_query
+  kind: function
+  file: crates/kuda-driver/src/ops.rs
+  line: 218
+  module: kuda-driver
+- name: module
+  kind: function
+  file: crates/kuda-driver/src/queries.rs
+  line: 177
+  module: kuda-driver
+api_omitted: 41
 deps:
+- kuda
 - kuda-cards
 - kuda-core
 - kuda-git
@@ -15,13 +212,22 @@ deps:
 - kuda-store
 - kuda-store-sqlite
 - kuda-vcs
+- pavo-driver-kit
+- pavo-protocol
 - serde
 - serde_json
 - sha1
 - toml
-- pavo-driver-kit
-- pavo-protocol
 - pavo-testkit
+- kuda-core
+- kuda-store
+- kuda-store-sqlite
+- serde_json
+- kuda-vcs
+- sha1
+- pavo_protocol
+- queries
+- repo
 notes: |
   - Query failures return `{"error": …}` payloads rather than crashing views; malformed wire requests and unknown operations receive structured error responses.
   - The driver never creates a missing SQLite index and resolves each request's repository from `root`/`dir`/`path`, `$KUDA_DRIVER_ROOT`, or the nearest indexed ancestor of the cwd.
@@ -34,6 +240,7 @@ notes: |
 verify:
 - crates/kuda-driver/Cargo.toml
 - crates/kuda-driver/src/main.rs
+- crates/kuda-driver/src/ops.rs
 - crates/kuda-driver/src/queries.rs
 - crates/kuda-driver/src/repo.rs
 - crates/kuda-driver/src/views.rs
@@ -42,17 +249,19 @@ provenance:
   files:
   - crates/kuda-driver/Cargo.toml
   - crates/kuda-driver/src/main.rs
+  - crates/kuda-driver/src/ops.rs
   - crates/kuda-driver/src/queries.rs
   - crates/kuda-driver/src/repo.rs
   - crates/kuda-driver/src/views.rs
   - crates/kuda-driver/tests/conformance.rs
   hashes:
-  - ec1e40238881e9e99dd3592759448f650b23174c
-  - 52f19d6b81b5074096ed5c0f4a9fe61aca7fb2f4
+  - 4f5f9960a2ded6698de938ce338d3cd8c22cfc81
+  - d5a7b98fd6dde1d42625d02aa3bab4362355be71
+  - 84b2d48fcca0ff90e8acd8585f9be461fa49df1c
   - fa2d31ebcd3f75df04aa6d6753058d6591c6461e
-  - ef3437af6e571b7f077f339f196cc0a96f98bb84
-  - d722ebd94d2482098e725eeaacc1ea2fbd342e8a
+  - 32280e5b451db32cffe9defb9ec523a466166066
+  - c5e20f966ceb5c1618788dd56765deace6d0946f
   - 383d57d4a1fea60ea3426373d47b6c36cc37f62e
-  commit_sha: 572cee6a017ac61d7e690d1992c6b379e1404310
-  generated_at: '1794244771'
-  generator: kuda-acp/0.1.3
+  commit_sha: b973f17617cb703bf0d5693780790e689161dbed
+  generated_at: '1794286153'
+  generator: kuda-template/0.1.3
