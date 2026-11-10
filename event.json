@@ -1,1 +1,1 @@
-{"id":"","ws":"devin-wal-corpus","actor":"luis","ts":1794290887,"op":{"op":"claim","glob":"crates/*","ttl_secs":3600}}
+{"id":"","ws":"devin-wal-corpus","actor":"luis","ts":1794291560,"op":{"op":"intent","text":"kuda non-tree corpus support — first non-filesystem domain"}}
