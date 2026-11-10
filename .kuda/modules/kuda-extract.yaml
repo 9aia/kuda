@@ -2,12 +2,58 @@ name: kuda-extract
 path: crates/kuda-extract/Cargo.toml
 purpose: Extract port — pull symbols/deps/structure from source trees
 api:
+- name: ExtractWarning
+  kind: type
+  file: crates/kuda-extract/src/lib.rs
+  line: 24
+  module: kuda-extract
+- name: Extraction
+  kind: type
+  file: crates/kuda-extract/src/lib.rs
+  line: 12
+  module: kuda-extract
+- name: Extractor
+  kind: trait
+  file: crates/kuda-extract/src/lib.rs
+  line: 31
+  module: kuda-extract
+- name: Stub
+  kind: type
+  file: crates/kuda-extract/src/lib.rs
+  line: 53
+  module: kuda-extract
+- name: default_filtered_delegates_to_extract
+  kind: function
+  file: crates/kuda-extract/src/lib.rs
+  line: 72
+  module: kuda-extract
+- name: extract
+  kind: function
+  file: crates/kuda-extract/src/lib.rs
+  line: 58
+  module: kuda-extract
+- name: extract_filtered
+  kind: function
+  file: crates/kuda-extract/src/lib.rs
+  line: 39
+  module: kuda-extract
+- name: kind
+  kind: function
+  file: crates/kuda-extract/src/lib.rs
+  line: 55
+  module: kuda-extract
 - name: kuda-extract
   kind: module
   file: crates/kuda-extract/Cargo.toml
   line: 1
   module: kuda-extract
+- name: tests
+  kind: module
+  file: crates/kuda-extract/src/lib.rs
+  line: 50
+  module: kuda-extract
 deps:
+- kuda-core
 - kuda-core
 notes: |
   - Extraction is mechanical: adapters report what grammars or manifests actually contain rather than inferred structure.
@@ -27,6 +73,6 @@ provenance:
   hashes:
   - 8474c16bc613412aaa22031cbce10ad3a1f9beea
   - d75af826960ecbd254477203e9e0c3bd87da4a80
-  commit_sha: 8d826eb1abfad4e0a0577f04e2d7a3ad83b0aa6a
-  generated_at: '1794180523'
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291501'
   generator: kuda-acp/0.1.3

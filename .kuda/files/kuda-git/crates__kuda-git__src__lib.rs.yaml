@@ -1,6 +1,6 @@
 path: crates/kuda-git/src/lib.rs
 module: kuda-git
-purpose: 'Git adapter of the `Vcs` port: a zero-state `GitVcs` struct that shells out to the `git` binary (`git -C <repo> …`) for `head_sha` (rev-parse HEAD), `sync` (fetch origin --prune), `has_commit` (cat-file -e), detached worktree add/force-remove/prune, and tag exists/create/push-to-origin. All operations return bool success (or `Option<String>` for the sha); the child''s stdout/stderr are inherited, not captured, except for `head_sha`.'
+purpose: crates/kuda-git/src/lib.rs
 symbols:
 - GitVcs
 - git
@@ -18,6 +18,6 @@ provenance:
   - crates/kuda-git/src/lib.rs
   hashes:
   - 5b88b309efeef08b79d6da453518e135f13217d3
-  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
-  generated_at: '1793855773'
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291501'
   generator: kuda-acp/0.1.0

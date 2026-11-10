@@ -34,8 +34,8 @@ commands:
 - (cd presentation && npm run build)
 - (cd presentation && npm run dev)
 - (cd presentation && npm run export)
-tree_digest: 1dfd1abd213a7a90b1b3304b907702b6e7fd9ef0
-files_total: 99
+tree_digest: f2857931220aa53ab59a16c65f5576dd7bc15a76
+files_total: 100
 provenance:
   files:
   - Cargo.toml
@@ -91,6 +91,6 @@ provenance:
   - a3f3978c21457dd7be4e34dc16f31231d0a68777
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
   - 0f3a434bcbd7f03da300bb0068407063d067a223
-  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
-  generated_at: '1794291563'
+  commit_sha: ae8744c2efb40aa8b04501db0312f679697b07f3
+  generated_at: '1794323883'
   generator: kuda/0.1.0

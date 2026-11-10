@@ -2,15 +2,66 @@ name: kuda-config-toml
 path: crates/kuda-config-toml/Cargo.toml
 purpose: 'Config adapter: kuda.toml file (explicit path, env, ./, ~/.config)'
 api:
+- name: CFG
+  kind: const
+  file: crates/kuda-config-toml/tests/load.rs
+  line: 12
+  module: kuda-config-toml
+- name: LOCK
+  kind: const
+  file: crates/kuda-config-toml/tests/load.rs
+  line: 10
+  module: kuda-config-toml
+- name: TomlSource
+  kind: type
+  file: crates/kuda-config-toml/src/lib.rs
+  line: 7
+  module: kuda-config-toml
+- name: explicit_path_and_missing_error
+  kind: function
+  file: crates/kuda-config-toml/tests/load.rs
+  line: 39
+  module: kuda-config-toml
+- name: home_fallback_when_unset
+  kind: function
+  file: crates/kuda-config-toml/tests/load.rs
+  line: 110
+  module: kuda-config-toml
 - name: kuda-config-toml
   kind: module
   file: crates/kuda-config-toml/Cargo.toml
   line: 1
   module: kuda-config-toml
+- name: load
+  kind: function
+  file: crates/kuda-config-toml/src/lib.rs
+  line: 13
+  module: kuda-config-toml
+- name: loads_via_env_var
+  kind: function
+  file: crates/kuda-config-toml/tests/load.rs
+  line: 22
+  module: kuda-config-toml
+- name: parse_error_and_dotfile_fallback
+  kind: function
+  file: crates/kuda-config-toml/tests/load.rs
+  line: 57
+  module: kuda-config-toml
+- name: tmp
+  kind: function
+  file: crates/kuda-config-toml/tests/load.rs
+  line: 4
+  module: kuda-config-toml
+- name: unreadable_config_is_a_read_error
+  kind: function
+  file: crates/kuda-config-toml/tests/load.rs
+  line: 94
+  module: kuda-config-toml
 deps:
 - kuda-config
 - kuda-core
 - toml
+- kuda-config
 notes: |
   - Resolution order is fixed: explicit `--config` path → `$KUDA_CONFIG` → `./kuda.toml` → `~/.config/kuda/kuda.toml`; an explicit path or env var short-circuits the default search (single candidate).
   - The first EXISTING candidate is loaded — a malformed or unreadable file yields an error prefixed with its path (`parse <path>:` / `read <path>:`), never a silent skip to the next candidate.
@@ -30,6 +81,6 @@ provenance:
   - 69539d90b1b9cce1264bb96925db8212817849fa
   - b12116b476081aedcaf4ea623af3ff70bc65999c
   - e61f26303098c6a88c012a302d72e995dfb20f48
-  commit_sha: 8d826eb1abfad4e0a0577f04e2d7a3ad83b0aa6a
-  generated_at: '1794180523'
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291501'
   generator: kuda-acp/0.1.3

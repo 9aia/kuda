@@ -1,6 +1,6 @@
 path: crates/kuda-extract/src/lib.rs
 module: kuda-extract
-purpose: 'I’ll verify the port definition directly, then return the requested purpose statement.purpose: Defines the mechanical extraction port and its result model: symbols, dependency edges, provenance input files, and non-fatal file-scoped warnings. The thread-safe `Extractor` trait supports full-repository and optionally file-filtered passes, with filtered extraction defaulting to a full `extract` call for adapters without per-file control.'
+purpose: crates/kuda-extract/src/lib.rs
 symbols:
 - Extraction
 - ExtractWarning
@@ -16,6 +16,6 @@ provenance:
   - crates/kuda-extract/src/lib.rs
   hashes:
   - d75af826960ecbd254477203e9e0c3bd87da4a80
-  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
-  generated_at: '1793907315'
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291501'
   generator: kuda-acp/0.1.0

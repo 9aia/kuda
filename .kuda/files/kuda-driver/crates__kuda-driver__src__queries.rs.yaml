@@ -37,6 +37,6 @@ provenance:
   - crates/kuda-driver/src/queries.rs
   hashes:
   - fa2d31ebcd3f75df04aa6d6753058d6591c6461e
-  commit_sha: f0a43394780cea61b309c3f848b7ebc29b61c00e
-  generated_at: '1794177735'
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291501'
   generator: kuda-acp/0.1.0

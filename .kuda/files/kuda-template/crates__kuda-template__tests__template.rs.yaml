@@ -1,6 +1,6 @@
 path: crates/kuda-template/tests/template.rs
 module: kuda-template
-purpose: Tests deterministic module-card generation by `TemplateSummarizer` from extraction data alone. Verifies that only the target module’s symbols and outgoing dependencies are collected, while the card name, fallback purpose, verification files, provenance input, and `template` summarizer kind are preserved.
+purpose: crates/kuda-template/tests/template.rs
 symbols:
 - prov
 - sym
@@ -9,7 +9,7 @@ provenance:
   files:
   - crates/kuda-template/tests/template.rs
   hashes:
-  - 110d7245c3ef544773480d0a39b93374244557eb
-  commit_sha: b973f17617cb703bf0d5693780790e689161dbed
-  generated_at: '1794286153'
+  - b200b56c3b2bd7b2d8d0b540dbce125ec8d84d38
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291501'
   generator: kuda-acp/0.1.0

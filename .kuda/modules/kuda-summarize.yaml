@@ -2,12 +2,19 @@ name: kuda-summarize
 path: crates/kuda-summarize/Cargo.toml
 purpose: Summarize port — Extraction -> ModuleCard
 api:
+- name: Summarizer
+  kind: trait
+  file: crates/kuda-summarize/src/lib.rs
+  line: 10
+  module: kuda-summarize
 - name: kuda-summarize
   kind: module
   file: crates/kuda-summarize/Cargo.toml
   line: 1
   module: kuda-summarize
 deps:
+- kuda-core
+- kuda-extract
 - kuda-core
 - kuda-extract
 notes: |
@@ -25,6 +32,6 @@ provenance:
   hashes:
   - 11910998e03f533e3852432fcb107e980fbe99f5
   - c39be362ce68f67043930e8b2a69ca1ada4ab670
-  commit_sha: 8d826eb1abfad4e0a0577f04e2d7a3ad83b0aa6a
-  generated_at: '1794180523'
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291501'
   generator: kuda-acp/0.1.3

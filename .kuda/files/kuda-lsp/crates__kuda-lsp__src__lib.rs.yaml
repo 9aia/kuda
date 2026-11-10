@@ -1,6 +1,6 @@
 path: crates/kuda-lsp/src/lib.rs
 module: kuda-lsp
-purpose: Implements an LSP-backed extractor that spawns a configured language server, communicates over Content-Length-framed JSON-RPC, and collects document symbols in both flat and hierarchical forms. Also provides semantic cross-file reference lookup through `workspace/symbol` and `textDocument/references`, returning sorted, deduplicated file and line pairs. Missing servers or extraction failures degrade to empty or partial results so other extractor tiers can continue.
+purpose: crates/kuda-lsp/src/lib.rs
 symbols:
 - LspExtractor
 - LspClient
@@ -32,7 +32,7 @@ provenance:
   files:
   - crates/kuda-lsp/src/lib.rs
   hashes:
-  - c9bf77b7f5319744b5cedcb15065f440b337b17c
-  commit_sha: b973f17617cb703bf0d5693780790e689161dbed
-  generated_at: '1794286153'
+  - f950692c132d7df043fb1ac1658667efb7bff80f
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291501'
   generator: kuda-acp/0.1.0

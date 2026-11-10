@@ -35,57 +35,57 @@ api:
 - name: T-002
   kind: record
   file: project/TODO.md
-  line: 13
+  line: 12
   module: project
 - name: T-003
   kind: record
   file: project/TODO.md
-  line: 14
+  line: 13
   module: project
 - name: T-004
   kind: record
   file: project/TODO.md
-  line: 15
+  line: 14
   module: project
 - name: T-005
   kind: record
   file: project/TODO.md
-  line: 16
+  line: 15
   module: project
 - name: T-006
   kind: record
   file: project/TODO.md
-  line: 17
+  line: 16
   module: project
 - name: T-007
   kind: record
   file: project/TODO.md
-  line: 21
+  line: 20
   module: project
 - name: T-008
   kind: record
   file: project/TODO.md
-  line: 22
+  line: 21
   module: project
 - name: T-009
   kind: record
   file: project/TODO.md
-  line: 26
+  line: 25
   module: project
 - name: T-010
   kind: record
   file: project/TODO.md
-  line: 30
+  line: 29
   module: project
 - name: T-011
   kind: record
   file: project/TODO.md
-  line: 34
+  line: 33
   module: project
 - name: T-012
   kind: record
   file: project/TODO.md
-  line: 38
+  line: 37
   module: project
 - name: T-013
   kind: record
@@ -150,7 +150,7 @@ api:
 - name: T-025
   kind: record
   file: project/TODO.md
-  line: 42
+  line: 41
   module: project
 - name: T-026
   kind: record
@@ -184,8 +184,18 @@ api:
   module: project
 - name: T-032
   kind: record
-  file: project/TODO.md
-  line: 9
+  file: project/DONE.md
+  line: 4
+  module: project
+- name: T-033
+  kind: record
+  file: project/DONE.md
+  line: 5
+  module: project
+- name: T-033
+  kind: record
+  file: project/handoffs/T-033.md
+  line: 2
   module: project
 deps: []
 notes: |
@@ -208,11 +218,11 @@ verify:
 - project/TODO.md
 - project/adrs/0001-adr-0001-tiered-memory-artifacts-ports-adapters-topology.md
 - project/adrs/0003-domain-descriptors-record-corpora-as-indexable-data.md
+- project/handoffs/T-033.md
 - project/handoffs/archive/T-027.md
 - project/handoffs/archive/T-029.md
 - project/index.md
 - project/issues/issue-0001-myco-emits-priority-medium-in-frontmatter-but-cli-enum-is-low-med-high-crit-normalize-emitter-to-med-kuda-schema-accepts-both-for-now.md
-- project/issues/issue-0002-kuda-sync-regresses-cards-acp-leaks-monologue-into-purpose-drops-notes.md
 provenance:
   files:
   - project/BACKLOG.md
@@ -220,6 +230,7 @@ provenance:
   - project/TODO.md
   - project/adrs/0001-adr-0001-tiered-memory-artifacts-ports-adapters-topology.md
   - project/adrs/0003-domain-descriptors-record-corpora-as-indexable-data.md
+  - project/handoffs/T-033.md
   - project/handoffs/archive/T-027.md
   - project/handoffs/archive/T-029.md
   - project/index.md
@@ -227,15 +238,16 @@ provenance:
   - project/issues/issue-0002-kuda-sync-regresses-cards-acp-leaks-monologue-into-purpose-drops-notes.md
   hashes:
   - 6b4609cf8d307865615fd108300b69ef5d514c0a
-  - 1ba1cf7be88d9a530a8ede58644509fddb58d6c4
-  - f7384c0a94ebc4214c1d1388c9a0af3eb6158c0d
+  - 11e1acfbe46bdf85c5a75af26ae64d2aef68b49c
+  - 493832b0314be78dc648ab5ab4f185c89cf29ae8
   - def5e4b43853bd31a3e51c7730f08820962dfdb4
   - 64c28d791fb138cc76a184b92c3d27f345b34068
+  - 314de45133bab301cc9920a6a4a7eecccfdc0cc4
   - 9f3779ae765d34171c9fb02b6644265a8cca8f91
   - 34f59afdfb337b361448d92a7290451f3ac36b6a
   - a9cbb363e46c66216b83994b2dba52c063dd59db
   - 5b1a2edf5787fb263cdc54796ce6a5395bdf01fd
   - 41b6a56ba796852e3ecbe0fc9961cf154f0c8e9e
-  commit_sha: 07787d26d99420340b1210795611606e746a5f73
-  generated_at: '1794288355'
+  commit_sha: ae8744c2efb40aa8b04501db0312f679697b07f3
+  generated_at: '1794323883'
   generator: kuda-template/0.1.3

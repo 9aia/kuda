@@ -1,6 +1,6 @@
 path: crates/kuda-cli/tests/e2e.rs
 module: kuda
-purpose: End-to-end integration tests for the compiled `kuda` CLI, exercising scaffolding, indexing, card generation and cleanup, provenance drift, symbol/dependency/reference queries, workspace behavior, configuration and failure paths, and protocol or external-tool integrations. The suite builds temporary Python and monorepo fixtures to verify canonical cross-package edges, bounded public card contents, incremental/full sync behavior, stale-artifact removal, and graceful broken-pipe handling. It also covers LSP fallback, sturn WAL processing, and ACP interactions through helper processes and stubs.
+purpose: crates/kuda-cli/tests/e2e.rs
 symbols:
 - kuda
 - help_and_stub
@@ -37,6 +37,6 @@ provenance:
   - crates/kuda-cli/tests/e2e.rs
   hashes:
   - e49fe909eb029688f497f1c92126fd873a4079a6
-  commit_sha: 07787d26d99420340b1210795611606e746a5f73
-  generated_at: '1794288355'
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291501'
   generator: kuda-acp/0.1.0

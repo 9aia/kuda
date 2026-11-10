@@ -34,6 +34,6 @@ provenance:
   - crates/kuda-store-sqlite/src/lib.rs
   hashes:
   - ba51534e7e4977b5ccea658e6873b7f3f8cb87a0
-  commit_sha: 849a2935ab8087064e4e8d123bbcdb5957cf75dd
-  generated_at: '1794151271'
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291501'
   generator: kuda-acp/0.1.0

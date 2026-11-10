@@ -75,7 +75,7 @@ api:
 - name: meta_and_file_hashes
   kind: function
   file: crates/kuda-store-sqlite/tests/store.rs
-  line: 58
+  line: 63
   module: kuda-store-sqlite
 - name: modules
   kind: function
@@ -115,7 +115,7 @@ api:
 - name: replace_module_replaces
   kind: function
   file: crates/kuda-store-sqlite/tests/store.rs
-  line: 49
+  line: 54
   module: kuda-store-sqlite
 - name: scratch
   kind: function
@@ -197,7 +197,7 @@ provenance:
   hashes:
   - 2d30a3d362d500ce8e4310218db2ea0f8da6ae99
   - ba51534e7e4977b5ccea658e6873b7f3f8cb87a0
-  - d9910b3de7a82327740d2f42d9a4b6b7f5117cce
-  commit_sha: b0701c7fa7b318f011f9ddeeccdc2cd8317631b6
-  generated_at: '1794286310'
-  generator: kuda-template/0.1.3
+  - b9d9ac97a524605e83aac53b1bf4d38fde0c5a69
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291501'
+  generator: kuda-acp/0.1.3

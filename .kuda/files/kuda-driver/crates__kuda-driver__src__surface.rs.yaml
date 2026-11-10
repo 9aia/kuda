@@ -1,0 +1,15 @@
+path: crates/kuda-driver/src/surface.rs
+module: kuda-driver
+purpose: crates/kuda-driver/src/surface.rs
+symbols:
+- Engine
+- op
+- surface
+provenance:
+  files:
+  - crates/kuda-driver/src/surface.rs
+  hashes:
+  - f2c3bf82712717db3be95215b2bb3fc3c440bd5c
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291501'
+  generator: kuda-acp/0.1.0

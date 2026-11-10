@@ -1,6 +1,6 @@
 path: modules/dagger/dagger/src/kuda/main.py
 module: kuda
-purpose: 'Dagger Python module providing shared, portable CI primitives for Rust workspaces: builds a toolchain container (stable rust, nextest, llvm-cov, sccache), mounts the consumer repo plus optional sibling checkouts under `/work`, and wires cargo/sccache caches, optional GitHub-token auth (in-exec, never in image layers), and dev-link/self-patch rewrites of Cargo.toml so git deps resolve to mounted checkouts. Exposes composable functions (`workspace`, `with_sibling`, `run_script`) and pipeline entrypoints (`doctor`, sharded `test`/`test_shard`, `doctests`, coverage report/gate, `run`) so the same pipeline runs locally or on any orchestrator.'
+purpose: modules/dagger/dagger/src/kuda/main.py
 symbols:
 - Kuda
 - _base
@@ -22,6 +22,6 @@ provenance:
   - modules/dagger/dagger/src/kuda/main.py
   hashes:
   - d71646b878b3eae72aa42a5791588701197fdb2d
-  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
-  generated_at: '1793855773'
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291501'
   generator: kuda-acp/0.1.0

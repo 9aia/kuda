@@ -1,6 +1,6 @@
 path: crates/kuda-cli/src/main.rs
 module: kuda
-purpose: Thin compat CLI binary whose `main` exits with `kuda::run()`; the entire engine lives in the `kuda` library (`src/lib.rs`).
+purpose: crates/kuda-cli/src/main.rs
 symbols:
 - main
 provenance:
@@ -8,6 +8,6 @@ provenance:
   - crates/kuda-cli/src/main.rs
   hashes:
   - 5645c359f4cb7671d1ac62243ef2ebb34c10d46e
-  commit_sha: b973f17617cb703bf0d5693780790e689161dbed
-  generated_at: '1794286092'
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291501'
   generator: kuda-acp/0.1.0

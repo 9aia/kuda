@@ -12,15 +12,25 @@ api:
   file: crates/kuda-driver/src/repo.rs
   line: 20
   module: kuda-driver
+- name: Engine
+  kind: type
+  file: crates/kuda-driver/src/surface.rs
+  line: 19
+  module: kuda-driver
 - name: OPS
   kind: const
   file: crates/kuda-driver/src/ops.rs
-  line: 33
+  line: 55
   module: kuda-driver
 - name: Op
   kind: type
   file: crates/kuda-driver/src/ops.rs
-  line: 20
+  line: 41
+  module: kuda-driver
+- name: Param
+  kind: type
+  file: crates/kuda-driver/src/ops.rs
+  line: 25
   module: kuda-driver
 - name: ROW_CAP
   kind: const
@@ -32,15 +42,20 @@ api:
   file: crates/kuda-driver/src/queries.rs
   line: 22
   module: kuda-driver
+- name: arg
+  kind: function
+  file: crates/kuda-driver/src/ops.rs
+  line: 30
+  module: kuda-driver
 - name: argv
   kind: function
   file: crates/kuda-driver/src/ops.rs
-  line: 118
+  line: 145
   module: kuda-driver
 - name: argv_maps_params_to_kuda_flags
   kind: function
   file: crates/kuda-driver/src/ops.rs
-  line: 202
+  line: 229
   module: kuda-driver
 - name: binding
   kind: function
@@ -55,7 +70,7 @@ api:
 - name: bool_param
   kind: function
   file: crates/kuda-driver/src/ops.rs
-  line: 107
+  line: 134
   module: kuda-driver
 - name: capped
   kind: function
@@ -90,7 +105,7 @@ api:
 - name: dispatch
   kind: function
   file: crates/kuda-driver/src/main.rs
-  line: 73
+  line: 110
   module: kuda-driver
 - name: drift
   kind: function
@@ -131,6 +146,11 @@ api:
   kind: function
   file: crates/kuda-driver/src/queries.rs
   line: 443
+  module: kuda-driver
+- name: flag
+  kind: function
+  file: crates/kuda-driver/src/ops.rs
+  line: 36
   module: kuda-driver
 - name: graph
   kind: function
@@ -175,34 +195,14 @@ api:
 - name: main
   kind: function
   file: crates/kuda-driver/src/main.rs
-  line: 35
+  line: 45
   module: kuda-driver
 - name: manifest
   kind: function
   file: crates/kuda-driver/src/ops.rs
-  line: 86
+  line: 110
   module: kuda-driver
-- name: manifest
-  kind: function
-  file: crates/kuda-driver/src/views.rs
-  line: 105
-  module: kuda-driver
-- name: manifest_advertises_pavo_and_declares_views
-  kind: function
-  file: crates/kuda-driver/src/views.rs
-  line: 260
-  module: kuda-driver
-- name: manifest_lists_every_op_as_cli_query
-  kind: function
-  file: crates/kuda-driver/src/ops.rs
-  line: 218
-  module: kuda-driver
-- name: module
-  kind: function
-  file: crates/kuda-driver/src/queries.rs
-  line: 177
-  module: kuda-driver
-api_omitted: 41
+api_omitted: 49
 deps:
 - kuda
 - kuda-cards
@@ -243,6 +243,7 @@ verify:
 - crates/kuda-driver/src/ops.rs
 - crates/kuda-driver/src/queries.rs
 - crates/kuda-driver/src/repo.rs
+- crates/kuda-driver/src/surface.rs
 - crates/kuda-driver/src/views.rs
 - crates/kuda-driver/tests/conformance.rs
 provenance:
@@ -252,16 +253,18 @@ provenance:
   - crates/kuda-driver/src/ops.rs
   - crates/kuda-driver/src/queries.rs
   - crates/kuda-driver/src/repo.rs
+  - crates/kuda-driver/src/surface.rs
   - crates/kuda-driver/src/views.rs
   - crates/kuda-driver/tests/conformance.rs
   hashes:
-  - 4f5f9960a2ded6698de938ce338d3cd8c22cfc81
-  - d5a7b98fd6dde1d42625d02aa3bab4362355be71
-  - 84b2d48fcca0ff90e8acd8585f9be461fa49df1c
+  - 2606f9a4b93dfee2a8c6c48be61da1db2ec2310d
+  - 655d2bfa3ba25622ddb8cecb17229e4e6afcebad
+  - 7a058405dc7cfcf27d87cbdfc4d34e4729d93060
   - fa2d31ebcd3f75df04aa6d6753058d6591c6461e
   - 32280e5b451db32cffe9defb9ec523a466166066
+  - f2c3bf82712717db3be95215b2bb3fc3c440bd5c
   - c5e20f966ceb5c1618788dd56765deace6d0946f
   - 383d57d4a1fea60ea3426373d47b6c36cc37f62e
-  commit_sha: b0701c7fa7b318f011f9ddeeccdc2cd8317631b6
-  generated_at: '1794286310'
-  generator: kuda-template/0.1.3
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291501'
+  generator: kuda-acp/0.1.3

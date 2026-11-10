@@ -1,6 +1,6 @@
 path: crates/kuda-query/src/lib.rs
 module: kuda-query
-purpose: 'Thin agent-facing query engine over the `IndexStore` port: `find` (exact symbol lookup), `search` (substring/fuzzy tier), `dependents` (impact analysis with dash/underscore variant expansion, dedup, and defense-in-depth self-edge filtering via `module_key`), `edge_count` (zero means "no dep data", not "no dependents"), `module_symbols`, and `modules`. Filtering/formatting lives here while storage stays behind the port; unit tests drive an in-memory `MockStore` through every query function including legacy self-edge and duplicate-spelling cases.'
+purpose: crates/kuda-query/src/lib.rs
 symbols:
 - find
 - search
@@ -31,6 +31,6 @@ provenance:
   - crates/kuda-query/src/lib.rs
   hashes:
   - 9e9627d7ab306ccfe261efd520351d9fedf34c52
-  commit_sha: eee64dacf6499914f59acf3c1df38ecaa37401b3
-  generated_at: '1793855773'
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291501'
   generator: kuda-acp/0.1.0

@@ -1,6 +1,6 @@
 path: crates/kuda-template/src/lib.rs
 module: kuda-template
-purpose: 'I’ll verify the template adapter directly, then return the requested purpose statement.purpose: Implements the deterministic, zero-model `template` summarizer, constructing module cards solely from extraction results and supplied provenance. It uses the module name as the initial purpose, includes only symbols and outgoing edges belonging to that module, and copies extraction files into `verify`; richer purpose fallback and agent-written prose are handled elsewhere.'
+purpose: crates/kuda-template/src/lib.rs
 symbols:
 - TemplateSummarizer
 - kind
@@ -10,6 +10,6 @@ provenance:
   - crates/kuda-template/src/lib.rs
   hashes:
   - 4be986f5c2b56e52f6fcbb9be19ae7433625af72
-  commit_sha: bbc3e2724d21a16fb23489f5a651f9e4ab449dd1
-  generated_at: '1793907315'
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291501'
   generator: kuda-acp/0.1.0

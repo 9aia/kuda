@@ -1,7 +1,11 @@
 path: crates/kuda-driver/src/ops.rs
 module: kuda-driver
-purpose: This file implements the engine ops for the kuda driver, mapping `cli.<op>` wire queries to kuda engine commands by re-executing `tamias-driver-kuda run <argv>` in a child process with the request's repo as cwd. It defines an ops manifest (sync, status, map, card, find, dependents, refs, doctor) with parameter mapping to kuda argv flags, keeping long-running surfaces (watch, mcp, acp) separate as they never return. The ops run in child processes to avoid contaminating the serve loop's ndjson stream with engine output.
+purpose: crates/kuda-driver/src/ops.rs
 symbols:
+- Param
+- arg
+- opt
+- flag
 - Op
 - OPS
 - manifest
@@ -18,7 +22,7 @@ provenance:
   files:
   - crates/kuda-driver/src/ops.rs
   hashes:
-  - 84b2d48fcca0ff90e8acd8585f9be461fa49df1c
-  commit_sha: b973f17617cb703bf0d5693780790e689161dbed
-  generated_at: '1794285921'
+  - 7a058405dc7cfcf27d87cbdfc4d34e4729d93060
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291501'
   generator: kuda-acp/0.1.0

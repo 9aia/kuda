@@ -2,12 +2,18 @@ name: kuda-store
 path: crates/kuda-store/Cargo.toml
 purpose: Store port — L2 index persistence (rebuildable)
 api:
+- name: IndexStore
+  kind: trait
+  file: crates/kuda-store/src/lib.rs
+  line: 9
+  module: kuda-store
 - name: kuda-store
   kind: module
   file: crates/kuda-store/Cargo.toml
   line: 1
   module: kuda-store
 deps:
+- kuda-core
 - kuda-core
 notes: |
   - The store is rebuildable, never the source of truth (committed `.kuda` cards are).
@@ -26,6 +32,6 @@ provenance:
   hashes:
   - fcd81b2ab4c0c8bd258d2a0d32162f1ff7ae9bd9
   - 3aadff00b7766196f8dcc0eccd98ec86b1fa5a9f
-  commit_sha: 8d826eb1abfad4e0a0577f04e2d7a3ad83b0aa6a
-  generated_at: '1794180523'
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291501'
   generator: kuda-acp/0.1.3

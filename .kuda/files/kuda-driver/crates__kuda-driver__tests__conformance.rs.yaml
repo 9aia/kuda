@@ -1,6 +1,6 @@
 path: crates/kuda-driver/tests/conformance.rs
 module: kuda-driver
-purpose: Runs pavo’s standard driver conformance suite against the compiled `tamias-driver-kuda` binary and fails with a detailed list of any wire-contract violations. The spawned driver uses the crate’s repository working directory, exercising real `.kuda/` discovery without network or user-state dependencies.
+purpose: crates/kuda-driver/tests/conformance.rs
 symbols:
 - driver_passes_pavo_conformance
 provenance:
@@ -8,6 +8,6 @@ provenance:
   - crates/kuda-driver/tests/conformance.rs
   hashes:
   - 383d57d4a1fea60ea3426373d47b6c36cc37f62e
-  commit_sha: 572cee6a017ac61d7e690d1992c6b379e1404310
-  generated_at: '1794244771'
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291501'
   generator: kuda-acp/0.1.0
