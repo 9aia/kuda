@@ -38,6 +38,7 @@ inherits = "release"
 lto = "thin"
 
 [workspace.dependencies]
+kuda = { path = "crates/kuda-cli", version = "0.1.0" }
 kuda-core = { path = "crates/kuda-core", version = "0.1.0" }
 kuda-extract = { path = "crates/kuda-extract", version = "0.1.0" }
 kuda-manifest = { path = "crates/kuda-manifest", version = "0.1.0" }

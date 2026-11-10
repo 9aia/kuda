@@ -106,6 +106,12 @@ pub fn manifest() -> DriverManifest {
     kit::Manifest::new("kuda", "Kuda")
         .version(env!("CARGO_PKG_VERSION"))
         .icon("🗺️")
+        // argv verbs beyond manifest/serve — discovery (`capabilities`,
+        // `ops` = the engine ops manifest) and the engine passthrough
+        // (`run`, also the child side of `cli.*` wire queries).
+        .verb("capabilities")
+        .verb("ops")
+        .verb("run")
         .navbar(contrib("kuda", "Kuda", "/kuda/modules", 30, Some("🗺️")))
         .dashboard(contrib("drift", "Kuda drift", "/kuda/drift", 40, None))
         .statusbar(contrib("status", "Kuda", "/kuda/drift", 110, None))

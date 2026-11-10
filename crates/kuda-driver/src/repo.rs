@@ -25,7 +25,8 @@ pub struct Ctx {
     /// `.kuda/index.yaml` L0 card, when present and parseable.
     pub repo_card: Option<RepoCard>,
     /// L2 store — `None` when `.kuda/index.sqlite` doesn't exist
-    /// (never created: the driver is read-only).
+    /// (never created: the view/query side stays read-only;
+    /// `cli.sync` mutates through the `run` re-exec, not `Ctx`).
     pub store: Option<SqliteStore>,
     /// `git rev-parse HEAD` at open time (empty when not a repo).
     pub head: String,

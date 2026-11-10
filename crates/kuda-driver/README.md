@@ -1,11 +1,13 @@
 # kuda-driver — `tamias-driver-kuda`
 
-Pavo view driver for kuda. One binary, named `tamias-driver-kuda`,
-answers the pavo wire ops (`manifest`, `views`, `view`, `query`) as
-ndjson JSON-RPC over stdio — the same `{"op":…}` /
-`{"ok":…,"result"|"error":…}` shape every sibling `serve` speaks
-(mirrored from `pavo-protocol`; the protocol crate is deliberately
-not a dependency so kuda ships standalone).
+Pavo view driver + engine-ops driver for kuda. One binary, named
+`tamias-driver-kuda`, answers the pavo wire ops (`manifest`,
+`views`, `view`, `query`) as ndjson JSON-RPC over stdio via
+`pavo-driver-kit` — the same `{"op":…}` /
+`{"ok":…,"result"|"error":…}` shape every sibling `serve` speaks.
+It also links the `kuda` engine lib: the `run` argv verb and the
+`cli.*` wire queries dispatch to `kuda::dispatch(Cli)` — argv in,
+exit code out.
 
 ## Install / discovery
 
@@ -22,8 +24,10 @@ release that includes this crate.
 
 ## Repo context
 
-The driver is **read-only** — it never creates `.kuda/index.sqlite`.
-Per request it resolves the repo root from:
+Views and plain queries are **read-only** — the driver never opens
+`.kuda/index.sqlite` for writing. Engine ops are the exception by
+design (`cli.sync` mutates `.kuda/` — see below). Per request it
+resolves the repo root from:
 
 1. `root` / `dir` / `path` param on the wire request,
 2. `$KUDA_DRIVER_ROOT`,
@@ -53,6 +57,33 @@ Per request it resolves the repo root from:
 artifacts and recompute git-blob provenance hashes exactly like
 `kuda status`.
 
+## Engine ops
+
+`ops` (argv verb or `{"op":"query","query":"ops"}`) returns the ops
+manifest — the engine's verb table as JSON:
+
+| wire query | kuda op | params | mutates |
+| --- | --- | --- | --- |
+| `cli.sync` | `sync` | `full`, `workspace` | yes |
+| `cli.status` | `status` | — | no |
+| `cli.map` | `map` | — | no |
+| `cli.card` | `card` | `module` | no |
+| `cli.find` | `find` | `symbol`, `workspace` | no |
+| `cli.dependents` | `dependents` | `name`, `workspace` | no |
+| `cli.refs` | `refs` | `name`, `docs`, `workspace` | no |
+| `cli.doctor` | `doctor` | — | no |
+
+Each `cli.*` query re-execs `tamias-driver-kuda run <argv>` with the
+resolved repo root as cwd — `kuda::dispatch` writes to the child's
+captured stdout, so the serve loop stays a clean ndjson stream. The
+payload is `{op, argv, code, stdout, stderr}`; `code` is the
+engine's own exit status (`ok:false` is reserved for spawn
+failures). `tamias-driver-kuda run <argv>` is also a human
+passthrough — `run sync --full` ≡ `kuda sync --full`.
+
+`watch`/`mcp`/`acp` are deliberately not ops — they never return and
+belong to surface drivers (`tamias-driver-cli` / `-mcp`, follow-up).
+
 ## Contributes
 
 navbar → `/kuda/modules`, dashboard panel → `/kuda/drift`,
@@ -62,8 +93,10 @@ to the drift view rather than rendering "N stale" inline.
 
 ## Layout
 
-- `src/main.rs` — argv verbs (`manifest`, `capabilities`, `serve`)
-  + the ndjson dispatch loop.
+- `src/main.rs` — argv verbs (`manifest`, `capabilities`, `ops`,
+  `run`, `serve`) + the ndjson dispatch loop.
+- `src/ops.rs` — the engine ops manifest + `cli.*` dispatch (re-exec
+  `run`, captured output → `{code, stdout, stderr}`).
 - `src/repo.rs` — root resolution, `kuda.toml` config, card
   parsing, `kuda status`-equivalent drift.
 - `src/queries.rs` — query-name → payload implementations.

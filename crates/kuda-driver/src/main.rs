@@ -7,15 +7,20 @@
 //! Also answers the discovery verbs `manifest` and `capabilities` as
 //! plain argv.
 //!
-//! Repo context: the driver is read-only. It resolves the kuda repo
-//! from the `root`/`dir`/`path` request param, `$KUDA_DRIVER_ROOT`,
-//! or by walking up from its cwd (pavo inherits the user's cwd, so
+//! Repo context: views/queries are read-only — the driver never
+//! opens `.kuda/index.sqlite` for writing. Engine ops are the
+//! exception by design: `cli.<op>` wire queries re-exec the `run`
+//! verb in the request's repo and let `kuda::dispatch` own the
+//! outcome (`cli.sync` mutates `.kuda/`). The repo resolves from
+//! the `root`/`dir`/`path` request param, `$KUDA_DRIVER_ROOT`, or
+//! by walking up from the cwd (pavo inherits the user's cwd, so
 //! `pavo view kuda:graph` inside repo X reads X's `.kuda/`).
 //!
 //! Install: `cargo install --path crates/kuda-driver` places
 //! `tamias-driver-kuda` on PATH — pavo discovers it there or under
 //! `<tamias-home>/drivers/`.
 
+mod ops;
 mod queries;
 mod repo;
 mod views;
@@ -35,19 +40,25 @@ fn main() {
             0
         }
         Some("capabilities") => {
-            println!(
-                "{}",
-                json!({
-                    "capabilities": ["pavo"],
-                    "verbs": ["manifest", "serve"],
-                    "driver": "kuda",
-                })
-            );
+            let mut v = kit::capabilities_value(&views::manifest());
+            v["driver"] = json!("kuda");
+            println!("{v}");
             0
+        }
+        Some("ops") => {
+            println!("{}", ops::manifest());
+            0
+        }
+        // Engine passthrough — `tamias-driver-kuda run sync --full`
+        // is `kuda sync --full`. Also the child side of `cli.*` wire
+        // queries (ops::run_op re-execs this same verb).
+        Some("run") => {
+            let argv = std::iter::once("kuda".to_string()).chain(args.iter().skip(1).cloned());
+            std::process::exit(kuda::dispatch(&kuda::parse_from(argv)));
         }
         Some("serve") | None => serve(),
         _ => {
-            eprintln!("usage: tamias-driver-kuda manifest|capabilities|serve");
+            eprintln!("usage: tamias-driver-kuda manifest|capabilities|ops|run <argv>|serve");
             1
         }
     };
@@ -64,7 +75,18 @@ fn dispatch(req: &Request, manifest: &DriverManifest) -> Response {
         Request::Manifest => Response::ok_typed(manifest),
         Request::Views => Response::ok_typed(&views_summaries(manifest)),
         Request::View { view, params } => view_result(manifest, view, params),
-        Request::Query { query, params } => query_result(query, params),
+        Request::Query { query, params } => {
+            if query == "ops" {
+                Response::ok_typed(&QueryResult {
+                    query: query.clone(),
+                    data: ops::manifest(),
+                })
+            } else if let Some(op) = ops::op_of(query) {
+                ops::run_op(&resolve_root(params), op, params)
+            } else {
+                query_result(query, params)
+            }
+        }
         Request::Render { .. } => Response::err("unsupported op: render"),
         Request::Submit { .. } => Response::err("unsupported op: submit"),
         Request::Jobs => Response::err("unsupported op: jobs"),
