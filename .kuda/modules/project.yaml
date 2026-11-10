@@ -174,6 +174,11 @@ api:
   module: project
 - name: T-030
   kind: record
+  file: project/DONE.md
+  line: 3
+  module: project
+- name: T-031
+  kind: record
   file: project/TODO.md
   line: 8
   module: project
@@ -194,6 +199,7 @@ notes: |
   - T-011 (.hnl descriptor) is blocked on a tree-sitter-handl grammar existing or being written; the descriptor itself is just data.
 verify:
 - project/BACKLOG.md
+- project/DONE.md
 - project/TODO.md
 - project/adrs/0001-adr-0001-tiered-memory-artifacts-ports-adapters-topology.md
 - project/adrs/0003-domain-descriptors-record-corpora-as-indexable-data.md
@@ -205,6 +211,7 @@ verify:
 provenance:
   files:
   - project/BACKLOG.md
+  - project/DONE.md
   - project/TODO.md
   - project/adrs/0001-adr-0001-tiered-memory-artifacts-ports-adapters-topology.md
   - project/adrs/0003-domain-descriptors-record-corpora-as-indexable-data.md
@@ -215,7 +222,8 @@ provenance:
   - project/issues/issue-0002-kuda-sync-regresses-cards-acp-leaks-monologue-into-purpose-drops-notes.md
   hashes:
   - 6b4609cf8d307865615fd108300b69ef5d514c0a
-  - 62a6611e4670497c67b0997e897d29e55ded645a
+  - 1ba1cf7be88d9a530a8ede58644509fddb58d6c4
+  - 63dd4eda7672a3dee62e9960aa986b44dffaac56
   - def5e4b43853bd31a3e51c7730f08820962dfdb4
   - 64c28d791fb138cc76a184b92c3d27f345b34068
   - 9f3779ae765d34171c9fb02b6644265a8cca8f91
@@ -223,6 +231,6 @@ provenance:
   - a9cbb363e46c66216b83994b2dba52c063dd59db
   - 5b1a2edf5787fb263cdc54796ce6a5395bdf01fd
   - 41b6a56ba796852e3ecbe0fc9961cf154f0c8e9e
-  commit_sha: b973f17617cb703bf0d5693780790e689161dbed
-  generated_at: '1794286153'
+  commit_sha: b0701c7fa7b318f011f9ddeeccdc2cd8317631b6
+  generated_at: '1794286310'
   generator: kuda-template/0.1.3
