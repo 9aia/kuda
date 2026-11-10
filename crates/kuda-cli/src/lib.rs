@@ -343,6 +343,56 @@ fn walk_sets(
     (manifest_list, manifest_names, src_exts)
 }
 
+/// Extractor registry — `[extract].kinds` names → adapter instances,
+/// tried in config order. New bundled adapter = one arm here + a dep
+/// in Cargo.toml; unknown kinds warn and skip (a config typo isn't a
+/// hard fail — the other extractors still run).
+fn extractors(
+    kinds: &[String],
+    cfg: &Config,
+    doms: &[DomainDef],
+    pkg_by_dir: &std::collections::HashMap<PathBuf, String>,
+) -> Vec<Box<dyn Extractor>> {
+    kinds
+        .iter()
+        .filter_map(|k| match k.as_str() {
+            "manifest" => Some(Box::new(kuda_manifest::ManifestExtractor {
+                excludes: cfg.extract.exclude.clone(),
+                resolve_git_deps: cfg.workspace.resolve_git_deps,
+            }) as Box<dyn Extractor>),
+            "treesitter" => Some(Box::new(kuda_treesitter::TreesitterExtractor {
+                excludes: cfg.extract.exclude.clone(),
+                pkg_names: pkg_by_dir.clone(),
+            })),
+            "lsp" => Some(Box::new(kuda_lsp::LspExtractor {
+                server_cmd: cfg.extract.lsp_server.clone(),
+            })),
+            "records" => Some(Box::new(kuda_records::RecordsExtractor {
+                excludes: cfg.extract.exclude.clone(),
+                domains: doms.to_vec(),
+            })),
+            other => {
+                eprintln!("extract: unknown kind {other} (adapter crate?)");
+                None
+            }
+        })
+        .collect()
+}
+
+/// Summarizer selection — `kind = "acp"` with a configured command
+/// yields the agent adapter; anything else falls to the template
+/// (an unconfigured `acp_cmd` can't summon an agent, so `None`
+/// means template).
+fn acp_summarizer(cfg: &Config, dir: &Path) -> Option<kuda_acp::AcpSummarizer> {
+    if cfg.summarize.kind != "acp" {
+        return None;
+    }
+    cfg.summarize
+        .acp_cmd
+        .clone()
+        .map(|cmd| kuda_acp::AcpSummarizer::new(cmd, dir.to_path_buf()))
+}
+
 /// Which domain corpus a file belongs to — declared root prefix +
 /// extension. Returns the descriptor's module name on match.
 fn domain_module<'a>(rel: &Path, domains: &'a [DomainDef]) -> Option<&'a str> {
@@ -592,27 +642,7 @@ fn sync_one(
         .flat_map(|m| mod_files.get(m).cloned().unwrap_or_default())
         .collect();
 
-    let mut extractors: Vec<Box<dyn Extractor>> = Vec::new();
-    for k in &cfg.extract.kinds {
-        match k.as_str() {
-            "manifest" => extractors.push(Box::new(kuda_manifest::ManifestExtractor {
-                excludes: cfg.extract.exclude.clone(),
-                resolve_git_deps: cfg.workspace.resolve_git_deps,
-            })),
-            "treesitter" => extractors.push(Box::new(kuda_treesitter::TreesitterExtractor {
-                excludes: cfg.extract.exclude.clone(),
-                pkg_names: pkg_by_dir.clone(),
-            })),
-            "lsp" => extractors.push(Box::new(kuda_lsp::LspExtractor {
-                server_cmd: cfg.extract.lsp_server.clone(),
-            })),
-            "records" => extractors.push(Box::new(kuda_records::RecordsExtractor {
-                excludes: cfg.extract.exclude.clone(),
-                domains: doms.clone(),
-            })),
-            other => eprintln!("extract: unknown kind {other} (adapter crate?)"),
-        }
-    }
+    let extractors = extractors(&cfg.extract.kinds, cfg, &doms, &pkg_by_dir);
     let mut ext = kuda_extract::Extraction::default();
     for x in &extractors {
         // manifest is cheap (few files) — full pass keeps module
@@ -682,12 +712,8 @@ fn sync_one(
     }
 
     // summarizer adapter: acp spawns an agent; anything else is template
-    let acp = cfg
-        .summarize
-        .acp_cmd
-        .clone()
-        .map(|cmd| kuda_acp::AcpSummarizer::new(cmd, dir.to_path_buf()));
-    let use_acp = cfg.summarize.kind == "acp" && acp.is_some();
+    let acp = acp_summarizer(cfg, dir);
+    let use_acp = acp.is_some();
     let summ = kuda_template::TemplateSummarizer;
     let mut module_names = Vec::new();
     // acp replies that fail card-prose parsing (monologue, garbage)
