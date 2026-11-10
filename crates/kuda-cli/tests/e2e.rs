@@ -675,6 +675,42 @@ fn init_error_paths() {
     std::fs::remove_dir_all(&dir).ok();
 }
 
+#[test]
+fn init_gitignores_rebuildables() {
+    let dir = tmp("initignore");
+    git_init(&dir);
+    // pre-existing .gitignore without a trailing newline
+    mk_at(&dir, ".gitignore", "/target");
+    assert!(kuda(&["init"], &dir).status.success());
+    let gi = std::fs::read_to_string(dir.join(".gitignore")).unwrap();
+    assert_eq!(gi, "/target\n.kuda/index.sqlite\n.kuda/meta.json\n");
+    // sync on an existing install converges to the same rules and
+    // adds nothing on a repeat run (idempotent).
+    seed_py_repo(&dir);
+    assert!(kuda(&["sync"], &dir).status.success());
+    let gi2 = std::fs::read_to_string(dir.join(".gitignore")).unwrap();
+    assert_eq!(gi2, gi);
+    std::fs::remove_dir_all(&dir).ok();
+}
+
+#[test]
+fn gitignore_skips_nonrepo_creates_missing() {
+    // no .git -> init must not leave a stray .gitignore behind
+    let dir = tmp("initnogit");
+    assert!(kuda(&["init"], &dir).status.success());
+    assert!(!dir.join(".gitignore").exists());
+    // a git repo with no .gitignore -> sync creates one
+    git_init(&dir);
+    seed_py_repo(&dir);
+    assert!(kuda(&["sync"], &dir).status.success());
+    let gi = std::fs::read_to_string(dir.join(".gitignore")).unwrap();
+    assert!(
+        gi.contains(".kuda/index.sqlite\n.kuda/meta.json\n"),
+        "{gi}"
+    );
+    std::fs::remove_dir_all(&dir).ok();
+}
+
 // ---------- status edge cases ----------
 
 #[test]

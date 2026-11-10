@@ -289,8 +289,42 @@ fn init(cli: &Cli) -> i32 {
             return 1;
         }
     }
+    ensure_gitignore(&dir, &kuda_core::StoreCfg::default().path);
     outln!("wrote {} + .kuda/ — run `kuda sync`", toml_path.display());
     0
+}
+
+/// Append the rebuildable `.kuda` artifacts to `.gitignore` —
+/// `index.sqlite` + `meta.json` regen from the committed *.yaml
+/// cards, so they must never be checked in. Idempotent, and a no-op
+/// outside a git repo (`.git` may be a worktree *file*, so `exists`,
+/// not `is_dir`). `init` and `sync` both run it — `init` refuses
+/// when kuda.toml already exists, so `sync` is how existing installs
+/// pick the rules up.
+fn ensure_gitignore(dir: &Path, store: &Path) {
+    if !dir.join(".git").exists() {
+        return;
+    }
+    let store_line = if store.is_absolute() {
+        ".kuda/index.sqlite".to_owned()
+    } else {
+        store.to_string_lossy().replace('\\', "/")
+    };
+    let path = dir.join(".gitignore");
+    let mut text = std::fs::read_to_string(&path).unwrap_or_default();
+    let before = text.len();
+    for line in [store_line, ".kuda/meta.json".to_owned()] {
+        if !text.lines().any(|l| l.trim() == line) {
+            if !text.is_empty() && !text.ends_with('\n') {
+                text.push('\n');
+            }
+            text.push_str(&line);
+            text.push('\n');
+        }
+    }
+    if text.len() != before {
+        let _ = std::fs::write(&path, &text);
+    }
 }
 
 /// Workspace roots from `.kuda/workspace.yaml` (`roots: [...]`),
@@ -357,6 +391,7 @@ fn sync(cli: &Cli, full: bool) -> i32 {
     let mut code = 0;
     for r in &roots {
         outln!("sync {}", r.display());
+        ensure_gitignore(r, &cfg.store.path);
         code |= sync_one(r, &cfg, cli, full, &union);
     }
     code
