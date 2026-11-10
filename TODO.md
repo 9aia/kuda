@@ -7,8 +7,8 @@
 
 ## Ports + first adapters
 
-- [ ] T-005 kuda-vcs port + kuda-git adapter (sha, changed files -> staleness) — bupha's vcs/git crates already fit; repurpose
 - [ ] T-006 kuda-summarize port + kuda-template adapter (deterministic cards: API list, deps, commands — zero-model default)
+- [ ] T-005 kuda-vcs port + kuda-git adapter (sha, changed files -> staleness) — bupha's vcs/git crates already fit; repurpose · status:in-progress
 
 ## Pipeline + queries
 
