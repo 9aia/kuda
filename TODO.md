@@ -24,5 +24,3 @@
 - [ ] T-012 modules/dagger — keep as kuda's own CI module (dogfoods bupha).
 
 ## Recovered
-
-- [ ] T-025 verify claim .kuda/modules/Cargo.toml.yaml:3 ('Cargo.toml') — file missing, card likely stale; recovered from dead sessions 1792289007778\_292qm, 1792289232239\_Jpne2, 1792289295855\_Xr\_YW, 1792289355290\_bAAOh, 1792289567602\_H2XTF · status:in-progress · created:2026-10-30
