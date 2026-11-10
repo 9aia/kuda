@@ -8,3 +8,4 @@
 - T-002 kuda-extract port + kuda-manifest adapter (cargo/npm/go/py manifests -> package graph; no parser needed — lands first)
 - T-003 kuda-treesitter adapter — grammar+query data per language (rust first)
 - T-004 kuda-store port + kuda-store-sqlite adapter (L2 graph)
+- T-005 kuda-vcs port + kuda-git adapter (sha, changed files -> staleness) — bupha's vcs/git crates already fit; repurpose
