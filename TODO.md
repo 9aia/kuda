@@ -7,8 +7,6 @@
 
 ## Ports + first adapters
 
-- [ ] T-006 kuda-summarize port + kuda-template adapter (deterministic cards: API list, deps, commands — zero-model default) · status:in-progress
-
 ## Pipeline + queries
 
 - [ ] T-007 kuda-query — find / dependents / card / refs (--docs)
