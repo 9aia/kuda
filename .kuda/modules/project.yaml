@@ -35,57 +35,57 @@ api:
 - name: T-002
   kind: record
   file: project/TODO.md
-  line: 12
+  line: 11
   module: project
 - name: T-003
   kind: record
   file: project/TODO.md
-  line: 13
+  line: 12
   module: project
 - name: T-004
   kind: record
   file: project/TODO.md
-  line: 14
+  line: 13
   module: project
 - name: T-005
   kind: record
   file: project/TODO.md
-  line: 15
+  line: 14
   module: project
 - name: T-006
   kind: record
   file: project/TODO.md
-  line: 16
+  line: 15
   module: project
 - name: T-007
   kind: record
   file: project/TODO.md
-  line: 20
+  line: 19
   module: project
 - name: T-008
   kind: record
   file: project/TODO.md
-  line: 21
+  line: 20
   module: project
 - name: T-009
   kind: record
   file: project/TODO.md
-  line: 25
+  line: 24
   module: project
 - name: T-010
   kind: record
   file: project/TODO.md
-  line: 29
+  line: 28
   module: project
 - name: T-011
   kind: record
   file: project/TODO.md
-  line: 33
+  line: 32
   module: project
 - name: T-012
   kind: record
   file: project/TODO.md
-  line: 37
+  line: 36
   module: project
 - name: T-013
   kind: record
@@ -150,7 +150,7 @@ api:
 - name: T-025
   kind: record
   file: project/TODO.md
-  line: 41
+  line: 40
   module: project
 - name: T-026
   kind: record
@@ -179,8 +179,8 @@ api:
   module: project
 - name: T-031
   kind: record
-  file: project/TODO.md
-  line: 8
+  file: project/DONE.md
+  line: 6
   module: project
 - name: T-032
   kind: record
@@ -238,8 +238,8 @@ provenance:
   - project/issues/issue-0002-kuda-sync-regresses-cards-acp-leaks-monologue-into-purpose-drops-notes.md
   hashes:
   - 6b4609cf8d307865615fd108300b69ef5d514c0a
-  - 11e1acfbe46bdf85c5a75af26ae64d2aef68b49c
-  - 493832b0314be78dc648ab5ab4f185c89cf29ae8
+  - 67255fe4ac808787b5ac3d89a317ec39d7f88166
+  - 18465d7714fe7592b65a12da57e8069a22aa870f
   - def5e4b43853bd31a3e51c7730f08820962dfdb4
   - 64c28d791fb138cc76a184b92c3d27f345b34068
   - 314de45133bab301cc9920a6a4a7eecccfdc0cc4
@@ -248,6 +248,6 @@ provenance:
   - a9cbb363e46c66216b83994b2dba52c063dd59db
   - 5b1a2edf5787fb263cdc54796ce6a5395bdf01fd
   - 41b6a56ba796852e3ecbe0fc9961cf154f0c8e9e
-  commit_sha: ae8744c2efb40aa8b04501db0312f679697b07f3
-  generated_at: '1794323883'
+  commit_sha: db14517895d975352984d9e3db2207a1f6c98eb7
+  generated_at: '1794323951'
   generator: kuda-template/0.1.3
