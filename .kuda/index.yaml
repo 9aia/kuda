@@ -27,14 +27,15 @@ modules:
 - kuda-treesitter
 - kuda-vcs
 - project
+- sturn-wal
 commands:
 - cargo check
 - cargo test --workspace
 - (cd presentation && npm run build)
 - (cd presentation && npm run dev)
 - (cd presentation && npm run export)
-tree_digest: 79e4959b721e29117bd5f83e2895aeaca2b62eeb
-files_total: 97
+tree_digest: 1dfd1abd213a7a90b1b3304b907702b6e7fd9ef0
+files_total: 99
 provenance:
   files:
   - Cargo.toml
@@ -90,6 +91,6 @@ provenance:
   - a3f3978c21457dd7be4e34dc16f31231d0a68777
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
   - 0f3a434bcbd7f03da300bb0068407063d067a223
-  commit_sha: 07787d26d99420340b1210795611606e746a5f73
-  generated_at: '1794288355'
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291563'
   generator: kuda/0.1.0

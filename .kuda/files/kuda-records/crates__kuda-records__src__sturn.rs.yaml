@@ -1,0 +1,24 @@
+path: crates/kuda-records/src/sturn.rs
+module: kuda-records
+purpose: crates/kuda-records/src/sturn.rs
+symbols:
+- git
+- inputs
+- commits
+- event
+- extract
+- tests
+- tmp
+- sh
+- wal_repo
+- sturn_def
+- wal_events_become_records_and_edges
+- no_refs_is_silent_skip
+provenance:
+  files:
+  - crates/kuda-records/src/sturn.rs
+  hashes:
+  - 528a29f3e827cb0fa2d4f0bb6aadab17cda2233c
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291501'
+  generator: kuda-acp/0.1.0

@@ -1,0 +1,31 @@
+# Domain descriptor — sturn WAL corpus, the first non-tree source
+# (ADR-0003). sturn keeps its coordination log in git refs, not
+# files: one commit per event on `refs/sturn/wal/<ws>` (compaction
+# archives at `refs/sturn/archive/<ws>`), each commit's tree
+# holding `event.json`. Each ref indexes as a virtual JSONL file —
+# one event per line — through the same record/edge machinery as
+# file corpora. A repo without sturn refs is a silent skip.
+name = "sturn"
+module = "sturn-wal"
+purpose = "sturn coordination WAL — claims, writes, snaps, review events in refs/sturn/*"
+
+# Record ids — capture group 1, one per event (JSONL line). The
+# extractor injects `record` = "<actor>:<op>@<ws>#<id8>" so actor,
+# op, and workspace queries all land on the event; `seq` (injected,
+# 1-based) is the entry offset and lands as the record's line.
+record_patterns = [
+  '"record":\s*"([^"]+)"',
+]
+
+# Reference edges — string values of the fields events carry:
+# write/delete `path`, rename `from`/`to`, claim `glob`, ask
+# `subject`, review `event`, answer `ask`, plus `actor`/`ws` so
+# `dependents <actor>` lists an actor's ops. Same-line scope
+# means each event edges only to its own payload.
+ref_pattern = '"(?:path|from|to|glob|subject|event|ask|actor|ws)":\s*"([^"]+)"'
+
+# [source] must stay LAST — TOML nests every following key inside
+# it (silently, since Source carries no deny_unknown_fields).
+[source]
+type = "sturn-wal"
+ref_prefix = "refs/sturn"        # wal + archive refs

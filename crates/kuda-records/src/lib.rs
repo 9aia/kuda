@@ -4,10 +4,24 @@
 //! records (`id = "T-001"`) and checklist records (`- [ ] T-001`)
 //! are the same mechanism — a per-line capture-group-1 scan.
 
-use kuda_core::{DepEdge, DomainDef, EdgeKind, LangDef, Symbol, SymbolKind};
+use kuda_core::{DepEdge, DomainDef, EdgeKind, LangDef, Source, Symbol, SymbolKind};
 use kuda_extract::{ExtractWarning, Extraction, Extractor};
 use std::collections::HashSet;
 use std::path::Path;
+
+mod sturn;
+
+/// Non-tree input list for a domain: `(pseudo-file, content hash)`
+/// pairs sync folds into the module's walk set — a moved or
+/// deleted source input diffs exactly like a file write, and the
+/// module's provenance/staleness machinery needs nothing new.
+/// Tree domains and absent sources both yield empty.
+pub fn source_inputs(root: &Path, def: &DomainDef) -> Vec<(std::path::PathBuf, String)> {
+    match &def.source {
+        Some(Source::SturnWal { ref_prefix }) => sturn::inputs(root, ref_prefix),
+        None => Vec::new(),
+    }
+}
 
 /// `excludes`: extra dir names from `[extract] exclude`.
 /// `domains`: descriptors loaded from `data/domains/*` — a corpus
@@ -26,15 +40,22 @@ impl Extractor for RecordsExtractor {
         let mut out = Extraction::default();
         for def in &self.domains {
             let compiled = compile(def)?;
-            for base in &def.roots {
-                walk_corpus(root, base, def, &compiled, &self.excludes, &mut out);
+            match &def.source {
+                Some(Source::SturnWal { ref_prefix }) => {
+                    sturn::extract(root, ref_prefix, def, &compiled, &mut out)
+                }
+                None => {
+                    for base in &def.roots {
+                        walk_corpus(root, base, def, &compiled, &self.excludes, &mut out);
+                    }
+                }
             }
         }
         Ok(out)
     }
 }
 
-struct Compiled {
+pub(crate) struct Compiled {
     records: Vec<regex::Regex>,
     refs: Option<regex::Regex>,
     schema: Option<jsonschema::Validator>,
@@ -203,7 +224,15 @@ fn walk_corpus(
 /// single-record files take edges from the whole text; multi-record
 /// files (checklists) scope each record's refs to its own line —
 /// otherwise every task would edge to every mentioned id.
-fn scan_file(rel: &Path, text: &str, def: &DomainDef, compiled: &Compiled, out: &mut Extraction) {
+/// `pub(crate)`: non-tree sources feed synthesized text through the
+/// same scan — a WAL ref's event lines are a multi-record file.
+pub(crate) fn scan_file(
+    rel: &Path,
+    text: &str,
+    def: &DomainDef,
+    compiled: &Compiled,
+    out: &mut Extraction,
+) {
     // (id, 1-based line) — first match wins per id per file.
     // Fenced code blocks are skipped: `# comment` inside a toml
     // sample is not an H1 record.
@@ -283,6 +312,7 @@ mod tests {
             name: "myco".into(),
             roots: vec!["project".into()],
             extensions: vec![".md".into()],
+            source: None,
             module: "project".into(),
             purpose: None,
             record_patterns: vec![
@@ -422,6 +452,7 @@ mod schema_tests {
             name: "myco".into(),
             roots: vec!["project".into()],
             extensions: vec![".md".into()],
+            source: None,
             module: "project".into(),
             purpose: None,
             record_patterns: vec!["(?:id|item)\\s*=\\s*\"([A-Z]+-[0-9]+)\"".into()],
@@ -511,8 +542,7 @@ mod file_record_tests {
 
     #[test]
     fn file_records_emit_path_records_without_reading() {
-        let root = std::env::temp_dir()
-            .join(format!("kuda-fr-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!("kuda-fr-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&root);
         let f = root.join("assets/logo.png");
         std::fs::create_dir_all(f.parent().unwrap()).unwrap();
@@ -523,6 +553,7 @@ mod file_record_tests {
             name: "media".into(),
             roots: vec!["assets".into()],
             extensions: vec![".png".into(), ".txt".into()],
+            source: None,
             module: "media".into(),
             purpose: None,
             record_patterns: vec![],
@@ -538,7 +569,10 @@ mod file_record_tests {
         let names: Vec<&str> = out.symbols.iter().map(|s| s.name.as_str()).collect();
         assert!(names.contains(&"assets/logo.png"), "{names:?}");
         assert!(names.contains(&"assets/notes.txt"), "{names:?}");
-        assert!(out.symbols.iter().all(|s| s.kind == SymbolKind::Record && s.line == 0));
+        assert!(out
+            .symbols
+            .iter()
+            .all(|s| s.kind == SymbolKind::Record && s.line == 0));
         let _ = std::fs::remove_dir_all(&root);
     }
 }

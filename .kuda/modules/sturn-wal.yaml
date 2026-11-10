@@ -1,0 +1,31 @@
+name: sturn-wal
+path: refs/sturn/wal/devin-wal-corpus
+purpose: sturn coordination WAL — claims, writes, snaps, review events in refs/sturn/*
+api:
+- name: luis:claim@devin-wal-corpus#9802830f
+  kind: record
+  file: refs/sturn/wal/devin-wal-corpus
+  line: 1
+  module: sturn-wal
+- name: luis:intent@devin-wal-corpus#c795e294
+  kind: record
+  file: refs/sturn/wal/devin-wal-corpus
+  line: 2
+  module: sturn-wal
+deps:
+- luis
+- crates/*
+- devin-wal-corpus
+- luis
+- devin-wal-corpus
+notes: ''
+verify:
+- refs/sturn/wal/devin-wal-corpus
+provenance:
+  files:
+  - refs/sturn/wal/devin-wal-corpus
+  hashes:
+  - c795e294f2cd9f7cd080fee08bc7f4a6e46aad54
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291563'
+  generator: kuda-acp/0.1.3

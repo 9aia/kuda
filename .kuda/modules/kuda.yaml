@@ -10,27 +10,27 @@ api:
 - name: API_CAP
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 1421
+  line: 1461
   module: kuda
 - name: BUDGET
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 1160
+  line: 1200
   module: kuda
 - name: CHUNK
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 1159
+  line: 1199
   module: kuda
 - name: Cli
   kind: type
   file: crates/kuda-cli/src/lib.rs
-  line: 63
+  line: 64
   module: kuda
 - name: Cmd
   kind: type
   file: crates/kuda-cli/src/lib.rs
-  line: 78
+  line: 79
   module: kuda
 - name: DOMAIN_TOMLS
   kind: const
@@ -45,12 +45,12 @@ api:
 - name: FileCardJob
   kind: type
   file: crates/kuda-cli/src/lib.rs
-  line: 1126
+  line: 1166
   module: kuda
 - name: GENERATOR_VERSION
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 672
+  line: 712
   module: kuda
 - name: Kuda
   kind: type
@@ -65,22 +65,22 @@ api:
 - name: SKIP_BYTES
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 1161
+  line: 1201
   module: kuda
 - name: VERIFY_CAP
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 1422
+  line: 1462
   module: kuda
 - name: acp
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 2020
+  line: 2060
   module: kuda
 - name: acp_answer
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 2093
+  line: 2133
   module: kuda
 - name: acp_full_session
   kind: function
@@ -95,22 +95,22 @@ api:
 - name: acp_summarizer
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 405
+  line: 430
   module: kuda
 - name: blob_hash
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 232
+  line: 257
   module: kuda
 - name: card
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 1684
+  line: 1724
   module: kuda
 - name: cat_file
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 1688
+  line: 1728
   module: kuda
 - name: config_flag_changes_root
   kind: function
@@ -130,12 +130,12 @@ api:
 - name: crate_doc_purpose
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 1341
+  line: 1381
   module: kuda
 - name: dependents
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 1761
+  line: 1801
   module: kuda
 - name: dependents_all_messages
   kind: function
@@ -150,12 +150,12 @@ api:
 - name: detect_commands
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 1466
+  line: 1506
   module: kuda
 - name: dispatch
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 138
+  line: 139
   module: kuda
 - name: doctests
   kind: function
@@ -165,7 +165,7 @@ api:
 - name: doctor
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 2125
+  line: 2165
   module: kuda
 - name: doctor
   kind: function
@@ -185,12 +185,12 @@ api:
 - name: domain_module
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 417
+  line: 442
   module: kuda
 - name: domains
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 199
+  line: 200
   module: kuda
 - name: emit
   kind: function
@@ -200,9 +200,9 @@ api:
 - name: extractors
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 369
+  line: 394
   module: kuda
-api_omitted: 88
+api_omitted: 89
 deps:
 - dagger-io
 - clap
@@ -288,13 +288,13 @@ provenance:
   hashes:
   - c3184dac8ad2da15cc385ecde5428494921263ce
   - df73801e3fe8951fa21666324282a49c5ecab47a
-  - c1655f911d8de6838602aea3e1c08f948efc034e
+  - 4225c391dd6dad6b145bf102fde76406af9c9042
   - 5645c359f4cb7671d1ac62243ef2ebb34c10d46e
   - e49fe909eb029688f497f1c92126fd873a4079a6
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
   - 5b331a1baf30b49f5bf03dd9693297d498117deb
   - d71646b878b3eae72aa42a5791588701197fdb2d
   - 203086b883ed1477efd6f9befccd76e2614cc9ea
-  commit_sha: 07787d26d99420340b1210795611606e746a5f73
-  generated_at: '1794288355'
-  generator: kuda-template/0.1.3
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291501'
+  generator: kuda-acp/0.1.3

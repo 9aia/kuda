@@ -164,6 +164,32 @@ pub struct LangDef {
     pub dep_query: Option<String>,
 }
 
+/// Where a domain's corpus lives. Absent = the filesystem tree
+/// (`roots`/`extensions`); a non-tree source reads its corpus from
+/// somewhere else — `sturn-wal` walks event commits on git refs.
+/// The record/edge machinery is identical either way: the
+/// descriptor still declares the regexes, the source only changes
+/// where "files" and "lines" come from.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "kebab-case")]
+pub enum Source {
+    /// sturn coordination WAL: one ref per workspace under
+    /// `ref_prefix` (`refs/sturn/wal/<ws>`, compaction archives at
+    /// `refs/sturn/archive/<ws>`), each commit's tree holding an
+    /// `event.json` op. A repo without matching refs is a silent
+    /// skip, same as an absent corpus dir.
+    SturnWal {
+        /// Ref namespace prefix — `refs/sturn` covers wal and
+        /// archive refs alike.
+        #[serde(default = "default_ref_prefix")]
+        ref_prefix: String,
+    },
+}
+
+fn default_ref_prefix() -> String {
+    "refs/sturn".into()
+}
+
 /// Domain descriptor — a non-code record corpus as data, loaded
 /// from `data/domains/*` (same trick as [`LangDef`], one level up).
 /// The `records` extractor turns descriptor regexes into
@@ -176,10 +202,17 @@ pub struct DomainDef {
     pub name: String,
     /// Corpus dirs relative to the repo root ("project"). Declared
     /// roots are walked even when they carry a `.git`-file worktree
-    /// marker — the declaration is the intent.
+    /// marker — the declaration is the intent. Empty/absent for
+    /// non-tree sources.
+    #[serde(default)]
     pub roots: Vec<PathBuf>,
-    /// Record file extensions including the dot (".md").
+    /// Record file extensions including the dot (".md"). Unused by
+    /// non-tree sources.
+    #[serde(default)]
     pub extensions: Vec<String>,
+    /// Non-tree corpus source — absent means the filesystem walk.
+    #[serde(default)]
+    pub source: Option<Source>,
     /// Module name the corpus groups under — its card + provenance.
     pub module: String,
     /// Card purpose — domain modules have no manifest/README to

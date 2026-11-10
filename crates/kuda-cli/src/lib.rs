@@ -52,6 +52,7 @@ const DOMAIN_TOMLS: &[&str] = &[
     include_str!("../../../data/domains/myco.toml"),
     include_str!("../../../data/domains/docs.toml"),
     include_str!("../../../data/domains/media.toml"),
+    include_str!("../../../data/domains/sturn.toml"),
 ];
 
 #[derive(Parser)]
@@ -226,7 +227,31 @@ fn resolve_domains(cfg: &Config) -> Vec<DomainDef> {
 /// ("blob <len>\0" + bytes): identical values to
 /// `git hash-object`, no subprocess per file.
 fn hash_files(root: &Path, files: &[PathBuf]) -> Vec<String> {
-    files.iter().map(|f| blob_hash(&root.join(f))).collect()
+    files.iter().map(|f| input_hash(root, f)).collect()
+}
+
+/// Content hash for a provenance input: blob hash for real files;
+/// a non-tree input (a `refs/*` pseudo-path recorded by a domain
+/// source) resolves to the ref's current target sha — the same
+/// value sync stored, so cards don't report phantom drift.
+fn input_hash(root: &Path, rel: &Path) -> String {
+    let h = blob_hash(&root.join(rel));
+    if !h.is_empty() {
+        return h;
+    }
+    let Ok(o) = std::process::Command::new("git")
+        .arg("-C")
+        .arg(root)
+        .args(["rev-parse", "--verify", &rel.display().to_string()])
+        .output()
+    else {
+        return String::new();
+    };
+    if o.status.success() {
+        String::from_utf8_lossy(&o.stdout).trim().to_owned()
+    } else {
+        String::new()
+    }
 }
 
 fn blob_hash(path: &Path) -> String {
@@ -509,15 +534,30 @@ fn scan_repo(
             mod_files.entry(module).or_default().push(rel);
         }
     }
+    // Non-tree domain sources contribute pseudo-inputs before the
+    // sort: each source "file" (a `refs/sturn/*` ref for sturn-wal)
+    // rides the module set with its head sha as the content hash —
+    // a moved or deleted ref diffs exactly like a file write, and
+    // the module survives the vanished-modules sweep while refs
+    // exist. No refs = no inputs = silent skip.
+    let mut ref_hashes: Vec<(PathBuf, String)> = Vec::new();
+    for d in domains {
+        for (f, h) in kuda_records::source_inputs(dir, d) {
+            ref_hashes.push((f.clone(), h));
+            mod_files.entry(d.module.clone()).or_default().push(f);
+        }
+    }
     for v in mod_files.values_mut() {
         v.sort();
     }
-    // in-process blob hashes for every walked file
-    let filehash = mod_files
+    // in-process blob hashes for every walked file; ref inputs
+    // carry their own hashes (a rev-parse, not a blob read).
+    let mut filehash: std::collections::HashMap<PathBuf, String> = mod_files
         .values()
         .flatten()
         .map(|f| (f.clone(), blob_hash(&dir.join(f))))
         .collect();
+    filehash.extend(ref_hashes);
     (mod_files, filehash)
 }
 
@@ -2150,7 +2190,8 @@ fn doctor(cli: &Cli) -> i32 {
             Ok(()) => "ok".to_owned(),
             Err(e) => format!("BAD — {e}"),
         };
-        let present = d.roots.iter().any(|r| dir.join(r).is_dir());
+        let present = d.roots.iter().any(|r| dir.join(r).is_dir())
+            || !kuda_records::source_inputs(&dir, &d).is_empty();
         outln!(
             "  domain {:<8} {}{}",
             d.name,

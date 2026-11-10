@@ -1,66 +1,91 @@
 name: kuda-records
 path: crates/kuda-records/Cargo.toml
-purpose: The `records` extractor adapter — compiles `DomainDef` descriptor regexes into `SymbolKind::Record` symbols and `EdgeKind::References` edges for non-code corpora (tasks, ADRs, checklists), so a new corpus is a data change, not an engine change. Also exposes `check` (compile-only, for doctor) and `validate` (warnings-only scan, no index writes), with optional JSON-Schema validation of `+++` toml / `---` yaml frontmatter and a `file_records` mode that indexes binaries/images by path without reading text.
+purpose: 'Records adapter: domain descriptor regexes -> record symbols + reference edges'
 api:
 - name: Compiled
   kind: type
   file: crates/kuda-records/src/lib.rs
-  line: 37
+  line: 58
   module: kuda-records
 - name: RecordsExtractor
   kind: type
   file: crates/kuda-records/src/lib.rs
-  line: 15
+  line: 29
   module: kuda-records
 - name: absent_root_and_bad_regex
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 388
+  line: 418
   module: kuda-records
 - name: bad_schema_fails_compile_loudly
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 497
+  line: 528
   module: kuda-records
 - name: check
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 78
+  line: 99
+  module: kuda-records
+- name: commits
+  kind: function
+  file: crates/kuda-records/src/sturn.rs
+  line: 58
   module: kuda-records
 - name: compile
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 43
+  line: 64
+  module: kuda-records
+- name: event
+  kind: function
+  file: crates/kuda-records/src/sturn.rs
+  line: 75
   module: kuda-records
 - name: extract
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 25
+  line: 39
+  module: kuda-records
+- name: extract
+  kind: function
+  file: crates/kuda-records/src/sturn.rs
+  line: 91
   module: kuda-records
 - name: extracts_frontmatter_and_checklist_records
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 299
+  line: 329
   module: kuda-records
 - name: file_record_tests
   kind: module
   file: crates/kuda-records/src/lib.rs
-  line: 508
+  line: 539
   module: kuda-records
 - name: file_records_emit_path_records_without_reading
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 513
+  line: 544
   module: kuda-records
 - name: frontmatter
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 99
+  line: 120
+  module: kuda-records
+- name: git
+  kind: function
+  file: crates/kuda-records/src/sturn.rs
+  line: 20
+  module: kuda-records
+- name: inputs
+  kind: function
+  file: crates/kuda-records/src/sturn.rs
+  line: 38
   module: kuda-records
 - name: kind
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 21
+  line: 35
   module: kuda-records
 - name: kuda-records
   kind: module
@@ -70,57 +95,102 @@ api:
 - name: myco
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 281
+  line: 310
+  module: kuda-records
+- name: no_refs_is_silent_skip
+  kind: function
+  file: crates/kuda-records/src/sturn.rs
+  line: 265
   module: kuda-records
 - name: ref_pattern_prefers_capture_group_one
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 365
+  line: 395
   module: kuda-records
 - name: scan_file
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 206
+  line: 229
   module: kuda-records
 - name: schema_def
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 420
+  line: 450
   module: kuda-records
 - name: schema_tests
   kind: module
   file: crates/kuda-records/src/lib.rs
-  line: 409
+  line: 439
   module: kuda-records
 - name: schema_validates_frontmatter_records
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 444
+  line: 475
+  module: kuda-records
+- name: sh
+  kind: function
+  file: crates/kuda-records/src/sturn.rs
+  line: 148
+  module: kuda-records
+- name: source_inputs
+  kind: function
+  file: crates/kuda-records/src/lib.rs
+  line: 19
+  module: kuda-records
+- name: sturn
+  kind: module
+  file: crates/kuda-records/src/lib.rs
+  line: 12
+  module: kuda-records
+- name: sturn_def
+  kind: function
+  file: crates/kuda-records/src/sturn.rs
+  line: 198
   module: kuda-records
 - name: tests
   kind: module
   file: crates/kuda-records/src/lib.rs
-  line: 270
+  line: 299
+  module: kuda-records
+- name: tests
+  kind: module
+  file: crates/kuda-records/src/sturn.rs
+  line: 135
   module: kuda-records
 - name: tmp
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 274
+  line: 303
   module: kuda-records
 - name: tmp
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 413
+  line: 443
+  module: kuda-records
+- name: tmp
+  kind: function
+  file: crates/kuda-records/src/sturn.rs
+  line: 141
   module: kuda-records
 - name: validate
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 84
+  line: 105
+  module: kuda-records
+- name: wal_events_become_records_and_edges
+  kind: function
+  file: crates/kuda-records/src/sturn.rs
+  line: 216
+  module: kuda-records
+- name: wal_repo
+  kind: function
+  file: crates/kuda-records/src/sturn.rs
+  line: 161
   module: kuda-records
 - name: walk_corpus
   kind: function
   file: crates/kuda-records/src/lib.rs
-  line: 122
+  line: 143
   module: kuda-records
 deps:
 - jsonschema
@@ -153,13 +223,16 @@ notes: |
 verify:
 - crates/kuda-records/Cargo.toml
 - crates/kuda-records/src/lib.rs
+- crates/kuda-records/src/sturn.rs
 provenance:
   files:
   - crates/kuda-records/Cargo.toml
   - crates/kuda-records/src/lib.rs
+  - crates/kuda-records/src/sturn.rs
   hashes:
   - 259e305a0f5b7719fbe0939293854b774746df12
-  - 394531e46409f1a2b864be5ced711d2f03d18845
-  commit_sha: b973f17617cb703bf0d5693780790e689161dbed
-  generated_at: '1794286092'
+  - 797bbe81fbe7dd989022faa8d8c0eb3895eb6b6a
+  - 528a29f3e827cb0fa2d4f0bb6aadab17cda2233c
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291501'
   generator: kuda-acp/0.1.3

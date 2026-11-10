@@ -1,6 +1,6 @@
 path: crates/kuda-core/src/lib.rs
 module: kuda-core
-purpose: Defines kuda’s integration-free domain model for provenance-bearing repository, module, and file cards, symbols, dependency edges, and language and record-corpus descriptors. It also models `kuda.toml`, including strict unknown-field rejection, extraction and summarization settings, storage and card paths, domain overrides, and workspace configuration. Defaults enable manifest, tree-sitter, and records extraction, deterministic template summaries, SQLite at `.kuda/index.sqlite`, committed cards under `.kuda`, and a shared set of walk exclusions.
+purpose: crates/kuda-core/src/lib.rs
 symbols:
 - ContentHash
 - Provenance
@@ -12,6 +12,8 @@ symbols:
 - FileCard
 - RepoCard
 - LangDef
+- Source
+- default_ref_prefix
 - DomainDef
 - Config
 - RepoCfg
@@ -30,13 +32,11 @@ symbols:
 - CardsCfg
 - default
 - default_cards_dir
-- DomainsCfg
-- WorkspaceCfg
 provenance:
   files:
   - crates/kuda-core/src/lib.rs
   hashes:
-  - d85d228cb3c45631d13c61560dde1c733d267cec
-  commit_sha: 07787d26d99420340b1210795611606e746a5f73
-  generated_at: '1794288355'
+  - e50959499917516eed9e714866d85676ef7a5690
+  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
+  generated_at: '1794291501'
   generator: kuda-acp/0.1.0
