@@ -1,7 +1,7 @@
 name = "kuda"
 
 [next]
-t = 32
+t = 33
 i = 3
 p = 1
 adr = 4
