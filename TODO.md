@@ -9,7 +9,7 @@
 
 ## Pipeline + queries
 
-- [ ] T-008 kuda-cards — .kuda/index.yaml + modules/\*.yaml render; machine owns api/deps fields, humans own notes: region; every card ends with verify: file list
+- [ ] T-008 kuda-cards — .kuda/index.yaml + modules/\*.yaml render; machine owns api/deps fields, humans own notes: region; every card ends with verify: file list · status:in-progress
 
 ## Init ergonomics
 
