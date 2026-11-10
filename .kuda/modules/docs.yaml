@@ -1,6 +1,6 @@
 name: docs
 path: docs/package.json
-purpose: The `docs` module is the VitePress documentation site for kuda — a Diátaxis-organized set of tutorials, how-to guides, reference pages, and explanations covering the pipeline, tiered memory (L0/L1/L2/L3), extraction tiers, and the ports-and-adapters design. It also holds three Python generators (`gen-api-index.py`, `gen-config-docs.py`, `gen-crate-map.py`) that regenerate the crate-api page, the `kuda.toml` config reference, and the architecture crate-map table from workspace sources so docs stay in sync with code.
+purpose: documentation corpus — pages as records, backticked refs as edges
 api:
 - name: Command-Line Help for `kuda`
   kind: record
@@ -364,15 +364,15 @@ provenance:
   - feff0b0a855207cb53131fcb68e4f55261956737
   - d57d33f2fce46ac76d1e7bdb7161f4dbcca418db
   - c50693504b274dc1b058beb696dfefd1d7e5c3d2
-  - 030409d432dbb2b0172cd5f698555303b4d9aa29
+  - 52dd9832a535ae96c90506e2bc4fa9876733d34c
   - 0305d52e1a05796cf90641c5ebceaff068b8399d
   - 7dd14e4ebad201347de01d9ac9c8dc86857f66f2
   - 175fa4f47aecdc02e902d243a1c29914eb2ee258
   - 3464e95d9dfc4053151e91a36567dcc2db0f5a46
-  - 416f74f20de70b2eb4f9c097925c553c42281c27
+  - 42a1a05d36a786f28811b0bf2f2673f93b9dff60
   - c7e39b8531ba492bbaaa24a2bb9dc8d7833e0725
   - 7610721156875b8de9cec27cd21ca2a65c7773a8
   - 28d2ef76304e27db4eba1f66c93465d248f39bdd
-  commit_sha: 78f32019bcc7240b818e9256d7d799345f9d47d1
-  generated_at: '1794324935'
+  commit_sha: 80c2152c265a741af22d657ef3537dcd52e9feb0
+  generated_at: '1794329001'
   generator: kuda-acp/0.1.3

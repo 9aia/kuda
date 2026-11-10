@@ -1,7 +1,12 @@
 name: sturn-wal
-path: refs/sturn/wal/devin-wal-corpus
+path: refs/sturn/wal/devin-t036
 purpose: sturn coordination WAL — claims, writes, snaps, review events in refs/sturn/*
 api:
+- name: luis:claim@devin-t036#0cd0cc19
+  kind: record
+  file: refs/sturn/wal/devin-t036
+  line: 1
+  module: sturn-wal
 - name: luis:claim@devin-wal-corpus#9802830f
   kind: record
   file: refs/sturn/wal/devin-wal-corpus
@@ -19,6 +24,9 @@ api:
   module: sturn-wal
 deps:
 - luis
+- docs
+- devin-t036
+- luis
 - crates/*
 - devin-wal-corpus
 - luis
@@ -32,12 +40,15 @@ notes: |
   - `ref_pattern` edges each event to its payload, so `kuda dependents luis` lists the actor's ops and `kuda dependents "crates/*"` finds the claim on that glob.
   - The three events are timestamped 1794290887 (claim), 1794291560 (intent), 1794291702 (presence) — the presence "left" is the head, so the workspace currently has no active presence from `luis`.
 verify:
+- refs/sturn/wal/devin-t036
 - refs/sturn/wal/devin-wal-corpus
 provenance:
   files:
+  - refs/sturn/wal/devin-t036
   - refs/sturn/wal/devin-wal-corpus
   hashes:
+  - 0cd0cc192c9e52ff19ccf4f43f6c12c7f08a5b01
   - 1c003c147bf016f6a30e5b25fd63cf6c6495619f
-  commit_sha: 4406b659ca5a3a26001f2c39ee90c9d2d99ff5d5
-  generated_at: '1794327018'
+  commit_sha: 80c2152c265a741af22d657ef3537dcd52e9feb0
+  generated_at: '1794329001'
   generator: kuda-acp/0.1.3

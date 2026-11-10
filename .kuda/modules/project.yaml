@@ -130,7 +130,7 @@ api:
 - name: T-011
   kind: record
   file: project/TODO.md
-  line: 18
+  line: 19
   module: project
 - name: T-011
   kind: record
@@ -140,12 +140,17 @@ api:
 - name: T-012
   kind: record
   file: project/TODO.md
-  line: 22
+  line: 23
   module: project
 - name: T-013
   kind: record
   file: project/BACKLOG.md
   line: 5
+  module: project
+- name: T-013
+  kind: record
+  file: project/handoffs/T-013.md
+  line: 2
   module: project
 - name: T-014
   kind: record
@@ -172,10 +177,20 @@ api:
   file: project/BACKLOG.md
   line: 18
   module: project
+- name: T-018
+  kind: record
+  file: project/handoffs/T-018.md
+  line: 2
+  module: project
 - name: T-019
   kind: record
   file: project/BACKLOG.md
   line: 22
+  module: project
+- name: T-019
+  kind: record
+  file: project/handoffs/T-019.md
+  line: 2
   module: project
 - name: T-020
   kind: record
@@ -187,23 +202,11 @@ api:
   file: project/BACKLOG.md
   line: 27
   module: project
-- name: T-022
-  kind: record
-  file: project/BACKLOG.md
-  line: 28
-  module: project
-- name: T-023
-  kind: record
-  file: project/BACKLOG.md
-  line: 32
-  module: project
-- name: T-024
-  kind: record
-  file: project/BACKLOG.md
-  line: 33
-  module: project
-api_omitted: 16
+api_omitted: 22
 deps:
+- sturn
+- myco
+- kuda
 - sturn
 - kuda
 - kuda
@@ -233,6 +236,7 @@ deps:
 - bupha
 - kuda
 - kuda-extract
+- kuda
 - kuda-lsp
 - kuda-acp
 - kuda
@@ -256,9 +260,18 @@ deps:
 - kuda
 - sturn
 - kuda
+- kuda-extract-lsp
+- T-018
+- T-019
 - sturn
 - myco
+- T-013
+- kuda-extract-lsp
+- T-018
 - kuda
+- T-013
+- kuda-extract-lsp
+- T-019
 - kuda-records
 - sturn-wal
 - T-031
@@ -308,11 +321,15 @@ provenance:
   - project/handoffs/T-009.md
   - project/handoffs/T-010.md
   - project/handoffs/T-011.md
+  - project/handoffs/T-013.md
+  - project/handoffs/T-018.md
+  - project/handoffs/T-019.md
   - project/handoffs/T-025.md
   - project/handoffs/T-026.md
   - project/handoffs/T-028.md
   - project/handoffs/T-033.md
   - project/handoffs/T-035.md
+  - project/handoffs/T-036.md
   - project/handoffs/archive/T-027.md
   - project/handoffs/archive/T-029.md
   - project/index.md
@@ -320,8 +337,8 @@ provenance:
   - project/issues/issue-0002-kuda-sync-regresses-cards-acp-leaks-monologue-into-purpose-drops-notes.md
   hashes:
   - 1bdcccd980485ef7eb70b6e48c427d0b39225631
-  - 1b44d4e097ad37b37040c08fae604cc2484546dc
-  - ddc15061a54d630226c48c660803df2ed86edebe
+  - b50eff6a99c44bf17366396a01b33fd79b735677
+  - 6d868bc2b9ee6e00347977db1e5d434744b86525
   - 38691754e9a480ceea4a77b886a7f1752ef050d6
   - 8a8f0610381680d4d20e20080585cfe7e890e864
   - 4b7f8398b36a75b62d6f23a7ca68fdb50c7df451
@@ -335,16 +352,20 @@ provenance:
   - d0f2bfa26937f6828436620765a49adf3df062b6
   - 718dec8261c30916546eeeac01c69e980f4141cc
   - eb383725fbbfaa857ab832731ef69cf37cc88f91
+  - ed8d9e061d25b80e1d7c663cc933c4d83a230ea0
+  - 052a35c5d9b4f289c69953dc029ba106cb0b5606
+  - 767f56577b3e9125663be3f5455ab8dbe823fada
   - 358b60a0205bf587be497abb1d64c517f1fca115
   - 1a2b06abcde60b4f5ec8ab1288d37eaa6b9b3aa0
   - 231ed699315e7d9ee59f62d153fc923c1ab3819b
   - 314de45133bab301cc9920a6a4a7eecccfdc0cc4
   - 1f00937b1a62bdd1b925ae4472ef951782e85528
+  - 7272fec2616f8aa93a282444a394b33486f85daa
   - 9f3779ae765d34171c9fb02b6644265a8cca8f91
   - 34f59afdfb337b361448d92a7290451f3ac36b6a
   - a9cbb363e46c66216b83994b2dba52c063dd59db
   - c30a9a2d61b2438663e9845ee1769fff29cf39df
   - 41b6a56ba796852e3ecbe0fc9961cf154f0c8e9e
-  commit_sha: 4406b659ca5a3a26001f2c39ee90c9d2d99ff5d5
-  generated_at: '1794326967'
+  commit_sha: 80c2152c265a741af22d657ef3537dcd52e9feb0
+  generated_at: '1794329001'
   generator: kuda-acp/0.1.3
