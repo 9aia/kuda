@@ -791,12 +791,12 @@ fn sync_incremental_and_deletions() {
     mk_at(&dir, "x.py", "def x():\n    pass\n");
     assert!(kuda(&["sync"], &dir).status.success());
     let card = std::fs::read_to_string(dir.join(".kuda/modules/app.yaml")).unwrap();
-    let stale = card.replace("kuda-template/0.1.3", "ancient/0.0");
+    let stale = card.replace("kuda-template/0.1.4", "ancient/0.0");
     std::fs::write(dir.join(".kuda/modules/app.yaml"), stale).unwrap();
     assert!(kuda(&["sync"], &dir).status.success());
     assert!(std::fs::read_to_string(dir.join(".kuda/modules/app.yaml"))
         .unwrap()
-        .contains("kuda-template/0.1.3"));
+        .contains("kuda-template/0.1.4"));
     std::fs::remove_dir_all(&dir).ok();
 }
 
@@ -962,6 +962,12 @@ for line in sys.stdin:
     elif m == "session/prompt":
         if mode == "error":
             print(json.dumps({"jsonrpc":"2.0","id":mid,"error":{"code":-1,"message":"boom"}}), flush=True)
+            continue
+        # empty turn: end_turn with zero message chunks — the
+        # observed cline-on-dead-model wire shape (I-002)
+        if mode == "empty":
+            print(json.dumps({"jsonrpc":"2.0","method":"session/update","params":{"sessionId":"s1","update":{"sessionUpdate":"session_info_update","updatedAt":"0"}}}), flush=True)
+            print(json.dumps({"jsonrpc":"2.0","id":mid,"result":{"stopReason":"end_turn"}}), flush=True)
             continue
         print(json.dumps({"jsonrpc":"2.0","method":"session/update","params":{"sessionId":"s1","update":{"sessionUpdate":"agent_message_chunk","content":{"type":"text","text":prose}}}}), flush=True)
         print(json.dumps({"jsonrpc":"2.0","id":mid,"result":{"stopReason":"end_turn"}}), flush=True)
@@ -1218,10 +1224,56 @@ fn sync_acp_monologue_falls_back_to_template() {
     // template fallback card: purpose resolves via the manifest
     // chain, provenance stamps kuda-template so next sync retries
     assert!(card.contains("kuda-template/"), "{card}");
+    // the degradation is tagged on the committed card itself —
+    // `warnings:` records why this card is template-written
+    assert!(card.contains("acp: unparseable reply"), "{card}");
     // file cards hit the same monologue guard — skipped, not
     // written, retried next sync
     assert!(stderr.contains("card skipped"), "{stderr}");
     assert!(!dir.join(".kuda/files/app/main.py.yaml").exists());
+    std::fs::remove_dir_all(&dir).ok();
+}
+
+/// I-002 residual: cline on a dead model id completes the ACP
+/// handshake then ends every turn with ZERO message chunks — an
+/// empty reply, not a parse failure. The module card must fall
+/// back to the template (tagged + restamped); file cards skip.
+#[test]
+fn sync_acp_empty_reply_falls_back_to_template() {
+    let dir = tmp("acpempty");
+    let agent = write_acp_stub(&dir);
+    mk_at(
+        &dir,
+        "Cargo.toml",
+        "[package]\nname = \"app\"\ndescription = \"real app purpose\"\n",
+    );
+    mk_at(&dir, "src/lib.rs", "pub fn serve() {}\n");
+    mk_at(
+        &dir,
+        "kuda.toml",
+        &format!(
+            "[summarize]\nkind = \"acp\"\nacp_cmd = \"python3 {}\"\nfile_cards = true\n",
+            agent.display()
+        ),
+    );
+    let out = Command::new(env!("CARGO_BIN_EXE_kuda"))
+        .args(["sync"])
+        .current_dir(&dir)
+        .env("KUDA_STUB_MODE", "empty")
+        .output()
+        .unwrap();
+    let stderr = String::from_utf8_lossy(&out.stderr);
+    assert!(out.status.success(), "{stderr}");
+    assert!(stderr.contains("empty reply"), "{stderr}");
+    assert!(stderr.contains("template fallback"), "{stderr}");
+    let card = std::fs::read_to_string(dir.join(".kuda/modules/app.yaml")).unwrap();
+    // no module-name echo in purpose — the manifest chain grounds it
+    assert!(card.contains("real app purpose"), "{card}");
+    assert!(card.contains("kuda-template/"), "{card}");
+    assert!(card.contains("acp: empty reply"), "{card}");
+    // file card skipped on the same empty turn, not written
+    assert!(stderr.contains("empty reply — card skipped"), "{stderr}");
+    assert!(!dir.join(".kuda/files/app/src__lib.rs.yaml").exists());
     std::fs::remove_dir_all(&dir).ok();
 }
 

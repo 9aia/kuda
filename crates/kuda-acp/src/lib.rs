@@ -59,20 +59,67 @@ impl AcpSummarizer {
     }
 }
 
+/// Raw-wire debug sink — `KUDA_ACP_DEBUG` unset/off stays silent;
+/// a file path appends the full ndjson transcript there, any other
+/// truthy value ("1") mirrors it to stderr. Diagnosis tool for
+/// "what did the agent actually reply" — captures every line in
+/// both directions, pre-parse (non-JSON garbage included).
+enum DebugSink {
+    Stderr,
+    File(PathBuf),
+}
+
+fn debug_sink() -> Option<DebugSink> {
+    let v = std::env::var("KUDA_ACP_DEBUG").ok()?;
+    let v = v.trim();
+    if v.is_empty() || v == "0" || v.eq_ignore_ascii_case("false") {
+        return None;
+    }
+    if v == "1" || v.eq_ignore_ascii_case("true") {
+        return Some(DebugSink::Stderr);
+    }
+    Some(DebugSink::File(PathBuf::from(v)))
+}
+
+fn debug_log(sink: &Option<DebugSink>, dir: char, line: &str) {
+    match sink {
+        None => {}
+        Some(DebugSink::Stderr) => eprintln!("acp{dir} {line}"),
+        Some(DebugSink::File(p)) => {
+            if let Ok(mut f) = std::fs::OpenOptions::new()
+                .create(true)
+                .append(true)
+                .open(p)
+            {
+                let _ = writeln!(f, "{dir} {line}");
+            }
+        }
+    }
+}
+
 struct AcpClient {
     _child: Child,
     stdin: ChildStdin,
     reader: BufReader<ChildStdout>,
     id: u64,
+    debug: Option<DebugSink>,
 }
 
 impl AcpClient {
     fn spawn(cmd: &str) -> Result<Self, String> {
+        let debug = debug_sink();
         let mut child = Command::new("sh")
             .args(["-c", cmd])
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
-            .stderr(Stdio::null())
+            // debug mode keeps the agent's own stderr — auth
+            // failures and startup crashes land there, not on
+            // the wire
+            .stderr(if debug.is_some() {
+                Stdio::inherit()
+            } else {
+                Stdio::null()
+            })
             .spawn()
             .map_err(|e| format!("spawn {cmd}: {e}"))?;
         let stdin = child.stdin.take().ok_or("no stdin")?;
@@ -82,10 +129,12 @@ impl AcpClient {
             stdin,
             reader,
             id: 0,
+            debug,
         })
     }
 
     fn send(&mut self, msg: &Value) -> Result<(), String> {
+        debug_log(&self.debug, '>', &msg.to_string());
         writeln!(self.stdin, "{}", msg)
             .and_then(|_| self.stdin.flush())
             .map_err(|e| e.to_string())
@@ -109,6 +158,7 @@ impl AcpClient {
             {
                 return Err("agent closed stdout".into());
             }
+            debug_log(&self.debug, '<', line.trim_end());
             let Ok(msg) = serde_json::from_str::<Value>(line.trim()) else {
                 continue;
             };
@@ -348,6 +398,18 @@ impl Summarizer for AcpSummarizer {
     ) -> Result<ModuleCard, String> {
         let prose = self.complete(&prompt_for(module, ext))?;
 
+        // Empty turn — the agent answered `end_turn` with zero
+        // message text (observed: cline on an invalid/dead model
+        // id completes the handshake then returns nothing). That
+        // is a failed prompt, not a degenerate card: accepting it
+        // silently stamps `purpose: <module name>` and hides the
+        // failure. Fail so the caller falls back to the template.
+        if prose.trim().is_empty() {
+            return Err(format!(
+                "empty reply for {module} (agent ended turn with no text)"
+            ));
+        }
+
         // Only the reply's closing structured block counts — a
         // reasoning preamble must never land in `purpose`.
         let (purpose, notes) = parse_card_body(&prose);
@@ -358,8 +420,10 @@ impl Summarizer for AcpSummarizer {
         // monologue, planning preamble, or a blob with embedded
         // field markers. Fail so the caller falls back to the
         // template summarizer: raw agent output must never reach
-        // a committed card's `purpose`.
-        if looks_like_monologue(&purpose) {
+        // a committed card's `purpose`. A `purpose` that just
+        // echoes the module name carries no information either —
+        // that's the parse produced nothing, not card prose.
+        if looks_like_monologue(&purpose) || purpose == module {
             return Err(format!(
                 "unparseable reply for {module} (agent monologue/garbage)"
             ));
@@ -520,14 +584,15 @@ for line in sys.stdin:
             .summarize("m", Path::new("p"), &ext(), prov())
             .unwrap();
         assert_eq!(card.purpose, "just prose here more");
-        // empty prose -> module name fallback
+        // empty prose -> Err -> caller falls back to template (an
+        // end_turn with no text is a failed prompt, not a card)
         unsafe {
             std::env::set_var("KUDA_STUB_PROSE", "   \n");
         }
-        let card = summarizer(&dir)
+        let err = summarizer(&dir)
             .summarize("fallback-mod", Path::new("p"), &ext(), prov())
-            .unwrap();
-        assert_eq!(card.purpose, "fallback-mod");
+            .unwrap_err();
+        assert!(err.contains("empty reply"), "{err}");
         let _ = std::fs::remove_dir_all(&dir);
     }
 
@@ -594,7 +659,7 @@ for line in sys.stdin:
 
     /// Degenerate replies carry no fields at all — purpose falls
     /// back to the closing paragraph (the conclusion), not the
-    /// reasoning preamble; empty replies fall back to the module name.
+    /// reasoning preamble; empty replies fail to the template.
     #[test]
     fn degenerate_reply_does_not_pollute_purpose() {
         let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());

@@ -753,7 +753,11 @@ fn sync_one(
     // embedded-field blobs) now fall back to template instead of
     // writing garbage into `purpose` — restamp so degraded cards
     // re-summarize on next sync (I-002).
-    const GENERATOR_VERSION: &str = "0.1.3";
+    // 0.1.4: empty agent turns (end_turn with zero text — cline on
+    // a dead model id) are rejected instead of silently stamping
+    // `purpose: <module name>`; fallback cards carry an `acp:`
+    // warnings entry explaining the degradation (I-002).
+    const GENERATOR_VERSION: &str = "0.1.4";
     let stamp = |kind: &str| format!("kuda-{kind}/{GENERATOR_VERSION}");
     // manifest-only pseudo-modules (root Cargo.toml, docs/
     // package.json) have no source to ground on — the agent
@@ -998,6 +1002,10 @@ fn sync_one(
             .cloned()
             .or_else(|| mfiles.first().cloned())
             .unwrap_or_else(|| PathBuf::from(module));
+        // set when the acp reply failed and the template wrote the
+        // prose — lands on the committed card's `warnings:` so the
+        // degradation is visible in the artifact, not just stderr.
+        let mut acp_warn: Option<String> = None;
         let card_res = if want_acp {
             acp.as_ref()
                 .unwrap()
@@ -1015,6 +1023,7 @@ fn sync_one(
                 .or_else(|e| {
                     acp_fallbacks += 1;
                     eprintln!("acp {module}: {e} — template fallback");
+                    acp_warn = Some(format!("acp: {e} — template fallback"));
                     // the fallback wrote the prose — stamp it
                     // `kuda-template` so the mismatch re-prompts
                     // the agent next sync.
@@ -1069,7 +1078,27 @@ fn sync_one(
             .filter(|w| mfiles.contains(&w.file))
             .map(|w| format!("{}: {}", w.file.display(), w.message))
             .collect();
+        // the acp failure that produced this card rides the card —
+        // `warnings:` records *why* the prose is template-stamped
+        if let Some(w) = acp_warn {
+            card.warnings.push(w);
+        }
         sanitize_card(&mut card, &manifest_names);
+        // last-resort hygiene on agent-written purposes: the acp
+        // summarizer already rejects monologue-shaped prose, but
+        // nothing that smells like agent reasoning may be committed
+        // under a kuda-acp stamp — reset to the module name so the
+        // fallback chain below re-grounds it, and say so on the
+        // card. Template/repo-authored purposes are trusted as-is —
+        // a README may legitimately start "First,".
+        if card.provenance.generator.starts_with("kuda-acp")
+            && card.purpose != card.name
+            && kuda_acp::looks_like_monologue(&card.purpose)
+        {
+            card.warnings
+                .push("acp: purpose looked like agent reasoning — reset".into());
+            card.purpose = card.name.clone();
+        }
         // purpose: domain descriptor -> manifest description ->
         // crate docs -> README. Domain modules have no manifest —
         // skipping straight to the chain would steal the repo
@@ -1243,6 +1272,9 @@ fn sync_file_cards(job: FileCardJob<'_>) {
     const CHUNK: usize = 1_500; // chars per chunk
     const BUDGET: usize = 14_000; // total source chars per prompt
     const SKIP_BYTES: u64 = 200_000; // files bigger than this: not prose-material
+                                     // provenance stamp + mechanism gate — cards from older writers
+                                     // (pre empty-reply rejection) re-prompt even on unchanged bytes
+    const FILE_CARD_GENERATOR: &str = "kuda-acp/0.1.1";
 
     // Slug namespace is lossy: `a/b.py` and `a__b.py` map to the
     // same card name. mfiles is sorted, so the first file wins
@@ -1272,7 +1304,13 @@ fn sync_file_cards(job: FileCardJob<'_>) {
                 .map_err(|e| e.to_string())
                 .and_then(|t| kuda_cards::parse_file_card(&t))
             {
-                if old.provenance.hashes.first() == Some(hash) {
+                // hash gate + generator gate: cards written by an
+                // older mechanism (e.g. before empty-reply
+                // rejection, purpose = bare filename) re-prompt
+                // even on unchanged bytes.
+                if old.provenance.hashes.first() == Some(hash)
+                    && old.provenance.generator == FILE_CARD_GENERATOR
+                {
                     continue;
                 }
             }
@@ -1357,16 +1395,33 @@ fn sync_file_cards(job: FileCardJob<'_>) {
                 continue;
             }
         };
-        // purpose = first non-empty line, `purpose:` stripped
+        // an empty turn — `end_turn` with zero message text (cline
+        // on a dead model id) — is a failed prompt: skip the card
+        // so next sync retries rather than stamping purpose = the
+        // bare filename.
+        if prose.trim().is_empty() {
+            eprintln!("acp file {}: empty reply — card skipped", rel.display());
+            continue;
+        }
+        // purpose = the reply's `purpose:` line if present — a
+        // reasoning preamble can precede it — else the first
+        // non-empty line
         let purpose = prose
             .lines()
+            .rev()
             .find_map(|l| {
                 let t = l.trim();
                 t.strip_prefix("purpose:")
                     .or_else(|| t.strip_prefix("Purpose:"))
                     .map(|p| p.trim().to_owned())
                     .filter(|p| !p.is_empty())
-                    .or_else(|| (!t.is_empty()).then(|| t.to_owned()))
+            })
+            .or_else(|| {
+                prose
+                    .lines()
+                    .map(str::trim)
+                    .find(|t| !t.is_empty())
+                    .map(|t| t.to_owned())
             })
             .unwrap_or_else(|| rel.display().to_string());
         // same hygiene as module cards: a monologue/garbage reply
@@ -1389,7 +1444,7 @@ fn sync_file_cards(job: FileCardJob<'_>) {
                 hashes: vec![hash.clone()],
                 commit_sha: sha.to_string(),
                 generated_at: now.to_string(),
-                generator: "kuda-acp/0.1.0".into(),
+                generator: FILE_CARD_GENERATOR.into(),
             },
         };
         // serde_yaml can't fail on plain card data
