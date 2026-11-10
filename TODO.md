@@ -6,7 +6,7 @@
 - [ ] T-026 presentation deck — verify + integrate: slides v2 (claim/proof, 3 chapters) pushed on presentation/initial (e1844e5); deck session reported it still fails verification — run a repair/verify pass, then merge per sturn flow (no PRs — pushed branch is the deliverable) · created:2026-11-02
 - [ ] T-028 agent-awareness managed block — kuda init should write \<!-- kuda:agent-awareness --> into AGENTS.md (pattern: myco init) + validate block freshness in kuda status/check. Block text already deployed to the 6 .kuda-wired repos (cards-are-artifacts, kuda status drift, sync-on-change) · created:2026-11-02
 - [ ] T-031 surface drivers for kuda watch/mcp/acp — tamias-driver-cli / tamias-driver-mcp pattern doesn't exist yet (pavo-driver-kit is view-driver only); kuda-driver ops.rs notes the gap · status:in-progress · owner:devin · created:2026-11-10
-- [ ] T-032 repo-local \[\[domain\]\] descriptors + \[domains\].disable in kuda.toml — DomainsCfg in kuda-core, resolve\_domains in cli, docs+tests · created:2026-11-10
+- [ ] T-032 repo-local \[\[domain\]\] descriptors + \[domains\].disable in kuda.toml — DomainsCfg in kuda-core, resolve\_domains in cli, docs+tests · status:in-progress · created:2026-11-10
 
 ## Ports + first adapters
 
