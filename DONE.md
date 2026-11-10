@@ -14,3 +14,4 @@
 - T-008 kuda-cards — .kuda/index.yaml + modules/\*.yaml render; machine owns api/deps fields, humans own notes: region; every card ends with verify: file list
 - T-009 kuda init / sync should append .kuda/index.sqlite + .kuda/meta.json to .gitignore automatically — cards are committed artifacts, the graph is rebuildable. Found via dogfood: mimus+bupha committed the sqlite binary by hand.
 - T-025 verify claim .kuda/modules/Cargo.toml.yaml:3 ('Cargo.toml') — file missing, card likely stale; recovered from dead sessions 1792289007778\_292qm, 1792289232239\_Jpne2, 1792289295855\_Xr\_YW, 1792289355290\_bAAOh, 1792289567602\_H2XTF · created:2026-10-30
+- T-034 Rename extract-impl crates to kuda-extract-\<impl> (manifest, treesitter, lsp) + regen cards · pri:high · owner:devin · created:2026-11-10
