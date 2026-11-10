@@ -1,8 +1,10 @@
 //! kuda — the engine as a library. Everything that used to live
 //! in the binary lives here: Cli/Cmd, the sync pipeline, walks,
 //! hashes, card build/write, queries, MCP/ACP surfaces, watch.
-//! `run()` is the compat CLI's whole body; thin drivers (kuda bin,
-//! tamias/pavo drivers) call `run()` or the ops directly.
+//! `run()` is the compat CLI's whole body; drivers (kuda bin,
+//! tamias-driver-kuda `run`) split it into [`parse`]/[`parse_from`]
+//! + [`dispatch`] — argv in, exit code out, ops callable as
+//! `dispatch(&cli)`.
 
 //! kuda — a hippocampus for your codebase. Composition root:
 //! parses kuda.toml, wires adapters behind ports, runs subcommands.
@@ -58,22 +60,22 @@ const DOMAIN_TOMLS: &[&str] = &[
     version,
     about = "A hippocampus for your codebase — repo memory: index, query, verify"
 )]
-struct Cli {
+pub struct Cli {
     /// Config path (else $KUDA_CONFIG, ./kuda.toml,
     /// ~/.config/kuda/kuda.toml).
     #[arg(long, global = true)]
-    config: Option<String>,
+    pub config: Option<String>,
 
     /// Workspace mode — all roots in .kuda/workspace.yaml.
     #[arg(long, global = true)]
-    workspace: bool,
+    pub workspace: bool,
 
     #[command(subcommand)]
-    cmd: Cmd,
+    pub cmd: Cmd,
 }
 
 #[derive(Subcommand)]
-enum Cmd {
+pub enum Cmd {
     /// Detect languages -> kuda.toml + .kuda/ scaffold.
     Init,
     /// Incremental index (hash -> extract -> summarize -> store).
@@ -114,34 +116,55 @@ enum Cmd {
     GenCliDocs,
 }
 
-pub fn run() -> i32 {
+/// Process argv → a parsed command line. Split from [`dispatch`]
+/// so drivers can parse *their* argv (a `run` verb, a re-exec)
+/// without owning process args.
+pub fn parse() -> Cli {
+    Cli::parse()
+}
 
-    let cli = Cli::parse();
-    let code = match &cli.cmd {
-        Cmd::Init => init(&cli),
-        Cmd::Sync { full } => sync(&cli, *full),
-        Cmd::Status => status(&cli),
-        Cmd::Map => map(&cli),
-        Cmd::Card { module } => card(&cli, module),
-        Cmd::Find { symbol } => find(&cli, symbol),
-        Cmd::Dependents { name } => dependents(&cli, name),
-        Cmd::Refs { name, docs } => refs(&cli, name, *docs),
-        Cmd::Doctor => doctor(&cli),
+/// Same, from an argv iterator — `parse_from(["kuda", "sync"])`.
+/// Clap errors/help still exit the process, same as argv parsing.
+pub fn parse_from<I, T>(itr: I) -> Cli
+where
+    I: IntoIterator<Item = T>,
+    T: Into<std::ffi::OsString> + Clone,
+{
+    Cli::parse_from(itr)
+}
+
+/// One parsed command → exit code. The op table every driver
+/// shares; argv parsing is a caller concern.
+pub fn dispatch(cli: &Cli) -> i32 {
+    match &cli.cmd {
+        Cmd::Init => init(cli),
+        Cmd::Sync { full } => sync(cli, *full),
+        Cmd::Status => status(cli),
+        Cmd::Map => map(cli),
+        Cmd::Card { module } => card(cli, module),
+        Cmd::Find { symbol } => find(cli, symbol),
+        Cmd::Dependents { name } => dependents(cli, name),
+        Cmd::Refs { name, docs } => refs(cli, name, *docs),
+        Cmd::Doctor => doctor(cli),
         // `watch` runs an unbounded loop and only stops on a signal —
         // signals discard coverage data, so it's excluded below and
         // exercised by the e2e test in normal builds.
         #[cfg(not(coverage))]
-        Cmd::Watch => watch(&cli),
+        Cmd::Watch => watch(cli),
         #[cfg(coverage)]
         Cmd::Watch => 0,
-        Cmd::Mcp => mcp(&cli),
-        Cmd::Acp => acp(&cli),
+        Cmd::Mcp => mcp(cli),
+        Cmd::Acp => acp(cli),
         Cmd::GenCliDocs => {
             outln!("{}", clap_markdown::help_markdown::<Cli>());
             0
         }
-    };
-        code
+    }
+}
+
+/// The compat CLI body — parse argv, dispatch, hand back the code.
+pub fn run() -> i32 {
+    dispatch(&parse())
 }
 
 fn root(cli: &Cli) -> PathBuf {
