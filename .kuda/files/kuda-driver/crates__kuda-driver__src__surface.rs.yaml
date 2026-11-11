@@ -1,6 +1,6 @@
 path: crates/kuda-driver/src/surface.rs
 module: kuda-driver
-purpose: crates/kuda-driver/src/surface.rs
+purpose: crates/kuda-driver/src/surface.rs implements kuda's embedded Surface for pavo-driver-kit, letting the `cli`/`mcp` argv verbs serve engine ops without a second binary. `op` routes `cli.<verb>` calls through `ops::run_op`, which re-execs `run` in the resolved repo and returns captured output as an OpOutcome, while `surface` runs `kuda <name> <args>` in-process via `kuda::run_from` for unbounded verbs (watch/mcp/acp) that stream until they stop themselves.
 symbols:
 - Engine
 - op
@@ -9,7 +9,7 @@ provenance:
   files:
   - crates/kuda-driver/src/surface.rs
   hashes:
-  - f2c3bf82712717db3be95215b2bb3fc3c440bd5c
-  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
-  generated_at: '1794291501'
-  generator: kuda-acp/0.1.0
+  - 8da26b52d84b6204dab9ff5d2f210268b5ff158f
+  commit_sha: 7e9ec7c8965e296915c7ee6d9c8f7db3947d3952
+  generated_at: '1794375630'
+  generator: kuda-acp/0.1.1

@@ -1,6 +1,6 @@
 path: crates/kuda-extract/src/lib.rs
 module: kuda-extract
-purpose: I have full grounding from the provided chunks. Let me write the summary.
+purpose: crates/kuda-extract/src/lib.rs defines the extraction port of kuda — the `Extraction` struct (symbols, edges, files, warnings), `ExtractWarning`, and the `Extractor` trait (`kind`, `extract`, `extract_filtered`) that adapters like kuda-extract-manifest, kuda-extract-treesitter, kuda-extract-lsp, and kuda-records implement. Extraction is mechanical only — it reports what grammar/manifest data actually says, never inferred structure — and per-file filtering defaults to delegating to full extraction for adapters without per-file control.
 symbols:
 - Extraction
 - ExtractWarning
@@ -16,6 +16,6 @@ provenance:
   - crates/kuda-extract/src/lib.rs
   hashes:
   - 89d96165ad9c34ce1bc77af7cd7d87ad5225810d
-  commit_sha: 78f32019bcc7240b818e9256d7d799345f9d47d1
-  generated_at: '1794324935'
-  generator: kuda-acp/0.1.0
+  commit_sha: 7e9ec7c8965e296915c7ee6d9c8f7db3947d3952
+  generated_at: '1794375630'
+  generator: kuda-acp/0.1.1

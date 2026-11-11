@@ -1,6 +1,6 @@
 path: crates/kuda-template/tests/template.rs
 module: kuda-template
-purpose: crates/kuda-template/tests/template.rs
+purpose: 'crates/kuda-template/tests/template.rs tests TemplateSummarizer''s deterministic card building: `card_collects_only_own_module` builds an Extraction with symbols in module "m" plus a foreign module "other", edges m→dep and other→x, files ["f.rs"], then asserts the card for module "m" has name/purpose "m", exactly one API symbol ("in"), deps ["dep"], verify ["f.rs"], and kind "template".'
 symbols:
 - prov
 - sym
@@ -10,6 +10,6 @@ provenance:
   - crates/kuda-template/tests/template.rs
   hashes:
   - b200b56c3b2bd7b2d8d0b540dbce125ec8d84d38
-  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
-  generated_at: '1794291501'
-  generator: kuda-acp/0.1.0
+  commit_sha: 7e9ec7c8965e296915c7ee6d9c8f7db3947d3952
+  generated_at: '1794375630'
+  generator: kuda-acp/0.1.1

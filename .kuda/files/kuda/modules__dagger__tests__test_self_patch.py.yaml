@@ -1,12 +1,12 @@
 path: modules/dagger/tests/test_self_patch.py
 module: kuda
-purpose: modules/dagger/tests/test_self_patch.py
+purpose: modules/dagger/tests/test_self_patch.py regression-tests the embedded _SELF_PATCH_PY heredoc script from main.py by extracting its decoded body from the module AST and executing it against fixture Cargo.tomls in temp dirs. It verifies patch-block appending from the repository field, patch_host override, idempotent reruns, stale-row/comment stripping, the error path when neither repository nor patch_host exists, and that no public function references undeclared names.
 symbols: []
 provenance:
   files:
   - modules/dagger/tests/test_self_patch.py
   hashes:
   - 203086b883ed1477efd6f9befccd76e2614cc9ea
-  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
-  generated_at: '1794291501'
-  generator: kuda-acp/0.1.0
+  commit_sha: 7e9ec7c8965e296915c7ee6d9c8f7db3947d3952
+  generated_at: '1794375630'
+  generator: kuda-acp/0.1.1

@@ -1,6 +1,6 @@
 name: kuda-store-sqlite
 path: crates/kuda-store-sqlite/Cargo.toml
-purpose: 'Store adapter: sqlite L2 symbol/dep graph'
+purpose: 'kuda-store-sqlite is the SQLite adapter of `IndexStore` — a single-file, zero-server, rebuildable store at `.kuda/index.sqlite` (gitignored). `SqliteStore` wraps `Mutex<Connection>` and implements the full port: module-keyed `replace_module`, exact/like `find`/`search`, `dependents`, `edge_count`, `modules`, provenance `set_meta`/`meta`, and per-file hash bookkeeping via `file_hashes`/`record_files`; it also exposes `all_edges`/`all_symbols` for graph rendering.'
 api:
 - name: SCHEMA
   kind: const
@@ -198,6 +198,6 @@ provenance:
   - 2d30a3d362d500ce8e4310218db2ea0f8da6ae99
   - ba51534e7e4977b5ccea658e6873b7f3f8cb87a0
   - b9d9ac97a524605e83aac53b1bf4d38fde0c5a69
-  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
-  generated_at: '1794291501'
-  generator: kuda-acp/0.1.3
+  commit_sha: 7e9ec7c8965e296915c7ee6d9c8f7db3947d3952
+  generated_at: '1794375630'
+  generator: kuda-acp/0.1.4

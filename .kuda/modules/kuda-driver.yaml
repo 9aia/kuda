@@ -1,6 +1,6 @@
 name: kuda-driver
 path: crates/kuda-driver/Cargo.toml
-purpose: tamias-driver-kuda — pavo view driver over a kuda index (ViewNode IR) plus engine ops dispatching to the kuda lib
+purpose: '`kuda-driver` is `tamias-driver-kuda`, a pavo view driver answering wire ops (`manifest`, `views`, `view`, `query`) as ndjson JSON-RPC over stdio via `pavo-driver-kit`, with plain-argv discovery (`manifest`/`capabilities`/`ops`) and engine passthrough (`run` re-execs `kuda::run_from`). Views `map`, `modules`, `module`, `graph`, `drift`, `find` are backed by read-only queries over `IndexStore`/sqlite and committed `.kuda/` cards with drift recomputation, while feature-gated `cli`/`mcp` surfaces expose engine ops as a generated clap CLI or MCP tools.'
 api:
 - name: CAP
   kind: const
@@ -17,45 +17,55 @@ api:
   file: crates/kuda-driver/src/surface.rs
   line: 19
   module: kuda-driver
-- name: OPS
+- name: READ_ONLY
   kind: const
   file: crates/kuda-driver/src/ops.rs
-  line: 55
-  module: kuda-driver
-- name: Op
-  kind: type
-  file: crates/kuda-driver/src/ops.rs
-  line: 41
-  module: kuda-driver
-- name: Param
-  kind: type
-  file: crates/kuda-driver/src/ops.rs
-  line: 25
+  line: 46
   module: kuda-driver
 - name: ROW_CAP
   kind: const
   file: crates/kuda-driver/src/queries.rs
   line: 18
   module: kuda-driver
+- name: SKIP_PARAMS
+  kind: const
+  file: crates/kuda-driver/src/ops.rs
+  line: 41
+  module: kuda-driver
+- name: SURFACES
+  kind: const
+  file: crates/kuda-driver/src/ops.rs
+  line: 37
+  module: kuda-driver
 - name: SYMBOL_GRAPH_CAP
   kind: const
   file: crates/kuda-driver/src/queries.rs
   line: 22
   module: kuda-driver
-- name: arg
-  kind: function
-  file: crates/kuda-driver/src/ops.rs
-  line: 30
-  module: kuda-driver
 - name: argv
   kind: function
   file: crates/kuda-driver/src/ops.rs
-  line: 145
+  line: 220
+  module: kuda-driver
+- name: argv_carries_globals_and_config_opt
+  kind: function
+  file: crates/kuda-driver/src/ops.rs
+  line: 377
   module: kuda-driver
 - name: argv_maps_params_to_kuda_flags
   kind: function
   file: crates/kuda-driver/src/ops.rs
-  line: 229
+  line: 349
+  module: kuda-driver
+- name: argv_maps_positionals_and_named_params
+  kind: function
+  file: crates/kuda-driver/src/ops.rs
+  line: 361
+  module: kuda-driver
+- name: argv_omits_absent_params
+  kind: function
+  file: crates/kuda-driver/src/ops.rs
+  line: 389
   module: kuda-driver
 - name: binding
   kind: function
@@ -66,11 +76,6 @@ api:
   kind: function
   file: crates/kuda-driver/src/repo.rs
   line: 168
-  module: kuda-driver
-- name: bool_param
-  kind: function
-  file: crates/kuda-driver/src/ops.rs
-  line: 134
   module: kuda-driver
 - name: capped
   kind: function
@@ -147,11 +152,6 @@ api:
   file: crates/kuda-driver/src/queries.rs
   line: 443
   module: kuda-driver
-- name: flag
-  kind: function
-  file: crates/kuda-driver/src/ops.rs
-  line: 36
-  module: kuda-driver
 - name: graph
   kind: function
   file: crates/kuda-driver/src/queries.rs
@@ -177,6 +177,11 @@ api:
   file: crates/kuda-driver/src/repo.rs
   line: 91
   module: kuda-driver
+- name: kind
+  kind: function
+  file: crates/kuda-driver/src/ops.rs
+  line: 104
+  module: kuda-driver
 - name: kuda-driver
   kind: module
   file: crates/kuda-driver/Cargo.toml
@@ -197,21 +202,17 @@ api:
   file: crates/kuda-driver/src/main.rs
   line: 45
   module: kuda-driver
-- name: manifest
-  kind: function
-  file: crates/kuda-driver/src/ops.rs
-  line: 110
-  module: kuda-driver
-api_omitted: 49
+api_omitted: 56
 deps:
+- clap
 - kuda
 - kuda-cards
 - kuda-core
-- kuda-git
 - kuda-query
 - kuda-store
 - kuda-store-sqlite
-- kuda-vcs
+- lasius-vcs
+- lasius-vcs-git
 - pavo-driver-kit
 - pavo-protocol
 - serde
@@ -223,7 +224,8 @@ deps:
 - kuda-store
 - kuda-store-sqlite
 - serde_json
-- kuda-vcs
+- clap
+- lasius_vcs
 - sha1
 - pavo_protocol
 - queries
@@ -257,14 +259,14 @@ provenance:
   - crates/kuda-driver/src/views.rs
   - crates/kuda-driver/tests/conformance.rs
   hashes:
-  - 2606f9a4b93dfee2a8c6c48be61da1db2ec2310d
-  - 655d2bfa3ba25622ddb8cecb17229e4e6afcebad
-  - 7a058405dc7cfcf27d87cbdfc4d34e4729d93060
+  - b64ef929b1d6637032b1a747d2a3f4ae55c34859
+  - 8feef2eeff7caa29dd390caa9672443b0adb87bc
+  - 95b8b8068faf793aa7709bad1d3739e548baa37f
   - fa2d31ebcd3f75df04aa6d6753058d6591c6461e
-  - 32280e5b451db32cffe9defb9ec523a466166066
-  - f2c3bf82712717db3be95215b2bb3fc3c440bd5c
+  - 12ed1f30baaeb5205d339ac24f4eaae1bc3a7594
+  - 8da26b52d84b6204dab9ff5d2f210268b5ff158f
   - c5e20f966ceb5c1618788dd56765deace6d0946f
   - 383d57d4a1fea60ea3426373d47b6c36cc37f62e
-  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
-  generated_at: '1794291501'
-  generator: kuda-acp/0.1.3
+  commit_sha: 6690b1b7ca67c7789bf9c150af92b5014f802669
+  generated_at: '1794376168'
+  generator: kuda-acp/0.1.4

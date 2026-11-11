@@ -1,6 +1,6 @@
 name: kuda-extract-manifest
 path: crates/kuda-extract-manifest/Cargo.toml
-purpose: '`kuda-extract-manifest` is the manifest extract adapter — it turns package manifests into the module/package graph with no parser and no language knowledge, reading the manifest basenames declared by `LangDef` entries (Cargo.toml, package.json, pyproject.toml, setup.py, go.mod). For each manifest it emits a `Module`-kind symbol named after the package (falling back to the parent dir name, then the manifest basename) plus a `PackageDep` edge per declared dependency.'
+purpose: 'kuda-extract-manifest is kuda''s manifest adapter for extraction: ManifestExtractor walks a tree, matches manifest basenames declared by LangDef entries (Cargo.toml, package.json, pyproject.toml, setup.py, go.mod), parses each into a module Symbol plus PackageDep edges, skips excluded dirs and .git-as-file worktrees, and resolves Cargo git deps to the URL''s repo basename when resolve_git_deps is enabled.'
 api:
 - name: ManifestExtractor
   kind: type
@@ -159,6 +159,6 @@ provenance:
   hashes:
   - 6308e7a5d07441803a3d5ffe4e9bc179d2bc7605
   - 0d34a7c287454dbd2c0fdd755319b08772f2ace5
-  commit_sha: 78f32019bcc7240b818e9256d7d799345f9d47d1
-  generated_at: '1794324935'
-  generator: kuda-acp/0.1.3
+  commit_sha: 7e9ec7c8965e296915c7ee6d9c8f7db3947d3952
+  generated_at: '1794375630'
+  generator: kuda-acp/0.1.4

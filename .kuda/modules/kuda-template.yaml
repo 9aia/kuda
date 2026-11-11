@@ -1,6 +1,6 @@
 name: kuda-template
 path: crates/kuda-template/Cargo.toml
-purpose: 'Summarize adapter: deterministic zero-model cards'
+purpose: 'kuda-template is kuda''s deterministic template summarizer: `TemplateSummarizer` implements `Summarizer` (kind "template") and builds `ModuleCard`s purely from extraction output — `purpose` is the module name, `api` is the module''s own symbols, `api_omitted` is 0, `deps` are outgoing edge targets, `warnings`/`notes` are empty, and `verify` is the module''s file list with provenance passed through from the caller.'
 api:
 - name: TemplateSummarizer
   kind: type
@@ -66,6 +66,6 @@ provenance:
   - 65d11baa59bc50d3fb5d1b6a488a87922b66c9a3
   - 4be986f5c2b56e52f6fcbb9be19ae7433625af72
   - b200b56c3b2bd7b2d8d0b540dbce125ec8d84d38
-  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
-  generated_at: '1794291501'
-  generator: kuda-acp/0.1.3
+  commit_sha: 7e9ec7c8965e296915c7ee6d9c8f7db3947d3952
+  generated_at: '1794375630'
+  generator: kuda-acp/0.1.4

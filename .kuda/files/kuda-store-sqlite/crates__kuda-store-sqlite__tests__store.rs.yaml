@@ -1,6 +1,6 @@
 path: crates/kuda-store-sqlite/tests/store.rs
 module: kuda-store-sqlite
-purpose: crates/kuda-store-sqlite/tests/store.rs
+purpose: 'crates/kuda-store-sqlite/tests/store.rs end-to-end tests SqliteStore against a temp SQLite database, exercising the full IndexStore contract: module replacement, exact find, substring search, dependents reverse lookup, module listing, edge count, provenance meta set/get, and per-file hash bookkeeping with replace semantics on re-record. Each test creates an isolated temp dir under std::env::temp_dir() and removes it afterward.'
 symbols:
 - scratch
 - sym
@@ -12,6 +12,6 @@ provenance:
   - crates/kuda-store-sqlite/tests/store.rs
   hashes:
   - b9d9ac97a524605e83aac53b1bf4d38fde0c5a69
-  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
-  generated_at: '1794291501'
-  generator: kuda-acp/0.1.0
+  commit_sha: 7e9ec7c8965e296915c7ee6d9c8f7db3947d3952
+  generated_at: '1794375630'
+  generator: kuda-acp/0.1.1

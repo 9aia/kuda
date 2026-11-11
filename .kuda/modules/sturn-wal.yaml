@@ -1,6 +1,6 @@
 name: sturn-wal
 path: refs/sturn/wal/devin-t036
-purpose: sturn coordination WAL — claims, writes, snaps, review events in refs/sturn/*
+purpose: 'refs/sturn/wal/devin-t036 and refs/sturn/wal/devin-wal-corpus are sturn WAL (write-ahead log) git refs serving as a non-tree domain corpus indexed by kuda-records. Each ref holds a chain of commits, each with a single `event.json`; events become `SymbolKind::Record` symbols named `<actor>:<op>@<ws>#<id8>` (id8 = first 8 chars of the commit sha when `id` is empty), with `file` = the ref name and `line` = the event''s sequence offset. The two refs together contain 5 events: two claims (docs/*, crates/*), two presence-left events, and one intent noting kuda''s first non-filesystem domain.'
 api:
 - name: luis:claim@devin-t036#0cd0cc19
   kind: record
@@ -17,6 +17,11 @@ api:
   file: refs/sturn/wal/devin-wal-corpus
   line: 2
   module: sturn-wal
+- name: luis:presence@devin-t036#50e98921
+  kind: record
+  file: refs/sturn/wal/devin-t036
+  line: 2
+  module: sturn-wal
 - name: luis:presence@devin-wal-corpus#1c003c14
   kind: record
   file: refs/sturn/wal/devin-wal-corpus
@@ -25,6 +30,8 @@ api:
 deps:
 - luis
 - docs
+- devin-t036
+- luis
 - devin-t036
 - luis
 - crates/*
@@ -47,8 +54,8 @@ provenance:
   - refs/sturn/wal/devin-t036
   - refs/sturn/wal/devin-wal-corpus
   hashes:
-  - 0cd0cc192c9e52ff19ccf4f43f6c12c7f08a5b01
+  - 50e989218c2acc7fd65f5270c8987c9926327e07
   - 1c003c147bf016f6a30e5b25fd63cf6c6495619f
-  commit_sha: 80c2152c265a741af22d657ef3537dcd52e9feb0
-  generated_at: '1794329001'
-  generator: kuda-acp/0.1.3
+  commit_sha: 7e9ec7c8965e296915c7ee6d9c8f7db3947d3952
+  generated_at: '1794375630'
+  generator: kuda-acp/0.1.4

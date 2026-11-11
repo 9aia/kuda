@@ -10,17 +10,17 @@ api:
 - name: API_CAP
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 1560
+  line: 1578
   module: kuda
 - name: BUDGET
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 1273
+  line: 1291
   module: kuda
 - name: CHUNK
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 1272
+  line: 1290
   module: kuda
 - name: Cli
   kind: type
@@ -45,17 +45,17 @@ api:
 - name: FILE_CARD_GENERATOR
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 1277
+  line: 1295
   module: kuda
 - name: FileCardJob
   kind: type
   file: crates/kuda-cli/src/lib.rs
-  line: 1239
+  line: 1257
   module: kuda
 - name: GENERATOR_VERSION
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 760
+  line: 778
   module: kuda
 - name: Kuda
   kind: type
@@ -70,27 +70,27 @@ api:
 - name: SKIP_BYTES
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 1274
+  line: 1292
   module: kuda
 - name: VERIFY_CAP
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 1561
+  line: 1579
   module: kuda
 - name: Wake
   kind: type
   file: crates/kuda-cli/src/lib.rs
-  line: 2404
+  line: 2422
   module: kuda
 - name: acp
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 2159
+  line: 2177
   module: kuda
 - name: acp_answer
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 2232
+  line: 2250
   module: kuda
 - name: acp_full_session
   kind: function
@@ -105,22 +105,27 @@ api:
 - name: acp_summarizer
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 474
+  line: 492
   module: kuda
 - name: blob_hash
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 266
+  line: 284
   module: kuda
 - name: card
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 1823
+  line: 1841
   module: kuda
 - name: cat_file
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 1827
+  line: 1845
+  module: kuda
+- name: command
+  kind: function
+  file: crates/kuda-cli/src/lib.rs
+  line: 149
   module: kuda
 - name: config_flag_changes_root
   kind: function
@@ -140,12 +145,12 @@ api:
 - name: crate_doc_purpose
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 1480
+  line: 1498
   module: kuda
 - name: dependents
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 1900
+  line: 1918
   module: kuda
 - name: dependents_all_messages
   kind: function
@@ -160,12 +165,12 @@ api:
 - name: detect_commands
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 1605
+  line: 1623
   module: kuda
 - name: dispatch
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 148
+  line: 155
   module: kuda
 - name: doctests
   kind: function
@@ -175,7 +180,7 @@ api:
 - name: doctor
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 2264
+  line: 2282
   module: kuda
 - name: doctor
   kind: function
@@ -195,14 +200,9 @@ api:
 - name: domain_module
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 486
+  line: 504
   module: kuda
-- name: domains
-  kind: function
-  file: crates/kuda-cli/src/lib.rs
-  line: 209
-  module: kuda
-api_omitted: 97
+api_omitted: 99
 deps:
 - dagger-io
 - clap
@@ -216,14 +216,14 @@ deps:
 - kuda-extract-lsp
 - kuda-extract-manifest
 - kuda-extract-treesitter
-- kuda-git
 - kuda-query
 - kuda-records
 - kuda-store
 - kuda-store-sqlite
 - kuda-summarize
 - kuda-template
-- kuda-vcs
+- lasius-vcs
+- lasius-vcs-git
 - notify
 - serde_json
 - serde_yaml
@@ -241,7 +241,7 @@ deps:
 - kuda-extract
 - kuda-store
 - kuda-summarize
-- kuda-vcs
+- lasius_vcs
 - sha1
 - text_splitter
 - serde_json
@@ -288,15 +288,15 @@ provenance:
   - modules/dagger/dagger/src/kuda/main.py
   - modules/dagger/tests/test_self_patch.py
   hashes:
-  - 7b8ebc89d41a3b1d6631c54aa6f90f32852a9818
-  - 2bcee5e009cd2a0d1dacb5b51d5dc526d8de435b
-  - 405081130346c371bb4e8d3eec92b94d762b0620
+  - 45cf66cbd5008015992a1202b97fd9a40497fb2a
+  - c4bae2d5b6cb8c965e377fd08cc5ed65bba2c517
+  - 19b34573b1451e72db47cbc88d64155c19161181
   - 5645c359f4cb7671d1ac62243ef2ebb34c10d46e
   - 02a224c8158bc703aada5f4da3e52649e451619c
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
   - 5b331a1baf30b49f5bf03dd9693297d498117deb
   - d71646b878b3eae72aa42a5791588701197fdb2d
   - 203086b883ed1477efd6f9befccd76e2614cc9ea
-  commit_sha: 003b0eaf25f75763a6865c1ec29e9a60e5da0bfb
-  generated_at: '1794330926'
+  commit_sha: 6690b1b7ca67c7789bf9c150af92b5014f802669
+  generated_at: '1794376168'
   generator: kuda-template/0.1.4

@@ -1,6 +1,6 @@
 path: crates/kuda-extract-lsp/src/lib.rs
 module: kuda-extract-lsp
-purpose: crates/kuda-extract-lsp/src/lib.rs
+purpose: '`crates/kuda-extract-lsp/src/lib.rs` is the LSP adapter for symbol extraction — it spawns one language server per root (command from `extract.lsp_server`), speaks Content-Length-framed JSON-RPC over stdio (`initialize`/`initialized`, `textDocument/documentSymbol` per file, `workspace/symbol`+`textDocument/references` for references), and maps LSP `SymbolKind` ints to kuda''s `SymbolKind`. Missing or failing servers degrade to empty extraction so other extractors still run, and tests drive a stub LSP server via `$KUDA_LSP_MODE` scenarios.'
 symbols:
 - LspExtractor
 - LspClient
@@ -33,6 +33,6 @@ provenance:
   - crates/kuda-extract-lsp/src/lib.rs
   hashes:
   - 0360bf2281fb3a5c2cf1f8b1c2d87be5d4e5effa
-  commit_sha: 15708d4424106e52b588fff808de91984521c168
-  generated_at: '1794324811'
-  generator: kuda-template/0.1.3
+  commit_sha: 6690b1b7ca67c7789bf9c150af92b5014f802669
+  generated_at: '1794376168'
+  generator: kuda-acp/0.1.1

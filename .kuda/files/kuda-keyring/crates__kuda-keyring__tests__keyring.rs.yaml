@@ -1,6 +1,6 @@
 path: crates/kuda-keyring/tests/keyring.rs
 module: kuda-keyring
-purpose: crates/kuda-keyring/tests/keyring.rs
+purpose: 'crates/kuda-keyring/tests/keyring.rs contains a single serialized test that stubs `secret-tool` on PATH (prepending a temp dir with an executable shell script) and exercises the full `KeyringSecrets` roundtrip: default service is "kuda", missing lookups return None, a hit returns the stubbed secret, `set` succeeds, `fail` mode makes both `get` and `set` fail, empty stdout maps to None, and a missing `secret-tool` binary yields None/get and a spawn error/set error before PATH and the temp dir are restored.'
 symbols:
 - service_lookup_and_stubbed_secret_tool_roundtrip
 provenance:
@@ -8,6 +8,6 @@ provenance:
   - crates/kuda-keyring/tests/keyring.rs
   hashes:
   - 3f3cfe07bfe64addce9290896d7d6ab4c7fd20ae
-  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
-  generated_at: '1794291501'
-  generator: kuda-acp/0.1.0
+  commit_sha: 7e9ec7c8965e296915c7ee6d9c8f7db3947d3952
+  generated_at: '1794375630'
+  generator: kuda-acp/0.1.1

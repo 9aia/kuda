@@ -15,7 +15,6 @@ modules:
 - kuda-extract-lsp
 - kuda-extract-manifest
 - kuda-extract-treesitter
-- kuda-git
 - kuda-keyring
 - kuda-presentation
 - kuda-query
@@ -25,7 +24,6 @@ modules:
 - kuda-store-sqlite
 - kuda-summarize
 - kuda-template
-- kuda-vcs
 - project
 - sturn-wal
 commands:
@@ -34,8 +32,8 @@ commands:
 - (cd presentation && npm run build)
 - (cd presentation && npm run dev)
 - (cd presentation && npm run export)
-tree_digest: 777f2aa07db4dcdaa2a64c999382857b88ae8388
-files_total: 120
+tree_digest: c721f8b3a2e0f06f700d611fd891ca08292bffe5
+files_total: 116
 provenance:
   files:
   - Cargo.toml
@@ -52,7 +50,6 @@ provenance:
   - crates/kuda-extract-lsp/Cargo.toml
   - crates/kuda-extract-manifest/Cargo.toml
   - crates/kuda-extract-treesitter/Cargo.toml
-  - crates/kuda-git/Cargo.toml
   - crates/kuda-keyring/Cargo.toml
   - crates/kuda-query/Cargo.toml
   - crates/kuda-records/Cargo.toml
@@ -61,25 +58,23 @@ provenance:
   - crates/kuda-store-sqlite/Cargo.toml
   - crates/kuda-summarize/Cargo.toml
   - crates/kuda-template/Cargo.toml
-  - crates/kuda-vcs/Cargo.toml
   - modules/dagger/dagger/pyproject.toml
   - presentation/package.json
   hashes:
-  - 7b8ebc89d41a3b1d6631c54aa6f90f32852a9818
+  - 45cf66cbd5008015992a1202b97fd9a40497fb2a
   - 2fb9b4cda0b4b48961c410592925fe6ab443aa3b
   - 235538739af3a723c914cd6ede000fee3811ee2d
   - c2232432f5c2b51750ed9406059add07640caa15
-  - 2bcee5e009cd2a0d1dacb5b51d5dc526d8de435b
+  - c4bae2d5b6cb8c965e377fd08cc5ed65bba2c517
   - ea8d721cf84a29a6242dfb89a1cfe55211215dbb
   - 69539d90b1b9cce1264bb96925db8212817849fa
   - 858a2d26892b5f1150a8b4663f27d32c408f6e1d
   - c00e5be2a18e90d8ecfd27f7e9f455e5343b7a86
-  - 2606f9a4b93dfee2a8c6c48be61da1db2ec2310d
+  - b64ef929b1d6637032b1a747d2a3f4ae55c34859
   - 8474c16bc613412aaa22031cbce10ad3a1f9beea
   - 629ebbb90ef12a624718c9a046bb9403fce3b0fe
   - 6308e7a5d07441803a3d5ffe4e9bc179d2bc7605
   - 7ead2a85e1a7cd93b2207104b41ec1fbecf2374b
-  - 04bbffa2faf364409f943e06689f50fb83b2e6c4
   - 91090b39dc802b32e546f0af5ad5f1aa9e994bb8
   - c09df8b9f1045151d00b8825259c76bf2e5a1fa7
   - 259e305a0f5b7719fbe0939293854b774746df12
@@ -88,9 +83,8 @@ provenance:
   - 2d30a3d362d500ce8e4310218db2ea0f8da6ae99
   - 11910998e03f533e3852432fcb107e980fbe99f5
   - 65d11baa59bc50d3fb5d1b6a488a87922b66c9a3
-  - a3f3978c21457dd7be4e34dc16f31231d0a68777
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
   - 0f3a434bcbd7f03da300bb0068407063d067a223
-  commit_sha: 80c2152c265a741af22d657ef3537dcd52e9feb0
-  generated_at: '1794329001'
+  commit_sha: 6690b1b7ca67c7789bf9c150af92b5014f802669
+  generated_at: '1794376168'
   generator: kuda/0.1.0

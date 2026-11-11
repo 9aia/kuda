@@ -1,6 +1,6 @@
 name: kuda-extract-treesitter
 path: crates/kuda-extract-treesitter/Cargo.toml
-purpose: '`kuda-extract-treesitter` is the tree-sitter extract adapter — it runs grammar+query data over source files to produce symbols and import edges, with per-language knowledge living in `data/langs/*` (grammar id, extensions, symbol_query, dep_query) so a new language is a data file plus a `language()` arm. It compiles in the rust/typescript/python/go grammars and resolves each file''s module to the package name the manifest extractor found (via `pkg_names`), falling back to the manifest dir name then `_root`.'
+purpose: 'kuda-extract-treesitter is kuda''s tree-sitter extraction adapter: TreesitterExtractor walks a tree, parses files matching a LangDef''s extensions with a compiled grammar (rust, typescript/tsx, python, go), runs the LangDef''s symbol query (defaulting to DEFAULT_RUST_QUERY) to emit Symbol rows via `@name.<kind>` capture mapping, and runs an optional dep query to emit `Imports` edges from the module (resolved via manifest_dir_of/pkg_names or `_root` fallback). Relative imports produce no edge; unknown grammars are skipped silently.'
 api:
 - name: DEFAULT_RUST_QUERY
   kind: const
@@ -137,6 +137,6 @@ provenance:
   hashes:
   - 7ead2a85e1a7cd93b2207104b41ec1fbecf2374b
   - 57daf6910a9575c10499e9ec0136546971c9d59e
-  commit_sha: 78f32019bcc7240b818e9256d7d799345f9d47d1
-  generated_at: '1794324935'
-  generator: kuda-acp/0.1.3
+  commit_sha: 7e9ec7c8965e296915c7ee6d9c8f7db3947d3952
+  generated_at: '1794375630'
+  generator: kuda-acp/0.1.4

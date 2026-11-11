@@ -1,6 +1,6 @@
 path: crates/kuda-cli/tests/e2e.rs
 module: kuda
-purpose: 'End-to-end integration suite that drives the compiled `kuda` binary (`CARGO_BIN_EXE_kuda`) against seeded temp-dir Python/monorepo fixtures, asserting CLI behavior across all subcommands: `init` scaffolding and gitignore of rebuildables, `sync` (monorepo edge resolution, bounded module cards, stale file-card sweeps, incremental/deletion/full/workspace modes), `status` tree- and per-card drift, `map`/`card` hit/miss and broken-pipe survival, `find` exact/fuzzy, `dependents`, `refs` text/docs/LSP tiers, plus `doctor`, docs generation, and bad-config error paths.'
+purpose: '`crates/kuda-cli/tests/e2e.rs` is the CLI smoke/integration suite that drives the real `kuda` binary against temporary fixture repos to exercise the full argv→dispatch path. It verifies `init` scaffolding, `sync` incremental/housekeeping behavior (stale card sweeping, monorepo edge resolution, bounded L0/L1 cards), broken-pipe tolerance of `map | head`, `status` tree-drift detection, and hit-and-miss behavior for `map`, `card`, `find`, `dependents`, `refs`, plus workspace mode and config/error paths.'
 symbols:
 - kuda
 - help_and_stub
@@ -36,7 +36,7 @@ provenance:
   files:
   - crates/kuda-cli/tests/e2e.rs
   hashes:
-  - 9010012edc1118b1dd0903b97d4554e4f0e2b5a5
-  commit_sha: 4406b659ca5a3a26001f2c39ee90c9d2d99ff5d5
-  generated_at: '1794326587'
-  generator: kuda-acp/0.1.0
+  - 02a224c8158bc703aada5f4da3e52649e451619c
+  commit_sha: 6690b1b7ca67c7789bf9c150af92b5014f802669
+  generated_at: '1794376168'
+  generator: kuda-acp/0.1.1

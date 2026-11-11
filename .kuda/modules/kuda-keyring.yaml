@@ -1,6 +1,6 @@
 name: kuda-keyring
 path: crates/kuda-keyring/Cargo.toml
-purpose: 'Secret adapter: OS keyring via secret-tool (libsecret)'
+purpose: kuda-keyring implements the `KeyringSecrets` adapter for `kuda_secret::Secrets`, shelling out to `secret-tool` (libsecret) with a configurable `service` attribute (default `"kuda"`) to store and retrieve secrets; headless boxes without dbus simply miss every lookup and the caller falls through to the file store.
 api:
 - name: KeyringSecrets
   kind: type
@@ -54,6 +54,6 @@ provenance:
   - 91090b39dc802b32e546f0af5ad5f1aa9e994bb8
   - 5242918416df1b111afa3ac068a34dd434191191
   - 3f3cfe07bfe64addce9290896d7d6ab4c7fd20ae
-  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
-  generated_at: '1794291501'
-  generator: kuda-acp/0.1.3
+  commit_sha: 7e9ec7c8965e296915c7ee6d9c8f7db3947d3952
+  generated_at: '1794375630'
+  generator: kuda-acp/0.1.4

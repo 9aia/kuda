@@ -1,6 +1,6 @@
 path: crates/kuda-keyring/src/lib.rs
 module: kuda-keyring
-purpose: crates/kuda-keyring/src/lib.rs
+purpose: kuda-keyring implements the `KeyringSecrets` adapter for the `kuda_secret::Secrets` trait, shelling out to `secret-tool` (libsecret) with a `service` attribute (default "kuda") to group all kuda entries. `get` runs `secret-tool lookup` and returns the trimmed value on success, while `set` runs `secret-tool store` piping the value to stdin; headless boxes without dbus simply miss every lookup and the caller falls through to the file store.
 symbols:
 - KeyringSecrets
 - default
@@ -11,6 +11,6 @@ provenance:
   - crates/kuda-keyring/src/lib.rs
   hashes:
   - 5242918416df1b111afa3ac068a34dd434191191
-  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
-  generated_at: '1794291501'
-  generator: kuda-acp/0.1.0
+  commit_sha: 7e9ec7c8965e296915c7ee6d9c8f7db3947d3952
+  generated_at: '1794375630'
+  generator: kuda-acp/0.1.1

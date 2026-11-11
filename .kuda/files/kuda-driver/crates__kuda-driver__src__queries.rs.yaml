@@ -1,6 +1,6 @@
 path: crates/kuda-driver/src/queries.rs
 module: kuda-driver
-purpose: crates/kuda-driver/src/queries.rs
+purpose: '`crates/kuda-driver/src/queries.rs` implements pavo `query` dispatch over kuda''s read surfaces — `IndexStore` (sqlite), committed `.kuda/` cards, and drift recomputation — mapping names like `repo`, `modules`, `module`, `module_symbols`, `graph` (module or symbol level, capped at 800 symbols), `drift`, `find`/`search`, `dependents`, and `status` to `serde_json::Value` payloads. Unknown queries and missing indexes degrade into `{"error": …}` partial-degradation payloads rather than crashing the view, and `module_symbols` prefers the L2 store with a committed-card fallback.'
 symbols:
 - ROW_CAP
 - SYMBOL_GRAPH_CAP
@@ -37,6 +37,6 @@ provenance:
   - crates/kuda-driver/src/queries.rs
   hashes:
   - fa2d31ebcd3f75df04aa6d6753058d6591c6461e
-  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
-  generated_at: '1794291501'
-  generator: kuda-acp/0.1.0
+  commit_sha: 6690b1b7ca67c7789bf9c150af92b5014f802669
+  generated_at: '1794376168'
+  generator: kuda-acp/0.1.1

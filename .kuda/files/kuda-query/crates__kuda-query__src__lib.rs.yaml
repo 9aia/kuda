@@ -1,6 +1,6 @@
 path: crates/kuda-query/src/lib.rs
 module: kuda-query
-purpose: crates/kuda-query/src/lib.rs
+purpose: 'kuda-query is the thin agent-facing query layer over `IndexStore`: `find`/`search` do exact/substring symbol lookup, `dependents` expands dash/underscore module spellings via `module_variants`, drops self-edges (`module_key(from) == module_key(to)`), and dedupes by `(from, to, kind)`, while `edge_count`, `module_symbols` (filters found symbols to the queried module), and `modules` delegate to the store.'
 symbols:
 - find
 - search
@@ -31,6 +31,6 @@ provenance:
   - crates/kuda-query/src/lib.rs
   hashes:
   - 9e9627d7ab306ccfe261efd520351d9fedf34c52
-  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
-  generated_at: '1794291501'
-  generator: kuda-acp/0.1.0
+  commit_sha: 7e9ec7c8965e296915c7ee6d9c8f7db3947d3952
+  generated_at: '1794375630'
+  generator: kuda-acp/0.1.1

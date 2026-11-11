@@ -1,6 +1,6 @@
 name: kuda-extract
 path: crates/kuda-extract/Cargo.toml
-purpose: '`kuda-extract` is the extract port — it defines the `Extractor` trait plus the `Extraction`/`ExtractWarning` result types for pulling symbols, dep edges, and structure out of source trees, depending only on `kuda-core`. Implementations live in separate adapter crates (`kuda-extract-manifest`, `kuda-extract-treesitter`, `kuda-extract-lsp`, `kuda-records`); a new extractor is a new adapter crate, and a new language/domain is a data file.'
+purpose: 'kuda-extract defines the extraction port of kuda — the `Extraction` struct (symbols, edges, files, warnings), `ExtractWarning`, and the `Extractor` trait (`kind`, `extract`, `extract_filtered`) that adapter crates such as kuda-extract-manifest, kuda-extract-treesitter, kuda-extract-lsp, and kuda-records implement. Extraction is mechanical only: it reports what grammar/manifest data actually says, never inferred structure.'
 api:
 - name: ExtractWarning
   kind: type
@@ -73,6 +73,6 @@ provenance:
   hashes:
   - 8474c16bc613412aaa22031cbce10ad3a1f9beea
   - 89d96165ad9c34ce1bc77af7cd7d87ad5225810d
-  commit_sha: 78f32019bcc7240b818e9256d7d799345f9d47d1
-  generated_at: '1794324935'
-  generator: kuda-acp/0.1.3
+  commit_sha: 7e9ec7c8965e296915c7ee6d9c8f7db3947d3952
+  generated_at: '1794375630'
+  generator: kuda-acp/0.1.4

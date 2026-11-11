@@ -1,6 +1,6 @@
 name: kuda-records
 path: crates/kuda-records/Cargo.toml
-purpose: 'Records adapter: domain descriptor regexes -> record symbols + reference edges'
+purpose: 'kuda-records is kuda''s records adapter: `RecordsExtractor` walks domain corpus roots declared in `data/domains/*`, compiles each `DomainDef`''s `record_patterns`/`ref_pattern`/`schema_json`, and emits `Record` symbols plus `References` edges via per-line capture-group-1 scans (frontmatter `id = "T-001"` and checklist `- [ ] T-001` share the same mechanism). The `sturn-wal` domain source indexes git refs under `refs/sturn/wal/<ws>` as virtual JSONL files scanned by `scan_file`, injecting `seq` and `record` (`<actor>:<op>@<ws>#<id8>`, falling back to the commit sha when `id` is empty) per event.'
 api:
 - name: Compiled
   kind: type
@@ -233,6 +233,6 @@ provenance:
   - 259e305a0f5b7719fbe0939293854b774746df12
   - 797bbe81fbe7dd989022faa8d8c0eb3895eb6b6a
   - 528a29f3e827cb0fa2d4f0bb6aadab17cda2233c
-  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
-  generated_at: '1794291501'
-  generator: kuda-acp/0.1.3
+  commit_sha: 7e9ec7c8965e296915c7ee6d9c8f7db3947d3952
+  generated_at: '1794375630'
+  generator: kuda-acp/0.1.4

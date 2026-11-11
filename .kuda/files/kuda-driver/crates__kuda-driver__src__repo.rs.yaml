@@ -1,6 +1,6 @@
 path: crates/kuda-driver/src/repo.rs
 module: kuda-driver
-purpose: crates/kuda-driver/src/repo.rs
+purpose: crates/kuda-driver/src/repo.rs defines Ctx, the per-request repo context for pavo wire queries, resolving the repo root from wire params (`root`/`dir`/`path`), `$KUDA_DRIVER_ROOT`, or by walking up from cwd to the nearest `.kuda/` or `kuda.toml`. It lazily loads `kuda.toml` config, the L0 `index.yaml` repo card, the read-only `SqliteStore` (never created by the driver; mutations go through the `run` re-exec), and git HEAD, then exposes `module_cards`, `indexed`, `card_drift` (recomputing git-blob hashes to report `fresh`/`drifted`), and filename-safe card stems via `safe`.
 symbols:
 - Ctx
 - open
@@ -21,7 +21,7 @@ provenance:
   files:
   - crates/kuda-driver/src/repo.rs
   hashes:
-  - 32280e5b451db32cffe9defb9ec523a466166066
-  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
-  generated_at: '1794291501'
-  generator: kuda-acp/0.1.0
+  - 12ed1f30baaeb5205d339ac24f4eaae1bc3a7594
+  commit_sha: 7e9ec7c8965e296915c7ee6d9c8f7db3947d3952
+  generated_at: '1794375630'
+  generator: kuda-acp/0.1.1
