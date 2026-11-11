@@ -10,7 +10,14 @@ symbols, edges, provenance); ports are crates: `kuda-extract`,
 `kuda-summarize`, `kuda-store`, `kuda-vcs`; adapters:
 `kuda-extract-manifest`/`kuda-extract-treesitter`/`kuda-extract-lsp` (extractors),
 `kuda-template`/`kuda-llm` (summarizers), `kuda-store-sqlite`
-(store), `kuda-git` (vcs); `kuda` (cli) is the composition root.
+(store), `kuda-git` (vcs); `kuda-cli` (package `kuda`) is the engine
+lib — no `[[bin]]`: the `kuda` command ships as the tamias pack in
+`libraries/kuda` (`bins[]` shim → `tamias-driver-kuda cli` →
+`kuda::run_from`, T-012). Engine e2e tests live in
+`crates/kuda-driver/tests/` and spawn `tamias-driver-kuda run`.
+`libraries/kuda/` is the pack; `scripts/pack.sh` stages the
+compiled `tamias-driver-kuda` payload into `drivers/bin/<triple>/`
+(gitignored build artifact).
 `modules/dagger/` is the shared pipeline module (Python SDK).
 
 ## Rules of thumb
@@ -18,7 +25,8 @@ symbols, edges, provenance); ports are crates: `kuda-extract`,
 - New extractor/summarizer/store = a new adapter crate, not a core
   change. New language = a `data/langs/` file, not an engine edit.
 - `cargo build --workspace` and `cargo test --workspace` must stay green
-  (unit tests + the e2e in `crates/kuda-cli/tests/` — no docker needed).
+  (unit tests + the engine e2e in `crates/kuda-driver/tests/` —
+  no docker needed).
 - Coverage: `scripts/coverage.sh` — cargo-llvm-cov HTML report in
   `target/llvm-cov/html`; pass `--fail-under-lines 100` to gate.
 - Keep the binary dependency-light and sync; no async runtime.

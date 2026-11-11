@@ -49,8 +49,13 @@ repos ──► extract ──► summarize ──► index ──► store ─�
 
 ## Install
 
+The `kuda` command is a tamias pack (`libraries/kuda`) — a generated
+`bins[]` shim → `tamias-driver-kuda` → the engine lib. There is no
+cargo-installed `kuda` binary. From a checkout:
+
 ```sh
-cargo install --git https://github.com/9aia/kuda kuda
+scripts/pack.sh                                  # stage the driver payload
+tamias install --allow-drivers ./libraries/kuda   # deploys `kuda`
 ```
 
 ## Quickstart
