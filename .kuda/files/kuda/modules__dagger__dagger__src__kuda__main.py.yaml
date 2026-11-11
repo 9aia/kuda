@@ -1,6 +1,6 @@
 path: modules/dagger/dagger/src/kuda/main.py
 module: kuda
-purpose: modules/dagger/dagger/src/kuda/main.py
+purpose: modules/dagger/dagger/src/kuda/main.py defines a Dagger SDK `Kuda` object type with shared CI primitives (doctor, test_shard, doctests, test, coverage_report, coverage_gate, run) that build a rust:slim container with nextest/llvm-cov/sccache, mount a workspace at /work/<repo>, dev-link sibling crates via Cargo `[patch]` rewrites, and run authenticated, cache-reused test pipelines.
 symbols:
 - Kuda
 - _base
@@ -22,6 +22,6 @@ provenance:
   - modules/dagger/dagger/src/kuda/main.py
   hashes:
   - d71646b878b3eae72aa42a5791588701197fdb2d
-  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
-  generated_at: '1794291501'
-  generator: kuda-acp/0.1.0
+  commit_sha: 10197093d706e82b41235b5c26a8b54d85b66254
+  generated_at: '1794432877'
+  generator: kuda-acp/0.1.1
