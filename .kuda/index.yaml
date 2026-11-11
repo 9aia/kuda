@@ -32,8 +32,8 @@ commands:
 - (cd presentation && npm run build)
 - (cd presentation && npm run dev)
 - (cd presentation && npm run export)
-tree_digest: c721f8b3a2e0f06f700d611fd891ca08292bffe5
-files_total: 116
+tree_digest: 0e3d43286750b090619ac95c1272211cd86246a6
+files_total: 115
 provenance:
   files:
   - Cargo.toml
@@ -62,15 +62,15 @@ provenance:
   - presentation/package.json
   hashes:
   - 45cf66cbd5008015992a1202b97fd9a40497fb2a
-  - 2fb9b4cda0b4b48961c410592925fe6ab443aa3b
+  - 72e8f30e30b8418dbd6c3bd86da8136f670c15fb
   - 235538739af3a723c914cd6ede000fee3811ee2d
   - c2232432f5c2b51750ed9406059add07640caa15
-  - c4bae2d5b6cb8c965e377fd08cc5ed65bba2c517
+  - 4c97edc21e23343d72b5e22b056eb4ff300251a2
   - ea8d721cf84a29a6242dfb89a1cfe55211215dbb
   - 69539d90b1b9cce1264bb96925db8212817849fa
   - 858a2d26892b5f1150a8b4663f27d32c408f6e1d
   - c00e5be2a18e90d8ecfd27f7e9f455e5343b7a86
-  - b64ef929b1d6637032b1a747d2a3f4ae55c34859
+  - fc156f37cead67a18bcc75725cff6ec02b20c479
   - 8474c16bc613412aaa22031cbce10ad3a1f9beea
   - 629ebbb90ef12a624718c9a046bb9403fce3b0fe
   - 6308e7a5d07441803a3d5ffe4e9bc179d2bc7605
@@ -85,6 +85,6 @@ provenance:
   - 65d11baa59bc50d3fb5d1b6a488a87922b66c9a3
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
   - 0f3a434bcbd7f03da300bb0068407063d067a223
-  commit_sha: 6690b1b7ca67c7789bf9c150af92b5014f802669
-  generated_at: '1794376168'
+  commit_sha: 49424c23e67695da28451717f807b2e95bbff908
+  generated_at: '1794418375'
   generator: kuda/0.1.0

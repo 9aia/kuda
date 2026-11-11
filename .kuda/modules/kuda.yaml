@@ -2,11 +2,6 @@ name: kuda
 path: Cargo.toml
 purpose: '*Code-map engine — verified per-module cards agents read before code.*'
 api:
-- name: ACP_STUB
-  kind: const
-  file: crates/kuda-cli/tests/e2e.rs
-  line: 945
-  module: kuda
 - name: API_CAP
   kind: const
   file: crates/kuda-cli/src/lib.rs
@@ -92,16 +87,6 @@ api:
   file: crates/kuda-cli/src/lib.rs
   line: 2250
   module: kuda
-- name: acp_full_session
-  kind: function
-  file: crates/kuda-cli/tests/e2e.rs
-  line: 1347
-  module: kuda
-- name: acp_store_error_path
-  kind: function
-  file: crates/kuda-cli/tests/e2e.rs
-  line: 1394
-  module: kuda
 - name: acp_summarizer
   kind: function
   file: crates/kuda-cli/src/lib.rs
@@ -127,11 +112,6 @@ api:
   file: crates/kuda-cli/src/lib.rs
   line: 149
   module: kuda
-- name: config_flag_changes_root
-  kind: function
-  file: crates/kuda-cli/tests/e2e.rs
-  line: 642
-  module: kuda
 - name: coverage_gate
   kind: function
   file: modules/dagger/dagger/src/kuda/main.py
@@ -151,16 +131,6 @@ api:
   kind: function
   file: crates/kuda-cli/src/lib.rs
   line: 1918
-  module: kuda
-- name: dependents_all_messages
-  kind: function
-  file: crates/kuda-cli/tests/e2e.rs
-  line: 420
-  module: kuda
-- name: dependents_skips_self_import_edges
-  kind: function
-  file: crates/kuda-cli/tests/e2e.rs
-  line: 1778
   module: kuda
 - name: detect_commands
   kind: function
@@ -187,22 +157,52 @@ api:
   file: modules/dagger/dagger/src/kuda/main.py
   line: 268
   module: kuda
-- name: doctor_and_docs_and_bad_config
-  kind: function
-  file: crates/kuda-cli/tests/e2e.rs
-  line: 617
-  module: kuda
-- name: domain_config_replace_and_disable
-  kind: function
-  file: crates/kuda-cli/tests/e2e.rs
-  line: 1911
-  module: kuda
 - name: domain_module
   kind: function
   file: crates/kuda-cli/src/lib.rs
   line: 504
   module: kuda
-api_omitted: 99
+- name: domains
+  kind: function
+  file: crates/kuda-cli/src/lib.rs
+  line: 227
+  module: kuda
+- name: emit
+  kind: function
+  file: crates/kuda-cli/src/lib.rs
+  line: 25
+  module: kuda
+- name: ensure_gitignore
+  kind: function
+  file: crates/kuda-cli/src/lib.rs
+  line: 331
+  module: kuda
+- name: extractors
+  kind: function
+  file: crates/kuda-cli/src/lib.rs
+  line: 456
+  module: kuda
+- name: find
+  kind: function
+  file: crates/kuda-cli/src/lib.rs
+  line: 1858
+  module: kuda
+- name: fname
+  kind: function
+  file: crates/kuda-cli/src/lib.rs
+  line: 1624
+  module: kuda
+- name: hash_files
+  kind: function
+  file: crates/kuda-cli/src/lib.rs
+  line: 256
+  module: kuda
+- name: init
+  kind: function
+  file: crates/kuda-cli/src/lib.rs
+  line: 302
+  module: kuda
+api_omitted: 43
 deps:
 - dagger-io
 - clap
@@ -270,8 +270,6 @@ verify:
 - Cargo.toml
 - crates/kuda-cli/Cargo.toml
 - crates/kuda-cli/src/lib.rs
-- crates/kuda-cli/src/main.rs
-- crates/kuda-cli/tests/e2e.rs
 - modules/dagger/dagger/pyproject.toml
 - modules/dagger/dagger/src/kuda/__init__.py
 - modules/dagger/dagger/src/kuda/main.py
@@ -281,22 +279,18 @@ provenance:
   - Cargo.toml
   - crates/kuda-cli/Cargo.toml
   - crates/kuda-cli/src/lib.rs
-  - crates/kuda-cli/src/main.rs
-  - crates/kuda-cli/tests/e2e.rs
   - modules/dagger/dagger/pyproject.toml
   - modules/dagger/dagger/src/kuda/__init__.py
   - modules/dagger/dagger/src/kuda/main.py
   - modules/dagger/tests/test_self_patch.py
   hashes:
   - 45cf66cbd5008015992a1202b97fd9a40497fb2a
-  - c4bae2d5b6cb8c965e377fd08cc5ed65bba2c517
-  - 19b34573b1451e72db47cbc88d64155c19161181
-  - 5645c359f4cb7671d1ac62243ef2ebb34c10d46e
-  - 02a224c8158bc703aada5f4da3e52649e451619c
+  - 4c97edc21e23343d72b5e22b056eb4ff300251a2
+  - aaff722ee0045f041da52c37daae41964bb76d32
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
   - 5b331a1baf30b49f5bf03dd9693297d498117deb
   - d71646b878b3eae72aa42a5791588701197fdb2d
   - 203086b883ed1477efd6f9befccd76e2614cc9ea
-  commit_sha: 6690b1b7ca67c7789bf9c150af92b5014f802669
-  generated_at: '1794376168'
+  commit_sha: 49424c23e67695da28451717f807b2e95bbff908
+  generated_at: '1794418375'
   generator: kuda-template/0.1.4

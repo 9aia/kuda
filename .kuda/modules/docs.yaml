@@ -1,6 +1,6 @@
 name: docs
 path: docs/package.json
-purpose: The `docs` module is kuda's documentation site — getting-started, tutorials, how-to guides, reference (card schema, CLI help, config, crate API), architecture and release-model explanations, and comparison docs — plus generator scripts (gen-config-docs.py, gen-crate-map.py, gen-api-index.py) that build generated reference pages from struct doc comments and workspace Cargo.tomls.
+purpose: The docs module is kuda's committed documentation site — getting-started, first-run tutorial, how-to guides, reference material for the card schema and kuda.toml config, plus architecture and release-model explanations — all describing the same extract/summarize/store pipeline kuda uses to build its own memory.
 api:
 - name: Command-Line Help for `kuda`
   kind: record
@@ -83,6 +83,8 @@ api:
   line: 1
   module: docs
 deps:
+- kuda
+- tamias-driver-kuda
 - template
 - lsp
 - repo
@@ -360,7 +362,7 @@ provenance:
   - dc0d16bc092cec9b7271df2d6f0e7237b23ab6c3
   - 4d56a4f321eb054cf2fcbf74e62b3b0b496d1f94
   - 222808ea202bc00a67257777d283192f4becd81d
-  - 05aeffc5c5c763616831677dc4a76b882025ee43
+  - eb21e281655b26ec1f2be63a93ec6934ea974c61
   - 48de4da88a8bb9cd7878747498464a1f67834ada
   - c49057c88d718ea4d29762ea8218f80b5c27a847
   - 3246005788ff788b94e51606e532f98280bc8648
@@ -376,6 +378,6 @@ provenance:
   - c7e39b8531ba492bbaaa24a2bb9dc8d7833e0725
   - 7610721156875b8de9cec27cd21ca2a65c7773a8
   - 28d2ef76304e27db4eba1f66c93465d248f39bdd
-  commit_sha: 003b0eaf25f75763a6865c1ec29e9a60e5da0bfb
-  generated_at: '1794330926'
+  commit_sha: 49424c23e67695da28451717f807b2e95bbff908
+  generated_at: '1794418375'
   generator: kuda-acp/0.1.4

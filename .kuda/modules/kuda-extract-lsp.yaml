@@ -1,6 +1,6 @@
 name: kuda-extract-lsp
 path: crates/kuda-extract-lsp/Cargo.toml
-purpose: 'Extract adapter: LSP server-backed symbol extraction (documentSymbol)'
+purpose: kuda-extract-lsp is kuda's language-server extraction adapter — it spawns one server per root via extract.lsp_server (e.g. rust-analyzer), requests textDocument/documentSymbol for real per-language symbols, and degrades to empty extraction when the server is missing so other extractors keep running, sitting above treesitter in the quality tier behind the "lsp" extract kind.
 api:
 - name: ENV_LOCK
   kind: const
@@ -145,8 +145,6 @@ deps:
 - kuda-core
 - kuda-extract
 - serde_json
-warnings:
-- 'acp: unparseable reply for kuda-extract-lsp (agent monologue/garbage) — template fallback'
 notes: |
   - Missing server = empty extraction, never an error: if `server_cmd` is `None` or the spawn fails, `extract` returns an empty `Extraction` so the other extractor tiers still run (silent skip).
   - Symbol lines are 1-based — LSP's 0-based `range.start.line` is stored `+1`; nested `DocumentSymbol` children are flattened into `Container::name` form, while flat `SymbolInformation` (has a `location` object) is read directly.
@@ -165,6 +163,6 @@ provenance:
   hashes:
   - 629ebbb90ef12a624718c9a046bb9403fce3b0fe
   - 0360bf2281fb3a5c2cf1f8b1c2d87be5d4e5effa
-  commit_sha: 6690b1b7ca67c7789bf9c150af92b5014f802669
-  generated_at: '1794376168'
-  generator: kuda-template/0.1.4
+  commit_sha: 49424c23e67695da28451717f807b2e95bbff908
+  generated_at: '1794418375'
+  generator: kuda-acp/0.1.4
