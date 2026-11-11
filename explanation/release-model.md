@@ -1,5 +1,11 @@
 # The release model
 
+> User-facing install is the tamias pack (`libraries/kuda` →
+> `tamias install 9aia:kuda@<ver>`); the `kuda` crates are lib-only
+> engines behind `tamias-driver-kuda` — there is no cargo-installed
+> `kuda` binary. This page describes the crate/tag release pipeline
+> that feeds it.
+
 kuda releases itself — there is no hosted CI and no release tool
 in the loop. Two deliberate phases:
 

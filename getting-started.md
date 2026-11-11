@@ -14,10 +14,17 @@ Pick by what you need to do.
   [comparison](comparison.md) — vs grep / RAG
 
 Install — the `kuda` command is a tamias pack (`libraries/kuda`), a
-generated `bins[]` shim → `tamias-driver-kuda` → the engine lib:
+generated `bins[]` shim → `tamias-driver-kuda` → the engine lib. With
+`tamias` installed:
 
 ```sh
-scripts/pack.sh                                  # from a kuda checkout
+tamias install 9aia:kuda@0.1.0    # org registry (needs TAMIAS_REGISTRY_TOKEN)
+```
+
+Or from a kuda checkout:
+
+```sh
+scripts/pack.sh                                  # stage the driver payload
 tamias install --allow-drivers ./libraries/kuda   # deploys `kuda`
 ```
 
