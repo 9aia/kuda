@@ -14,11 +14,12 @@
 //! the manifest's `globals` list once, not per-op.
 //!
 //! `watch`/`mcp`/`acp` can never be request/response ops — they
-//! never return, so they ride `surfaces` instead: surface drivers
-//! (tamias-driver-cli / -mcp, the pavo-driver-kit `surface` layer)
-//! expose them as streaming subcommands —
-//! `tamias-driver-kuda cli watch` ≡ `kuda watch`. Hidden plumbing
-//! (`gen-cli-docs`) stays reachable through `run` passthrough only.
+//! never return, so they ride `surfaces` instead and reach users
+//! through the `bins[]` shim passthrough (`cli <argv>` →
+//! `kuda::run_from` with inherited stdio) or the feature-gated
+//! `mcp` surface — `tamias-driver-kuda cli watch` ≡ `kuda watch`.
+//! Hidden plumbing (`gen-cli-docs`) stays reachable through `run`
+//! passthrough only.
 //!
 //! `mutates` is honest: `init` scaffolds `kuda.toml` + `.kuda/`,
 //! `sync` rewrites cards + the sqlite index; `status`/`map`/

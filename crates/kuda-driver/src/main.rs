@@ -8,12 +8,19 @@
 //! plain argv, plus `ops` (the engine ops manifest) and `run`
 //! (engine passthrough).
 //!
-//! Optional surfaces: features `cli`/`mcp` embed pavo-driver-kit's
-//! surface layer — `cli <op> [args]` is a generated CLI over the ops
-//! manifest (`watch`/`mcp`/`acp` ride as streaming subcommands),
-//! `mcp` serves the ops as MCP tools on stdio. Both are equivalent
-//! to the standalone `tamias-driver-cli`/`tamias-driver-mcp` surface
-//! drivers, minus the PATH/discovery hop.
+//! `cli <kuda argv>` is the tamias `bins[]` shim verb: `tamias
+//! bin exec` calls it with the standard `--dir`/`--name` driver
+//! flags ahead of the user's argv; they're stripped and the rest
+//! runs through `kuda::run_from` in-process with inherited
+//! stdio — full engine parity (`watch` streams, `mcp`/`acp` serve
+//! stdio, globals/`--help` all work).
+//!
+//! Optional surfaces: feature `mcp` embeds pavo-driver-kit's
+//! surface layer — `mcp` serves the ops as MCP tools on stdio,
+//! equivalent to the standalone `tamias-driver-mcp` surface
+//! driver minus the PATH/discovery hop. There is no `cli`
+//! feature: `cli` is the shim verb above, not a generated
+//! surface — the engine's own argv grammar is the contract.
 //!
 //! Repo context: views/queries are read-only — the driver never
 //! opens `.kuda/index.sqlite` for writing. Engine ops are the
@@ -31,7 +38,7 @@
 mod ops;
 mod queries;
 mod repo;
-#[cfg(any(feature = "cli", feature = "mcp"))]
+#[cfg(feature = "mcp")]
 mod surface;
 mod views;
 
@@ -66,20 +73,24 @@ fn main() {
             let argv = std::iter::once("kuda".to_string()).chain(args.iter().skip(1).cloned());
             std::process::exit(kuda::run_from(argv));
         }
-        // Embedded surface verbs (feature-gated, optional): the
-        // pavo-driver-kit surface layer renders this driver's own
-        // ops manifest — `cli` = generated clap CLI (op → subcommand,
-        // `cli watch` streams), `mcp` = ops → MCP tools over stdio.
-        // The standalone tamias-driver-cli/-mcp binaries do the same
-        // over process dispatch; these verbs need nothing on PATH.
-        #[cfg(feature = "cli")]
+        // The tamias `bins[]` shim verb (T-012): `tamias bin exec`
+        // runs `<driver> cli --dir <payload> --name <pkg> <kuda
+        // argv>` for a declared `shim: cli` bin. kuda's engine IS
+        // the CLI, so this is a passthrough — strip the two standard
+        // driver flags and hand the rest to `kuda::run_from` with
+        // inherited stdio. That keeps full engine parity a generated
+        // ops→CLI surface can't express: globals before the verb
+        // (`--config`/`--workspace`), `--help`, the unbounded
+        // `watch` debounced loop, and the `mcp`/`acp` stdio servers
+        // all behave exactly like the retired `kuda` binary.
         Some("cli") => {
-            let m = kit::surface::OpsManifest::from_value(&ops::manifest()).unwrap_or_default();
-            let argv: Vec<String> = std::iter::once("kuda".to_string())
-                .chain(args.iter().skip(1).cloned())
-                .collect();
-            kit::surface::cli::run("kuda", &m, &argv, &mut surface::Engine)
+            let argv = engine_argv(&args[1..]);
+            std::process::exit(kuda::run_from(argv));
         }
+        // Optional embedded surface (feature-gated): the
+        // pavo-driver-kit surface layer renders this driver's own
+        // ops manifest as MCP tools over stdio — the same ops the
+        // `cli.*` wire queries expose.
         #[cfg(feature = "mcp")]
         Some("mcp") => {
             let m = kit::surface::OpsManifest::from_value(&ops::manifest()).unwrap_or_default();
@@ -94,12 +105,39 @@ fn main() {
         Some("serve") | None => serve(),
         _ => {
             eprintln!(
-                "usage: tamias-driver-kuda manifest|capabilities|ops|run <argv>|serve\n       (feature `cli` adds `cli <op> [args]`; feature `mcp` adds `mcp`)"
+                "usage: tamias-driver-kuda manifest|capabilities|ops|run <argv>|cli <kuda argv>|serve\n       (feature `mcp` adds `mcp`)"
             );
             1
         }
     };
     std::process::exit(code);
+}
+
+/// `cli` verb argv (after the `cli` token) → engine argv (argv[0]
+/// included). `tamias bin exec`/`driver exec` prepend the standard
+/// driver flags — `--dir <payload>` `--name <pkg>` — which the
+/// engine doesn't know; consume the leading run of those two
+/// (`--flag v` and `--flag=v` forms) and pass everything else
+/// through untouched. `--config`/`--workspace` are deliberately NOT
+/// stripped: they're kuda globals, so a user-passed one must reach
+/// the engine's own parse.
+fn engine_argv(args: &[String]) -> Vec<String> {
+    let mut out = vec!["kuda".to_string()];
+    let mut i = 0;
+    while i < args.len() {
+        let a = args[i].as_str();
+        if a == "--dir" || a == "--name" {
+            // flag + separate value — skip both (a trailing flag
+            // with no value just ends the scan).
+            i = (i + 2).min(args.len());
+        } else if a.starts_with("--dir=") || a.starts_with("--name=") {
+            i += 1;
+        } else {
+            break;
+        }
+    }
+    out.extend(args[i..].iter().cloned());
+    out
 }
 
 /// One parsed wire [`Request`] → response. The kit's serve loop owns

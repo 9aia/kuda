@@ -1,10 +1,10 @@
 //! kuda — the engine as a library. Everything that used to live
 //! in the binary lives here: Cli/Cmd, the sync pipeline, walks,
 //! hashes, card build/write, queries, MCP/ACP surfaces, watch.
-//! `run()` is the compat CLI's whole body; drivers (kuda bin,
-//! tamias-driver-kuda `run`) split it into [`parse`]/[`parse_from`]
-//! + [`dispatch`] — argv in, exit code out, ops callable as
-//!   `dispatch(&cli)`.
+//! `run()` is the compat CLI's whole body; drivers (the tamias
+//! `bins[]` shim → tamias-driver-kuda `cli`/`run`) split it into
+//! [`parse`]/[`parse_from`] + [`dispatch`] — argv in, exit code
+//! out, ops callable as `dispatch(&cli)`.
 
 // kuda — a hippocampus for your codebase. Composition root:
 // parses kuda.toml, wires adapters behind ports, runs subcommands.

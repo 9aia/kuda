@@ -5,9 +5,14 @@ Pavo view driver + engine-ops driver for kuda. One binary, named
 `views`, `view`, `query`) as ndjson JSON-RPC over stdio via
 `pavo-driver-kit` — the same `{"op":…}` /
 `{"ok":…,"result"|"error":…}` shape every sibling `serve` speaks.
-It also links the `kuda` engine lib: the `run` argv verb and the
-`cli.*` wire queries dispatch to `kuda::dispatch(Cli)` — argv in,
-exit code out.
+It also links the `kuda` engine lib: the `run` and `cli` argv verbs
+and the `cli.*` wire queries dispatch to `kuda::dispatch(Cli)` —
+argv in, exit code out. `cli` is the tamias `bins[]` shim verb
+(`libraries/kuda`): `tamias bin exec` calls
+`tamias-driver-kuda cli --dir <pkg> --name kuda <argv>`, the
+driver flags are stripped, and the rest runs through
+`kuda::run_from` with inherited stdio — the `kuda` command's full
+argv parity.
 
 ## Install / discovery
 
@@ -85,16 +90,13 @@ failures). `tamias-driver-kuda run <argv>` is also a human
 passthrough — `run sync --full` ≡ `kuda sync --full`.
 
 `watch`/`mcp`/`acp` are deliberately not ops — they never return.
-They ride the manifest's `surfaces` list instead, which surface
-drivers render as streaming subcommands. Two ways to reach them:
-
-- **Standalone surface drivers** (pavo): `tamias-driver-cli kuda
-  find parse`, `tamias-driver-mcp kuda` — discovery + dispatch over
-  the wire, no kuda feature needed.
-- **Embedded features** here: build with `--features cli,mcp` and
-  `tamias-driver-kuda cli find parse` / `tamias-driver-kuda mcp`
-  serve the same ops in-process. Optional, never required — the
-  default build stays a view driver + `run` passthrough.
+They ride the manifest's `surfaces` list instead, and reach users
+through the `bins[]` shim: `kuda watch` ≡ `tamias-driver-kuda cli
+watch` → `kuda::run_from` with inherited stdio — the same unbounded
+loop the retired binary ran. The feature-gated `mcp` verb
+(`--features mcp`) additionally serves the ops manifest as MCP
+tools on stdio, equivalent to a standalone surface driver minus
+the PATH/discovery hop — optional, never required.
 
 ## Contributes
 
@@ -106,10 +108,10 @@ to the drift view rather than rendering "N stale" inline.
 ## Layout
 
 - `src/main.rs` — argv verbs (`manifest`, `capabilities`, `ops`,
-  `run`, `serve`, plus feature-gated `cli`/`mcp`) + the ndjson
-  dispatch loop.
-- `src/surface.rs` — the driver's `Surface` impl for embedded
-  surfaces (feature `cli`/`mcp`): `op` → `ops::run_op`, `surface` →
+  `run`, `cli` shim passthrough, `serve`, plus feature-gated `mcp`)
+  + the ndjson dispatch loop.
+- `src/surface.rs` — the driver's `Surface` impl for the embedded
+  `mcp` surface (feature `mcp`): `op` → `ops::run_op`, `surface` →
   in-process `kuda::dispatch`.
 - `src/ops.rs` — the engine ops manifest (typed params) + `cli.*`
   dispatch (re-exec `run`, captured output → `{code, stdout, stderr}`).

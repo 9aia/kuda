@@ -8,10 +8,6 @@ repository.workspace = true
 keywords = ["code-intelligence", "kuda"]
 categories = ["development-tools"]
 
-[[bin]]
-name = "kuda"
-path = "src/main.rs"
-
 [dependencies]
 kuda-core.workspace = true
 kuda-extract.workspace = true

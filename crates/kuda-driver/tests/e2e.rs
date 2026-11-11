@@ -1,14 +1,23 @@
-//! CLI smoke: help renders, unimplemented subcommands are
-//! recognized (exit 2), `init` scaffolds kuda.toml + .kuda/.
+//! Engine e2e: the `kuda` command is a tamias `bins[]` shim →
+//! `tamias-driver-kuda cli` → `kuda::run_from`; the same engine
+//! entrypoint under test here is the driver's `run` passthrough
+//! (`tamias-driver-kuda run <kuda argv>`). help renders,
+//! `init` scaffolds kuda.toml + .kuda/, sync/status/map/card/find/
+//! dependents/refs/watch/mcp/acp behave like the retired binary.
 
 use std::process::Command;
 
+/// `tamias-driver-kuda run` — argv[0] is the driver's own, `run`
+/// hands the rest to `kuda::run_from` exactly like the `cli` shim
+/// verb does after stripping `--dir`/`--name`.
+fn kuda_cmd() -> Command {
+    let mut c = Command::new(env!("CARGO_BIN_EXE_tamias-driver-kuda"));
+    c.arg("run");
+    c
+}
+
 fn kuda(args: &[&str], dir: &std::path::Path) -> std::process::Output {
-    Command::new(env!("CARGO_BIN_EXE_kuda"))
-        .args(args)
-        .current_dir(dir)
-        .output()
-        .unwrap()
+    kuda_cmd().args(args).current_dir(dir).output().unwrap()
 }
 
 #[test]
@@ -152,7 +161,7 @@ fn map_survives_broken_pipe() {
     // >64KB so the write can't land entirely in the pipe buffer
     let big = "x".repeat(200_000);
     std::fs::write(tmp.join(".kuda/index.yaml"), &big).unwrap();
-    let mut child = Command::new(env!("CARGO_BIN_EXE_kuda"))
+    let mut child = kuda_cmd()
         .args(["map"])
         .current_dir(&tmp)
         .stdout(std::process::Stdio::piped())
@@ -278,7 +287,7 @@ fn tmp(tag: &str) -> std::path::PathBuf {
 /// Run kuda with `input` piped to stdin.
 fn kuda_stdin(args: &[&str], dir: &std::path::Path, input: &str) -> std::process::Output {
     use std::io::Write;
-    let mut c = Command::new(env!("CARGO_BIN_EXE_kuda"))
+    let mut c = kuda_cmd()
         .args(args)
         .current_dir(dir)
         .stdin(std::process::Stdio::piped())
@@ -547,7 +556,7 @@ while True:
         server.display()
     );
     mk_at(&dir, "kuda.toml", &cfg);
-    let out = Command::new(env!("CARGO_BIN_EXE_kuda"))
+    let out = kuda_cmd()
         .args(["refs", "serve"])
         .current_dir(&dir)
         .env("ROOT", &dir)
@@ -557,7 +566,7 @@ while True:
     assert!(out.status.success());
     assert!(stdout.contains("main.py:3"), "{stdout}");
     // empty lsp result -> falls through to the text tier
-    let out = Command::new(env!("CARGO_BIN_EXE_kuda"))
+    let out = kuda_cmd()
         .args(["refs", "serve"])
         .current_dir(&dir)
         .env("ROOT", &dir)
@@ -574,7 +583,7 @@ while True:
         ".kuda/workspace.yaml",
         &format!("roots:\n  - {}\n  - {}\n", dir.display(), b.display()),
     );
-    let out = Command::new(env!("CARGO_BIN_EXE_kuda"))
+    let out = kuda_cmd()
         .args(["--workspace", "refs", "serve"])
         .current_dir(&dir)
         .env("ROOT", &dir)
@@ -1087,7 +1096,7 @@ fn sync_acp_module_and_file_cards() {
         .unwrap();
     }
     // agent errors on session/prompt -> file card logged + skipped
-    let out = Command::new(env!("CARGO_BIN_EXE_kuda"))
+    let out = kuda_cmd()
         .args(["sync", "--full"])
         .current_dir(&dir)
         .env("KUDA_STUB_MODE", "error")
@@ -1111,7 +1120,7 @@ fn sync_acp_agent_failure_template_fallback() {
             agent.display()
         ),
     );
-    let out = Command::new(env!("CARGO_BIN_EXE_kuda"))
+    let out = kuda_cmd()
         .args(["sync"])
         .current_dir(&dir)
         .env("KUDA_STUB_MODE", "error")
@@ -1202,7 +1211,7 @@ fn sync_acp_monologue_falls_back_to_template() {
     );
     // the observed failure shape: one unanchored blob with the
     // agent's reasoning inlined before the card fields
-    let out = Command::new(env!("CARGO_BIN_EXE_kuda"))
+    let out = kuda_cmd()
         .args(["sync"])
         .current_dir(&dir)
         .env(
@@ -1256,7 +1265,7 @@ fn sync_acp_empty_reply_falls_back_to_template() {
             agent.display()
         ),
     );
-    let out = Command::new(env!("CARGO_BIN_EXE_kuda"))
+    let out = kuda_cmd()
         .args(["sync"])
         .current_dir(&dir)
         .env("KUDA_STUB_MODE", "empty")
@@ -1607,7 +1616,7 @@ fn watch_syncs_on_change() {
     let dir = tmp("watch");
     mk_at(&dir, "pyproject.toml", "[project]\nname = \"app\"\n");
     mk_at(&dir, "a.py", "def a():\n    pass\n");
-    let mut child = Command::new(env!("CARGO_BIN_EXE_kuda"))
+    let mut child = kuda_cmd()
         .args(["watch"])
         .current_dir(&dir)
         .stdout(std::process::Stdio::piped())
@@ -1659,7 +1668,7 @@ fn watch_poll_refs_reindexes_wal() {
     git_init(&dir);
     seed_py_repo(&dir);
     assert!(kuda(&["sync"], &dir).status.success());
-    let mut child = Command::new(env!("CARGO_BIN_EXE_kuda"))
+    let mut child = kuda_cmd()
         .args(["watch", "--poll-refs", "1"])
         .current_dir(&dir)
         .stdout(std::process::Stdio::piped())
@@ -1708,7 +1717,7 @@ fn watch_poll_refs_reindexes_wal() {
 fn sync_without_git_on_path() {
     let dir = tmp("nogitpath");
     seed_py_repo(&dir);
-    let out = Command::new(env!("CARGO_BIN_EXE_kuda"))
+    let out = kuda_cmd()
         .args(["sync"])
         .current_dir(&dir)
         .env("PATH", "/nonexistent-xyz")
@@ -1733,7 +1742,7 @@ fn write_error_not_broken_pipe() {
         .write(true)
         .open("/dev/full")
         .unwrap();
-    let out = Command::new(env!("CARGO_BIN_EXE_kuda"))
+    let out = kuda_cmd()
         .args(["map"])
         .current_dir(&dir)
         .stdout(std::process::Stdio::from(full))
@@ -1870,7 +1879,7 @@ fn workspace_union_edges_and_records() {
         ".kuda/workspace.yaml",
         &format!("roots:\n  - {}\n  - {}\n", a.display(), b.display()),
     );
-    let out = Command::new(env!("CARGO_BIN_EXE_kuda"))
+    let out = kuda_cmd()
         .args(["--workspace", "sync"])
         .current_dir(&a)
         .output()
