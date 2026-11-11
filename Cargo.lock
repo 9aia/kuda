@@ -1101,7 +1101,7 @@ dependencies = [
 
 [[package]]
 name = "kuda"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "clap",
  "clap-markdown",
@@ -1136,7 +1136,7 @@ dependencies = [
 
 [[package]]
 name = "kuda-acp"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "kuda-core",
  "kuda-extract",
@@ -1147,7 +1147,7 @@ dependencies = [
 
 [[package]]
 name = "kuda-cards"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "kuda-core",
  "serde",
@@ -1156,14 +1156,14 @@ dependencies = [
 
 [[package]]
 name = "kuda-config"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "kuda-core",
 ]
 
 [[package]]
 name = "kuda-config-toml"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "kuda-config",
  "kuda-core",
@@ -1172,7 +1172,7 @@ dependencies = [
 
 [[package]]
 name = "kuda-core"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "serde",
  "serde_json",
@@ -1181,14 +1181,14 @@ dependencies = [
 
 [[package]]
 name = "kuda-dotenv"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "kuda-secret",
 ]
 
 [[package]]
 name = "kuda-driver"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "clap",
  "kuda",
@@ -1210,14 +1210,14 @@ dependencies = [
 
 [[package]]
 name = "kuda-extract"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "kuda-core",
 ]
 
 [[package]]
 name = "kuda-extract-lsp"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "kuda-core",
  "kuda-extract",
@@ -1227,7 +1227,7 @@ dependencies = [
 
 [[package]]
 name = "kuda-extract-manifest"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "kuda-core",
  "kuda-extract",
@@ -1238,7 +1238,7 @@ dependencies = [
 
 [[package]]
 name = "kuda-extract-treesitter"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "kuda-core",
  "kuda-extract",
@@ -1251,14 +1251,14 @@ dependencies = [
 
 [[package]]
 name = "kuda-keyring"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "kuda-secret",
 ]
 
 [[package]]
 name = "kuda-query"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "kuda-core",
  "kuda-store",
@@ -1266,7 +1266,7 @@ dependencies = [
 
 [[package]]
 name = "kuda-records"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "jsonschema",
  "kuda-core",
@@ -1279,18 +1279,18 @@ dependencies = [
 
 [[package]]
 name = "kuda-secret"
-version = "0.1.0"
+version = "0.2.0"
 
 [[package]]
 name = "kuda-store"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "kuda-core",
 ]
 
 [[package]]
 name = "kuda-store-sqlite"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "kuda-core",
  "kuda-store",
@@ -1299,7 +1299,7 @@ dependencies = [
 
 [[package]]
 name = "kuda-summarize"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "kuda-core",
  "kuda-extract",
@@ -1307,7 +1307,7 @@ dependencies = [
 
 [[package]]
 name = "kuda-template"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "kuda-core",
  "kuda-extract",

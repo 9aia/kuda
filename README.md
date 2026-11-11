@@ -54,7 +54,7 @@ The `kuda` command is a tamias pack (`libraries/kuda`) — a generated
 cargo-installed `kuda` binary. With `tamias` installed:
 
 ```sh
-tamias install 9aia:kuda@0.1.0    # org registry (needs TAMIAS_REGISTRY_TOKEN)
+tamias install 9aia:kuda@0.2.0    # org registry (needs TAMIAS_REGISTRY_TOKEN)
 ```
 
 From a checkout:
