@@ -13,10 +13,12 @@ Pick by what you need to do.
   [release model](explanation/release-model.md) ·
   [comparison](comparison.md) — vs grep / RAG
 
-Install:
+Install — the `kuda` command is a tamias pack (`libraries/kuda`), a
+generated `bins[]` shim → `tamias-driver-kuda` → the engine lib:
 
 ```sh
-cargo install --git https://github.com/9aia/kuda kuda
+scripts/pack.sh                                  # from a kuda checkout
+tamias install --allow-drivers ./libraries/kuda   # deploys `kuda`
 ```
 
 First index:
