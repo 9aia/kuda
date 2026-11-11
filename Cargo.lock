@@ -1190,6 +1190,7 @@ dependencies = [
 name = "kuda-driver"
 version = "0.1.0"
 dependencies = [
+ "clap",
  "kuda",
  "kuda-cards",
  "kuda-core",

@@ -64,7 +64,7 @@ fn main() {
         // queries (ops::run_op re-execs this same verb).
         Some("run") => {
             let argv = std::iter::once("kuda".to_string()).chain(args.iter().skip(1).cloned());
-            std::process::exit(kuda::dispatch(&kuda::parse_from(argv)));
+            std::process::exit(kuda::run_from(argv));
         }
         // Embedded surface verbs (feature-gated, optional): the
         // pavo-driver-kit surface layer renders this driver's own
@@ -119,7 +119,7 @@ fn dispatch(req: &Request, manifest: &DriverManifest) -> Response {
                     data: ops::manifest(),
                 })
             } else if let Some(op) = ops::op_of(query) {
-                ops::run_op(&resolve_root(params), op, params)
+                ops::run_op(&resolve_root(params), &op, params)
             } else {
                 query_result(query, params)
             }

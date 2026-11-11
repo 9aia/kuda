@@ -32,6 +32,6 @@ impl Surface for Engine {
         let argv = std::iter::once("kuda".to_string())
             .chain(std::iter::once(name.to_string()))
             .chain(args.iter().cloned());
-        kuda::dispatch(&kuda::parse_from(argv))
+        kuda::run_from(argv)
     }
 }

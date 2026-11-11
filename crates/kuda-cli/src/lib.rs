@@ -143,6 +143,13 @@ where
     Cli::parse_from(itr)
 }
 
+/// The clap verb tree as a [`clap::Command`] — the driver ops
+/// manifest derives itself from this, so a verb can't exist on
+/// the CLI and be missing from the driver's wire surface.
+pub fn command() -> clap::Command {
+    <Cli as clap::CommandFactory>::command()
+}
+
 /// One parsed command → exit code. The op table every driver
 /// shares; argv parsing is a caller concern.
 pub fn dispatch(cli: &Cli) -> i32 {
@@ -172,9 +179,20 @@ pub fn dispatch(cli: &Cli) -> i32 {
     }
 }
 
-/// The compat CLI body — parse argv, dispatch, hand back the code.
+/// The compat CLI body — parse process argv, dispatch, hand back
+/// the exit code.
 pub fn run() -> i32 {
-    dispatch(&parse())
+    run_from(std::env::args_os())
+}
+
+/// Same, from an argv iterator — the `run` passthrough entry
+/// drivers re-exec (`tamias-driver-kuda run <kuda argv>`).
+pub fn run_from<I, T>(argv: I) -> i32
+where
+    I: IntoIterator<Item = T>,
+    T: Into<std::ffi::OsString> + Clone,
+{
+    dispatch(&parse_from(argv))
 }
 
 fn root(cli: &Cli) -> PathBuf {
