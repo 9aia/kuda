@@ -4,3 +4,8 @@
 # implicitly well-known there); declaring it here silences
 # `unexpected_cfgs` on normal builds.
 rustflags = ["--check-cfg", "cfg(coverage)"]
+
+[net]
+# 9aia git deps (lasius-vcs) resolve over ssh — let the git
+# CLI handle auth.
+git-fetch-with-cli = true

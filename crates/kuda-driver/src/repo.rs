@@ -11,7 +11,7 @@
 
 use kuda_core::{Config, ModuleCard, RepoCard};
 use kuda_store_sqlite::SqliteStore;
-use kuda_vcs::Vcs;
+use lasius_vcs::Vcs;
 use serde_json::{Map, Value};
 use std::path::{Path, PathBuf};
 
@@ -46,7 +46,7 @@ impl Ctx {
             .is_file()
             .then(|| SqliteStore::open(&store_path).ok())
             .flatten();
-        let head = kuda_git::GitVcs.head_sha(&root).unwrap_or_default();
+        let head = lasius_vcs_git::GitVcs.head(&root).unwrap_or_default();
         Self {
             root,
             cfg,

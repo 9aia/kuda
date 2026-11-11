@@ -1114,14 +1114,14 @@ dependencies = [
  "kuda-extract-lsp",
  "kuda-extract-manifest",
  "kuda-extract-treesitter",
- "kuda-git",
  "kuda-query",
  "kuda-records",
  "kuda-store",
  "kuda-store-sqlite",
  "kuda-summarize",
  "kuda-template",
- "kuda-vcs",
+ "lasius-vcs",
+ "lasius-vcs-git",
  "notify",
  "serde_json",
  "serde_yaml",
@@ -1193,11 +1193,11 @@ dependencies = [
  "kuda",
  "kuda-cards",
  "kuda-core",
- "kuda-git",
  "kuda-query",
  "kuda-store",
  "kuda-store-sqlite",
- "kuda-vcs",
+ "lasius-vcs",
+ "lasius-vcs-git",
  "pavo-driver-kit",
  "pavo-protocol",
  "pavo-testkit",
@@ -1246,13 +1246,6 @@ dependencies = [
  "tree-sitter-python",
  "tree-sitter-rust",
  "tree-sitter-typescript",
-]
-
-[[package]]
-name = "kuda-git"
-version = "0.1.0"
-dependencies = [
- "kuda-vcs",
 ]
 
 [[package]]
@@ -1321,8 +1314,20 @@ dependencies = [
 ]
 
 [[package]]
-name = "kuda-vcs"
-version = "0.1.0"
+name = "lasius-vcs"
+version = "0.3.0"
+source = "git+ssh://git@github.com/9aia/lasius.git?rev=782c10840149d9a62ac9aa2d0c3a440233ffc86b#782c10840149d9a62ac9aa2d0c3a440233ffc86b"
+dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "lasius-vcs-git"
+version = "0.3.0"
+source = "git+ssh://git@github.com/9aia/lasius.git?rev=782c10840149d9a62ac9aa2d0c3a440233ffc86b#782c10840149d9a62ac9aa2d0c3a440233ffc86b"
+dependencies = [
+ "lasius-vcs",
+]
 
 [[package]]
 name = "libc"

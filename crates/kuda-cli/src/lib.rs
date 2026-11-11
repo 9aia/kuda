@@ -4,10 +4,10 @@
 //! `run()` is the compat CLI's whole body; drivers (kuda bin,
 //! tamias-driver-kuda `run`) split it into [`parse`]/[`parse_from`]
 //! + [`dispatch`] — argv in, exit code out, ops callable as
-//! `dispatch(&cli)`.
+//!   `dispatch(&cli)`.
 
-//! kuda — a hippocampus for your codebase. Composition root:
-//! parses kuda.toml, wires adapters behind ports, runs subcommands.
+// kuda — a hippocampus for your codebase. Composition root:
+// parses kuda.toml, wires adapters behind ports, runs subcommands.
 
 use clap::{Parser, Subcommand};
 use kuda_config::ConfigSource;
@@ -16,7 +16,7 @@ use kuda_core::{Config, DomainDef, LangDef, Provenance, RepoCard, Symbol};
 use kuda_extract::Extractor;
 use kuda_store::IndexStore;
 use kuda_summarize::Summarizer;
-use kuda_vcs::Vcs;
+use lasius_vcs::Vcs;
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
@@ -854,8 +854,8 @@ fn sync_one(
             e.from != e.to && seen.insert((e.from.clone(), e.to.clone(), e.kind))
         });
     }
-    let sha = kuda_git::GitVcs
-        .head_sha(dir)
+    let sha = lasius_vcs_git::GitVcs
+        .head(dir)
         .unwrap_or_else(|| "unknown".into());
     let now = unix_now();
 
@@ -1743,7 +1743,7 @@ fn status(cli: &Cli) -> i32 {
         eprintln!("no .kuda/modules — run `kuda sync` first");
         return 2;
     };
-    let head = kuda_git::GitVcs.head_sha(&dir).unwrap_or_default();
+    let head = lasius_vcs_git::GitVcs.head(&dir).unwrap_or_default();
     let (mut fresh, mut drifted) = (0, 0);
     for e in entries.flatten() {
         let p = e.path();
