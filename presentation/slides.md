@@ -203,7 +203,7 @@ layout: default
 
 <Asciinema src="casts/terminal-demo.cast" :playerProps="{autoPlay: true, loop: true, fit: 'both', terminalFontSize: '17px', theme: '9aia'}" />
 
-`cargo install --git https://github.com/9aia/kuda kuda` —
+`tamias install 9aia:kuda@0.1.0` —
 edit a file, watch it drift, sync it fresh.
 
 ---
@@ -215,7 +215,7 @@ layout: default
 - works: full CLI, mcp + acp surfaces, `--workspace` multi-repo merges
 - built the way it's meant to be used: agent-maintained, review on
   branches, CI dogfooded — no PR queue by design
-- releases: `cargo install --git` + tags; `dist` parked deliberately
+- releases: tamias pack (`9aia:kuda@<ver>`) + tags; `dist` parked deliberately
 
 ---
 layout: end

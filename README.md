@@ -51,7 +51,13 @@ repos ──► extract ──► summarize ──► index ──► store ─�
 
 The `kuda` command is a tamias pack (`libraries/kuda`) — a generated
 `bins[]` shim → `tamias-driver-kuda` → the engine lib. There is no
-cargo-installed `kuda` binary. From a checkout:
+cargo-installed `kuda` binary. With `tamias` installed:
+
+```sh
+tamias install 9aia:kuda@0.1.0    # org registry (needs TAMIAS_REGISTRY_TOKEN)
+```
+
+From a checkout:
 
 ```sh
 scripts/pack.sh                                  # stage the driver payload
