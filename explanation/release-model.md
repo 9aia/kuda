@@ -3,59 +3,54 @@
 > User-facing install is the tamias pack (`libraries/kuda` →
 > `tamias install 9aia:kuda@<ver>`); the `kuda` crates are lib-only
 > engines behind `tamias-driver-kuda` — there is no cargo-installed
-> `kuda` binary. This page describes the crate/tag release pipeline
-> that feeds it.
+> `kuda` binary and **no crates.io publish** (org policy keeps every
+> repo but tamias off crates.io). This page describes the tag release
+> pipeline that feeds the pack.
 
-kuda releases itself — there is no hosted CI and no release tool
-in the loop. Two deliberate phases:
+Releases are manual: `scripts/release.sh` is run by an operator
+on `main`. The script's leading sleep is the debounce window — a
+newer push kills a running release via `cancel_running`, so only
+the last push in a quiet window releases.
 
-## Phase 1 — the explicit seed
+## What a release run does
 
-`kuda deploy release` runs once, by hand: it reads cargo metadata,
-topologically orders the workspace's path-dependency graph,
-`cargo publish`es every member, tags `{repo}-v{version}`, and pushes
-the tag.
+1. **Diff since the last tag** — release-worthy paths are the
+   workspace crates (`crates/`), the tamias pack payload
+   (`libraries/`), the language/domain corpora (`data/` — compiled
+   into the binary via `include_str!`), the pack staging script
+   (`scripts/pack.sh`), the workspace manifests/lockfile, and the
+   release script itself. Changes to anything else trigger
+   nothing. No release-set changes, no release.
+2. **Workspace version bump** — every crate inherits
+   `version.workspace`, so `cargo set-version --workspace --bump
+   patch` moves them all at once and rewrites the
+   `workspace.dependencies` version reqs and `Cargo.lock`
+   together. The script then syncs the user-facing version refs:
+   `libraries/kuda/tamias.yaml` (`version:`) and the install
+   example in `README.md` (`9aia:kuda@<ver>`).
+3. **Commit + tag + push** — one `release: bump kuda to <ver>`
+   commit, tagged `kuda-v<ver>`, pushed to `main` with the tag.
+4. **Pack publish (operator)** — the script prints the follow-up:
+   `scripts/pack.sh && tamias publish libraries/kuda` ships
+   `9aia:kuda@<ver>` to the org registry (`pack.sh` first
+   release-builds `tamias-driver-kuda` into the pack's
+   `drivers/bin/<triple>/` payload dir). Publishing is a
+   credentials-gated, registry-side action and deliberately stays
+   outside the script.
 
-Why explicit? Publishing is the **only irreversible step** in the
-whole system. Queues, runs, and statuses are all idempotent and
-local; a crate version on crates.io is forever. Everything else in
-kuda fires on push — the seed doesn't. (`--dry-run` prints the
-order and tag without touching anything.)
+With no tags at all the script exits early — the flow is seeded
+by tagging once.
 
-## Phase 2 — push-driven forever after
+## Constraints
 
-From then on a release is _just another kuda job_: a push to `main`
-hits the webhook, queues latest-wins, and runs `scripts/release.sh`
-in a detached worktree under the shell runner.
-
-The script:
-
-1. diffs crate paths since the last `kuda-v*` tag
-2. `cargo set-version --bump patch` on touched crates only (the cli
-   republishes on any change — it's the install artifact)
-3. `cargo publish`es them in dep order
-4. tags `kuda-vX.Y.Z`, builds host-arch binaries with `cargo dist`,
-   uploads to a GitHub Release via `gh`
-
-The 5-minute sleep at the top isn't a hack — it's the debounce
-window. Combined with `queue = "latest"` + `cancel_running`, rapid
-push bursts collapse to one release of the newest sha; killed runs
-get an honest "cancelled" status.
-
-## Why this shape
-
-- **No release-plz / GHA**: the point of the project is that CI is a
-  local loop — depending on hosted CI to ship it would be
-  self-defeating. `scripts/release.sh` is deliberately boring bash so it can
-  run as a plain `cmd` under `runner.kind = "shell"`.
-- **Latest-wins, not `all`**: a release that misses an intermediate
-  push loses nothing — the tag lands on HEAD, which contains
-  everything. `queue = "all"` is for pipelines where each sha's run
-  is individually meaningful.
-- **Explicit over automatic**: a wrong tag or half-published
-  workspace is far worse than a delayed release; the boundary sits
-  exactly at irreversibility.
-
-Host prerequisites: `cargo-edit`, `cargo-dist`, `gh`, and
-`CARGO_REGISTRY_TOKEN` (env → keyring → env file). Multi-arch
-binaries arrive when the remote-runner pair lands — see TODO.
+- There is no crates.io publish path and no per-crate tag scheme —
+  the whole workspace shares one version and one `kuda-v<ver>`
+  tag. The old push-driven `kuda deploy release` seed (which
+  `cargo publish`ed every member and uploaded cargo-dist binaries
+  to a GitHub Release) is retired: org policy keeps every repo but
+  tamias off crates.io, and prebuilt binary distribution is not
+  part of the flow.
+- Only the tamias pack is user-facing; `tamias-driver-kuda` and
+  the engine crates are internal, installed via the pack's
+  generated `bins[]` shim (`tamias install --allow-drivers
+  ./libraries/kuda` from a checkout).
