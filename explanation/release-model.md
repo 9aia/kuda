@@ -12,6 +12,11 @@ on `main`. The script's leading sleep is the debounce window — a
 newer push kills a running release via `cancel_running`, so only
 the last push in a quiet window releases.
 
+The org release plane is **tarsi** (`tarsi-serve` ops — project
+ADR-0005): `scripts/release.sh` is being converted to a thin shim
+over it (PL-014 E1), and until then this script implements the
+same tag-only + `tamias publish` model directly.
+
 ## What a release run does
 
 1. **Diff since the last tag** — release-worthy paths are the
