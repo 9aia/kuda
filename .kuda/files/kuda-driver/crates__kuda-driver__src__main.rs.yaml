@@ -1,6 +1,6 @@
 path: crates/kuda-driver/src/main.rs
 module: kuda-driver
-purpose: '`tamias-driver-kuda` is a pavo view driver for kuda that answers wire ops (`manifest`, `views`, `view`, `query`) as ndjson JSON-RPC over stdio via `pavo-driver-kit`''s serve loop, plus plain-argv discovery verbs (`manifest`, `capabilities`, `ops`, `run`). `run` re-executes `kuda::dispatch` for engine passthrough (e.g. `sync --full` mutates `.kuda/`), while views and queries stay read-only and never write the sqlite index; feature-gated `cli`/`mcp` surfaces render the same ops manifest as a clap CLI or MCP tools.'
+purpose: tamias-driver-kuda is a pavo view driver that serves kuda's wire ops (manifest, views, view, query) as ndjson JSON-RPC over stdio via pavo-driver-kit, with plain-argv discovery verbs (manifest/capabilities/ops/run), a `cli` shim verb that strips `--dir`/`--name` driver flags and forwards the rest to `kuda::run_from` for full engine parity, and an optional feature-gated `mcp` surface rendering ops as MCP tools; views/queries are read-only while engine ops re-exec `kuda::dispatch` in the request's repo resolved from root/dir/path, $KUDA_DRIVER_ROOT, or cwd walk-up.
 symbols:
 - ops
 - queries
@@ -8,6 +8,7 @@ symbols:
 - surface
 - views
 - main
+- engine_argv
 - dispatch
 - views_summaries
 - view_result
@@ -17,7 +18,7 @@ provenance:
   files:
   - crates/kuda-driver/src/main.rs
   hashes:
-  - 655d2bfa3ba25622ddb8cecb17229e4e6afcebad
-  commit_sha: 003b0eaf25f75763a6865c1ec29e9a60e5da0bfb
-  generated_at: '1794330926'
+  - 388a68f82eb5ecfcafea3a0b94738d1e58b101c0
+  commit_sha: eb530f9b2c393bad8dd70f3909d745af7ec9aad8
+  generated_at: '1794489862'
   generator: kuda-acp/0.1.1

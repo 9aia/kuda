@@ -1,6 +1,6 @@
 name: kuda-driver
 path: crates/kuda-driver/Cargo.toml
-purpose: tamias-driver-kuda is kuda's pavo view driver — it answers the pavo wire contract (manifest/views/view/query as ndjson JSON-RPC over stdio via pavo-driver-kit's serve loop) plus discovery verbs manifest/capabilities/ops/run, acts as the tamias bins[] shim via `cli` (stripping --dir/--name and re-execing kuda::run_from for full engine parity), and exposes engine ops as `cli.<verb>` wire queries that re-exec `run` in the request's repo so writes never touch the serve loop's ndjson stream.
+purpose: tamias-driver-kuda — pavo view driver over a kuda index (ViewNode IR) plus engine ops dispatching to the kuda lib
 api:
 - name: ACP_STUB
   kind: const
@@ -204,10 +204,10 @@ api:
   module: kuda-driver
 api_omitted: 113
 deps:
-- dagger-io
 - clap
 - kuda
 - kuda-cards
+- kuda-config
 - kuda-core
 - kuda-query
 - kuda-store
@@ -219,37 +219,7 @@ deps:
 - serde
 - serde_json
 - sha1
-- toml
 - pavo-testkit
-- clap
-- clap-markdown
-- kuda-acp
-- kuda-cards
-- kuda-config
-- kuda-config-toml
-- kuda-core
-- kuda-extract
-- kuda-extract-lsp
-- kuda-extract-manifest
-- kuda-extract-treesitter
-- kuda-query
-- kuda-records
-- kuda-store
-- kuda-store-sqlite
-- kuda-summarize
-- kuda-template
-- lasius-vcs
-- lasius-vcs-git
-- notify
-- serde_json
-- serde_yaml
-- sha1
-- text-splitter
-- toml
-- tree-sitter-go
-- tree-sitter-python
-- tree-sitter-rust
-- tree-sitter-typescript
 - kuda-core
 - kuda-store
 - kuda-store-sqlite
@@ -260,21 +230,8 @@ deps:
 - pavo_protocol
 - queries
 - repo
-- clap
-- kuda-config
-- kuda-config-toml
-- kuda-core
-- kuda-extract
-- kuda-store
-- kuda-summarize
-- lasius_vcs
-- sha1
-- text_splitter
-- serde_json
-- notify
-- asyncio
-- typing
-- dagger
+warnings:
+- 'acp: unparseable reply for kuda-driver (agent monologue/garbage) — template fallback'
 notes: |
   - Query failures return `{"error": …}` payloads rather than crashing views; malformed wire requests and unknown operations receive structured error responses.
   - The driver never creates a missing SQLite index and resolves each request's repository from `root`/`dir`/`path`, `$KUDA_DRIVER_ROOT`, or the nearest indexed ancestor of the cwd.
@@ -306,15 +263,15 @@ provenance:
   - crates/kuda-driver/tests/conformance.rs
   - crates/kuda-driver/tests/e2e.rs
   hashes:
-  - fc156f37cead67a18bcc75725cff6ec02b20c479
+  - 9096f14dd5b7203d7083c5b0c2540abee82b20d9
   - 388a68f82eb5ecfcafea3a0b94738d1e58b101c0
   - b7ed429113ecd454cf1d00b7d848f57434b94230
   - fa2d31ebcd3f75df04aa6d6753058d6591c6461e
-  - 12ed1f30baaeb5205d339ac24f4eaae1bc3a7594
+  - 925039c67403cab04eccf1f9b06ded4bd0c16940
   - 015a9f0dc54af2af0db881fae3d7ea3a59819488
   - c5e20f966ceb5c1618788dd56765deace6d0946f
   - 383d57d4a1fea60ea3426373d47b6c36cc37f62e
   - 3ad52d408325c94e73229d4e51e1e52426e0d981
-  commit_sha: 49424c23e67695da28451717f807b2e95bbff908
-  generated_at: '1794418375'
-  generator: kuda-acp/0.1.4
+  commit_sha: eb530f9b2c393bad8dd70f3909d745af7ec9aad8
+  generated_at: '1794489862'
+  generator: kuda-template/0.1.4

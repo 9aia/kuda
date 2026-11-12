@@ -1,28 +1,35 @@
 path: crates/kuda-driver/src/ops.rs
 module: kuda-driver
-purpose: crates/kuda-driver/src/ops.rs
+purpose: ops.rs derives the `cli.<verb>` wire ops manifest from kuda's own clap command tree so every engine verb is discoverable as a typed op, maps wire params to kuda argv flags, and runs each op by re-execing `tamias-driver-kuda run <argv>` in a child whose cwd is the request's repo, returning `{op, argv, code, stdout, stderr}`; `watch`/`mcp`/`acp` are unbounded surfaces never exposed as ops, `init`/`sync` are the only mutators, and hidden plumbing (`gen-cli-docs`) stays reachable through `run` passthrough only.
 symbols:
-- Param
-- arg
-- opt
-- flag
-- Op
-- OPS
+- SURFACES
+- SKIP_PARAMS
+- READ_ONLY
+- verbs
+- walk
+- op_cmd
+- skipped
+- kind
+- param_json
 - manifest
 - op_of
-- bool_param
-- str_param
+- scalar
+- values
+- push_param
 - argv
 - run_op
 - tests
 - op_of_accepts_cli_prefix_only
+- manifest_lists_every_non_surface_verb_as_cli_query
 - argv_maps_params_to_kuda_flags
-- manifest_lists_every_op_as_cli_query
+- argv_maps_positionals_and_named_params
+- argv_carries_globals_and_config_opt
+- argv_omits_absent_params
 provenance:
   files:
   - crates/kuda-driver/src/ops.rs
   hashes:
-  - 7a058405dc7cfcf27d87cbdfc4d34e4729d93060
-  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
-  generated_at: '1794291501'
-  generator: kuda-acp/0.1.0
+  - b7ed429113ecd454cf1d00b7d848f57434b94230
+  commit_sha: eb530f9b2c393bad8dd70f3909d745af7ec9aad8
+  generated_at: '1794489862'
+  generator: kuda-acp/0.1.1

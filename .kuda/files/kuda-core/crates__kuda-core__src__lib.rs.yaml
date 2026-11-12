@@ -1,6 +1,6 @@
 path: crates/kuda-core/src/lib.rs
 module: kuda-core
-purpose: I have enough grounding from the provided chunks. Let me write the summary.
+purpose: kuda-core defines the domain types — cards (RepoCard, ModuleCard, FileCard), Symbol/SymbolKind, DepEdge/EdgeKind, Provenance, LangDef, DomainDef/Source, and the kuda.toml Config model (repo/extract/summarize/store/cards/domains/workspace) — with deny_unknown_fields, default extract kinds manifest/treesitter/records, built-in exclusion dirs, and no ports or integrations.
 symbols:
 - ContentHash
 - Provenance
@@ -36,7 +36,7 @@ provenance:
   files:
   - crates/kuda-core/src/lib.rs
   hashes:
-  - 482271b070c98c8461c51eedd369a4d753e2176f
-  commit_sha: 78f32019bcc7240b818e9256d7d799345f9d47d1
-  generated_at: '1794324935'
-  generator: kuda-acp/0.1.0
+  - 763d8d1dae04db8508e640bf2b352588345823af
+  commit_sha: eb530f9b2c393bad8dd70f3909d745af7ec9aad8
+  generated_at: '1794489862'
+  generator: kuda-acp/0.1.1

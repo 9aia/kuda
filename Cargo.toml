@@ -19,7 +19,6 @@ members = [
     "crates/kuda-keyring",
     "crates/kuda-dotenv",
     "crates/kuda-config",
-    "crates/kuda-config-toml",
     "crates/kuda-driver",
 ]
 
@@ -56,12 +55,12 @@ kuda-secret = { path = "crates/kuda-secret", version = "0.2.0" }
 kuda-keyring = { path = "crates/kuda-keyring", version = "0.2.0" }
 kuda-dotenv = { path = "crates/kuda-dotenv", version = "0.2.0" }
 kuda-config = { path = "crates/kuda-config", version = "0.2.0" }
-kuda-config-toml = { path = "crates/kuda-config-toml", version = "0.2.0" }
 kuda-driver = { path = "crates/kuda-driver", version = "0.2.0" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_yaml = "0.9"
 toml = "0.8"
+scarab-config-file = { git = "ssh://git@github.com/9aia/scarab.git", rev = "9364df88fad0ca46bd838467717a823893f47438", version = "0.1" }
 regex = "1"
 clap = { version = "4", features = ["derive"] }
 rusqlite = { version = "0.32", features = ["bundled"] }

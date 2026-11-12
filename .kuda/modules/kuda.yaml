@@ -1,6 +1,6 @@
 name: kuda
 path: Cargo.toml
-purpose: '*Code-map engine — verified per-module cards agents read before code.*'
+purpose: 'module `kuda` is both the Rust binary crate (`crates/kuda-cli`, v0.2.0, "code-map engine: verified per-module cards agents read before code") exposing Cli/Cmd subcommands and the sync pipeline via lib.rs, and a Dagger module (`modules/dagger/dagger`, v0.1.0) providing CI primitives (test, coverage_report, coverage_gate, run) for Rust workspaces with a self-patching Cargo.toml script tested under pytest.'
 api:
 - name: API_CAP
   kind: const
@@ -210,7 +210,6 @@ deps:
 - kuda-acp
 - kuda-cards
 - kuda-config
-- kuda-config-toml
 - kuda-core
 - kuda-extract
 - kuda-extract-lsp
@@ -236,7 +235,6 @@ deps:
 - tree-sitter-typescript
 - clap
 - kuda-config
-- kuda-config-toml
 - kuda-core
 - kuda-extract
 - kuda-store
@@ -249,8 +247,6 @@ deps:
 - asyncio
 - typing
 - dagger
-warnings:
-- 'acp: unparseable reply for kuda (agent monologue/garbage) — template fallback'
 notes: |
   - Sync uses Git-compatible blob hashes and card/store provenance to limit parsing and agent summarization to drift; `sync --full` discards the freshness baseline.
   - Module identity comes from manifest package names, while domain corpus files are grouped by their descriptors; dependency names are normalized and self-edges removed.
@@ -284,13 +280,13 @@ provenance:
   - modules/dagger/dagger/src/kuda/main.py
   - modules/dagger/tests/test_self_patch.py
   hashes:
-  - f02475326e0dd1c37a0001896d415a12bf723c8e
-  - 4c97edc21e23343d72b5e22b056eb4ff300251a2
-  - aaff722ee0045f041da52c37daae41964bb76d32
+  - 9e9e7fdba8d88ea29c4eafebde1f2690321f7482
+  - 332f7689d8cd5b43949062dcbbc0afb9b6ed0b75
+  - d14a66282b4dcc90de49d16a0179225b0d09779c
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
   - 5b331a1baf30b49f5bf03dd9693297d498117deb
   - d71646b878b3eae72aa42a5791588701197fdb2d
   - 203086b883ed1477efd6f9befccd76e2614cc9ea
-  commit_sha: 10197093d706e82b41235b5c26a8b54d85b66254
-  generated_at: '1794432877'
-  generator: kuda-template/0.1.4
+  commit_sha: eb530f9b2c393bad8dd70f3909d745af7ec9aad8
+  generated_at: '1794489862'
+  generator: kuda-acp/0.1.4

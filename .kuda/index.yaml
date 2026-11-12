@@ -7,7 +7,6 @@ modules:
 - kuda-acp
 - kuda-cards
 - kuda-config
-- kuda-config-toml
 - kuda-core
 - kuda-dotenv
 - kuda-driver
@@ -32,8 +31,8 @@ commands:
 - (cd presentation && npm run build)
 - (cd presentation && npm run dev)
 - (cd presentation && npm run export)
-tree_digest: 2592a581edf8ac22a03685e2dd6c72f01ee3dd27
-files_total: 115
+tree_digest: 69b0a089234d7a6b3f259a8defe947cfdb7b56f2
+files_total: 112
 provenance:
   files:
   - Cargo.toml
@@ -42,7 +41,6 @@ provenance:
   - crates/kuda-cards/Cargo.toml
   - crates/kuda-cli/Cargo.toml
   - crates/kuda-config/Cargo.toml
-  - crates/kuda-config-toml/Cargo.toml
   - crates/kuda-core/Cargo.toml
   - crates/kuda-dotenv/Cargo.toml
   - crates/kuda-driver/Cargo.toml
@@ -61,16 +59,15 @@ provenance:
   - modules/dagger/dagger/pyproject.toml
   - presentation/package.json
   hashes:
-  - f02475326e0dd1c37a0001896d415a12bf723c8e
+  - 9e9e7fdba8d88ea29c4eafebde1f2690321f7482
   - bc860db94cf210f015ba8c87b26b14b47b283211
   - 235538739af3a723c914cd6ede000fee3811ee2d
   - c2232432f5c2b51750ed9406059add07640caa15
-  - 4c97edc21e23343d72b5e22b056eb4ff300251a2
-  - ea8d721cf84a29a6242dfb89a1cfe55211215dbb
-  - 69539d90b1b9cce1264bb96925db8212817849fa
+  - 332f7689d8cd5b43949062dcbbc0afb9b6ed0b75
+  - 0be143275c24a5d806998f0d084da36093e1e448
   - 858a2d26892b5f1150a8b4663f27d32c408f6e1d
   - c00e5be2a18e90d8ecfd27f7e9f455e5343b7a86
-  - fc156f37cead67a18bcc75725cff6ec02b20c479
+  - 9096f14dd5b7203d7083c5b0c2540abee82b20d9
   - 8474c16bc613412aaa22031cbce10ad3a1f9beea
   - 629ebbb90ef12a624718c9a046bb9403fce3b0fe
   - 6308e7a5d07441803a3d5ffe4e9bc179d2bc7605
@@ -85,6 +82,6 @@ provenance:
   - 65d11baa59bc50d3fb5d1b6a488a87922b66c9a3
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
   - 0f3a434bcbd7f03da300bb0068407063d067a223
-  commit_sha: 10197093d706e82b41235b5c26a8b54d85b66254
-  generated_at: '1794432877'
+  commit_sha: eb530f9b2c393bad8dd70f3909d745af7ec9aad8
+  generated_at: '1794489862'
   generator: kuda/0.1.0

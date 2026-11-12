@@ -1,13 +1,29 @@
 path: crates/kuda-config/src/lib.rs
 module: kuda-config
-purpose: '`kuda-config` defines the config port — the `ConfigSource` trait (`Send + Sync`) whose `load()` returns a `kuda_core::Config` or a readable error message; `kuda-config-toml` is the file-based implementation and env/remote sources are new adapter crates, so the port stays implementation-agnostic.'
+purpose: kuda-config is the config port plus file implementation that loads `kuda.{yaml,yml,toml}` in order — explicit `--config`, `$KUDA_CONFIG`, `./kuda.*` (YAML preferred), then `~/.config/kuda/` — via scarab-config-file's `for_app("kuda")`, exposing the `ConfigSource` trait, `FileSource` struct with `candidates()`, and `parse_file()` for single-path reads, with tests for explicit/YAML/env/dotfile/parse-error cases serialized by `ENV_LOCK`.
 symbols:
 - ConfigSource
+- FileSource
+- source
+- with_explicit
+- candidates
+- load
+- parse_file
+- tests
+- scratch
+- CFG
+- explicit_path_loads
+- yaml_config_loads
+- parse_error_and_missing
+- env_var_drives_search
+- dotfile_fallback_and_candidates
+- parse_file_reads_one_path
+- ENV_LOCK
 provenance:
   files:
   - crates/kuda-config/src/lib.rs
   hashes:
-  - 67df5f89ce57962d01a71781e96d8378f9c284c4
-  commit_sha: 003b0eaf25f75763a6865c1ec29e9a60e5da0bfb
-  generated_at: '1794330926'
+  - b418b1005c5d92dc18a71cae84f5f85ac6189b9c
+  commit_sha: eb530f9b2c393bad8dd70f3909d745af7ec9aad8
+  generated_at: '1794489862'
   generator: kuda-acp/0.1.1

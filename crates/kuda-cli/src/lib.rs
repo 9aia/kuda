@@ -11,7 +11,7 @@
 
 use clap::{Parser, Subcommand};
 use kuda_config::ConfigSource;
-use kuda_config_toml::TomlSource;
+use kuda_config::FileSource;
 use kuda_core::{Config, DomainDef, LangDef, Provenance, RepoCard, Symbol};
 use kuda_extract::Extractor;
 use kuda_store::IndexStore;
@@ -207,7 +207,7 @@ fn root(cli: &Cli) -> PathBuf {
 }
 
 fn load_config(cli: &Cli) -> Config {
-    TomlSource {
+    FileSource {
         path: cli.config.clone(),
     }
     .load()
@@ -2282,7 +2282,7 @@ fn acp_answer(dir: &Path, cfg: &Config, prompt: &str) -> String {
 fn doctor(cli: &Cli) -> i32 {
     let dir = root(cli);
     outln!("kuda doctor");
-    let cfg = match (TomlSource {
+    let cfg = match (FileSource {
         path: cli.config.clone(),
     })
     .load()

@@ -247,7 +247,7 @@ pub struct DomainDef {
 
 // ---- kuda.toml config model ----
 
-#[derive(Debug, Deserialize, Clone, Default)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub struct Config {
     #[serde(default)]
@@ -272,7 +272,7 @@ pub struct Config {
     pub workspace: WorkspaceCfg,
 }
 
-#[derive(Debug, Deserialize, Clone, Default)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub struct RepoCfg {
     /// Defaults to the directory basename.
@@ -282,7 +282,7 @@ pub struct RepoCfg {
     pub root: Option<PathBuf>,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct ExtractCfg {
     /// Impl kinds tried in order:
@@ -344,7 +344,7 @@ fn default_extract_kinds() -> Vec<String> {
     vec!["manifest".into(), "treesitter".into(), "records".into()]
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct SummarizeCfg {
     /// "template" (deterministic, default) | "acp" (agent-spawned).
@@ -382,7 +382,7 @@ fn default_summarize_kind() -> String {
     "template".into()
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct StoreCfg {
     #[serde(default = "default_store_kind")]
@@ -408,7 +408,7 @@ fn default_store_path() -> PathBuf {
     ".kuda/index.sqlite".into()
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct CardsCfg {
     /// Committed artifacts dir: index.yaml + modules/*.yaml.
@@ -434,7 +434,7 @@ fn default_cards_dir() -> PathBuf {
 /// corpus or replace a same-named built-in — the repo wins.
 /// Resolution is deterministic: built-ins -> minus `disable` ->
 /// overlaid with `domain` entries, in declared order.
-#[derive(Debug, Deserialize, Clone, Default)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub struct DomainsCfg {
     /// Built-in domain names to skip ("myco", "docs", "media").
@@ -447,7 +447,7 @@ pub struct DomainsCfg {
     pub domain: Vec<DomainDef>,
 }
 
-#[derive(Debug, Deserialize, Clone, Default)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub struct WorkspaceCfg {
     /// Sibling repo roots indexed together.

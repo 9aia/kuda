@@ -1,6 +1,6 @@
 name: docs
 path: docs/package.json
-purpose: The `docs` module is kuda's documentation set — getting started, how-to guides, reference schemas, architectural explanations, and comparisons — covering tamias-pack installation, the hosted-CI-free self-release pipeline, the committed `.kuda/` card schema, and `kuda.toml` configuration.
+purpose: docs documents kuda's architecture, getting-started tutorial, comparison to alternatives, release model, card schema, kuda.toml config, crate API reference, and how-to guides for adding languages, summarizers/ACP, domain record corpora, multi-repo workspaces, MCP serving, and sturn WAL integration, with generator scripts producing config and API reference docs from source.
 api:
 - name: Command-Line Help for `kuda`
   kind: record
@@ -197,7 +197,6 @@ deps:
 - kuda-vcs
 - kuda-git
 - kuda-config
-- kuda-config-toml
 - kuda-secret
 - kuda-keyring
 - kuda-dotenv
@@ -360,7 +359,7 @@ provenance:
   - docs/tutorials/first-run.md
   hashes:
   - 7eaa0db3af8683b36b2ec3fdda568b6e5daf7fc8
-  - e2719fc5ac907417773a2ec12ce76dd78b427aec
+  - 92cafee584a62b0de3f56dbcf8f303ad4d31d9c4
   - 91e9de56a3d578891b37218c6141e45568e1caf8
   - dc0d16bc092cec9b7271df2d6f0e7237b23ab6c3
   - 4d56a4f321eb054cf2fcbf74e62b3b0b496d1f94
@@ -379,8 +378,8 @@ provenance:
   - 3464e95d9dfc4053151e91a36567dcc2db0f5a46
   - 42a1a05d36a786f28811b0bf2f2673f93b9dff60
   - c7e39b8531ba492bbaaa24a2bb9dc8d7833e0725
-  - 7610721156875b8de9cec27cd21ca2a65c7773a8
+  - d74edfc2ed1a75edfd7d81d68a162f782d3ab163
   - 28d2ef76304e27db4eba1f66c93465d248f39bdd
-  commit_sha: 10197093d706e82b41235b5c26a8b54d85b66254
-  generated_at: '1794431694'
+  commit_sha: eb530f9b2c393bad8dd70f3909d745af7ec9aad8
+  generated_at: '1794489862'
   generator: kuda-acp/0.1.4

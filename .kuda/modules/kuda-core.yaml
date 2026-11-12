@@ -1,6 +1,6 @@
 name: kuda-core
 path: crates/kuda-core/Cargo.toml
-purpose: '`kuda-core` is the domain-type crate — memory tiers (`RepoCard` L0, `ModuleCard`/`FileCard` L1, `Symbol`/`DepEdge` L2 graph), `Provenance` staleness data, `LangDef`/`DomainDef` data descriptors, and the full `deny_unknown_fields` `kuda.toml` `Config` model — with no ports or integrations.'
+purpose: kuda-core is the dependency-free domain layer defining all kuda data models — RepoCard/ModuleCard/FileCard, Symbol/SymbolKind, DepEdge/EdgeKind, Provenance, LangDef/DomainDef/Source, and the kuda.toml Config (repo/extract/summarize/store/cards/domains/workspace) with serde deny_unknown_fields — and no ports or integrations.
 api:
 - name: CardsCfg
   kind: type
@@ -230,7 +230,7 @@ provenance:
   - crates/kuda-core/src/lib.rs
   hashes:
   - 858a2d26892b5f1150a8b4663f27d32c408f6e1d
-  - 482271b070c98c8461c51eedd369a4d753e2176f
-  commit_sha: 003b0eaf25f75763a6865c1ec29e9a60e5da0bfb
-  generated_at: '1794330926'
+  - 763d8d1dae04db8508e640bf2b352588345823af
+  commit_sha: eb530f9b2c393bad8dd70f3909d745af7ec9aad8
+  generated_at: '1794489862'
   generator: kuda-acp/0.1.4

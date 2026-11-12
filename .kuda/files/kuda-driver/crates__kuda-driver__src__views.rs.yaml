@@ -1,6 +1,6 @@
 path: crates/kuda-driver/src/views.rs
 module: kuda-driver
-purpose: crates/kuda-driver/src/views.rs
+purpose: views.rs builds the static pavo driver manifest and ViewNode trees for kuda — declaring map, modules, module, graph, drift, and find views with query bindings backed by queries::run_query — plus navbar/dashboard/statusbar chrome contributions, keeping every binding name in sync with the query implementation via tests.
 symbols:
 - binding
 - spec
@@ -19,6 +19,6 @@ provenance:
   - crates/kuda-driver/src/views.rs
   hashes:
   - c5e20f966ceb5c1618788dd56765deace6d0946f
-  commit_sha: fbb7b826d1a353f32e69e94a9c326aa234567e64
-  generated_at: '1794291501'
-  generator: kuda-acp/0.1.0
+  commit_sha: eb530f9b2c393bad8dd70f3909d745af7ec9aad8
+  generated_at: '1794489862'
+  generator: kuda-acp/0.1.1

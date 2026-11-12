@@ -1,6 +1,6 @@
 path: crates/kuda-cli/src/lib.rs
 module: kuda
-purpose: kuda-cli/src/lib.rs is the library composition root for the kuda CLI, defining the clap Cli/Cmd verb surface and the parse/dispatch/run entry points that route argv to ops. It wires config loading, built-in language/domain TOML definitions, domain resolution, git-blob-style content hashing, and the sync pipeline (extract → summarize → store) so drivers and the binary share one op table.
+purpose: crates/kuda-cli/src/lib.rs is kuda's composition root library exposing Cli/Cmd, parse/dispatch/run subcommands, config loading, built-in language and domain TOMLs, git blob hashing, init/sync/watch/Mcp/Acp/Status/Map/Card/Find/Dependents/Refs/Doctor/GenCliDocs ops, workspace roots, and the extract→summarize→card→store pipeline.
 symbols:
 - emit
 - out
@@ -36,7 +36,7 @@ provenance:
   files:
   - crates/kuda-cli/src/lib.rs
   hashes:
-  - aaff722ee0045f041da52c37daae41964bb76d32
-  commit_sha: 10197093d706e82b41235b5c26a8b54d85b66254
-  generated_at: '1794432877'
+  - d14a66282b4dcc90de49d16a0179225b0d09779c
+  commit_sha: eb530f9b2c393bad8dd70f3909d745af7ec9aad8
+  generated_at: '1794489862'
   generator: kuda-acp/0.1.1

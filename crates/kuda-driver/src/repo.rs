@@ -122,11 +122,11 @@ pub fn resolve_root(params: &Map<String, Value>) -> PathBuf {
 /// parse failure (the driver never refuses to serve).
 fn load_config(root: &Path) -> Config {
     let p = root.join("kuda.toml");
-    let Ok(text) = std::fs::read_to_string(&p) else {
+    if !p.is_file() {
         return Config::default();
-    };
-    toml::from_str(&text).unwrap_or_else(|e| {
-        eprintln!("kuda-driver: parse {}: {e} — defaults in use", p.display());
+    }
+    kuda_config::parse_file(&p).unwrap_or_else(|e| {
+        eprintln!("kuda-driver: {e} — defaults in use");
         Config::default()
     })
 }

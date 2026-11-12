@@ -1,0 +1,42 @@
+path: crates/kuda-driver/tests/e2e.rs
+module: kuda-driver
+purpose: e2e.rs exercises the kuda engine via `tamias-driver-kuda run <kuda argv>` — the same entrypoint as the `cli` shim verb — testing init scaffolding (`kuda.toml` + `.kuda/`), sync on a Python monorepo with dash-named dists and bounded module cards, map/card/find/dependents/refs/doctor behavior, broken-pipe resilience on `map`, stale file-card sweeping, tree-drift detection, and config/gitignore edge cases.
+symbols:
+- kuda_cmd
+- kuda
+- help_and_stub
+- init_scaffolds
+- sync_monorepo_edges_and_bounded_cards
+- map_survives_broken_pipe
+- sync_sweeps_stale_file_cards
+- status_detects_tree_drift
+- tmp
+- kuda_stdin
+- mk_at
+- git
+- git_init
+- seed_py_repo
+- map_and_card_hit_and_miss
+- find_exact_fuzzy_miss
+- find_workspace_tags_roots
+- dependents_all_messages
+- refs_text_and_docs_tiers
+- refs_lsp_tier
+- refs_lsp_error_falls_through
+- doctor_and_docs_and_bad_config
+- config_flag_changes_root
+- init_error_paths
+- init_gitignores_rebuildables
+- gitignore_skips_nonrepo_creates_missing
+- status_edge_cases
+- sync_incremental_and_deletions
+- sync_full_and_upgrade_seed
+- sync_store_and_cards_failures
+provenance:
+  files:
+  - crates/kuda-driver/tests/e2e.rs
+  hashes:
+  - 3ad52d408325c94e73229d4e51e1e52426e0d981
+  commit_sha: eb530f9b2c393bad8dd70f3909d745af7ec9aad8
+  generated_at: '1794489862'
+  generator: kuda-acp/0.1.1

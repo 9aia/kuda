@@ -1,19 +1,100 @@
 name: kuda-config
 path: crates/kuda-config/Cargo.toml
-purpose: '`kuda-config` defines the config port — the `ConfigSource` trait (`Send + Sync`) whose single `load()` method returns a `kuda_core::Config` or a readable `String` error; `kuda-config-toml` is the file-based implementation and env/remote sources are separate adapter crates, keeping the port implementation-agnostic.'
+purpose: kuda-config is the config port plus file implementation that discovers and loads `kuda.{yaml,yml,toml}` in order — explicit `--config`, `$KUDA_CONFIG`, `./kuda.*` (YAML preferred), then `~/.config/kuda/` — via scarab-config-file's `for_app("kuda")`, exposing the `ConfigSource` trait, `FileSource` with `candidates()`, and `parse_file()` for single-path reads.
 api:
+- name: CFG
+  kind: const
+  file: crates/kuda-config/src/lib.rs
+  line: 78
+  module: kuda-config
 - name: ConfigSource
   kind: trait
   file: crates/kuda-config/src/lib.rs
-  line: 5
+  line: 14
+  module: kuda-config
+- name: ENV_LOCK
+  kind: const
+  file: crates/kuda-config/src/lib.rs
+  line: 192
+  module: kuda-config
+- name: FileSource
+  kind: type
+  file: crates/kuda-config/src/lib.rs
+  line: 21
+  module: kuda-config
+- name: candidates
+  kind: function
+  file: crates/kuda-config/src/lib.rs
+  line: 45
+  module: kuda-config
+- name: dotfile_fallback_and_candidates
+  kind: function
+  file: crates/kuda-config/src/lib.rs
+  line: 152
+  module: kuda-config
+- name: env_var_drives_search
+  kind: function
+  file: crates/kuda-config/src/lib.rs
+  line: 136
+  module: kuda-config
+- name: explicit_path_loads
+  kind: function
+  file: crates/kuda-config/src/lib.rs
+  line: 88
   module: kuda-config
 - name: kuda-config
   kind: module
   file: crates/kuda-config/Cargo.toml
   line: 1
   module: kuda-config
+- name: load
+  kind: function
+  file: crates/kuda-config/src/lib.rs
+  line: 52
+  module: kuda-config
+- name: parse_error_and_missing
+  kind: function
+  file: crates/kuda-config/src/lib.rs
+  line: 116
+  module: kuda-config
+- name: parse_file
+  kind: function
+  file: crates/kuda-config/src/lib.rs
+  line: 62
+  module: kuda-config
+- name: parse_file_reads_one_path
+  kind: function
+  file: crates/kuda-config/src/lib.rs
+  line: 180
+  module: kuda-config
+- name: scratch
+  kind: function
+  file: crates/kuda-config/src/lib.rs
+  line: 71
+  module: kuda-config
+- name: source
+  kind: function
+  file: crates/kuda-config/src/lib.rs
+  line: 29
+  module: kuda-config
+- name: tests
+  kind: module
+  file: crates/kuda-config/src/lib.rs
+  line: 68
+  module: kuda-config
+- name: with_explicit
+  kind: function
+  file: crates/kuda-config/src/lib.rs
+  line: 34
+  module: kuda-config
+- name: yaml_config_loads
+  kind: function
+  file: crates/kuda-config/src/lib.rs
+  line: 103
+  module: kuda-config
 deps:
 - kuda-core
+- scarab-config-file
 notes: |
   - `load()` returns `Result<kuda_core::Config, String>`: implementations load AND validate, and `Err` must carry a human-readable message.
   - Implementors must be `Send + Sync` (the trait has those supertraits).
@@ -26,8 +107,8 @@ provenance:
   - crates/kuda-config/Cargo.toml
   - crates/kuda-config/src/lib.rs
   hashes:
-  - ea8d721cf84a29a6242dfb89a1cfe55211215dbb
-  - 67df5f89ce57962d01a71781e96d8378f9c284c4
-  commit_sha: 003b0eaf25f75763a6865c1ec29e9a60e5da0bfb
-  generated_at: '1794330926'
+  - 0be143275c24a5d806998f0d084da36093e1e448
+  - b418b1005c5d92dc18a71cae84f5f85ac6189b9c
+  commit_sha: eb530f9b2c393bad8dd70f3909d745af7ec9aad8
+  generated_at: '1794489862'
   generator: kuda-acp/0.1.4
