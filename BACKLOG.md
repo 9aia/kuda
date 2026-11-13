@@ -30,4 +30,3 @@
 ## CI / release
 
 - T-023 Dogfood bupha for kuda's own CI (bupha.toml + modules/dagger)
-- T-024 crates.io release — scripts/release.sh publishes the crate graph in dep order; needs a dry-run pass + tags
