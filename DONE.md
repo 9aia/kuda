@@ -18,3 +18,4 @@
 - T-035 kuda watch — domain roots + WAL-ref coverage: poll-refs flag, root(cli) fix, dir\_excluded filter (sync-lag reduction) · pri:high · owner:devin · created:2026-11-10
 - T-036 sturn post-op hook → kuda re-index (WAL proper fix; today: watch --poll-refs opt-in) · owner:devin · created:2026-11-10
 - T-024 crates.io release — scripts/release.sh publishes the crate graph in dep order; needs a dry-run pass + tags · status:cancelled
+- T-037 refresh stale installed bins (myco/kuda/driver-\*) — cargo xtask install per repo · owner:devin · created:2026-11-10
