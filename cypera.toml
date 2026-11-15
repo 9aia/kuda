@@ -1,0 +1,107 @@
+# cypera — org docs/reference generation contract (see ../cypera).
+# Discovered upward from the repo root; `bun run docs:gen` inside
+# docs/ drives `cypera gen crate-map|cli|config` with no flags.
+
+[crate_map]
+order = ["domain", "port", "impl", "binary"]
+default_layer = "impl"
+
+[crate_map.layers]
+"kuda" = "binary"
+"kuda-core" = "domain"
+"kuda-runner" = "port"
+"kuda-tunnel" = "port"
+"kuda-trigger" = "port"
+"kuda-status" = "port"
+"kuda-vcs" = "port"
+"kuda-queue" = "port"
+"kuda-service" = "port"
+"kuda-secret" = "port"
+"kuda-config" = "port"
+"kuda-cache" = "port"
+
+[[crate_map.splices]]
+target = "docs/explanation/architecture.md"
+first_table = true
+
+[crate_map.crate_api]
+site = "kuda"
+out = "docs/reference/crate-api.md"
+
+[cli]
+package = "kuda-driver"
+bin = "tamias-driver-kuda"
+prefix = ["run"]
+out = "docs/reference/cli.md"
+
+[config]
+title = "Config — `kuda.toml`"
+out = "docs/reference/config.md"
+types = { "String" = "string", "PathBuf" = "path", "bool" = "bool", "u16" = "int", "usize" = "int", "Vec<String>" = "list", "Vec<DomainDef>" = "descriptor table", "QueuePolicy" = "\"latest\" | \"all\"" }
+
+[[config.structs]]
+file = "crates/kuda-core/src/lib.rs"
+name = "Config"
+title = "Top level"
+[[config.structs]]
+file = "crates/kuda-core/src/lib.rs"
+name = "RepoCfg"
+title = "`[repo]`"
+[[config.structs]]
+file = "crates/kuda-core/src/lib.rs"
+name = "ExtractCfg"
+title = "`[extract]`"
+[[config.structs]]
+file = "crates/kuda-core/src/lib.rs"
+name = "SummarizeCfg"
+title = "`[summarize]`"
+[[config.structs]]
+file = "crates/kuda-core/src/lib.rs"
+name = "StoreCfg"
+title = "`[store]`"
+[[config.structs]]
+file = "crates/kuda-core/src/lib.rs"
+name = "CardsCfg"
+title = "`[cards]`"
+[[config.structs]]
+file = "crates/kuda-core/src/lib.rs"
+name = "DomainsCfg"
+title = "`[domains]`"
+[[config.structs]]
+file = "crates/kuda-core/src/lib.rs"
+name = "WorkspaceCfg"
+title = "`[workspace]`"
+
+[[config.sections]]
+title = "Top level"
+struct = "Config"
+[[config.sections]]
+title = "`[repo]`"
+struct = "RepoCfg"
+[[config.sections]]
+title = "`[extract]`"
+struct = "ExtractCfg"
+[[config.sections]]
+title = "`[summarize]`"
+struct = "SummarizeCfg"
+[[config.sections]]
+title = "`[store]`"
+struct = "StoreCfg"
+[[config.sections]]
+title = "`[cards]`"
+struct = "CardsCfg"
+[[config.sections]]
+title = "`[domains]`"
+struct = "DomainsCfg"
+[[config.sections]]
+title = "`[workspace]`"
+struct = "WorkspaceCfg"
+[[config.sections]]
+title = "Constraints"
+text = """
+- `deny_unknown_fields`: typos in field names fail the load.
+- `extract.kinds` resolves to adapter crates (`manifest`,
+  `treesitter`, `lsp`); unknown kinds warn at `kuda sync`.
+- `summarize.kind` is `template` (default) or `acp`; `acp`
+  requires `acp_cmd` and falls back to template on failure.
+"""
