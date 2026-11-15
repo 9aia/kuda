@@ -2,10 +2,12 @@
 
 *Code-map engine — verified per-module cards agents read before code.*
 
-Repo memory for agent-driven workflows. A single binary that crawls
-your repos and builds a compressed, freshness-tracked index — repo
-cards, module cards, a symbol/dependency graph — that agents query
-instead of re-exploring from scratch every session.
+Repo memory for agent-driven workflows. `kuda sync` crawls your
+repos into a compressed, freshness-tracked index — repo cards,
+module cards, a symbol/dependency graph — that agents query instead
+of re-exploring from scratch every session. Cards are committed
+artifacts (`.kuda/*.yaml`) with provenance; `kuda status` reports
+drift vs HEAD.
 
 ```
 repos ──► extract ──► summarize ──► index ──► store ──► serve
@@ -14,64 +16,18 @@ repos ──► extract ──► summarize ──► index ──► store ─�
    /lsp                | acp        cards     artifacts  mcp | acp
 ```
 
-## Features
-
-- **Tiered memory**: L0 repo card (~1k tokens, always-loadable),
-  L1 module cards (on-demand), L2 symbol/dep index — memory is an
-  index *into* code, never a copy of it
-- **Cards are committed artifacts** — `.kuda/index.yaml` +
-  `modules/*.yaml` are checked in and meant to be diff-reviewed.
-  They stay bounded by design (`api` capped at 40 public symbols,
-  L0 provenance = manifests only + a `tree_digest`) so even
-  monorepo diffs stay reviewable; `.kuda/index.sqlite` is
-  gitignored and rebuildable
-- **Provenance on every card** — `{files, hashes, commit_sha}`;
-  `kuda status` re-hashes and reports per-card drift; `mimus audit`
-  verifies independently
-- **Extraction tiers**: `manifest` (free) → `treesitter`
-  (data-driven symbol queries) → `lsp` (rust-analyzer
-  `documentSymbol`) → `records` (domain-corpora descriptors —
-  task/ADR/ledger ids become `find`-able symbols + reference edges;
-  a corpus is data, like a language). Best available wins; absent
-  corpus = silent skip
-- **Semantic summarization via ACP** — `kind = "acp"` spawns your
-  agent (`zed agent`, `claude`, `gemini`…) to write grounded card
-  prose; no API keys, template fallback always. Any ACP-capable
-  agent works — heavyweight ones too (`devin acp` boots the full
-  client + MCP stack per spawn) — but lightweight, no-tool agents
-  are recommended for batch summarization: the card prompt needs
-  no tools, so a fast text model is enough
-- **Multi-repo workspaces** — `kuda sync --workspace` indexes
-  sibling repos; `dependents`/`find`/`refs` merge across roots
-- **Agent surfaces**: MCP tool server *and* ACP session surface —
-  same index, two wire protocols
-- **Fuzzy find** — exact miss falls back to substring hits
-
-## Install
-
-The `kuda` command is a tamias pack (`libraries/kuda`) — a generated
-`bins[]` shim → `tamias-driver-kuda` → the engine lib. There is no
-cargo-installed `kuda` binary. With `tamias` installed:
-
-```sh
-tamias install 9aia:kuda@0.2.0    # org registry (needs TAMIAS_REGISTRY_TOKEN)
-```
-
-From a checkout:
-
-```sh
-scripts/pack.sh                                  # stage the driver payload
-tamias install --allow-drivers ./libraries/kuda   # deploys `kuda`
-```
-
 ## Quickstart
 
 ```sh
+# the `kuda` command is a tamias pack (libraries/kuda)
+tamias install 9aia:kuda@<version>    # org registry
+# or from a checkout: scripts/pack.sh && tamias install --allow-drivers ./libraries/kuda
+
 cd your-repo
 kuda init          # kuda.toml + .kuda/ skeleton
 kuda sync          # extract -> cards -> index
 kuda status        # provenance drift vs HEAD
-kuda map           # the L0 card
+kuda map           # the L0 repo card
 kuda card <mod>    # an L1 module card
 kuda find <sym>    # exact; miss -> fuzzy hits
 kuda dependents X  # reverse dep edges (impact)
@@ -80,28 +36,23 @@ kuda mcp           # MCP stdio tool server
 kuda acp           # ACP session surface
 ```
 
-## Config
+## Why
 
-```toml
-[extract]
-kinds = ["manifest", "treesitter"]   # add "lsp" with rust-analyzer
-# lsp_server = "rust-analyzer"
+Every agent session re-explores the same code. kuda makes memory an
+index *into* code, never a copy: tiered cards (L0 repo card always
+loadable, L1 module cards on demand, L2 symbol/dep index),
+freshness-tracked provenance, and pluggable extraction
+(manifest → treesitter → LSP → records corpora) and summarization
+(template default, or your own ACP agent for grounded prose).
 
-[summarize]
-kind = "template"                    # deterministic (default)
-# kind = "acp"                       # spawn an agent for card prose
-# acp_cmd = "zed agent"
-
-[workspace]
-roots = ["../cli", "../lsp"]
-```
-
-## The pair
-
-**kuda** remembers; **[mimus](https://github.com/9aia/mimus)**
-doubts — claim extraction + checkers + rules + `fix` + `audit`
-of these cards. Memory with a falsifier.
+**kuda remembers; [mimus](https://github.com/9aia/mimus) doubts** —
+claim extraction + checkers + rules + `fix` + `audit` of these
+cards. Memory with a falsifier.
 
 ## Docs
 
-https://9aia.com/kuda — tutorials, how-tos, reference, explanation.
+- [Docs site](https://9aia.com/kuda) — tutorials, how-tos,
+  reference, explanation (VitePress + Diátaxis, `docs/` worktree)
+- [AGENTS.md](AGENTS.md) — crate map, commands, rules, boundary
+- [CONTRIBUTING.md](CONTRIBUTING.md) · [SECURITY.md](SECURITY.md)
+- [LICENSE](LICENSE) (MIT) · [project ledger](project/index.md)
