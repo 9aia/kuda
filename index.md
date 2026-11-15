@@ -10,8 +10,8 @@ hero:
       text: Getting Started
       link: /tutorials/getting-started
     - theme: alt
-      text: Tutorial
-      link: /tutorials/first-run
+      text: Multi-repo workspaces
+      link: /how-to/multi-repo
 
 features:
   - icon: 🧠
@@ -53,8 +53,9 @@ peregrin's.
 
 ## Which quadrant answers which goal
 
-- **Learn it** → [Tutorial: your first index](tutorials/first-run.md)
-- **Do a task** → [How-to](tutorials/getting-started.md) — multi-repo
+- **Learn it** → [Getting started](tutorials/getting-started.md) —
+  install, first index, querying, drift
+- **Do a task** → [How-to](tutorials/getting-started.md#where-next) — multi-repo
   workspaces, MCP/ACP surfaces, languages, corpora, sturn, LLM
   summarizers
 - **Understand why** → [Architecture](explanation/architecture.md),
