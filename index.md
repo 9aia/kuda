@@ -8,7 +8,7 @@ hero:
   actions:
     - theme: brand
       text: Getting Started
-      link: /getting-started
+      link: /tutorials/getting-started
     - theme: alt
       text: Tutorial
       link: /tutorials/first-run
@@ -54,7 +54,7 @@ peregrin's.
 ## Which quadrant answers which goal
 
 - **Learn it** → [Tutorial: your first index](tutorials/first-run.md)
-- **Do a task** → [How-to](getting-started.md) — multi-repo
+- **Do a task** → [How-to](tutorials/getting-started.md) — multi-repo
   workspaces, MCP/ACP surfaces, languages, corpora, sturn, LLM
   summarizers
 - **Understand why** → [Architecture](explanation/architecture.md),
