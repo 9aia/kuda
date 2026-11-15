@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["AcpSummarizer"]};
+window.SIDEBAR_ITEMS = {"fn":["looks_like_monologue"],"struct":["AcpSummarizer"]};

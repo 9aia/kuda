@@ -30,4 +30,16 @@
 <a href=#30 id=30 data-nosnippet>30</a><span class="kw">pub fn </span>parse_file_card(text: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;FileCard, String&gt; {
 <a href=#31 id=31 data-nosnippet>31</a>    serde_yaml::from_str(text).map_err(|e| e.to_string())
 <a href=#32 id=32 data-nosnippet>32</a>}
+<a href=#33 id=33 data-nosnippet>33</a>
+<a href=#34 id=34 data-nosnippet>34</a><span class="doccomment">/// `notes:` is the human-owned region of a module card (T-008):
+<a href=#35 id=35 data-nosnippet>35</a>/// regeneration rewrites the machine fields and carries the
+<a href=#36 id=36 data-nosnippet>36</a>/// previously committed card's notes forward verbatim. Freshly
+<a href=#37 id=37 data-nosnippet>37</a>/// generated notes land only when the committed region was empty —
+<a href=#38 id=38 data-nosnippet>38</a>/// agent-suggested bullets must never overwrite human prose, and
+<a href=#39 id=39 data-nosnippet>39</a>/// stale machine notes must not resurrect once written.
+<a href=#40 id=40 data-nosnippet>40</a></span><span class="kw">pub fn </span>carry_notes(card: <span class="kw-2">&amp;mut </span>ModuleCard, prev: <span class="kw-2">&amp;</span>ModuleCard) {
+<a href=#41 id=41 data-nosnippet>41</a>    <span class="kw">if </span>!prev.notes.trim().is_empty() {
+<a href=#42 id=42 data-nosnippet>42</a>        card.notes = prev.notes.clone();
+<a href=#43 id=43 data-nosnippet>43</a>    }
+<a href=#44 id=44 data-nosnippet>44</a>}
 </code></pre></div></section></main></body></html>

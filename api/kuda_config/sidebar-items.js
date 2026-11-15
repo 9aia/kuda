@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":["ConfigSource"]};
+window.SIDEBAR_ITEMS = {"fn":["parse_file"],"struct":["FileSource"],"trait":["ConfigSource"]};
