@@ -105,3 +105,6 @@ text = """
 - `summarize.kind` is `template` (default) or `acp`; `acp`
   requires `acp_cmd` and falls back to template on failure.
 """
+
+[check]
+profile = "engine"
