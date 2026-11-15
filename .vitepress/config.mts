@@ -55,6 +55,8 @@ export default defineConfig({
         text: "Explanation",
         items: [
           { text: "Architecture", link: "/explanation/architecture" },
+          { text: "Concepts", link: "/explanation/concepts" },
+          { text: "Decisions", link: "/explanation/decisions" },
           { text: "Release model", link: "/explanation/release-model" },
           { text: "vs grep / RAG", link: "/comparison" },
         ],

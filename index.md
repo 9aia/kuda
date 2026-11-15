@@ -43,3 +43,24 @@ features:
     link: /how-to/mcp
     linkText: MCP setup
 ---
+
+kuda is the org's **code-map engine** — it turns a checkout into
+verified per-module cards that agents load before planning instead
+of re-exploring from scratch. It owns repo memory (extraction,
+cards, the symbol graph, freshness) and nothing else: verification
+is `mimus`'s job, distribution is tamias's, orchestration is
+peregrin's.
+
+## Which quadrant answers which goal
+
+- **Learn it** → [Tutorial: your first index](tutorials/first-run.md)
+- **Do a task** → [How-to](getting-started.md) — multi-repo
+  workspaces, MCP/ACP surfaces, languages, corpora, sturn, LLM
+  summarizers
+- **Understand why** → [Architecture](explanation/architecture.md),
+  [concepts](explanation/concepts.md),
+  [decisions](explanation/decisions.md),
+  [release model](explanation/release-model.md)
+- **Look something up** → [CLI](reference/cli.md),
+  [config](reference/config.md), [card schema](reference/cards.md),
+  [crate API](reference/crate-api.md)
