@@ -1,6 +1,7 @@
 //! Summarize port — Extraction -> ModuleCard.
-//! Impls: `kuda-template` (deterministic, the default), `kuda-llm`
-//! (prose, provider-pluggable). Cards must end in `verify:` file
+//! Impls: `kuda-template` (deterministic, the default), `kuda-acp`
+//! (agent-backed prose over ACP — agent sessions are sepia's domain).
+//! Cards must end in `verify:` file
 //! lists — memory is a hypothesis, not truth.
 
 use kuda_core::{ModuleCard, Provenance};

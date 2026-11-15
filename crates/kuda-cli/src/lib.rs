@@ -2301,7 +2301,7 @@ fn doctor(cli: &Cli) -> i32 {
             Config::default()
         }
     };
-    outln!("  adapters    manifest, treesitter, lsp, records, template, sqlite (llm pending)");
+    outln!("  adapters    manifest, treesitter, lsp, records, template, sqlite, acp");
     for d in resolve_domains(&cfg) {
         let health = match kuda_records::check(&d) {
             Ok(()) => "ok".to_owned(),
