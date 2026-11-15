@@ -8,7 +8,7 @@ Code-map engine — verified per-module cards agents read before code
 
 ### Tutorials
 
-- [Tutorial: your first index](/kuda/tutorials/first-run.md)
+- [Getting started](/kuda/tutorials/getting-started.md)
 
 ### How-to
 
@@ -38,5 +38,4 @@ Code-map engine — verified per-module cards agents read before code
 
 ### Other
 
-- [Getting started](/kuda/tutorials/getting-started.md)
 - [Untitled](/kuda/public/api/static.files/SourceSerif4-LICENSE-a2cfd9d5.md)
