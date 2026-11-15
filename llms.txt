@@ -30,6 +30,7 @@ Code-map engine — verified per-module cards agents read before code
 ### Explanation
 
 - [Explanation: architecture](/kuda/explanation/architecture.md)
+- [Boundaries](/kuda/explanation/boundaries.md)
 - [Concepts](/kuda/explanation/concepts.md)
 - [Decisions](/kuda/explanation/decisions.md)
 - [The release model](/kuda/explanation/release-model.md)
@@ -37,5 +38,5 @@ Code-map engine — verified per-module cards agents read before code
 
 ### Other
 
-- [Getting started](/kuda/getting-started.md)
+- [Getting started](/kuda/tutorials/getting-started.md)
 - [Untitled](/kuda/public/api/static.files/SourceSerif4-LICENSE-a2cfd9d5.md)
