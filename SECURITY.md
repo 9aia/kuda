@@ -13,12 +13,13 @@ Do not open public issues for security reports.
 - `kuda mcp` serves the index to local agent clients; it exposes
   repo structure and code locations — treat the bound socket like
   the code itself.
-- Secrets (`KUDA_LLM_KEY` and future provider keys) resolve via
-  env var → OS keyring (`secret-tool`) → `~/.config/kuda/env`
-  (chmod 600); values never appear in `kuda.toml` or `.kuda/`
-  artifacts.
-- The `llm` summarizer sends code fragments to a third-party
-  provider — it is opt-in; `template` (default) is fully local.
+- Provider keys would resolve via env var → OS keyring
+  (`secret-tool`) → `~/.config/kuda/env` (chmod 600) through the
+  `kuda-secret` port (`kuda-keyring`/`kuda-dotenv` impls); values
+  never appear in `kuda.toml` or `.kuda/` artifacts. No shipped
+  adapter consumes secrets today — the `llm` summarizer that would
+  is parked (backlog kind); `template` (default) and `acp` (your
+  own agent binary, no API keys) are the live summarizers.
 
 ## Notes
 

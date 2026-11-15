@@ -7,10 +7,14 @@ dogfoods its own CI. Fork freely under MIT.
 
 `crates/` — rust workspace. `kuda-core` is pure domain (cards,
 symbols, edges, provenance); ports are crates: `kuda-extract`,
-`kuda-summarize`, `kuda-store`, `kuda-vcs`; adapters:
-`kuda-extract-manifest`/`kuda-extract-treesitter`/`kuda-extract-lsp` (extractors),
-`kuda-template`/`kuda-llm` (summarizers), `kuda-store-sqlite`
-(store), `kuda-git` (vcs); `kuda-cli` (package `kuda`) is the engine
+`kuda-summarize`, `kuda-store`, `kuda-secret`, `kuda-config`;
+adapters: `kuda-extract-manifest`/`kuda-extract-treesitter`/
+`kuda-extract-lsp`/`kuda-records` (extractors),
+`kuda-template`/`kuda-acp` (summarizers — `llm` is a parked
+backlog kind), `kuda-store-sqlite` (store),
+`kuda-keyring`/`kuda-dotenv` (secrets), `kuda-query`/`kuda-cards`
+(agent-facing reads + `.kuda/` card render). Git goes through the
+shared `lasius-vcs` port. `kuda-cli` (package `kuda`) is the engine
 lib — no `[[bin]]`: the `kuda` command ships as the tamias pack in
 `libraries/kuda` (`bins[]` shim → `tamias-driver-kuda cli` →
 `kuda::run_from`, T-012). Engine e2e tests live in
