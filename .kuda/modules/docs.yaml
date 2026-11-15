@@ -1,6 +1,6 @@
 name: docs
 path: docs/package.json
-purpose: docs documents kuda's architecture, getting-started tutorial, comparison to alternatives, release model, card schema, kuda.toml config, crate API reference, and how-to guides for adding languages, summarizers/ACP, domain record corpora, multi-repo workspaces, MCP serving, and sturn WAL integration, with generator scripts producing config and API reference docs from source.
+purpose: The docs module holds kuda's Diátaxis documentation — tutorials, how-to guides, reference, and explanations — covering getting started, architecture, the release model, CLI help, kuda.toml config, the crate API index, and guides for languages, summarizers, sturn WAL, acp surface, record corpus, MCP serving, and multi-repo workspaces.
 api:
 - name: Command-Line Help for `kuda`
   kind: record
@@ -197,11 +197,10 @@ deps:
 - kuda-vcs
 - kuda-git
 - kuda-config
+- kuda-config-toml
 - kuda-secret
 - kuda-keyring
 - kuda-dotenv
-- kuda
-- tamias-driver-kuda
 - main
 - gh
 - cancel_running
@@ -252,9 +251,6 @@ deps:
 - verify
 - provenance
 - agent_thought_chunk
-- kuda-template
-- CLINE_MODEL
-- end_turn
 - description
 - provider
 - model
@@ -328,19 +324,17 @@ verify:
 - docs/explanation/architecture.md
 - docs/explanation/release-model.md
 - docs/gen-api-index.py
-- docs/gen-config-docs.py
-- docs/gen-crate-map.py
 - docs/getting-started.md
 - docs/how-to/acp.md
 - docs/how-to/domains.md
+- docs/how-to/languages.md
+- docs/how-to/llm-summarizer.md
 provenance:
   files:
   - docs/comparison.md
   - docs/explanation/architecture.md
   - docs/explanation/release-model.md
   - docs/gen-api-index.py
-  - docs/gen-config-docs.py
-  - docs/gen-crate-map.py
   - docs/getting-started.md
   - docs/how-to/acp.md
   - docs/how-to/domains.md
@@ -359,27 +353,25 @@ provenance:
   - docs/tutorials/first-run.md
   hashes:
   - 7eaa0db3af8683b36b2ec3fdda568b6e5daf7fc8
-  - 92cafee584a62b0de3f56dbcf8f303ad4d31d9c4
-  - 91e9de56a3d578891b37218c6141e45568e1caf8
+  - e2719fc5ac907417773a2ec12ce76dd78b427aec
+  - b2e80c7be89065036253a08a1a9adb8ce1348d09
   - dc0d16bc092cec9b7271df2d6f0e7237b23ab6c3
-  - 4d56a4f321eb054cf2fcbf74e62b3b0b496d1f94
-  - 222808ea202bc00a67257777d283192f4becd81d
-  - 25d3b30e8f989e84459a5fb216af6bb1f652e22e
+  - 2f0d87f616c565634394c4f9c7393d842a681bcf
   - 48de4da88a8bb9cd7878747498464a1f67834ada
   - c49057c88d718ea4d29762ea8218f80b5c27a847
   - 3246005788ff788b94e51606e532f98280bc8648
-  - 61f8009a780981d3aeb8d5acc2880a4ff1e9d1fa
+  - feff0b0a855207cb53131fcb68e4f55261956737
   - d57d33f2fce46ac76d1e7bdb7161f4dbcca418db
   - c50693504b274dc1b058beb696dfefd1d7e5c3d2
-  - 52dd9832a535ae96c90506e2bc4fa9876733d34c
+  - 030409d432dbb2b0172cd5f698555303b4d9aa29
   - 0305d52e1a05796cf90641c5ebceaff068b8399d
-  - 7dd14e4ebad201347de01d9ac9c8dc86857f66f2
+  - 38447f11814e1c057b0364cd353316541567a09e
   - 175fa4f47aecdc02e902d243a1c29914eb2ee258
   - 3464e95d9dfc4053151e91a36567dcc2db0f5a46
-  - 42a1a05d36a786f28811b0bf2f2673f93b9dff60
-  - c7e39b8531ba492bbaaa24a2bb9dc8d7833e0725
-  - d74edfc2ed1a75edfd7d81d68a162f782d3ab163
+  - 6ebc677bf714dc219edf579e72a5b79602234eba
+  - c73600b5004b795b9a3156988185780a7ebf8644
+  - 607b5a0c1c979855aaa664a2c48e979cd5558c4c
   - 28d2ef76304e27db4eba1f66c93465d248f39bdd
-  commit_sha: eb530f9b2c393bad8dd70f3909d745af7ec9aad8
-  generated_at: '1794489862'
+  commit_sha: 4f71cabb9afd5a021e88c12a24d092fdb65cd101
+  generated_at: '1794759380'
   generator: kuda-acp/0.1.4

@@ -1,13 +1,13 @@
 path: crates/kuda-summarize/src/lib.rs
 module: kuda-summarize
-purpose: kuda-summarize defines the `Summarizer` port — the Extraction → ModuleCard step of the sync pipeline. It declares `kind()` (matched against `summarize.kind` in kuda.toml) and `summarize(module, path, ext, prov)`, where `prov` is caller-composed since it owns sha/hash bookkeeping. Implementations live in adapter crates (`kuda-template`, deterministic default; `kuda-llm`, prose, provider-pluggable), not here. Cards must end in `verify:` file lists — memory is a hypothesis, not truth.
+purpose: crates/kuda-summarize/src/lib.rs defines the Summarize port trait — Extraction → ModuleCard — with a `kind()` string matched against `summarize.kind` in kuda.toml and a `summarize()` method that builds one module's card from extraction output plus caller-composed Provenance (the caller owns sha/hash bookkeeping); impls are `kuda-template` (deterministic default) and `kuda-acp` (agent-backed prose over ACP), and cards must end in `verify:` file lists because memory is a hypothesis, not truth.
 symbols:
 - Summarizer
 provenance:
   files:
   - crates/kuda-summarize/src/lib.rs
   hashes:
-  - c39be362ce68f67043930e8b2a69ca1ada4ab670
-  commit_sha: 7e9ec7c8965e296915c7ee6d9c8f7db3947d3952
-  generated_at: '1794375630'
+  - 85c998ab5c2669dd86af3e81ed04f1e55c591ae1
+  commit_sha: 4f71cabb9afd5a021e88c12a24d092fdb65cd101
+  generated_at: '1794759380'
   generator: kuda-acp/0.1.1
