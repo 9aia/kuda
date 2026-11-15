@@ -214,7 +214,7 @@ fn push_param(out: &mut Vec<String>, a: &Arg, params: &Map<String, Value>) {
     }
 }
 
-/// `cli.<verb>` params → kuda argv (no argv[0] — `run` prepends
+/// `cli.<verb>` params → kuda argv (no argv\[0\] — `run` prepends
 /// it). Globals go first (clap accepts them either side of the
 /// verb), then the verb's named flags, then its positionals in
 /// schema order.

@@ -164,7 +164,7 @@ pub fn card_drift(root: &Path, card: &ModuleCard) -> &'static str {
 }
 
 /// git blob hash — identical values to `git hash-object`
-/// ("blob <len>\0" + bytes), same recipe as `kuda status`.
+/// ("blob &lt;len&gt;\0" + bytes), same recipe as `kuda status`.
 fn blob_hash(path: &Path) -> String {
     use sha1::Digest;
     let Ok(bytes) = std::fs::read(path) else {
