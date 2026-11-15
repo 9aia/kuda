@@ -203,14 +203,14 @@ layout: default
 
 <Asciinema src="casts/terminal-demo.cast" :playerProps="{autoPlay: true, loop: true, fit: 'both', terminalFontSize: '17px', theme: '9aia'}" />
 
-`tamias install 9aia:kuda@0.1.0` —
+`tamias install 9aia:kuda@<version>` —
 edit a file, watch it drift, sync it fresh.
 
 ---
 layout: default
 ---
 
-# Status — v0.1.0
+# Status
 
 - works: full CLI, mcp + acp surfaces, `--workspace` multi-repo merges
 - built the way it's meant to be used: agent-maintained, review on

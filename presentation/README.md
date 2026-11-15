@@ -25,9 +25,9 @@ live only in `style.css` (asciinema mount sizing + player theme skin).
 ## Terminal demo
 
 Slide 13 plays `public/casts/terminal-demo.cast` through
-`slidev-addon-asciinema`. The player is pinned to `asciinema-player@3.4.0`
-in `pnpm-workspace.yaml` — 3.17's canvas renderer does not paint in this
-setup; 3.4's DOM renderer does.
+`slidev-addon-asciinema`. The player is pinned to `asciinema-player`
+3.x in `pnpm-workspace.yaml` — 3.17's canvas renderer does not paint
+in this setup; 3.4's DOM renderer does.
 
 To re-record: script the session with `asciinema rec --cols 80 --rows 18`,
 emit ANSI colors on prompt lines (`\033[38;5;147m` is the deck's indigo),
