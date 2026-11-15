@@ -16,10 +16,19 @@ Pick by what you need to do.
   [release model](explanation/release-model.md) ·
   [comparison](comparison.md) — vs grep / RAG
 
-Install:
+Install — the `kuda` command is a tamias pack (`libraries/kuda`):
+a generated `bins[]` shim → `tamias-driver-kuda` → the engine lib.
+There is no cargo-installed `kuda` binary. With `tamias` installed:
 
 ```sh
-cargo install --git https://github.com/9aia/kuda kuda
+tamias install 9aia:kuda@<version>    # org registry (needs TAMIAS_REGISTRY_TOKEN)
+```
+
+Or from a checkout of this repo:
+
+```sh
+scripts/pack.sh                                  # stage the driver payload
+tamias install --allow-drivers ./libraries/kuda   # deploys `kuda`
 ```
 
 First index:
