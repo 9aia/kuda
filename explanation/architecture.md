@@ -7,6 +7,16 @@ kuda answers one question — *"what does this project look like,
 right now, in a form an agent can load?"* — and treats a wrong
 answer as worse than none.
 
+## Where it sits
+
+The org stack is **tamias → engines → orchestration → surfaces**.
+kuda is an **engine**: a deterministic, repo-local tool with a
+CLI and wire surfaces, no hosted state. It sits alongside `mimus`
+(the falsifier that audits kuda's cards), consumes `sturn`'s WAL
+as a provenance source when present, and is consumed *by*
+orchestration (`peregrin` campaigns) and surfaces (`pavo` views,
+`tamias-driver-kuda` for distribution).
+
 ## The pipeline
 
 ```
@@ -115,3 +125,17 @@ acting on the card. Memory is a hypothesis that narrows the
 search space; the code remains the only truth. `mimus audit`
 independently re-verifies card provenance — memory with an
 external falsifier.
+
+## Boundary
+
+kuda owns **repo memory** — extraction, cards, the symbol graph,
+freshness. It does not own:
+
+* **Verification** — `mimus` audits the cards; kuda emits claims,
+  never verdicts.
+* **Distribution** — the `kuda` command is a tamias pack
+  (`libraries/kuda`); tamias owns install/transport.
+* **Orchestration** — campaigns and scheduling are peregrin's;
+  kuda exposes ops, never workflows.
+* **Secrets** — credentials resolve through `kuda-secret` ports
+  (keyring/dotenv); kuda never stores values.

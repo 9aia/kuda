@@ -164,7 +164,7 @@
 <a href=#164 id=164 data-nosnippet>164</a>}
 <a href=#165 id=165 data-nosnippet>165</a>
 <a href=#166 id=166 data-nosnippet>166</a><span class="doccomment">/// git blob hash — identical values to `git hash-object`
-<a href=#167 id=167 data-nosnippet>167</a>/// ("blob &lt;len&gt;\0" + bytes), same recipe as `kuda status`.
+<a href=#167 id=167 data-nosnippet>167</a>/// ("blob &amp;lt;len&amp;gt;\0" + bytes), same recipe as `kuda status`.
 <a href=#168 id=168 data-nosnippet>168</a></span><span class="kw">fn </span>blob_hash(path: <span class="kw-2">&amp;</span>Path) -&gt; String {
 <a href=#169 id=169 data-nosnippet>169</a>    <span class="kw">use </span>sha1::Digest;
 <a href=#170 id=170 data-nosnippet>170</a>    <span class="kw">let </span><span class="prelude-val">Ok</span>(bytes) = std::fs::read(path) <span class="kw">else </span>{

@@ -30,6 +30,8 @@ Code-map engine — verified per-module cards agents read before code
 ### Explanation
 
 - [Explanation: architecture](/kuda/explanation/architecture.md)
+- [Concepts](/kuda/explanation/concepts.md)
+- [Decisions](/kuda/explanation/decisions.md)
 - [The release model](/kuda/explanation/release-model.md)
 - [kuda vs the alternatives](/kuda/comparison.md)
 

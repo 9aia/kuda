@@ -1180,6 +1180,16 @@ kuda answers one question — *"what does this project look like,
 right now, in a form an agent can load?"* — and treats a wrong
 answer as worse than none.
 
+## Where it sits
+
+The org stack is **tamias → engines → orchestration → surfaces**.
+kuda is an **engine**: a deterministic, repo-local tool with a
+CLI and wire surfaces, no hosted state. It sits alongside `mimus`
+(the falsifier that audits kuda's cards), consumes `sturn`'s WAL
+as a provenance source when present, and is consumed *by*
+orchestration (`peregrin` campaigns) and surfaces (`pavo` views,
+`tamias-driver-kuda` for distribution).
+
 ## The pipeline
 
 ```
@@ -1288,6 +1298,163 @@ acting on the card. Memory is a hypothesis that narrows the
 search space; the code remains the only truth. `mimus audit`
 independently re-verifies card provenance — memory with an
 external falsifier.
+
+## Boundary
+
+kuda owns **repo memory** — extraction, cards, the symbol graph,
+freshness. It does not own:
+
+* **Verification** — `mimus` audits the cards; kuda emits claims,
+  never verdicts.
+* **Distribution** — the `kuda` command is a tamias pack
+  (`libraries/kuda`); tamias owns install/transport.
+* **Orchestration** — campaigns and scheduling are peregrin's;
+  kuda exposes ops, never workflows.
+* **Secrets** — credentials resolve through `kuda-secret` ports
+  (keyring/dotenv); kuda never stores values.
+
+---
+
+---
+url: /kuda/explanation/concepts.md
+---
+# Concepts
+
+kuda's vocabulary is small but load-bearing — most of it is about
+*what a card is allowed to claim*.
+
+## Entity
+
+* **Repo** — the unit of indexing. One `.kuda/` per checkout.
+* **Workspace** — a set of sibling repo roots declared in
+  `.kuda/workspace.yaml` or `[workspace]` in `kuda.toml`; enables
+  cross-repo queries like `dependents`.
+* **Module** — the unit a card describes. Grouped by *manifest
+  package name*, not directory name, so `kuda-docs/` (the `docs`
+  worktree) indexes as `kuda-docs`, not `docs`.
+* **File** — the unit of freshness. Every source file gets a git
+  blob hash; a card's `verify:` list names the files an agent must
+  open before trusting it.
+
+## Memory tiers
+
+* **L0 — repo card** (`.kuda/index.yaml`): the always-load blob.
+  Purpose, module map, commands, provenance. ~1k tokens.
+* **L1 — module cards** (`.kuda/modules/*.yaml`): fetched on
+  demand when planning touches a module.
+* **L1 file cards** (`.kuda/files/<module>/*.yaml`): per-source-file
+  purpose, opt-in via `[summarize] file_cards = true`.
+* **L2 — graph** (`.kuda/index.sqlite`): symbols, dependency edges
+  both directions, per-file hashes. Gitignored, rebuildable —
+  derived state, never reviewed prose.
+* **L3 — the source**: the only truth. Memory is an index *into*
+  code, never a replacement.
+
+## Provenance
+
+Every card carries `{files, hashes, commit_sha, generator}`.
+`kuda status` re-hashes and reports drift per card — staleness is
+a diff, not a guess. Cards are committed so humans review them in
+git diffs; the L2 graph is ignored because it regenerates.
+
+## Ports
+
+* **extract** — mechanical symbol/edge pull. Adapters:
+  `manifest` (package graph, free), `treesitter` (grammar+query
+  data), `lsp` (a real language server, strongest where present).
+* **summarize** — extraction → card prose. `template` is
+  deterministic; `llm`/`acp` tiers are opt-in.
+* **store** — where cards and the graph live (`sqlite` today).
+* **vcs** — commit-sha and blob-hash provenance (`git` today).
+
+## Surfaces
+
+`kuda` CLI for humans and scripts; `kuda mcp` for MCP-speaking
+agents; `kuda acp` to drive an external agent as the summarizer.
+All read the same `.kuda/` artifacts.
+
+---
+
+---
+url: /kuda/explanation/decisions.md
+---
+# Decisions
+
+ADR-lite — the decisions that shape kuda, the alternatives
+rejected, and the consequence each carries. Full history lives in
+git and the org ledger (`project/`).
+
+## Cards are committed; the graph is not
+
+**Decision:** L0/L1 YAML cards are committed artifacts reviewed in
+diffs; the L2 sqlite graph is gitignored and rebuildable.
+
+**Alternatives:** commit everything (the graph churns every sync —
+noise that drowns the prose); commit nothing (cards become
+derived state nobody reviews, and provenance stops meaning
+anything).
+
+**Consequence:** cards are *claims with evidence* — humans and
+`mimus audit` can falsify them. The graph is free to be a cache.
+
+## Modules group by manifest package, not directory
+
+**Decision:** extraction groups source files by the package name
+declared in `Cargo.toml`/`package.json`/`pyproject.toml`, falling
+back to directories only when no manifest exists.
+
+**Alternatives:** directory grouping (splits one crate across
+`src/`, `tests/`, `benches/` into fake "modules" and merges
+unrelated dirs that happen to share a parent); repo-wide flat
+indexing (no module boundary = no place to hang an L1 card).
+
+**Consequence:** `docs/` (a git worktree) indexes as its own
+package `kuda-docs`; workspace members stay distinct even when
+they share a directory tree.
+
+## Language knowledge is data, not code
+
+**Decision:** per-language grammars, symbol queries, and manifest
+names live in `data/langs/*`; extractor code only knows the
+adapter vocabulary (`SymbolKind`, `EdgeKind`).
+
+**Alternatives:** per-language extractor crates (a release per
+language, adapter sprawl); tree-sitter-only (no package-graph
+signal — the free `manifest` tier disappears).
+
+**Consequence:** adding a language is a data change reviewable in
+a diff — see [adding a language](../how-to/languages.md). The cost
+is a small descriptor DSL the extractors must interpret.
+
+## Sync is hash-gated end to end
+
+**Decision:** every file gets an in-process git blob hash compared
+against the store; unchanged modules are never re-parsed and cards
+with matching provenance are reused verbatim — including skipping
+the summarizer/agent entirely.
+
+**Alternatives:** mtime-based staleness (unreliable across
+checkouts and rebases); always-resummarize (agent spend per sync
+instead of per drift).
+
+**Consequence:** steady-state sync is sub-second and agent spend
+scales with *change*, not repo size. The `files` table in sqlite
+is the source of truth for "did this file change."
+
+## The release seed is explicit
+
+**Decision:** the first `cargo publish` of the workspace is a
+hand-run `kuda deploy release`; every release after that is an
+ordinary push-driven job.
+
+**Alternatives:** fully automatic publishing on every merge
+(a half-published workspace or a wrong tag is forever on
+crates.io); release-plz/GHA (hosted CI for a project whose point
+is that CI is a local loop).
+
+**Consequence:** the only irreversible step in the system gets a
+human at the gate; everything else is idempotent and local. See
+[the release model](release-model.md).
 
 ---
 
