@@ -63,9 +63,10 @@ is the source of truth for "did this file change."
 
 ## Releases are tag-only; the command is a tamias pack
 
-**Decision:** `scripts/release.sh` delegates to `tarsi-serve
-release` — bump, tag, push, no publish targets (`tarsi.toml`
-disables crates.io and GitHub Releases). The `kuda` command
+**Decision:** releases run `tarsi-serve release --dir .` directly
+— bump, tag, push, no publish targets (`tarsi.toml` disables
+crates.io and GitHub Releases); the per-repo `scripts/release.sh`
+shim was removed org-wide. The `kuda` command
 ships as the `libraries/kuda` tamias pack; `kuda-cli` is lib-only.
 
 **Alternatives:** crates.io + cargo-dist binaries; a `[[bin]]`

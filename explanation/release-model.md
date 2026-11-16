@@ -6,11 +6,12 @@ the user-facing command is the tamias pack in `libraries/kuda`.
 
 ## The flow
 
-`scripts/release.sh` is an operator-run shim over
+Releases are operator-run: `tarsi-serve release --dir .` talks to
 [`tarsi-serve`](https://9aia.com/tarsi/) — the org release plane
-(project ADR-0005). One call runs plan → changelog → bump → tag →
-push; `tarsi-serve release` is dry-run by default and the script
-passes `--yes` as the explicit opt-in.
+(project ADR-0005) — directly; the per-repo `scripts/release.sh`
+shim was removed org-wide. One call runs plan → changelog → bump →
+tag → push; `tarsi-serve release` is dry-run by default and
+`--yes` is the explicit opt-in.
 
 Repo policy lives in `tarsi.toml`:
 
