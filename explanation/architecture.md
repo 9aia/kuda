@@ -6,13 +6,13 @@ answer as worse than none.
 
 ## Where it sits
 
-The org stack is **delivery → memory → process → agency**.
-kuda is a **memory-layer engine**: a deterministic, repo-local tool
+The org stack is **delivery → memory → process → interface**.
+kuda is a **memory-layer organism**: a deterministic, repo-local tool
 with a CLI and wire surfaces, no hosted state. It sits alongside
-`myco`/`sturn`/`hypha` in memory, is audited by `mimus` (the
-falsifier in the process layer), consumes `sturn`'s WAL as a
-provenance source when present, and is consumed *by* the layers
-above — agency (`peregrin` campaigns, `pavo` views) and delivery
+`myco` in memory, is audited by `mimus` (the falsifier in the
+process layer), consumes `sturn`'s WAL as a provenance source when
+present, and is consumed *by* the layers above — process
+(`peregrin` campaigns), interface (`pavo` views), and delivery
 (`tamias-driver-kuda` for distribution).
 
 ## The pipeline
