@@ -9,8 +9,9 @@ over all of them.
 
 ## 1. Declare the workspace
 
-Create `<checkout>/.kuda/workspace.yaml` (the directory
-containing the sibling repos), or inside one repo's `.kuda/`:
+Create `.kuda/workspace.yaml` in the checkout you run `kuda`
+from — either a repo's own `.kuda/` or a shared parent dir that
+holds the sibling repos:
 
 ```yaml
 roots:
@@ -20,14 +21,18 @@ roots:
   - ../lsp
 ```
 
-Paths resolve relative to the file's directory. `[workspace]` in
-`kuda.toml` documents the same intent:
+Paths resolve relative to the directory that owns the `.kuda/`
+(the root `kuda` treats as cwd) — *not* the yaml's own directory.
+Roots listed there replace the single-repo default; add `.` if
+you want the home repo indexed too. One caveat: `--workspace`
+loads the config of the directory you run from and applies it to
+every root — sibling repos' own `kuda.toml` files are not
+consulted, so keep per-root differences in the shared config or
+run `kuda sync` per repo instead.
 
-```toml
-[workspace]
-roots = ["../cli", "../lsp"]
-resolve_git_deps = true
-```
+`[workspace] resolve_git_deps = true` in `kuda.toml` is the only
+workspace key the config file honors — it maps `git = "…"`
+manifest deps onto sibling checkouts (see step 4).
 
 ## 2. Sync all roots
 

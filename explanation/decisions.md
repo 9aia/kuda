@@ -64,17 +64,18 @@ instead of per drift).
 scales with *change*, not repo size. The `files` table in sqlite
 is the source of truth for "did this file change."
 
-## The release seed is explicit
+## Releases are tag-only; the command is a tamias pack
 
-**Decision:** the first `cargo publish` of the workspace is a
-hand-run `kuda deploy release`; every release after that is an
-ordinary push-driven job.
+**Decision:** `scripts/release.sh` delegates to `tarsi-serve
+release` — bump, tag, push, no publish targets (`tarsi.toml`
+disables crates.io and GitHub Releases). The `kuda` command
+ships as the `libraries/kuda` tamias pack; `kuda-cli` is lib-only.
 
-**Alternatives:** fully automatic publishing on every merge
-(a half-published workspace or a wrong tag is forever on
-crates.io); release-plz/GHA (hosted CI for a project whose point
-is that CI is a local loop).
+**Alternatives:** crates.io + cargo-dist binaries; a `[[bin]]`
+in `kuda-cli`; release-plz/GHA (hosted CI for a project whose
+point is that CI is a local loop).
 
-**Consequence:** the only irreversible step in the system gets a
-human at the gate; everything else is idempotent and local. See
-[the release model](release-model.md).
+**Consequence:** one version across the workspace, one tag scheme,
+and install/update lifecycle owned by tamias — but there is no
+`cargo install kuda`, and pack publishing stays a manual
+credentials-gated step. See [the release model](release-model.md).

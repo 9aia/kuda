@@ -10,8 +10,10 @@ kuda's vocabulary is small but load-bearing — most of it is about
 
 * **Repo** — the unit of indexing. One `.kuda/` per checkout.
 * **Workspace** — a set of sibling repo roots declared in
-  `.kuda/workspace.yaml` or `[workspace]` in `kuda.toml`; enables
-  cross-repo queries like `dependents`.
+  `.kuda/workspace.yaml` (the only place `roots` is read);
+  `[workspace] resolve_git_deps` in `kuda.toml` is a separate,
+  config-file knob. Enables cross-repo queries like
+  `dependents`.
 * **Module** — the unit a card describes. Grouped by *manifest
   package name*, not directory name, so `kuda-docs/` (the `docs`
   worktree) indexes as `kuda-docs`, not `docs`.
@@ -44,11 +46,14 @@ git diffs; the L2 graph is ignored because it regenerates.
 
 * **extract** — mechanical symbol/edge pull. Adapters:
   `manifest` (package graph, free), `treesitter` (grammar+query
-  data), `lsp` (a real language server, strongest where present).
-* **summarize** — extraction → card prose. `template` is
-  deterministic; `llm`/`acp` tiers are opt-in.
+  data), `lsp` (a real language server, strongest where present),
+  `records` (non-code corpora via domain descriptors).
+* **summarize** — extraction → card prose. `template` is the
+  deterministic default; `acp` delegates prose to an agent;
+  `llm` is parked.
 * **store** — where cards and the graph live (`sqlite` today).
-* **vcs** — commit-sha and blob-hash provenance (`git` today).
+* **vcs** — not a kuda port: commit-sha and blob-hash provenance
+  go through the shared `lasius-vcs` port (git CLI impl).
 
 ## Surfaces
 
