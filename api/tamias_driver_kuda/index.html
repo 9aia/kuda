@@ -40,7 +40,7 @@ surfaces: <code>kuda-query</code> functions over <code>IndexStore</code>, the co
 about, load its config, cards, and L2 store.</dd><dt><a class="mod" href="views/index.html" title="mod tamias_driver_kuda::views">views</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dd>Driver manifest + ViewNode trees — the static half of the pavo
 contract, built with <code>pavo-driver-kit</code> constructors over
 <code>pavo-protocol</code> types. Keep in sync with
-<code>pavo/crates/pavo-protocol/src/{manifest,view_node,wire}.rs</code>.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.dispatch.html" title="fn tamias_driver_kuda::dispatch">dispatch</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dd>One parsed wire <a href="../pavo_protocol/wire/enum.Request.html" title="enum pavo_protocol::wire::Request"><code>Request</code></a> → response. The kit’s serve loop owns
+<code>pavo/crates/pavo-protocol/src/{manifest,view_node,wire}.rs</code>.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.dispatch.html" title="fn tamias_driver_kuda::dispatch">dispatch</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dd>One parsed wire [<code>Request</code>] → response. The kit’s serve loop owns
 the ndjson plumbing and turns parse failures into <code>ok:false</code>;
 ops this driver doesn’t implement (<code>render</code>, <code>submit</code>, <code>jobs</code>,
 <code>notifications</code>) get the same <code>ok:false</code> convention every
