@@ -76,7 +76,7 @@ in `libraries/kuda` (`bins[]` shim → `tamias-driver-kuda cli` →
 | `data/domains/` | per-domain `DomainDef` record-corpus descriptors |
 | `libraries/kuda` | the tamias pack — `bins[]` shim + driver payload |
 | `modules/dagger/` | shared pipeline module (Python SDK) |
-| `scripts/` | `pack.sh`, `release.sh` (tarsi shim), `coverage.sh` |
+| `scripts/` | `pack.sh`, `coverage.sh` |
 | `presentation/` | slide deck (pnpm) |
 
 Git goes through the shared `lasius-vcs` port.
@@ -92,7 +92,9 @@ scripts/coverage.sh            # llvm-cov HTML → target/llvm-cov/html;
                                # extra args pass through (--fail-under-lines 100)
 scripts/pack.sh                # release tamias-driver-kuda →
                                # libraries/kuda/drivers/bin/<triple>/
-scripts/release.sh             # operator-run: tarsi-serve release shim
+tarsi-serve release --dir . --yes
+                               # operator-run: version bump + tag
+                               # (dry-run without --yes)
 ```
 
 Deploy the command: `scripts/pack.sh` then `tamias install

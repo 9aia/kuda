@@ -39,11 +39,11 @@ compiled `tamias-driver-kuda` payload into `drivers/bin/<triple>/`
 
 ## Releasing
 
-`scripts/release.sh` is run manually by an operator on `main`
-(releases are operator-run) — one workspace version bump
-(`cargo set-version --workspace`), a version sync in
-`libraries/kuda/tamias.yaml`/`README.md`, and a `kuda-v<ver>` tag.
-There is **no crates.io publish**: org policy keeps every repo but
+Releases are run manually by an operator on `main` via
+`tarsi-serve release --dir . --yes` directly (the org release
+plane, project ADR-0005; repo config: `tarsi.toml` — the per-repo
+`scripts/release.sh` shims were removed org-wide): plan →
+changelog → bump → tag → push. There is **no crates.io publish**: org policy keeps every repo but
 tamias off crates.io, and the kuda crates are internal lib-only
 engines behind `tamias-driver-kuda`. User-facing installs ride the
 tamias pack — after the tag, the operator runs `scripts/pack.sh`
