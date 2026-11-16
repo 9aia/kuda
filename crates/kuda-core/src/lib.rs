@@ -534,8 +534,8 @@ pub fn is_valid_sha(sha: &str) -> bool {
 }
 
 /// Publish order for workspace members: every member's path-deps on
-/// other members come first. Err on a dependency cycle. Used by
-/// scripts/release.sh.
+/// other members come first. Err on a dependency cycle. Used by the
+/// tarsi release pipeline.
 pub fn publish_order(members: &[String], deps: &[(String, String)]) -> Result<Vec<String>, String> {
     let member_set: std::collections::HashSet<&str> = members.iter().map(String::as_str).collect();
     let mut done: std::collections::HashSet<String> = Default::default();
