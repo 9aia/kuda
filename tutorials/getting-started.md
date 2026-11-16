@@ -33,7 +33,7 @@ the toml — the defaults are fully local and deterministic:
 
 ```toml
 [extract]
-kinds = ["manifest", "treesitter"]   # adapter names, tried in order
+kinds = ["manifest", "treesitter", "records"]   # adapter names, tried in order
 
 [summarize]
 kind = "template"                    # deterministic cards
@@ -41,7 +41,14 @@ kind = "template"                    # deterministic cards
 [store]
 kind = "sqlite"
 path = ".kuda/index.sqlite"
+
+[cards]
+dir = ".kuda"                         # index.yaml + modules/*.yaml
 ```
+
+The seeded file also carries commented `[repo]`, `[domains]`,
+and `[workspace]` tables — the defaults are fully local and
+deterministic.
 
 If `rust-analyzer` is on PATH you can add `"lsp"` to `kinds` —
 extraction quality tiers up automatically (see

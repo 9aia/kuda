@@ -22,8 +22,8 @@ repos ──► extract ──► summarize ──► index ──► store ─�
           │             │            │         │         │
    adapters:        adapters:    graph +   sqlite    cli |
    manifest         template     cards    + yaml    mcp | acp
-   treesitter       (llm planned)  provenance
-   lsp
+   treesitter/       | acp        provenance
+   lsp/records      (llm parked)
 ```
 
 **Extract** is mechanical — no model, fully rerunnable. It pulls
@@ -106,11 +106,15 @@ adapters' vocabulary (`language()` registries, `SymbolKind`,
 `Provenance`, `Claim`-free config). Every concern is a trait
 crate + adapter crates:
 
-- `kuda-extract` → `kuda-extract-manifest`, `kuda-extract-treesitter`, `kuda-extract-lsp`
+- `kuda-extract` → `kuda-extract-manifest`, `kuda-extract-treesitter`,
+  `kuda-extract-lsp`, `kuda-records` (non-code corpora)
 - `kuda-store` → `kuda-store-sqlite`
-- `kuda-summarize` → `kuda-template`, (`kuda-llm` planned)
-- `kuda-vcs` → `kuda-git`; `kuda-config` → `kuda-config-toml`;
-  `kuda-secret` → `kuda-keyring`, `kuda-dotenv`
+- `kuda-summarize` → `kuda-template`, `kuda-acp` (`llm` parked)
+- `kuda-config` → scarab-config-file discovery
+  (`kuda.{yaml,yml,toml}`); `kuda-secret` → `kuda-keyring`,
+  `kuda-dotenv` (no shipped consumer today)
+- git access rides the shared `lasius-vcs` port
+  (`lasius-vcs-git`) — there is no kuda-local vcs adapter
 
 New capability = new adapter crate, not a core rewrite.
 

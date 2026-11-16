@@ -1,55 +1,55 @@
 # The release model
 
-kuda releases itself — there is no hosted CI and no release tool
-in the loop. Two deliberate phases:
+Releases are **tag-only** — there is no crates.io publish and no
+GitHub Releases artifact. `kuda`'s crates are lib-only engines;
+the user-facing command is the tamias pack in `libraries/kuda`.
 
-## Phase 1 — the explicit seed
+## The flow
 
-`kuda deploy release` runs once, by hand: it reads cargo metadata,
-topologically orders the workspace's path-dependency graph,
-`cargo publish`es every member, tags `{repo}-v{version}`, and pushes
-the tag.
+`scripts/release.sh` is an operator-run shim over
+[`tarsi-serve`](https://9aia.com/tarsi/) — the org release plane
+(project ADR-0005). One call runs plan → changelog → bump → tag →
+push; `tarsi-serve release` is dry-run by default and the script
+passes `--yes` as the explicit opt-in.
 
-Why explicit? Publishing is the **only irreversible step** in the
-whole system. Queues, runs, and statuses are all idempotent and
-local; a crate version on crates.io is forever. Everything else in
-kuda fires on push — the seed doesn't. (`--dry-run` prints the
-order and tag without touching anything.)
+Repo policy lives in `tarsi.toml`:
 
-## Phase 2 — push-driven forever after
+- `[publish.crates] enabled = false` — crates.io publishing is
+  tamias-only (ADR-0004).
+- `[publish.ghreleases] enabled = false` — org releases are
+  tag-only; the capability stays for opt-in.
+- `[release.sync_refs]` rewrites `libraries/kuda/tamias.yaml`'s
+  `version:` and the README's `kuda@<ver>` install ref inside the
+  release commit, so the tagged tree is self-consistent.
 
-From then on a release is _just another kuda job_: a push to `main`
-hits the webhook, queues latest-wins, and runs `scripts/release.sh`
-in a detached worktree under the shell runner.
+Units default to cargo workspace members; versions are
+workspace-inherited, so releasing units share one bump.
 
-The script:
+## Shipping the command
 
-1. diffs crate paths since the last `kuda-v*` tag
-2. `cargo set-version --bump patch` on touched crates only (the cli
-   republishes on any change — it's the install artifact)
-3. `cargo publish`es them in dep order
-4. tags `kuda-vX.Y.Z`, builds host-arch binaries with `cargo dist`,
-   uploads to a GitHub Release via `gh`
+Tagging doesn't publish anything user-facing. The pack ships
+manually:
 
-The 5-minute sleep at the top isn't a hack — it's the debounce
-window. Combined with `queue = "latest"` + `cancel_running`, rapid
-push bursts collapse to one release of the newest sha; killed runs
-get an honest "cancelled" status.
+```sh
+scripts/pack.sh                                # stage driver payload
+#   → release-builds tamias-driver-kuda into
+#     libraries/kuda/drivers/bin/<triple>/ (gitignored)
+tamias publish libraries/kuda                  # → 9aia:kuda@<ver>
+```
+
+Install is then `tamias install 9aia:kuda@<ver>`
+(needs `TAMIAS_REGISTRY_TOKEN`) or
+`tamias install --allow-drivers ./libraries/kuda`
+from a checkout.
 
 ## Why this shape
 
-- **No release-plz / GHA**: the point of the project is that CI is a
-  local loop — depending on hosted CI to ship it would be
-  self-defeating. `scripts/release.sh` is deliberately boring bash so it can
-  run as a plain `cmd` under `runner.kind = "shell"`.
-- **Latest-wins, not `all`**: a release that misses an intermediate
-  push loses nothing — the tag lands on HEAD, which contains
-  everything. `queue = "all"` is for pipelines where each sha's run
-  is individually meaningful.
-- **Explicit over automatic**: a wrong tag or half-published
-  workspace is far worse than a delayed release; the boundary sits
-  exactly at irreversibility.
-
-Host prerequisites: `cargo-edit`, `cargo-dist`, `gh`, and
-`CARGO_REGISTRY_TOKEN` (env → keyring → env file). Multi-arch
-binaries arrive when the remote-runner pair lands — see TODO.
+- **Tag-only + pack publish** matches the org distribution
+  model: git/tag deps and the tamias registry are the channels;
+  crates.io and GitHub Releases stay unused.
+- **tarsi over bespoke scripts**: plan/changelog/bump/tag is the
+  same pipeline every org repo runs — the repo keeps only policy
+  (`tarsi.toml`), not machinery.
+- **`dist-workspace.toml` is configured but idle** — prebuilt
+  binary distribution (cargo-dist + GitHub Releases) remains a
+  possible future option, not part of the release flow.

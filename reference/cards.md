@@ -69,8 +69,11 @@ auditable.
 
 ## Ownership
 
-Machine fields (`api`, `deps`, `provenance`) are regenerated on
-every `sync`. `notes:` and `purpose:` (when hand-edited past the
-manifest default) are the human regions — a real merge story is
-a TODO; today regen overwrites `purpose` only when it still
-equals the old machine value.
+Machine fields (`api`, `deps`, `provenance`, `purpose`) are
+regenerated whenever a module drifts — `purpose` comes from the
+domain descriptor → manifest description → crate docs → README
+chain (or the `acp` agent's prose), so a hand-edit survives only
+until the module's inputs change. `notes:` is the one
+human-owned region: `carry_notes` copies the committed card's
+notes forward verbatim on every regen — agent-suggested notes
+land only when the committed region was empty.
