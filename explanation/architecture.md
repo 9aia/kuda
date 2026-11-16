@@ -9,13 +9,14 @@ answer as worse than none.
 
 ## Where it sits
 
-The org stack is **tamias → engines → orchestration → surfaces**.
-kuda is an **engine**: a deterministic, repo-local tool with a
-CLI and wire surfaces, no hosted state. It sits alongside `mimus`
-(the falsifier that audits kuda's cards), consumes `sturn`'s WAL
-as a provenance source when present, and is consumed *by*
-orchestration (`peregrin` campaigns) and surfaces (`pavo` views,
-`tamias-driver-kuda` for distribution).
+The org stack is **delivery → memory → process → interface**.
+kuda is a **memory-layer organism**: a deterministic, repo-local tool
+with a CLI and wire surfaces, no hosted state. It sits alongside
+`myco` in memory, is audited by `mimus` (the falsifier in the
+process layer), consumes `sturn`'s WAL as a provenance source when
+present, and is consumed *by* the layers above — process
+(`peregrin` campaigns), interface (`pavo` views), and delivery
+(`tamias-driver-kuda` for distribution).
 
 ## The pipeline
 
