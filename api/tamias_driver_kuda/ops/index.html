@@ -6,7 +6,7 @@ captured stdout and never touches the serve loop’s ndjson stream
 (the engine’s <code>emit()</code> exits on broken pipe — one more reason
 ops stay out of the serve process).</p>
 <p><code>ops</code> answers the ops manifest as JSON — <em>derived from the
-engine’s own clap tree</em> (<a href="../../kuda/fn.command.html" title="fn kuda::command"><code>kuda::command</code></a>), so a verb can’t
+engine’s own clap tree</em> ([<code>kuda::command</code>]), so a verb can’t
 exist on the CLI and be missing here: declared args become
 typed params (<code>arg</code>/<code>opt</code>/<code>flag</code>), doc strings ride along
 unchanged. The CLI’s globals (<code>--config</code>, <code>--workspace</code>) ride

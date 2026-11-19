@@ -5,16 +5,16 @@
         &amp;self,
         module: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.99.1/std/primitive.str.html">str</a>,
         path: &amp;<a class="struct" href="https://doc.rust-lang.org/1.99.1/std/path/struct.Path.html" title="struct std::path::Path">Path</a>,
-        ext: &amp;<a class="struct" href="../kuda_extract/struct.Extraction.html" title="struct kuda_extract::Extraction">Extraction</a>,
-        prov: <a class="struct" href="../kuda_core/struct.Provenance.html" title="struct kuda_core::Provenance">Provenance</a>,
-    ) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.99.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="struct" href="../kuda_core/struct.ModuleCard.html" title="struct kuda_core::ModuleCard">ModuleCard</a>, <a class="struct" href="https://doc.rust-lang.org/1.99.1/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>&gt;;
+        ext: &amp;Extraction,
+        prov: Provenance,
+    ) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.99.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;ModuleCard, <a class="struct" href="https://doc.rust-lang.org/1.99.1/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>&gt;;
 }</code></pre><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.kind" class="method"><a class="src rightside" href="../src/kuda_summarize/lib.rs.html#13">Source</a><h4 class="code-header">fn <a href="#tymethod.kind" class="fn">kind</a>(&amp;self) -&gt; &amp;'static <a class="primitive" href="https://doc.rust-lang.org/1.99.1/std/primitive.str.html">str</a></h4></section></summary><div class="docblock"><p>Kind string matched against <code>summarize.kind</code> in kuda.toml.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="tymethod.summarize" class="method"><a class="src rightside" href="../src/kuda_summarize/lib.rs.html#16-22">Source</a><h4 class="code-header">fn <a href="#tymethod.summarize" class="fn">summarize</a>(
     &amp;self,
     module: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.99.1/std/primitive.str.html">str</a>,
     path: &amp;<a class="struct" href="https://doc.rust-lang.org/1.99.1/std/path/struct.Path.html" title="struct std::path::Path">Path</a>,
-    ext: &amp;<a class="struct" href="../kuda_extract/struct.Extraction.html" title="struct kuda_extract::Extraction">Extraction</a>,
-    prov: <a class="struct" href="../kuda_core/struct.Provenance.html" title="struct kuda_core::Provenance">Provenance</a>,
-) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.99.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="struct" href="../kuda_core/struct.ModuleCard.html" title="struct kuda_core::ModuleCard">ModuleCard</a>, <a class="struct" href="https://doc.rust-lang.org/1.99.1/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>&gt;</h4></section></summary><div class="docblock"><p>Build one module’s card from what extraction found. <code>prov</code>
+    ext: &amp;Extraction,
+    prov: Provenance,
+) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.99.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;ModuleCard, <a class="struct" href="https://doc.rust-lang.org/1.99.1/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>&gt;</h4></section></summary><div class="docblock"><p>Build one module’s card from what extraction found. <code>prov</code>
 is composed by the caller (it owns the sha/hash bookkeeping).</p>
 </div></details></div><h2 id="dyn-compatibility" class="section-header">Dyn Compatibility<a href="#dyn-compatibility" class="anchor">§</a></h2><div class="dyn-compatibility-info"><p>This trait <b>is</b> <a href="https://doc.rust-lang.org/1.99.1/reference/items/traits.html#dyn-compatibility">dyn compatible</a>.</p><p><i>In older versions of Rust, dyn compatibility was called "object safety".</i></p></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"></div><script src="../trait.impl/kuda_summarize/trait.Summarizer.js" async></script></section></div></main></body></html>
