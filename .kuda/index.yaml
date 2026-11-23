@@ -8,17 +8,14 @@ modules:
 - kuda-cards
 - kuda-config
 - kuda-core
-- kuda-dotenv
 - kuda-driver
 - kuda-extract
 - kuda-extract-lsp
 - kuda-extract-manifest
 - kuda-extract-treesitter
-- kuda-keyring
 - kuda-presentation
 - kuda-query
 - kuda-records
-- kuda-secret
 - kuda-store
 - kuda-store-sqlite
 - kuda-summarize
@@ -32,7 +29,7 @@ commands:
 - (cd presentation && npm run dev)
 - (cd presentation && npm run export)
 tree_digest: 69b0a089234d7a6b3f259a8defe947cfdb7b56f2
-files_total: 112
+files_total: 104
 provenance:
   files:
   - Cargo.toml
@@ -42,16 +39,13 @@ provenance:
   - crates/kuda-cli/Cargo.toml
   - crates/kuda-config/Cargo.toml
   - crates/kuda-core/Cargo.toml
-  - crates/kuda-dotenv/Cargo.toml
   - crates/kuda-driver/Cargo.toml
   - crates/kuda-extract/Cargo.toml
   - crates/kuda-extract-lsp/Cargo.toml
   - crates/kuda-extract-manifest/Cargo.toml
   - crates/kuda-extract-treesitter/Cargo.toml
-  - crates/kuda-keyring/Cargo.toml
   - crates/kuda-query/Cargo.toml
   - crates/kuda-records/Cargo.toml
-  - crates/kuda-secret/Cargo.toml
   - crates/kuda-store/Cargo.toml
   - crates/kuda-store-sqlite/Cargo.toml
   - crates/kuda-summarize/Cargo.toml
@@ -66,16 +60,13 @@ provenance:
   - 332f7689d8cd5b43949062dcbbc0afb9b6ed0b75
   - 0be143275c24a5d806998f0d084da36093e1e448
   - 858a2d26892b5f1150a8b4663f27d32c408f6e1d
-  - c00e5be2a18e90d8ecfd27f7e9f455e5343b7a86
   - 9096f14dd5b7203d7083c5b0c2540abee82b20d9
   - 8474c16bc613412aaa22031cbce10ad3a1f9beea
   - 629ebbb90ef12a624718c9a046bb9403fce3b0fe
   - 6308e7a5d07441803a3d5ffe4e9bc179d2bc7605
   - 7ead2a85e1a7cd93b2207104b41ec1fbecf2374b
-  - 91090b39dc802b32e546f0af5ad5f1aa9e994bb8
   - c09df8b9f1045151d00b8825259c76bf2e5a1fa7
   - 259e305a0f5b7719fbe0939293854b774746df12
-  - f826462ae7337233c57e6151c6a7b516a437abbc
   - fcd81b2ab4c0c8bd258d2a0d32162f1ff7ae9bd9
   - 2d30a3d362d500ce8e4310218db2ea0f8da6ae99
   - 11910998e03f533e3852432fcb107e980fbe99f5

@@ -15,9 +15,6 @@ members = [
     "crates/kuda-template",
     "crates/kuda-query",
     "crates/kuda-cards",
-    "crates/kuda-secret",
-    "crates/kuda-keyring",
-    "crates/kuda-dotenv",
     "crates/kuda-config",
     "crates/kuda-driver",
 ]
@@ -51,9 +48,6 @@ kuda-query = { path = "crates/kuda-query", version = "0.2.0" }
 kuda-cards = { path = "crates/kuda-cards", version = "0.2.0" }
 lasius-vcs = { git = "ssh://git@github.com/9aia/lasius.git", rev = "782c10840149d9a62ac9aa2d0c3a440233ffc86b" }
 lasius-vcs-git = { git = "ssh://git@github.com/9aia/lasius.git", rev = "782c10840149d9a62ac9aa2d0c3a440233ffc86b" }
-kuda-secret = { path = "crates/kuda-secret", version = "0.2.0" }
-kuda-keyring = { path = "crates/kuda-keyring", version = "0.2.0" }
-kuda-dotenv = { path = "crates/kuda-dotenv", version = "0.2.0" }
 kuda-config = { path = "crates/kuda-config", version = "0.2.0" }
 kuda-driver = { path = "crates/kuda-driver", version = "0.2.0" }
 serde = { version = "1", features = ["derive"] }

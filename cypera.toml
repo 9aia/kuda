@@ -16,7 +16,6 @@ default_layer = "impl"
 "kuda-vcs" = "port"
 "kuda-queue" = "port"
 "kuda-service" = "port"
-"kuda-secret" = "port"
 "kuda-config" = "port"
 "kuda-cache" = "port"
 
