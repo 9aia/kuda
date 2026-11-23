@@ -12,5 +12,4 @@ categories = ["development-tools"]
 kuda-core.workspace = true
 kuda-extract.workspace = true
 kuda-summarize.workspace = true
-serde.workspace = true
-serde_json.workspace = true
+sepia-acp.workspace = true
