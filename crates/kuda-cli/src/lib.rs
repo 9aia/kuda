@@ -259,26 +259,17 @@ fn hash_files(root: &Path, files: &[PathBuf]) -> Vec<String> {
 
 /// Content hash for a provenance input: blob hash for real files;
 /// a non-tree input (a `refs/*` pseudo-path recorded by a domain
-/// source) resolves to the ref's current target sha — the same
-/// value sync stored, so cards don't report phantom drift.
+/// source) resolves to the ref's current target sha via the
+/// lasius-vcs port — the same value sync stored, so cards don't
+/// report phantom drift.
 fn input_hash(root: &Path, rel: &Path) -> String {
     let h = blob_hash(&root.join(rel));
     if !h.is_empty() {
         return h;
     }
-    let Ok(o) = std::process::Command::new("git")
-        .arg("-C")
-        .arg(root)
-        .args(["rev-parse", "--verify", &rel.display().to_string()])
-        .output()
-    else {
-        return String::new();
-    };
-    if o.status.success() {
-        String::from_utf8_lossy(&o.stdout).trim().to_owned()
-    } else {
-        String::new()
-    }
+    lasius_vcs_git::GitVcs
+        .rev_parse_verify(root, &rel.display().to_string())
+        .unwrap_or_default()
 }
 
 fn blob_hash(path: &Path) -> String {
