@@ -123,3 +123,13 @@ index. Neighbors:
 explanation) → GitHub Pages at `9aia.com/kuda`; plus `comparison.md`.
 `cypera gen` (driven by `cypera.toml`) renders cli/config/crate-map from source — keep
 `lib.rs` module docs accurate.
+
+## Specs
+
+`specs/<name>.toml` is this repo's mimus-standard conformance spec —
+approval-gated. Any change requires a live org proposal
+(`proposal-NNNN`, status open|done) referenced in the spec header or
+commit range, and no coverage regression vs merge-base. Guard:
+workspace `../../scripts/spec-guard.py`; sweep:
+`../../scripts/standard.sh`; regenerate coverage only via
+`../../scripts/gen-repo-specs.py`.
