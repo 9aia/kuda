@@ -164,6 +164,7 @@ fn dispatch(req: &Request, manifest: &DriverManifest) -> Response {
         }
         Request::Render { .. } => Response::err("unsupported op: render"),
         Request::Submit { .. } => Response::err("unsupported op: submit"),
+        Request::Invoke { .. } => Response::err("unsupported op: invoke"),
         Request::Jobs => Response::err("unsupported op: jobs"),
         Request::Notifications => Response::err("unsupported op: notifications"),
     }

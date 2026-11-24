@@ -43,9 +43,9 @@ clap.workspace = true
 # builders over pavo-protocol types. Git deps, not path: a fresh kuda
 # clone has no sibling ../pavo checkout and CI (coverage.sh) must
 # still resolve.
-pavo-driver-kit = { git = "https://github.com/9aia/pavo", version = "0.1.0" }
-pavo-protocol = { git = "https://github.com/9aia/pavo", version = "0.1.0" }
+pavo-driver-kit = { git = "https://github.com/9aia/pavo", rev = "ca4079d123fe7533210ed698051f5c3a09000911", version = "0.1.0" }
+pavo-protocol = { git = "https://github.com/9aia/pavo", rev = "ca4079d123fe7533210ed698051f5c3a09000911", version = "0.1.0" }
 
 [dev-dependencies]
 # Conformance gate — the wire-contract suite lives in pavo-testkit.
-pavo-testkit = { git = "https://github.com/9aia/pavo" }
+pavo-testkit = { git = "https://github.com/9aia/pavo", rev = "ca4079d123fe7533210ed698051f5c3a09000911" }
