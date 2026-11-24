@@ -46,8 +46,8 @@ kuda-summarize = { path = "crates/kuda-summarize", version = "0.2.0" }
 kuda-template = { path = "crates/kuda-template", version = "0.2.0" }
 kuda-query = { path = "crates/kuda-query", version = "0.2.0" }
 kuda-cards = { path = "crates/kuda-cards", version = "0.2.0" }
-lasius-vcs = { git = "ssh://git@github.com/9aia/lasius.git", rev = "782c10840149d9a62ac9aa2d0c3a440233ffc86b" }
-lasius-vcs-git = { git = "ssh://git@github.com/9aia/lasius.git", rev = "782c10840149d9a62ac9aa2d0c3a440233ffc86b" }
+lasius-vcs = { git = "ssh://git@github.com/9aia/lasius.git", rev = "351857536395951d5f6f8502cdaf86a737520b02" }
+lasius-vcs-git = { git = "ssh://git@github.com/9aia/lasius.git", rev = "351857536395951d5f6f8502cdaf86a737520b02" }
 kuda-config = { path = "crates/kuda-config", version = "0.2.0" }
 kuda-driver = { path = "crates/kuda-driver", version = "0.2.0" }
 serde = { version = "1", features = ["derive"] }

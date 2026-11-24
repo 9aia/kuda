@@ -36,7 +36,7 @@ provenance:
   files:
   - crates/kuda-cli/src/lib.rs
   hashes:
-  - d14a66282b4dcc90de49d16a0179225b0d09779c
-  commit_sha: eb530f9b2c393bad8dd70f3909d745af7ec9aad8
-  generated_at: '1794489862'
+  - 346e1241cc27e17b0a04f9cb61a119663f6ebe1d
+  commit_sha: ee8b71c27a2449cf1abdb5a2dca906c5846271e9
+  generated_at: '1795466325'
   generator: kuda-acp/0.1.1
