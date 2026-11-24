@@ -20,7 +20,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/9aia/kuda"
@@ -32,24 +32,24 @@ inherits = "release"
 lto = "thin"
 
 [workspace.dependencies]
-kuda = { path = "crates/kuda-cli", version = "0.2.0" }
-kuda-core = { path = "crates/kuda-core", version = "0.2.0" }
-kuda-extract = { path = "crates/kuda-extract", version = "0.2.0" }
-kuda-extract-manifest = { path = "crates/kuda-extract-manifest", version = "0.2.0" }
-kuda-extract-treesitter = { path = "crates/kuda-extract-treesitter", version = "0.2.0" }
-kuda-extract-lsp = { path = "crates/kuda-extract-lsp", version = "0.2.0" }
-kuda-records = { path = "crates/kuda-records", version = "0.2.0" }
-kuda-acp = { path = "crates/kuda-acp", version = "0.2.0" }
-kuda-store = { path = "crates/kuda-store", version = "0.2.0" }
-kuda-store-sqlite = { path = "crates/kuda-store-sqlite", version = "0.2.0" }
-kuda-summarize = { path = "crates/kuda-summarize", version = "0.2.0" }
-kuda-template = { path = "crates/kuda-template", version = "0.2.0" }
-kuda-query = { path = "crates/kuda-query", version = "0.2.0" }
-kuda-cards = { path = "crates/kuda-cards", version = "0.2.0" }
+kuda = { path = "crates/kuda-cli", version = "0.3.0" }
+kuda-core = { path = "crates/kuda-core", version = "0.3.0" }
+kuda-extract = { path = "crates/kuda-extract", version = "0.3.0" }
+kuda-extract-manifest = { path = "crates/kuda-extract-manifest", version = "0.3.0" }
+kuda-extract-treesitter = { path = "crates/kuda-extract-treesitter", version = "0.3.0" }
+kuda-extract-lsp = { path = "crates/kuda-extract-lsp", version = "0.3.0" }
+kuda-records = { path = "crates/kuda-records", version = "0.3.0" }
+kuda-acp = { path = "crates/kuda-acp", version = "0.3.0" }
+kuda-store = { path = "crates/kuda-store", version = "0.3.0" }
+kuda-store-sqlite = { path = "crates/kuda-store-sqlite", version = "0.3.0" }
+kuda-summarize = { path = "crates/kuda-summarize", version = "0.3.0" }
+kuda-template = { path = "crates/kuda-template", version = "0.3.0" }
+kuda-query = { path = "crates/kuda-query", version = "0.3.0" }
+kuda-cards = { path = "crates/kuda-cards", version = "0.3.0" }
 lasius-vcs = { git = "ssh://git@github.com/9aia/lasius.git", rev = "351857536395951d5f6f8502cdaf86a737520b02" }
 lasius-vcs-git = { git = "ssh://git@github.com/9aia/lasius.git", rev = "351857536395951d5f6f8502cdaf86a737520b02" }
-kuda-config = { path = "crates/kuda-config", version = "0.2.0" }
-kuda-driver = { path = "crates/kuda-driver", version = "0.2.0" }
+kuda-config = { path = "crates/kuda-config", version = "0.3.0" }
+kuda-driver = { path = "crates/kuda-driver", version = "0.3.0" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_yaml = "0.9"
