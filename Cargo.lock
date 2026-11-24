@@ -1171,13 +1171,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "kuda-dotenv"
-version = "0.2.0"
-dependencies = [
- "kuda-secret",
-]
-
-[[package]]
 name = "kuda-driver"
 version = "0.2.0"
 dependencies = [
@@ -1241,13 +1234,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "kuda-keyring"
-version = "0.2.0"
-dependencies = [
- "kuda-secret",
-]
-
-[[package]]
 name = "kuda-query"
 version = "0.2.0"
 dependencies = [
@@ -1267,10 +1253,6 @@ dependencies = [
  "serde_yaml",
  "toml",
 ]
-
-[[package]]
-name = "kuda-secret"
-version = "0.2.0"
 
 [[package]]
 name = "kuda-store"
