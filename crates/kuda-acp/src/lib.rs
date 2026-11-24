@@ -3,14 +3,19 @@
 //! prose. No API keys, no provider lock: auth lives in the user's
 //! agent. Falls back handled by the caller — construction here
 //! only fails when there's nothing to say.
+//!
+//! Transport is `sepia-acp`'s blocking client — spawn,
+//! initialize, session/new, session/prompt, cancel and unattended
+//! permission auto-approval are canonical there; this crate keeps
+//! only the kuda side: the prompt and the card-prose parsing.
 
 use kuda_core::{ModuleCard, Provenance};
 use kuda_extract::Extraction;
 use kuda_summarize::Summarizer;
-use serde_json::{json, Value};
-use std::io::{BufRead, BufReader, Write};
+use sepia_acp::blocking::{Client, ClientOptions};
+use sepia_acp::types::WireDebug;
 use std::path::{Path, PathBuf};
-use std::process::{Child, ChildStdin, ChildStdout, Command, Stdio};
+use std::sync::Mutex;
 
 pub struct AcpSummarizer {
     /// e.g. "cline --acp", "zed agent", "gemini --experimental-acp".
@@ -19,7 +24,7 @@ pub struct AcpSummarizer {
     pub root: PathBuf,
     /// Lazy (client, session_id) — one agent session reused across
     /// all modules; respawns on failure.
-    inner: std::sync::Mutex<Option<(AcpClient, String)>>,
+    inner: Mutex<Option<(Client, String)>>,
 }
 
 impl AcpSummarizer {
@@ -27,8 +32,48 @@ impl AcpSummarizer {
         Self {
             cmd: cmd.into(),
             root: root.into(),
-            inner: std::sync::Mutex::new(None),
+            inner: Mutex::new(None),
         }
+    }
+
+    /// `KUDA_ACP_DEBUG` → the canonical wire sink: unset/off stays
+    /// silent; `1`/`true` mirrors the ndjson transcript to stderr, any
+    /// other truthy value is a file path the transcript appends to.
+    /// Diagnosis tool for "what did the agent actually reply".
+    fn wire_debug() -> Option<WireDebug> {
+        let v = std::env::var("KUDA_ACP_DEBUG").ok()?;
+        let v = v.trim();
+        if v.is_empty() || v == "0" || v.eq_ignore_ascii_case("false") {
+            return None;
+        }
+        if v == "1" || v.eq_ignore_ascii_case("true") {
+            return Some(WireDebug::Stderr);
+        }
+        Some(WireDebug::File(PathBuf::from(v)))
+    }
+
+    /// Spawn + initialize + session/new — one agent session reused
+    /// across all `complete` calls.
+    fn connect(&self) -> Result<(Client, String), String> {
+        let client = Client::connect_shell(
+            &self.cmd,
+            &self.root,
+            &ClientOptions {
+                // The pre-sepia transport inherited the whole parent
+                // env — agents may need arbitrary auth/config vars.
+                inherit_env: true,
+                client_name: Some("kuda".into()),
+                wire_debug: Self::wire_debug(),
+                ..Default::default()
+            },
+        )?;
+        let sid = client.new_session()?;
+        let sid = if sid.is_empty() {
+            "kuda-default".to_owned()
+        } else {
+            sid
+        };
+        Ok((client, sid))
     }
 
     /// Send one prompt on the shared session; returns streamed text.
@@ -36,178 +81,11 @@ impl AcpSummarizer {
     pub fn complete(&self, prompt: &str) -> Result<String, String> {
         let mut guard = self.inner.lock().map_err(|e| e.to_string())?;
         if guard.is_none() {
-            let mut client = AcpClient::spawn(&self.cmd)?;
-            client.request(
-                "initialize",
-                json!({"protocolVersion":1,"clientCapabilities":{},"clientInfo":{"name":"kuda","version":"0.1.0"}}),
-            )?;
-            let (session, _) =
-                client.request("session/new", json!({"cwd": self.root, "mcpServers": []}))?;
-            let sid = session["sessionId"]
-                .as_str()
-                .unwrap_or("kuda-default")
-                .to_owned();
-            *guard = Some((client, sid));
+            *guard = Some(self.connect()?);
         }
         let (client, session_id) = guard.as_mut().ok_or("agent session lost")?;
-        let (_res, prose) = client.request(
-            "session/prompt",
-            json!({"sessionId": session_id.as_str(),
-                   "prompt":[{"type":"text","text":prompt}]}),
-        )?;
+        let (_res, prose) = client.prompt_text(session_id, prompt)?;
         Ok(prose)
-    }
-}
-
-/// Raw-wire debug sink — `KUDA_ACP_DEBUG` unset/off stays silent;
-/// a file path appends the full ndjson transcript there, any other
-/// truthy value ("1") mirrors it to stderr. Diagnosis tool for
-/// "what did the agent actually reply" — captures every line in
-/// both directions, pre-parse (non-JSON garbage included).
-enum DebugSink {
-    Stderr,
-    File(PathBuf),
-}
-
-fn debug_sink() -> Option<DebugSink> {
-    let v = std::env::var("KUDA_ACP_DEBUG").ok()?;
-    let v = v.trim();
-    if v.is_empty() || v == "0" || v.eq_ignore_ascii_case("false") {
-        return None;
-    }
-    if v == "1" || v.eq_ignore_ascii_case("true") {
-        return Some(DebugSink::Stderr);
-    }
-    Some(DebugSink::File(PathBuf::from(v)))
-}
-
-fn debug_log(sink: &Option<DebugSink>, dir: char, line: &str) {
-    match sink {
-        None => {}
-        Some(DebugSink::Stderr) => eprintln!("acp{dir} {line}"),
-        Some(DebugSink::File(p)) => {
-            if let Ok(mut f) = std::fs::OpenOptions::new()
-                .create(true)
-                .append(true)
-                .open(p)
-            {
-                let _ = writeln!(f, "{dir} {line}");
-            }
-        }
-    }
-}
-
-struct AcpClient {
-    _child: Child,
-    stdin: ChildStdin,
-    reader: BufReader<ChildStdout>,
-    id: u64,
-    debug: Option<DebugSink>,
-}
-
-impl AcpClient {
-    fn spawn(cmd: &str) -> Result<Self, String> {
-        let debug = debug_sink();
-        let mut child = Command::new("sh")
-            .args(["-c", cmd])
-            .stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            // debug mode keeps the agent's own stderr — auth
-            // failures and startup crashes land there, not on
-            // the wire
-            .stderr(if debug.is_some() {
-                Stdio::inherit()
-            } else {
-                Stdio::null()
-            })
-            .spawn()
-            .map_err(|e| format!("spawn {cmd}: {e}"))?;
-        let stdin = child.stdin.take().ok_or("no stdin")?;
-        let reader = BufReader::new(child.stdout.take().ok_or("no stdout")?);
-        Ok(Self {
-            _child: child,
-            stdin,
-            reader,
-            id: 0,
-            debug,
-        })
-    }
-
-    fn send(&mut self, msg: &Value) -> Result<(), String> {
-        debug_log(&self.debug, '>', &msg.to_string());
-        writeln!(self.stdin, "{}", msg)
-            .and_then(|_| self.stdin.flush())
-            .map_err(|e| e.to_string())
-    }
-
-    /// Read lines until a reply with our id, collecting streamed
-    /// `agent_message_chunk` text on the way.
-    fn request(&mut self, method: &str, params: Value) -> Result<(Value, String), String> {
-        self.id += 1;
-        let id = self.id;
-        self.send(&json!({"jsonrpc":"2.0","id":id,"method":method,"params":params}))?;
-        let mut chunks = String::new();
-        let mut line = String::new();
-        loop {
-            line.clear();
-            if self
-                .reader
-                .read_line(&mut line)
-                .map_err(|e| e.to_string())?
-                == 0
-            {
-                return Err("agent closed stdout".into());
-            }
-            debug_log(&self.debug, '<', line.trim_end());
-            let Ok(msg) = serde_json::from_str::<Value>(line.trim()) else {
-                continue;
-            };
-            // agent -> client request (e.g. session/request_permission):
-            // must answer or the prompt deadlocks. Grant the first
-            // option; unknown requests get method-not-found.
-            if let (Some(rid), Some(m)) = (
-                msg["id"]
-                    .as_u64()
-                    .or_else(|| msg["id"].as_i64().map(|i| i as u64)),
-                msg["method"].as_str(),
-            ) {
-                let resp = if m == "session/request_permission" {
-                    let opt = msg["params"]["options"]
-                        .as_array()
-                        .and_then(|o| o.first())
-                        .and_then(|o| o["optionId"].as_str())
-                        .unwrap_or("allow_once");
-                    json!({"jsonrpc":"2.0","id":rid,
-                           "result":{"outcome":{"outcome":"selected","optionId":opt}}})
-                } else {
-                    json!({"jsonrpc":"2.0","id":rid,
-                           "error":{"code":-32601,"message":"method not found"}})
-                };
-                let _ = self.send(&resp);
-                continue;
-            }
-            if msg["method"].as_str() == Some("session/update") {
-                let upd = &msg["params"]["update"];
-                // reasoning-first agents (devin acp) stream
-                // `agent_thought_chunk` alongside the reply —
-                // chain-of-thought must never reach the card text.
-                let kind = upd["sessionUpdate"]
-                    .as_str()
-                    .unwrap_or("agent_message_chunk");
-                if kind == "agent_message_chunk" {
-                    if let Some(t) = upd["content"]["text"].as_str() {
-                        chunks.push_str(t);
-                    }
-                }
-                continue;
-            }
-            if msg["id"].as_u64() == Some(id) {
-                if let Some(err) = msg.get("error") {
-                    return Err(format!("{method}: {err}"));
-                }
-                return Ok((msg["result"].clone(), chunks));
-            }
-        }
     }
 }
 
@@ -565,9 +443,7 @@ for line in sys.stdin:
         let dir = tmp("pv");
         unsafe {
             std::env::set_var("KUDA_STUB_MODE", "ok");
-        }
-        // Purpose: capital + Notes: capital
-        unsafe {
+            // Purpose: capital + Notes: capital
             std::env::set_var("KUDA_STUB_PROSE", "Purpose: capped\nNotes: tail");
         }
         let card = summarizer(&dir)
@@ -815,7 +691,7 @@ for line in sys.stdin:
             std::env::set_var("KUDA_STUB_MODE", "error");
         }
         assert!(summarizer(&dir).complete("hi").is_err());
-        // agent exits without answering -> "agent closed stdout"
+        // agent exits without answering -> transport error
         unsafe {
             std::env::set_var("KUDA_STUB_MODE", "close");
         }
