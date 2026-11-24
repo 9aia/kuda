@@ -1,0 +1,8 @@
+purpose: project/TODO.md is the 0.1.0 milestone task list (T-011, T-012) tracking remaining core-model/ports/pipeline work — chiefly the .hnl language data pack (blocked on a tree-sitter-handl grammar) and keeping modules/dagger as kuda's own CI module that dogfoods bupha.
+invariants:
+- T-011 .hnl — add a data/langs/hnl.toml descriptor (extensions, manifests if any, symbol/dep queries); blocked on a tree-sitter-handl grammar: check for an existing one, else write/publish it — grammar is the only real work, the descriptor is data; pays off immediately: handl-lang fixtures/packages stop being invisible to the index; status:blocked
+- T-012 modules/dagger — keep as kuda's own CI module (dogfoods bupha)
+notes:
+- The TODO sections listed (Core model, Ports + first adapters, Pipeline + queries, Init ergonomics, Semantic depth, Languages, Scaffold debt, Recovered) contain no other actionable items besides T-011 and T-012
+- T-011 follows the repo convention that a new language is a data-file addition, not an engine edit (per data/langs/ design in kuda-core)
+- T-012 mirrors BACKLOG.md T-023 (dogfood bupha for kuda's own CI: bupha.toml + modules/dagger)

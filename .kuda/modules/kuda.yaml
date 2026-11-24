@@ -1,21 +1,21 @@
 name: kuda
 path: Cargo.toml
-purpose: '*Code-map engine — verified per-module cards agents read before code.*'
+purpose: '### Notable discrepancy noted in the card The user''s "public symbols" list overstates visibility: only `parse`, `parse_from`, `command`, `dispatch`, `run`, `run_from`, `Cli`, `Cmd` are actually `pub`. The rest (`emit`, `out`, `outln`, `EXAMPLE_TOML`, `LANG_TOMLS`, `DOMAIN_TOMLS`, `root`, `load_config`, `langs`, `domains`, `resolve_domains`, `hash_files`, `input_hash`, `blob_hash`, `unix_now`, `init`, `ensure_gitignore`, `workspace_roots`, `sync`) are module-private. I flagged this in `notes` so it''s captured rather than silently misrepresented.'
 api:
 - name: API_CAP
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 1578
+  line: 1569
   module: kuda
 - name: BUDGET
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 1291
+  line: 1282
   module: kuda
 - name: CHUNK
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 1290
+  line: 1281
   module: kuda
 - name: Cli
   kind: type
@@ -40,17 +40,17 @@ api:
 - name: FILE_CARD_GENERATOR
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 1295
+  line: 1286
   module: kuda
 - name: FileCardJob
   kind: type
   file: crates/kuda-cli/src/lib.rs
-  line: 1257
+  line: 1248
   module: kuda
 - name: GENERATOR_VERSION
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 778
+  line: 769
   module: kuda
 - name: Kuda
   kind: type
@@ -65,47 +65,47 @@ api:
 - name: SKIP_BYTES
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 1292
+  line: 1283
   module: kuda
 - name: VERIFY_CAP
   kind: const
   file: crates/kuda-cli/src/lib.rs
-  line: 1579
+  line: 1570
   module: kuda
 - name: Wake
   kind: type
   file: crates/kuda-cli/src/lib.rs
-  line: 2422
+  line: 2413
   module: kuda
 - name: acp
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 2177
+  line: 2168
   module: kuda
 - name: acp_answer
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 2250
+  line: 2241
   module: kuda
 - name: acp_summarizer
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 492
+  line: 483
   module: kuda
 - name: blob_hash
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 284
+  line: 275
   module: kuda
 - name: card
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 1841
+  line: 1832
   module: kuda
 - name: cat_file
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 1845
+  line: 1836
   module: kuda
 - name: command
   kind: function
@@ -125,17 +125,17 @@ api:
 - name: crate_doc_purpose
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 1498
+  line: 1489
   module: kuda
 - name: dependents
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 1918
+  line: 1909
   module: kuda
 - name: detect_commands
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 1623
+  line: 1614
   module: kuda
 - name: dispatch
   kind: function
@@ -150,7 +150,7 @@ api:
 - name: doctor
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 2282
+  line: 2273
   module: kuda
 - name: doctor
   kind: function
@@ -160,7 +160,7 @@ api:
 - name: domain_module
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 504
+  line: 495
   module: kuda
 - name: domains
   kind: function
@@ -175,22 +175,22 @@ api:
 - name: ensure_gitignore
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 331
+  line: 322
   module: kuda
 - name: extractors
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 456
+  line: 447
   module: kuda
 - name: find
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 1858
+  line: 1849
   module: kuda
 - name: fname
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 1624
+  line: 1615
   module: kuda
 - name: hash_files
   kind: function
@@ -200,7 +200,7 @@ api:
 - name: init
   kind: function
   file: crates/kuda-cli/src/lib.rs
-  line: 302
+  line: 293
   module: kuda
 api_omitted: 43
 deps:
@@ -247,8 +247,6 @@ deps:
 - asyncio
 - typing
 - dagger
-warnings:
-- 'acp: unparseable reply for kuda (agent monologue/garbage) — template fallback'
 notes: |
   - Sync uses Git-compatible blob hashes and card/store provenance to limit parsing and agent summarization to drift; `sync --full` discards the freshness baseline.
   - Module identity comes from manifest package names, while domain corpus files are grouped by their descriptors; dependency names are normalized and self-edges removed.
@@ -282,13 +280,13 @@ provenance:
   - modules/dagger/dagger/src/kuda/main.py
   - modules/dagger/tests/test_self_patch.py
   hashes:
-  - b70fc29b2d5cb630b6b70a2f561504954d0f398d
+  - 4b119883270d30549b33850e6365fc45d50798fe
   - 332f7689d8cd5b43949062dcbbc0afb9b6ed0b75
   - 346e1241cc27e17b0a04f9cb61a119663f6ebe1d
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
   - 5b331a1baf30b49f5bf03dd9693297d498117deb
   - d71646b878b3eae72aa42a5791588701197fdb2d
   - 203086b883ed1477efd6f9befccd76e2614cc9ea
-  commit_sha: ee8b71c27a2449cf1abdb5a2dca906c5846271e9
-  generated_at: '1795466325'
-  generator: kuda-template/0.1.4
+  commit_sha: 4639c9d6b87a4092d339521c7fa8de8faa2a7223
+  generated_at: '1795529253'
+  generator: kuda-acp/0.1.4

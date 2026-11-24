@@ -1,0 +1,18 @@
+purpose: kuda is the code-map engine library (package `kuda`, crate `crates/kuda-cli`): a clap-based CLI (`Cli`/`Cmd`) whose `run()`/`run_from()` parse argv and `dispatch()` to subcommands (init, sync, status, map, card, find, dependents, refs, doctor, mcp, acp, watch), driving a hash→extract→summarize→store pipeline over embedded lang/domain TOML definitions with git-style blob hashing and per-module `.kuda/*.yaml` cards.
+invariants:
+- `emit`/`out`/`outln` write to locked stdout and exit 0 on BrokenPipe (well-behaved unix filter, no panic)
+- `blob_hash` produces git-identical "blob <len>\0"+bytes SHA1, matching `git hash-object`, with no per-file subprocess
+- `init` refuses to overwrite an existing kuda.toml (returns 1); `ensure_gitignore` is idempotent and a no-op outside a git repo
+- `sync` calls `ensure_gitignore` on every root before syncing
+- `run()` → `run_from(std::env::args_os())` → `dispatch(&parse_from(...))`; `dispatch` is the single op table shared by all drivers
+- `resolve_domains`: a same-named `[[domain]]` entry replaces the built-in (repo wins); the rest append
+- `index.sqlite` + `meta.json` are gitignored + rebuildable from committed `*.yaml` cards (never checked in)
+- Dagger `Source` ignores `target/`, `.git`, `coverage`, `node_modules`, `dagger/.venv`, `dagger/sdk`
+- The embedded `_SELF_PATCH_PY` is idempotent (re-runs are byte-identical) and strips stale patch rows
+notes:
+- Only `parse`, `parse_from`, `command`, `dispatch`, `run`, `run_from`, `Cli`, `Cmd` are `pub`; `emit`, `out`, `outln`, `EXAMPLE_TOML`, `LANG_TOMLS`, `DOMAIN_TOMLS`, `root`, `load_config`, `langs`, `domains`, `resolve_domains`, `hash_files`, `input_hash`, `blob_hash`, `unix_now`, `init`, `ensure_gitignore`, `workspace_roots`, `sync` are module-private (`fn`/`const`/macro without `pub`)
+- `load_config` falls back to `Config::default()` on any load error
+- `watch` is excluded under `cfg(coverage)` (signals discard coverage data)
+- ACP summarizer failures fall back to the infallible template, stamping provenance `template` and recording the warning on the card
+- Private git deps in Dagger require a `--token` mounted secret; the insteadOf rewrite runs inside each exec, never in an image layer
+- The workspace root `Cargo.toml` describes kuda as "Code-map engine — verified per-module cards agents read before code"

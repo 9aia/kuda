@@ -1,0 +1,19 @@
+purpose: kuda-acp is the ACP summarizer adapter (crates/kuda-acp): it spawns a client-capable agent binary (zed, cline, gemini-cli…) via sepia-acp's blocking Client, sends a card-writing prompt built from an Extraction, and parses the agent's reply into a ModuleCard — construction only fails when there's nothing to say; fallback to the template summarizer is the caller's responsibility.
+invariants:
+- `complete` lazily initializes one `(Client, session_id)` session behind a `Mutex` (`inner: Mutex<Option<(Client, String)>>`), reused across all modules; respawns on failure
+- `connect` uses `Client::connect_shell` with `inherit_env: true` and `client_name: Some("kuda")`; an empty session id defaults to `"kuda-default"`
+- `KUDA_ACP_DEBUG` drives `wire_debug`: unset/off silent; `1`/`true` mirrors the ndjson transcript to stderr; any other value appends it to that file path
+- `parse_card_body` anchors on the LAST `purpose:` line — reasoning-first monologue text before it never reaches the card; `invariants:`/`notes:` sections feed `notes`; only the reply's final structured block counts
+- `summarize` fails (so the caller falls back to template) on an empty agent reply, on an unparseable/monologue reply (`looks_like_monologue`), or when the parsed `purpose` merely echoes the module name; raw agent output must never reach a committed card's `purpose`
+- `looks_like_monologue` flags embedded field markers (`purpose:`/`invariants:`/`notes:`/`verify:`), first-person planning prefixes (`MONOLOGUE_PREFIXES`), and rambling >600 chars
+- `last_paragraph` takes the reply's closing paragraph (the conclusion) when no `purpose:` field exists — the first line is where reasoning preambles start
+- `ModuleCard` is populated with `api: ext.symbols`, `deps: ext.edges.iter().map(|e| e.to.clone())`, `verify: ext.files`, `notes` from parsing, `api_omitted: 0`, `warnings: Vec::new()`
+- Tests run an in-process ndjson ACP stub (`STUB` Python heredoc) driven by `KUDA_STUB_MODE` (ok/error/perm/garbage/close/noids) with `KUDA_STUB_PROSE` (+ `KUDA_STUB_THOUGHT`); `ENV_LOCK: Mutex<()>` serializes env mutation across test threads
+- Test helpers: `stub`, `tmp`, `summarizer`, `prov`, `ext`; tests: `summarize_full_card`, `summarize_parsing_variants`, `reasoning_preamble_never_reaches_purpose`, `thought_chunks_are_dropped`, `degenerate_reply_does_not_pollute_purpose`, `monologue_reply_fails_to_template_fallback`, `monologue_detection_cases`, `permission_and_unknown_requests_answered`, `garbage_lines_and_notifications_skipped`, `error_response_and_agent_close`
+notes:
+- Pub surface is `AcpSummarizer`, `new`, `complete`, plus `Summarizer::kind`/`::summarize`; `wire_debug`, `connect`, `prompt_for`, `parse_card_body`, `MONOLOGUE_PREFIXES`, `looks_like_monologue`, `last_paragraph`, and all test items (`STUB`, `stub`, `tmp`, `summarizer`, `ENV_LOCK`, `prov`, `ext`, the test fns) are private/`#[cfg(test)]`
+- The stub's `session/prompt` handler streams `agent_thought_chunk` (dropped by the wire layer — never reaches parsing) and `agent_message_chunk` prose, then `end_turn` with `stopReason`
+- `permission` mode answers `session/request_permission` and unknown `mystery/call` requests; `garbage` emits non-JSON plus a progress notification; `error` returns a JSON-RPC error; `close` exits without answering; `noids` returns an empty session/new result
+- A single agent session is shared across modules — a hard failure in `prompt_text` propagates as `complete`'s `Err` and the session is not automatically reset beyond respawn-on-None
+- No API keys or provider lock: auth lives in the user's agent; transport concerns (spawn, initialize, session/new, session/prompt, cancel, unattended permission auto-approval) are canonical in sepia-acp
+

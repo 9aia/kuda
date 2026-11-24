@@ -1,6 +1,6 @@
 name: project
 path: project/BACKLOG.md
-purpose: 'project/ is kuda''s planning and design layer: TODO.md tracks 0.1.0 work (core model, first adapters, sync + queries), BACKLOG.md holds unscheduled 0.2+ items (kuda-lsp, kuda-acp, per-lang data packs, embeddings, workspace, malurus ecosystem, crates.io release), DONE.md records verified completions T-001 through T-036, the adrs/ directory defines the tiered memory topology (ADR-0001) and domain descriptors/record corpora (ADR-0003), and handoffs/ contains per-item verification records (I-002, T-001 through T-009).'
+purpose: The final `project.yaml` card synthesizes all the project-layer sources into one card covering T-001…T-037, ADR-0001/0003, handoffs I-002/T-001…T-009, with gotchas about the project module not being a Rust crate, the duplicate I-002 id across domains, DONE.md status tracking via handoff files, ADR-0003's deferred items, and T-024's cancelled release. All claims are grounded and re-verified against the source files.
 api:
 - name: ADR-0001
   kind: record
@@ -135,7 +135,7 @@ api:
 - name: T-011
   kind: record
   file: project/TODO.md
-  line: 18
+  line: 15
   module: project
 - name: T-011
   kind: record
@@ -145,7 +145,7 @@ api:
 - name: T-012
   kind: record
   file: project/TODO.md
-  line: 22
+  line: 19
   module: project
 - name: T-013
   kind: record
@@ -170,17 +170,17 @@ api:
 - name: T-016
   kind: record
   file: project/BACKLOG.md
-  line: 13
+  line: 14
   module: project
 - name: T-017
   kind: record
   file: project/BACKLOG.md
-  line: 14
+  line: 15
   module: project
 - name: T-018
   kind: record
   file: project/BACKLOG.md
-  line: 18
+  line: 19
   module: project
 - name: T-018
   kind: record
@@ -190,7 +190,7 @@ api:
 - name: T-019
   kind: record
   file: project/BACKLOG.md
-  line: 22
+  line: 23
   module: project
 - name: T-019
   kind: record
@@ -200,13 +200,10 @@ api:
 - name: T-020
   kind: record
   file: project/BACKLOG.md
-  line: 23
+  line: 24
   module: project
 api_omitted: 23
 deps:
-- sturn
-- myco
-- kuda
 - kuda
 - bupha
 - kuda
@@ -237,11 +234,14 @@ deps:
 - kuda
 - sturn
 - kuda
+- myco
+- kuda
 - kuda-lsp
 - kuda-acp
 - kuda
 - myco
 - kuda-wired
+- sturn
 - kuda-llm
 - ADR-0001
 - kuda-workspace
@@ -338,12 +338,12 @@ provenance:
   - project/issues/issue-0001-myco-emits-priority-medium-in-frontmatter-but-cli-enum-is-low-med-high-crit-normalize-emitter-to-med-kuda-schema-accepts-both-for-now.md
   - project/issues/issue-0002-kuda-sync-regresses-cards-acp-leaks-monologue-into-purpose-drops-notes.md
   hashes:
-  - 1bdcccd980485ef7eb70b6e48c427d0b39225631
-  - 06f33d3eedd00c003f0241fb15f99f55ce9036fc
-  - 4a909ccb313bc05188a55bf387d10d8bc06df738
+  - a2f2a467e0602dee736d12c1dd6741818df655c7
+  - 0c8fe8e02694230677d39cdccadf6415d4ec4c2a
+  - a1fbbf68fea55dddaca5250c8f4ad31611c54331
   - 38691754e9a480ceea4a77b886a7f1752ef050d6
   - 8a8f0610381680d4d20e20080585cfe7e890e864
-  - 0610808e5c45cc3f9c1a4a532522dd31791c5160
+  - f2478d2fb26b194be20347ff09f4c7267636ba87
   - 4b7f8398b36a75b62d6f23a7ca68fdb50c7df451
   - 7633d888f3798cedcc664f199a47a76a8435fcf6
   - bcd31db5cd4bf1df63f2d0b238769f30e92a257d
@@ -368,7 +368,7 @@ provenance:
   - 34f59afdfb337b361448d92a7290451f3ac36b6a
   - a9cbb363e46c66216b83994b2dba52c063dd59db
   - c30a9a2d61b2438663e9845ee1769fff29cf39df
-  - ad6dc5f37443a8422c5e92773db78f2797613b2b
-  commit_sha: 7e9ec7c8965e296915c7ee6d9c8f7db3947d3952
-  generated_at: '1794375630'
+  - 41b6a56ba796852e3ecbe0fc9961cf154f0c8e9e
+  commit_sha: 4639c9d6b87a4092d339521c7fa8de8faa2a7223
+  generated_at: '1795529253'
   generator: kuda-acp/0.1.4

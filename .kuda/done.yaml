@@ -1,0 +1,19 @@
+purpose: project/DONE.md is the repo's completed-task ledger (T-001…T-037) recording finished work across kuda-core, extractors, stores, summarizers, query, cards, init/sync, drivers, domains, and CI/release — e.g. the kuda-core data model, manifest/tree-sitter/sqlite/vcs/template adapters, the kuda-query find/dependents/card/refs surface, `.kuda` card render with human-owned notes:, auto-.gitignore of rebuildable artifacts, domain descriptors with `[[domains]].disable`, non-file-tree corpus support via the sturn WAL/git-refs source, the engine→tamias driver refactor, watch/mcp/acp surface drivers, crate renames to `kuda-extract-<impl>`, watch domain roots + WAL-ref coverage, the sturn post-op re-index hook, and dead-session card recovery.
+invariants:
+- T-001 kuda-core defines RepoCard / ModuleCard / Symbol / DepEdge / Provenance{files,hash,sha}; Lang descriptors load from data/langs/*.toml — a new language is a data change
+- T-009 kuda init/sync append .kuda/index.sqlite + .kuda/meta.json to .gitignore automatically; cards are committed artifacts, the graph is rebuildable (found via dogfood: mimus+bupha committed the sqlite binary by hand)
+- T-008 kuda-cards renders .kuda/index.yaml + modules/*.yaml; machine owns api/deps fields, humans own notes: region; every card ends with verify: file list
+- T-032 repo-local [[domain]] descriptors + [domains].disable in kuda.toml — DomainsCfg in kuda-core, resolve_domains in cli, docs+tests (created 2026-11-10, owner:devin)
+- T-033 non-file-tree corpus support — sturn WAL/git-refs as first non-tree domain source (DomainDef.source enum, records extractor dispatch, data/domains/sturn.toml, docs) (created 2026-11-10, owner:devin)
+- T-030 kuda engine→tamias driver refactor (phases) (created 2026-11-10, owner:devin)
+- T-031 surface drivers for kuda watch/mcp/acp — tamias-driver-cli/mcp pattern doesn't exist yet (pavo-driver-kit is view-driver only); kuda-driver ops.rs notes the gap (created 2026-11-10, owner:devin)
+- T-034 rename extract-impl crates to kuda-extract-<impl> (manifest, treesitter, lsp) + regen cards — pri:high (created 2026-11-10, owner:devin)
+- T-035 kuda watch — domain roots + WAL-ref coverage: poll-refs flag, root(cli) fix, dir_excluded filter — pri:high (created 2026-11-10, owner:devin)
+- T-036 sturn post-op hook → kuda re-index (WAL proper fix; today: watch --poll-refs opt-in) (created 2026-11-10, owner:devin)
+- T-037 refresh stale installed bins (myco/kuda/driver-*) — cargo xtask install per repo (created 2026-11-10, owner:devin)
+- T-024 crates.io release via scripts/release.sh publishing the crate graph in dep order — status:cancelled (needs dry-run pass + tags)
+- T-025 verify claim .kuda/modules/Cargo.toml.yaml:3 ('Cargo.toml') — file missing, card likely stale; recovered from dead sessions 1792289007778_292qm, 1792289232239_Jpne2, 1792289295855_Xr_YW, 1792289355290_bAAOh, 1792289567602_H2XTF (created 2026-10-30)
+notes:
+- Item list order: T-030/032/033/031 (created 2026-11-10, owner devin), then T-001..T-009, then T-025/034/035/036/024/037
+- T-002 manifest adapter lands first (no parser needed); T-003 treesitter rust first; T-004 sqlite L2 graph; T-005 vcs/git repurposes bupha's vcs/git crates; T-006 deterministic template cards (zero-model default); T-007 find/dependents/card/refs (--docs)
+- T-036 notes today's watch --poll-refs is opt-in; the WAL proper fix is the post-op hook

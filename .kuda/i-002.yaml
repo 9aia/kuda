@@ -1,0 +1,9 @@
+purpose: project/handoffs/I-002.md is a handoff record for item I-002 (cli), documenting its lifecycle: claimed in session devin-i002 on 2026-11-10, guarded by devin the same day (monologue/empty replies warn+fallback cleanly in commit 0572a88; cline itself still monologues in env, now observable via KUDA_ACP_DEBUG), then interrupted and reaped by human Luis-Emidio on 2026-11-23 after 13 idle days.
+invariants:
+- Frontmatter id = "I-002"
+- 2026-11-10 · cli · session:devin-i002 — claimed
+- 2026-11-10 · devin — guarded: monologue/empty replies warn+fallback cleanly (commit 0572a88); cline itself still monologues in env, now observable via KUDA_ACP_DEBUG
+- 2026-11-23 · human:Luis-Emidio · session:devin-i002 — interrupted — reaped after 13 idle days
+notes:
+- The "guarded" entry maps to the kuda-acp summarizer behavior where summarize() fails on empty/monologue replies so the caller falls back to the template summarizer
+- KUDA_ACP_DEBUG visibility of cline's monologuing is a diagnostic aid (wire_debug: stderr when set to "1"/"true")

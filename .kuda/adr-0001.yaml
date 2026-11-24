@@ -1,0 +1,13 @@
+purpose: ADR-0001 (project/adrs/0001-adr-0001-tiered-memory-artifacts-ports-adapters-topology.md) is the proposed architecture decision record for kuda's tiered memory artifacts + ports/adapters topology — an index into code, not a copy, designed to fit small context budgets, stay provably fresh, span languages/ecosystems, and never contradict the source.
+invariants:
+- Status: open / priority: med (frontmatter id "ADR-0001", title "ADR-0001: Tiered memory artifacts + ports/adapters topology")
+- Option C (tiered index + query) is recommended: L0 repo card (always-load), L1 module cards (on-demand), L2 symbol/dep graph (queried); Option A rejected, Option B (embedding/RAG) deferred as a future `kuda-store` adapter
+- Every concern is a port + adapter crate (bupha topology): extract (`manifest`|`treesitter`|`lsp`), summarize (`template`|`llm`), store (`sqlite` first), vcs (`git`), serve (`cli`|`mcp`)
+- Per-language knowledge = data in `data/langs/*` (grammar refs, symbol queries, manifest kinds); a new language is a data change, not a release
+- `template` summarizer (zero-model, deterministic) is the default; LLM prose is an adapter behind the port
+- Committed artifacts: `.kuda/index.yaml`, `.kuda/modules/*.yaml`; gitignored: `.kuda/index.sqlite` (rebuildable)
+- Provenance per card `{files, content_hash, commit_sha}` → `kuda status` = sha diff vs HEAD; cards end with `verify:` file lists that agents must check against source
+- Consequences: staleness is a property of the data; incremental regen (content-hash → affected cards only) keeps `sync` cheap; Malurus (9aia/malurus, the critic) builds on the same index, reusing the query layer for claim extraction + verification
+notes:
+- Memory goals: (a) fit small context budgets, (b) stay provably fresh, (c) span languages and ecosystems, (d) never become a second source of truth that contradicts the code
+- Option B is explicitly deferred — viable later as a `kuda-store` adapter (consistent with BACKLOG.md T-017 Embedding/RAG adapter referencing ADR-0001 option B)

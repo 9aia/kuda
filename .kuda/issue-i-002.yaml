@@ -1,0 +1,12 @@
+purpose: project/issues/issue-0002-kuda-sync-regresses-cards-acp-leaks-monologue-into-purpose-drops-notes.md records issue I-002 — kuda sync with the acp summarizer regressed cards for 8 stale modules: agent reasoning leaked into the purpose field and notes: blocks were emptied — found during tamias-driver-kuda work (commit f0a4339), status open, priority high, created 2026-11-08.
+invariants:
+- Frontmatter: id = "I-002", status = "open", created = "2026-11-08", priority = "high"
+- Title: "kuda sync regresses cards: acp leaks monologue into purpose, drops notes"
+- Discovered during tamias-driver-kuda work (commit f0a4339)
+- 8 stale modules produced degraded cards via the acp summarizer
+- Agent reasoning leaked into the purpose field; notes: blocks were emptied
+- Sync should preserve human-owned notes: regions and treat acp parse failures as fallback-to-template, not garbage-in-card
+- Installed ~/.local/bin/kuda is stale (predates records kind — drops docs/project cards); consider a version self-check
+notes:
+- Distinct from handoffs/I-002.md (cli lifecycle record) — this issue I-002 is about acp monologue leakage in card sync
+- The kuda-acp summarizer already fails on empty/monologue replies so the caller falls back to template (see kuda-acp card), but this issue reports that protection was not effective in sync for these 8 modules
