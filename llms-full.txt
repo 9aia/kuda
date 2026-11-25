@@ -1200,16 +1200,13 @@ documented at source (doc comments).
 
 * [kuda-core](/kuda/api/kuda_core/index.html) — domain
 * [kuda-config](/kuda/api/kuda_config/index.html) — port
-* [kuda-secret](/kuda/api/kuda_secret/index.html) — port
 * [kuda-acp](/kuda/api/kuda_acp/index.html) — impl
 * [kuda-cards](/kuda/api/kuda_cards/index.html) — impl
-* [kuda-dotenv](/kuda/api/kuda_dotenv/index.html) — impl
 * [kuda-driver](/kuda/api/kuda_driver/index.html) — impl
 * [kuda-extract](/kuda/api/kuda_extract/index.html) — impl
 * [kuda-extract-lsp](/kuda/api/kuda_extract_lsp/index.html) — impl
 * [kuda-extract-manifest](/kuda/api/kuda_extract_manifest/index.html) — impl
 * [kuda-extract-treesitter](/kuda/api/kuda_extract_treesitter/index.html) — impl
-* [kuda-keyring](/kuda/api/kuda_keyring/index.html) — impl
 * [kuda-query](/kuda/api/kuda_query/index.html) — impl
 * [kuda-records](/kuda/api/kuda_records/index.html) — impl
 * [kuda-store](/kuda/api/kuda_store/index.html) — impl
@@ -1276,7 +1273,9 @@ per-node provenance.
   fed to the agent, and hash-gated per file.
 * **L2 graph** (`.kuda/index.sqlite`) — symbols, edges both
   directions, per-file hashes; gitignored, rebuildable, the query
-  substrate.
+  substrate. External checkers read it without mutating through
+  `kuda-store-sqlite`'s `SqliteStore::open_readonly` (P-053) —
+  `mimus`'s symbol checker is the first consumer.
 * **L3** — the source itself. Memory is an index *into* code,
   never a replacement.
 
