@@ -51,7 +51,9 @@ per-node provenance.
   fed to the agent, and hash-gated per file.
 - **L2 graph** (`.kuda/index.sqlite`) — symbols, edges both
   directions, per-file hashes; gitignored, rebuildable, the query
-  substrate.
+  substrate. External checkers read it without mutating through
+  `kuda-store-sqlite`'s `SqliteStore::open_readonly` (P-053) —
+  `mimus`'s symbol checker is the first consumer.
 - **L3** — the source itself. Memory is an index *into* code,
   never a replacement.
 
