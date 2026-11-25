@@ -71,7 +71,6 @@ in `libraries/kuda` (`bins[]` shim → `tamias-driver-kuda cli` →
 | `kuda-query` | agent-facing reads over `IndexStore` — `find`/`dependents`/`refs`/`map` |
 | `kuda-cards` | domain types ↔ committed `.kuda/*.yaml` card render |
 | `kuda-config` | `kuda.{yaml,yml,toml}` loading via `scarab-config-file` discovery |
-| `kuda-secret` + `-keyring`/`-dotenv` | secrets port + impls — no shipped consumer today (`llm` summarizer parked); `template`/`acp` need none |
 | `data/langs/` | per-language `LangDef` data — a new language is a data file, not an engine edit |
 | `data/domains/` | per-domain `DomainDef` record-corpus descriptors |
 | `libraries/kuda` | the tamias pack — `bins[]` shim + driver payload |
