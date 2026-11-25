@@ -46,16 +46,16 @@ kuda-summarize = { path = "crates/kuda-summarize", version = "0.3.0" }
 kuda-template = { path = "crates/kuda-template", version = "0.3.0" }
 kuda-query = { path = "crates/kuda-query", version = "0.3.0" }
 kuda-cards = { path = "crates/kuda-cards", version = "0.3.0" }
-lasius-vcs = { git = "ssh://git@github.com/9aia/lasius.git", rev = "351857536395951d5f6f8502cdaf86a737520b02" }
-lasius-vcs-git = { git = "ssh://git@github.com/9aia/lasius.git", rev = "351857536395951d5f6f8502cdaf86a737520b02" }
+lasius-vcs = { git = "ssh://git@github.com/9aia/lasius.git", rev = "89e51894b9cd118141fe66d1c8c1d114c60d4ea5" }
+lasius-vcs-git = { git = "ssh://git@github.com/9aia/lasius.git", rev = "89e51894b9cd118141fe66d1c8c1d114c60d4ea5" }
 kuda-config = { path = "crates/kuda-config", version = "0.3.0" }
 kuda-driver = { path = "crates/kuda-driver", version = "0.3.0" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_yaml = "0.9"
 toml = "0.8"
-scarab-config-file = { git = "ssh://git@github.com/9aia/scarab.git", rev = "9364df88fad0ca46bd838467717a823893f47438", version = "0.1" }
-sepia-acp = { git = "ssh://git@github.com/9aia/sepia.git", rev = "c6f66e48050a76e24f4149438d6c20ab21bbbd91", version = "0.2.0" }
+scarab-config-file = { git = "ssh://git@github.com/9aia/scarab.git", rev = "4e32a347dd775efdccc675d0e1f4a10e7a26153f", version = "0.2.0" }
+sepia-acp = { git = "ssh://git@github.com/9aia/sepia.git", rev = "9e006d22e6fa442197082a2277ca40a01b43e7e3", version = "1.0.0" }
 regex = "1"
 clap = { version = "4", features = ["derive"] }
 rusqlite = { version = "0.40", features = ["bundled"] }
