@@ -57,6 +57,25 @@ pub enum SymbolKind {
     Other,
 }
 
+impl SymbolKind {
+    /// Stable lowercase spelling — the `symbols.kind` column value
+    /// and the serde representation. Readers displaying a kind
+    /// should use this, never a re-spelling.
+    #[must_use]
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Function => "function",
+            Self::Type => "type",
+            Self::Trait => "trait",
+            Self::Const => "const",
+            Self::Module => "module",
+            Self::Macro => "macro",
+            Self::Record => "record",
+            Self::Other => "other",
+        }
+    }
+}
+
 /// A directed edge in the dep graph — module- or package-level.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DepEdge {
@@ -74,6 +93,21 @@ pub enum EdgeKind {
     WorkspaceMember,
     /// Record-to-record mention in a domain corpus (`kuda-records`).
     References,
+}
+
+impl EdgeKind {
+    /// Stable kebab-case spelling — the `edges.kind` column value
+    /// and the serde representation.
+    #[must_use]
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Imports => "imports",
+            Self::Calls => "calls",
+            Self::PackageDep => "package-dep",
+            Self::WorkspaceMember => "workspace-member",
+            Self::References => "references",
+        }
+    }
 }
 
 /// L1 card — one per module/crate/package. Machine owns `api`/`deps`/

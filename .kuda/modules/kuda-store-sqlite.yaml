@@ -1,61 +1,66 @@
 name: kuda-store-sqlite
 path: crates/kuda-store-sqlite/Cargo.toml
-purpose: 'kuda-store-sqlite is the SQLite adapter of `IndexStore` — a single-file, zero-server, rebuildable store at `.kuda/index.sqlite` (gitignored). `SqliteStore` wraps `Mutex<Connection>` and implements the full port: module-keyed `replace_module`, exact/like `find`/`search`, `dependents`, `edge_count`, `modules`, provenance `set_meta`/`meta`, and per-file hash bookkeeping via `file_hashes`/`record_files`; it also exposes `all_edges`/`all_symbols` for graph rendering.'
+purpose: 'Store adapter: sqlite L2 symbol/dep graph'
 api:
 - name: SCHEMA
   kind: const
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 16
+  line: 37
   module: kuda-store-sqlite
 - name: SqliteStore
   kind: type
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 12
+  line: 33
   module: kuda-store-sqlite
 - name: all_edges
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 113
+  line: 146
   module: kuda-store-sqlite
 - name: all_kinds_roundtrip
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 351
+  line: 386
   module: kuda-store-sqlite
 - name: all_symbols
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 133
+  line: 166
   module: kuda-store-sqlite
 - name: dependents
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 271
+  line: 304
   module: kuda-store-sqlite
 - name: edge_count
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 289
+  line: 322
   module: kuda-store-sqlite
 - name: ek_from
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 76
+  line: 82
   module: kuda-store-sqlite
 - name: ek_str
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 66
+  line: 78
   module: kuda-store-sqlite
 - name: file_hashes
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 189
+  line: 222
   module: kuda-store-sqlite
 - name: find
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 226
+  line: 259
+  module: kuda-store-sqlite
+- name: has_table
+  kind: function
+  file: crates/kuda-store-sqlite/src/lib.rs
+  line: 126
   module: kuda-store-sqlite
 - name: kuda-store-sqlite
   kind: module
@@ -65,12 +70,12 @@ api:
 - name: lock
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 104
+  line: 137
   module: kuda-store-sqlite
 - name: meta
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 315
+  line: 350
   module: kuda-store-sqlite
 - name: meta_and_file_hashes
   kind: function
@@ -80,27 +85,42 @@ api:
 - name: modules
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 295
+  line: 330
   module: kuda-store-sqlite
 - name: open
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 88
+  line: 94
   module: kuda-store-sqlite
 - name: open_error_paths
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 410
+  line: 445
+  module: kuda-store-sqlite
+- name: open_readonly
+  kind: function
+  file: crates/kuda-store-sqlite/src/lib.rs
+  line: 115
+  module: kuda-store-sqlite
+- name: open_readonly_never_creates
+  kind: function
+  file: crates/kuda-store-sqlite/src/lib.rs
+  line: 516
+  module: kuda-store-sqlite
+- name: open_readonly_reads_without_writing
+  kind: function
+  file: crates/kuda-store-sqlite/src/lib.rs
+  line: 491
   module: kuda-store-sqlite
 - name: query_error_paths
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 427
+  line: 462
   module: kuda-store-sqlite
 - name: record_files
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 211
+  line: 244
   module: kuda-store-sqlite
 - name: replace_find_search
   kind: function
@@ -110,7 +130,7 @@ api:
 - name: replace_module
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 155
+  line: 188
   module: kuda-store-sqlite
 - name: replace_module_replaces
   kind: function
@@ -125,32 +145,32 @@ api:
 - name: search
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 246
+  line: 279
   module: kuda-store-sqlite
 - name: search_escapes_like_metachars
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 456
+  line: 531
   module: kuda-store-sqlite
 - name: set_meta
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 305
+  line: 340
   module: kuda-store-sqlite
 - name: sk_from
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 53
+  line: 65
   module: kuda-store-sqlite
 - name: sk_str
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 40
+  line: 61
   module: kuda-store-sqlite
 - name: sym
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 340
+  line: 375
   module: kuda-store-sqlite
 - name: sym
   kind: function
@@ -160,12 +180,12 @@ api:
 - name: tests
   kind: module
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 329
+  line: 364
   module: kuda-store-sqlite
 - name: tmp
   kind: function
   file: crates/kuda-store-sqlite/src/lib.rs
-  line: 333
+  line: 368
   module: kuda-store-sqlite
 deps:
 - kuda-core
@@ -174,6 +194,8 @@ deps:
 - kuda-core
 - kuda-store
 - rusqlite
+warnings:
+- 'acp: agent closed stdout — template fallback'
 notes: |
   - `replace_module` and `record_files` are transactional delete-then-insert scoped to one module — re-syncing a module fully replaces its symbols/edges/file-hashes rather than appending (verified by `replace_module_replaces` and the re-record case in `meta_and_file_hashes`).
   - `SymbolKind`/`EdgeKind` persist as strings with fallback arms: unknown symbol kind → `Other`, unknown edge kind → `PackageDep` (exercised by inserting bogus kind strings in `all_kinds_roundtrip`).
@@ -195,9 +217,9 @@ provenance:
   - crates/kuda-store-sqlite/src/lib.rs
   - crates/kuda-store-sqlite/tests/store.rs
   hashes:
-  - 2d30a3d362d500ce8e4310218db2ea0f8da6ae99
-  - ba51534e7e4977b5ccea658e6873b7f3f8cb87a0
+  - 632033a77e62d173344ae926b6eeadb71e0cdf5d
+  - 6ccd9532fb2713169e0b2dafd3f4f5b2000f0bd4
   - b9d9ac97a524605e83aac53b1bf4d38fde0c5a69
-  commit_sha: 7e9ec7c8965e296915c7ee6d9c8f7db3947d3952
-  generated_at: '1794375630'
-  generator: kuda-acp/0.1.4
+  commit_sha: 306af408c656791d83fab7ebc6ae65fc07c3289a
+  generated_at: '1795569499'
+  generator: kuda-template/0.1.4

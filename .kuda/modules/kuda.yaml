@@ -1,6 +1,6 @@
 name: kuda
 path: Cargo.toml
-purpose: '### Notable discrepancy noted in the card The user''s "public symbols" list overstates visibility: only `parse`, `parse_from`, `command`, `dispatch`, `run`, `run_from`, `Cli`, `Cmd` are actually `pub`. The rest (`emit`, `out`, `outln`, `EXAMPLE_TOML`, `LANG_TOMLS`, `DOMAIN_TOMLS`, `root`, `load_config`, `langs`, `domains`, `resolve_domains`, `hash_files`, `input_hash`, `blob_hash`, `unix_now`, `init`, `ensure_gitignore`, `workspace_roots`, `sync`) are module-private. I flagged this in `notes` so it''s captured rather than silently misrepresented.'
+purpose: '*Code-map engine — verified per-module cards agents read before code.*'
 api:
 - name: API_CAP
   kind: const
@@ -247,6 +247,8 @@ deps:
 - asyncio
 - typing
 - dagger
+warnings:
+- 'acp: agent closed stdout — template fallback'
 notes: |
   - Sync uses Git-compatible blob hashes and card/store provenance to limit parsing and agent summarization to drift; `sync --full` discards the freshness baseline.
   - Module identity comes from manifest package names, while domain corpus files are grouped by their descriptors; dependency names are normalized and self-edges removed.
@@ -280,13 +282,13 @@ provenance:
   - modules/dagger/dagger/src/kuda/main.py
   - modules/dagger/tests/test_self_patch.py
   hashes:
-  - 4b119883270d30549b33850e6365fc45d50798fe
+  - 2ba7924f2a173e6a11f4fa3132675b31beb7ef28
   - 332f7689d8cd5b43949062dcbbc0afb9b6ed0b75
   - 346e1241cc27e17b0a04f9cb61a119663f6ebe1d
   - 87cbcdb29f54a13913d95abe9c31b4d9262cd71d
   - 5b331a1baf30b49f5bf03dd9693297d498117deb
   - d71646b878b3eae72aa42a5791588701197fdb2d
   - 203086b883ed1477efd6f9befccd76e2614cc9ea
-  commit_sha: 4639c9d6b87a4092d339521c7fa8de8faa2a7223
-  generated_at: '1795529253'
-  generator: kuda-acp/0.1.4
+  commit_sha: 306af408c656791d83fab7ebc6ae65fc07c3289a
+  generated_at: '1795569499'
+  generator: kuda-template/0.1.4

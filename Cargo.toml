@@ -58,7 +58,7 @@ scarab-config-file = { git = "ssh://git@github.com/9aia/scarab.git", rev = "9364
 sepia-acp = { git = "ssh://git@github.com/9aia/sepia.git", rev = "c6f66e48050a76e24f4149438d6c20ab21bbbd91", version = "0.2.0" }
 regex = "1"
 clap = { version = "4", features = ["derive"] }
-rusqlite = { version = "0.32", features = ["bundled"] }
+rusqlite = { version = "0.40", features = ["bundled"] }
 tree-sitter = "0.25"
 tree-sitter-rust = "0.24"
 tree-sitter-typescript = "0.23"

@@ -1,9 +1,30 @@
 //! Sqlite adapter of `IndexStore` — single file, zero server,
 //! rebuildable. Lives at `.kuda/index.sqlite` (gitignored).
+//!
+//! # File format (blessed contract)
+//!
+//! `.kuda/index.sqlite` is a plain sqlite3 database — the on-disk
+//! contract external readers may rely on. [`SqliteStore::open`]
+//! creates/upgrades it; [`SqliteStore::open_readonly`] is the
+//! auditor-safe open (no mkdir, no DDL, no file creation) that
+//! read-only consumers (e.g. mimus checkers) must use.
+//!
+//! ```sql
+//! symbols(name TEXT, kind TEXT, file TEXT, line INTEGER, module TEXT)
+//! edges(from_mod TEXT, to_mod TEXT, kind TEXT)
+//! files(path TEXT PRIMARY KEY, hash TEXT, module TEXT)
+//! meta(k TEXT PRIMARY KEY, v TEXT)   -- e.g. generated_at (unix secs)
+//! ```
+//!
+//! `kind` spellings are [`SymbolKind::as_str`] /
+//! [`EdgeKind::as_str`] (kuda-core); unknown strings decode to
+//! `Other`/`PackageDep` fallbacks. Indexes are rebuildable —
+//! `kuda sync` regenerates them — so readers must tolerate a
+//! missing file and absent tables ([`SqliteStore::has_table`]).
 
 use kuda_core::{DepEdge, EdgeKind, Symbol, SymbolKind};
 use kuda_store::IndexStore;
-use rusqlite::{params, Connection};
+use rusqlite::{params, Connection, OpenFlags};
 use std::path::Path;
 use std::sync::Mutex;
 
@@ -38,16 +59,7 @@ CREATE TABLE IF NOT EXISTS files(
 ";
 
 fn sk_str(k: SymbolKind) -> &'static str {
-    match k {
-        SymbolKind::Function => "function",
-        SymbolKind::Type => "type",
-        SymbolKind::Trait => "trait",
-        SymbolKind::Const => "const",
-        SymbolKind::Module => "module",
-        SymbolKind::Macro => "macro",
-        SymbolKind::Record => "record",
-        SymbolKind::Other => "other",
-    }
+    k.as_str()
 }
 
 fn sk_from(s: &str) -> SymbolKind {
@@ -64,13 +76,7 @@ fn sk_from(s: &str) -> SymbolKind {
 }
 
 fn ek_str(k: EdgeKind) -> &'static str {
-    match k {
-        EdgeKind::Imports => "imports",
-        EdgeKind::Calls => "calls",
-        EdgeKind::PackageDep => "package-dep",
-        EdgeKind::WorkspaceMember => "workspace-member",
-        EdgeKind::References => "references",
-    }
+    k.as_str()
 }
 
 fn ek_from(s: &str) -> EdgeKind {
@@ -99,6 +105,33 @@ impl SqliteStore {
         Ok(Self {
             conn: Mutex::new(conn),
         })
+    }
+
+    /// Open an existing store **read-only** — the auditor-safe
+    /// variant: no parent-dir creation, no schema DDL, no file
+    /// creation. Fails when `path` doesn't exist or isn't a sqlite
+    /// database. Writes through the `IndexStore` port fail at the
+    /// sqlite layer.
+    pub fn open_readonly(path: &Path) -> Result<Self, String> {
+        let conn = Connection::open_with_flags(path, OpenFlags::SQLITE_OPEN_READ_ONLY)
+            .map_err(|e| e.to_string())?;
+        Ok(Self {
+            conn: Mutex::new(conn),
+        })
+    }
+
+    /// Does the store carry `table`? Read-side tolerance for
+    /// consumers auditing possibly-foreign indexes — an absent
+    /// table degrades to an empty result instead of an error.
+    pub fn has_table(&self, table: &str) -> Result<bool, String> {
+        self.lock()?
+            .query_row(
+                "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = ?1",
+                params![table],
+                |r| r.get::<_, i64>(0),
+            )
+            .map(|n| n > 0)
+            .map_err(|e| e.to_string())
     }
 
     fn lock(&self) -> Result<std::sync::MutexGuard<'_, Connection>, String> {
@@ -287,9 +320,11 @@ impl IndexStore for SqliteStore {
     }
 
     fn edge_count(&self) -> Result<usize, String> {
-        self.lock()?
+        let n: i64 = self
+            .lock()?
             .query_row("SELECT COUNT(*) FROM edges", [], |r| r.get(0))
-            .map_err(|e| e.to_string())
+            .map_err(|e| e.to_string())?;
+        usize::try_from(n).map_err(|e| e.to_string())
     }
 
     fn modules(&self) -> Result<Vec<String>, String> {
@@ -449,6 +484,46 @@ mod tests {
         assert!(s.set_meta("k", "v").is_err());
         assert!(s.replace_module("m", &[], &[]).is_err());
         assert!(s.record_files("m", &[]).is_err());
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn open_readonly_reads_without_writing() {
+        let root = tmp("ro");
+        let db = root.join("i.db");
+        {
+            let mut s = SqliteStore::open(&db).unwrap();
+            s.replace_module("m", &[sym("a", SymbolKind::Function, "m")], &[])
+                .unwrap();
+            s.record_files("m", &[("f".into(), "h".into())]).unwrap();
+            s.set_meta("generated_at", "1700000000").unwrap();
+        }
+        let mut s = SqliteStore::open_readonly(&db).unwrap();
+        assert_eq!(s.find("a").unwrap()[0].name, "a");
+        assert_eq!(s.all_symbols().unwrap().len(), 1);
+        assert_eq!(
+            s.meta("generated_at").unwrap().as_deref(),
+            Some("1700000000")
+        );
+        assert!(s.has_table("symbols").unwrap());
+        assert!(!s.has_table("nope").unwrap());
+        // writes through the port fail on a read-only connection
+        assert!(s.set_meta("k", "v").is_err());
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn open_readonly_never_creates() {
+        let root = tmp("ro2");
+        let missing = root.join("nope").join("i.db");
+        // no mkdir of missing parents, no file creation
+        assert!(SqliteStore::open_readonly(&missing).is_err());
+        assert!(!missing.exists());
+        // a non-sqlite file opens lazily but reads error
+        let bad = root.join("bad.db");
+        std::fs::write(&bad, b"not sqlite").unwrap();
+        let s = SqliteStore::open_readonly(&bad).unwrap();
+        assert!(s.has_table("symbols").is_err());
         let _ = std::fs::remove_dir_all(&root);
     }
 
